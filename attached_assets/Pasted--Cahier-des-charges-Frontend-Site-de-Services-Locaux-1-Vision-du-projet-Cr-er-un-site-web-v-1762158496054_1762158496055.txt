@@ -1,0 +1,154 @@
+🎯 Cahier des charges Frontend – Site de Services Locaux
+🧭 1. Vision du projet
+
+Créer un site web vitrine et interactif permettant aux utilisateurs de :
+
+découvrir les services proposés (ménage, entretien, aide, etc.),
+
+trouver une agence / un prestataire par ville,
+
+et envoyer une demande de devis facilement.
+
+Le design et l’expérience utilisateur doivent évoquer professionnalisme, confiance et simplicité, à la manière d’Azaé.com
+, mais avec une touche plus moderne et fluide.
+
+🎨 2. Identité visuelle et ton
+Élément	Direction artistique
+Palette	Blanc dominant, bleu clair (#2A63F5), nuances de gris doux
+Typographie	Sans-serif moderne (Poppins, Inter ou Nunito)
+Style visuel	Minimaliste, propre, chaleureux
+Iconographie	Icônes Lucide (style épuré et linéaire)
+Ambiance générale	Sérieuse mais accueillante – “service de proximité pro”
+Ton de communication	Confiant, bienveillant, rassurant
+⚙️ 3. Stack technique (frontend uniquement)
+
+Framework : React + Vite
+
+CSS : Tailwind CSS
+
+Composants UI : Shadcn/UI
+
+Icônes : Lucide React
+
+Animations : Framer Motion
+
+Routing : React Router DOM
+
+Gestion des données : JSON mocké localement
+
+Responsive design : Mobile first
+
+🧱 4. Architecture du projet
+src/
+├─ components/
+│   ├─ Navbar.tsx
+│   ├─ Footer.tsx
+│   ├─ HeroSection.tsx
+│   ├─ ServiceCard.tsx
+│   ├─ AgencyCard.tsx
+│   ├─ SearchBar.tsx
+│   ├─ DevisForm.tsx
+│   └─ Layout.tsx
+│
+├─ pages/
+│   ├─ Home.tsx
+│   ├─ Services.tsx
+│   ├─ Agencies.tsx
+│   ├─ AgencyDetail.tsx
+│   ├─ Contact.tsx
+│   └─ NotFound.tsx
+│
+├─ data/
+│   ├─ services.json
+│   └─ agencies.json
+│
+├─ App.tsx
+├─ main.tsx
+└─ index.css
+
+🧩 5. Fonctionnalités Frontend
+Fonctionnalité	Description	Objectif UX
+Accueil (Home)	Présentation du service, CTA vers la recherche d’agences, aperçu des services	Donner une vue d’ensemble et un premier “wow”
+Liste des services	Affiche les services depuis services.json avec icônes, description et bouton “Découvrir”	Comprendre rapidement l’offre
+Liste des agences	Grille filtrable (par ville, service) avec recherche dynamique	Trouver une agence locale facilement
+Fiche agence	Détails complets : nom, description, horaires, ville, photo, services	Créer un lien de confiance avec le prestataire
+Formulaire de devis	Pop-up ou section avec champs : nom, email, service, message	Simuler la prise de contact
+Contact	Page de contact simple, formulaire de message	Offrir un autre canal de contact
+Navigation fluide	Menu fixe, transitions douces, retour haut de page	Expérience fluide et agréable
+Responsive complet	Optimisation mobile, tablette, desktop	Accessibilité totale
+Animations légères	Apparition douce des cartes, hover dynamique	Moderniser le rendu visuel
+💾 6. Données simulées
+services.json
+[
+{
+"id": 1,
+"nom": "Ménage à domicile",
+"description": "Service complet de ménage et d'entretien régulier ou ponctuel.",
+"icone": "Broom"
+},
+{
+"id": 2,
+"nom": "Garde d’enfants",
+"description": "Des professionnels de confiance pour la garde d’enfants à domicile.",
+"icone": "Baby"
+},
+{
+"id": 3,
+"nom": "Jardinage",
+"description": "Entretien, taille, tonte et aménagement de vos espaces verts.",
+"icone": "Leaf"
+}
+]
+
+agencies.json
+[
+{
+"id": 1,
+"nom": "Service Pro Abidjan",
+"ville": "Abidjan",
+"services": ["Ménage", "Repassage", "Garde d’enfants"],
+"description": "Agence de services à domicile de confiance basée à Abidjan.",
+"image": "/img/abidjan.jpg"
+},
+{
+"id": 2,
+"nom": "Maison Plus Bouaké",
+"ville": "Bouaké",
+"services": ["Ménage", "Jardinage"],
+"description": "Prestataire local spécialisé dans l’entretien des maisons.",
+"image": "/img/bouake.jpg"
+}
+]
+
+📱 7. Design UX & micro-interactions
+Interaction	Comportement attendu
+Hover sur carte	Légère élévation + ombre accentuée
+Chargement de page	Animation fade-in
+Clic bouton CTA	Scroll doux vers section concernée
+Soumission de formulaire	Toast de confirmation “Votre demande a bien été envoyée”
+Navigation	Transitions douces entre pages avec Framer Motion
+🚀 8. Exigences de performance et qualité
+
+Temps de chargement < 2s sur mobile
+
+Responsive à 100%
+
+Code clair, structuré et commenté
+
+Utilisation de composants réutilisables
+
+Pas de dépendances inutiles
+
+Validation W3C du HTML / accessibilité correcte
+
+🔮 9. Évolutions prévues (pour plus tard)
+
+Connexion avec backend pour gérer les vraies données
+
+Authentification (client / prestataire)
+
+Paiement en ligne
+
+Système d’avis et de notes
+
+Carte interactive (Google Maps API ou Mapbox)

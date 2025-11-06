@@ -6,11 +6,20 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { insertQuoteRequestSchema, type InsertQuoteRequest } from "@shared/schema";
+import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+
+const insertQuoteRequestSchema = z.object({
+  nom: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
+  email: z.string().email("Email invalide"),
+  service: z.string().min(1, "Veuillez sélectionner un service"),
+  message: z.string().min(10, "Le message doit contenir au moins 10 caractères"),
+});
+
+type InsertQuoteRequest = z.infer<typeof insertQuoteRequestSchema>;
 
 interface QuoteFormProps {
   open: boolean;
@@ -27,7 +36,12 @@ export function QuoteForm({ open, onOpenChange }: QuoteFormProps) {
     setValue,
     watch,
     formState: { errors },
-  } = useForm<InsertQuoteRequest>({
+  } = useForm<{
+    nom: string;
+    email: string;
+    service: string;
+    message: string;
+  }>({
     resolver: zodResolver(insertQuoteRequestSchema),
     defaultValues: {
       nom: "",

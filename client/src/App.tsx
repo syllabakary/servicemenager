@@ -7,6 +7,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import Home from "@/pages/Home";
 import Services from "@/pages/Services";
+import ServiceDetail from "@/pages/ServiceDetail";
 import Agencies from "@/pages/Agencies";
 import AgencyDetail from "@/pages/AgencyDetail";
 import Contact from "@/pages/Contact";
@@ -17,6 +18,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/services" component={Services} />
+      <Route path="/services/:id" component={ServiceDetail} />
       <Route path="/agences" component={Agencies} />
       <Route path="/agences/:id" component={AgencyDetail} />
       <Route path="/contact" component={Contact} />

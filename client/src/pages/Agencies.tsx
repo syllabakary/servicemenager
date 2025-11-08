@@ -3,7 +3,7 @@ import { SearchBar } from "@/components/SearchBar";
 import { AgencyCard } from "@/components/AgencyCard";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { Building2, MapPin, Sparkles } from "lucide-react";
+import { Building2, Sparkles } from "lucide-react";
 import type { Agency } from "@shared/schema";
 
 const mockAgencies: Agency[] = [
@@ -54,20 +54,16 @@ export default function Agencies() {
   const [selectedCity, setSelectedCity] = useState("all");
   const [selectedService, setSelectedService] = useState("all");
 
-  // Utilisation des données fictives (on simule la query ici)
   const { data: agencies = mockAgencies, isLoading } = useQuery<Agency[]>({
     queryKey: ["/api/agencies"],
     queryFn: async () => mockAgencies,
   });
 
-  const cities = useMemo(() => {
-    return Array.from(new Set(agencies.map((a) => a.ville))).sort();
-  }, [agencies]);
-
+  const cities = useMemo(() => Array.from(new Set(agencies.map((a) => a.ville))).sort(), [agencies]);
   const allServices = useMemo(() => {
-    const services = new Set<string>();
-    agencies.forEach((agency) => agency.services.forEach((s) => services.add(s)));
-    return Array.from(services).sort();
+    const s = new Set<string>();
+    agencies.forEach((a) => a.services.forEach((x) => s.add(x)));
+    return Array.from(s).sort();
   }, [agencies]);
 
   const filteredAgencies = useMemo(() => {
@@ -76,40 +72,48 @@ export default function Agencies() {
         searchTerm === "" ||
         agency.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
         agency.description.toLowerCase().includes(searchTerm.toLowerCase());
-
       const matchesCity = selectedCity === "all" || agency.ville === selectedCity;
-      const matchesService =
-        selectedService === "all" || agency.services.includes(selectedService);
-
+      const matchesService = selectedService === "all" || agency.services.includes(selectedService);
       return matchesSearch && matchesCity && matchesService;
     });
   }, [agencies, searchTerm, selectedCity, selectedService]);
 
   return (
-    <div className="min-h-screen pt-16 bg-gradient-to-b from-background via-primary/5 to-background">
-      {/* HEADER */}
-      <section className="py-20 text-center relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-background via-primary/5 to-background">
+      {/* 🔥 HEADER VISUEL */}
+      <section className="relative h-[60vh] flex items-center justify-center text-center overflow-hidden">
+        {/* Image de fond */}
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: "url('https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1600&q=80')",
+          }}
+        />
+        {/* Overlay dégradé */}
+        <div className="absolute inset-0 bg-black-to-b from-black/80 via-black/60 to-background/90" />
+
+        {/* Contenu animé */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="max-w-3xl mx-auto px-4"
+          transition={{ duration: 1 }}
+          className="relative z-10 max-w-3xl px-4 text-white"
         >
           <div className="flex justify-center mb-4">
             <Sparkles className="w-10 h-10 text-primary animate-pulse" />
           </div>
-          <h1 className="text-5xl font-extrabold text-foreground mb-4">
+          <h1 className="text-5xl font-extrabold mb-4 leading-tight">
             Nos Agences Partenaires
           </h1>
-          <p className="text-lg text-muted-foreground">
-            Découvrez les meilleures agences à travers la Côte d’Ivoire.  
-            Proximité, qualité et confiance au cœur de nos services.
+          <p className="text-lg text-gray-200">
+            Explorez les agences de confiance à travers toute la Côte d’Ivoire.  
+            Proximité, qualité et savoir-faire local au rendez-vous.
           </p>
         </motion.div>
       </section>
 
       {/* BARRE DE RECHERCHE */}
-      <div className="max-w-6xl mx-auto px-4 md:px-6 mb-8">
+      <div className="max-w-6xl mx-auto px-4 md:px-6 -mt-10 relative z-20">
         <SearchBar
           searchTerm={searchTerm}
           selectedCity={selectedCity}
@@ -122,39 +126,32 @@ export default function Agencies() {
         />
       </div>
 
-      {/* LISTE D’AGENCES */}
-      <section className="py-12 md:py-16">
+      {/* LISTE DES AGENCES */}
+      <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
+              {[1, 2, 3].map((i) => (
                 <div key={i} className="h-96 bg-muted rounded-xl animate-pulse" />
               ))}
             </div>
           ) : filteredAgencies.length > 0 ? (
             <>
               <p className="mb-6 text-muted-foreground text-sm">
-                <span className="font-semibold text-foreground">
-                  {filteredAgencies.length}
-                </span>{" "}
+                <span className="font-semibold text-foreground">{filteredAgencies.length}</span>{" "}
                 {filteredAgencies.length === 1 ? "agence trouvée" : "agences trouvées"}
               </p>
-
               <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={{
                   hidden: { opacity: 0, y: 10 },
-                  visible: {
-                    opacity: 1,
-                    y: 0,
-                    transition: { staggerChildren: 0.1 },
-                  },
+                  visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.1 } },
                 }}
                 className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
               >
-                {filteredAgencies.map((agency, index) => (
-                  <AgencyCard key={agency.id} agency={agency} delay={index * 0.1} />
+                {filteredAgencies.map((agency, i) => (
+                  <AgencyCard key={agency.id} agency={agency} delay={i * 0.1} />
                 ))}
               </motion.div>
             </>
@@ -167,11 +164,9 @@ export default function Agencies() {
               <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
                 <Building2 className="w-8 h-8 text-muted-foreground" />
               </div>
-              <h3 className="text-xl font-semibold mb-2">
-                Aucune agence trouvée
-              </h3>
+              <h3 className="text-xl font-semibold mb-2">Aucune agence trouvée</h3>
               <p className="text-muted-foreground mb-4">
-                Essaie de modifier tes critères de recherche ou explore d'autres villes.
+                Essaie d’ajuster tes critères ou explore une autre ville.
               </p>
               <button
                 onClick={() => {
@@ -189,7 +184,7 @@ export default function Agencies() {
       </section>
 
       {/* FOOTER VISUEL */}
-      <div className="relative h-24 mt-8 bg-gradient-to-t from-primary/10 to-transparent" />
+      <div className="relative h-24 bg-gradient-to-t from-primary/10 to-transparent" />
     </div>
   );
 }

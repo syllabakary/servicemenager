@@ -24,7 +24,7 @@ export function HeroSection() {
         className="absolute inset-0 bg-cover bg-center"
         style={{ backgroundImage: `url(${heroImage})` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-primary/60" />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/10 to-black/60" />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-20 md:py-32 w-full">
@@ -86,7 +86,7 @@ export function HeroSection() {
         </motion.div>
       </div>
 
-     <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+     <div className="absolute bottom-0 left-0 right-0 h-32 bg-black-to-t from-black/60 via-black/20 to-transparent" />
 
 
     </div>

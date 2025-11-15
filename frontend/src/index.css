@@ -16,15 +16,15 @@
 
   --background: 0 0% 100%;
 
-  --foreground: 220 13% 13%;
+  --foreground: 25 50% 20%; /* #2F1B14 - brun très foncé */
 
-  --border: 220 13% 91%;
+  --border: 45 25% 88%; /* #E6D7C3 - beige très clair */
 
-  --card: 0 0% 98%;
+  --card: 45 25% 96%; /* #F5F5DC - beige clair */
 
-  --card-foreground: 220 13% 13%;
+  --card-foreground: 25 50% 20%; /* #2F1B14 - brun très foncé */
 
-  --card-border: 220 13% 94%;
+  --card-border: 45 25% 88%; /* #E6D7C3 - beige très clair */
 
   --sidebar: 220 13% 96%;
 
@@ -48,23 +48,23 @@
 
   --popover-border: 220 13% 90%;
 
-  --primary: 221 83% 56%;
+  --primary: 25 74% 50%; /* #D2691E - chocolat chaud */
 
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 220 13% 90%;
+  --secondary: 34 56% 70%; /* #DEB887 - burlywood */
 
-  --secondary-foreground: 220 13% 13%;
+  --secondary-foreground: 25 50% 20%; /* #2F1B14 - brun très foncé */
 
-  --muted: 220 9% 92%;
+  --muted: 45 25% 88%; /* #E6D7C3 - beige très clair */
 
-  --muted-foreground: 220 9% 46%;
+  --muted-foreground: 34 25% 55%; /* #8B7355 - brun moyen */
 
-  --accent: 220 10% 90%;
+  --accent: 30 59% 55%; /* #CD853F - peru */
 
-  --accent-foreground: 220 13% 13%;
+  --accent-foreground: 0 0% 100%;
 
-  --destructive: 0 84% 60%;
+  --destructive: 0 52% 41%; /* #B22222 - rouge brique */
 
   --destructive-foreground: 0 0% 100%;
 

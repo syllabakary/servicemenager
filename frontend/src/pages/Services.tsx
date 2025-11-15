@@ -453,27 +453,28 @@ export default function Services() {
                   whileHover={{ y: -4 }}
                   transition={{ type: "spring", stiffness: 150, damping: 12 }}
                 >
-                  <Card className="h-full group relative overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50">
+                  <Card className="h-full group relative overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50 flex flex-col">
                     <CardHeader className="pb-4">
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="w-14 h-14 rounded-lg bg-[#A0522D]/10 flex items-center justify-center group-hover:bg-[#A0522D]/15 transition-colors">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-3 sm:gap-0">
+                        <div className="w-14 h-14 rounded-lg bg-[#A0522D]/10 flex items-center justify-center group-hover:bg-[#A0522D]/15 transition-colors flex-shrink-0">
                           <IconComponent className="w-7 h-7 text-[#A0522D]" />
                         </div>
-                        <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-full">
+                        <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-full self-start sm:self-center">
                           <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                           <span className="text-xs font-semibold text-gray-900">{service.note}</span>
                           <span className="text-xs text-gray-500">({service.nombreAvis})</span>
                         </div>
                       </div>
-                      <CardTitle className="text-xl font-bold text-gray-900 mb-2">
+
+                      <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 mb-2">
                         {service.nom}
                       </CardTitle>
-                      <CardDescription className="text-base text-gray-600 leading-relaxed">
+                      <CardDescription className="text-sm sm:text-base text-gray-600 leading-relaxed">
                         {service.description}
                       </CardDescription>
                     </CardHeader>
-                    
-                    <CardContent className="space-y-4">
+
+                    <CardContent className="flex flex-col flex-1 justify-between space-y-4">
                       {/* Avantages */}
                       <div className="space-y-2">
                         {service.avantages.slice(0, 3).map((avantage, i) => (
@@ -485,12 +486,12 @@ export default function Services() {
                       </div>
 
                       {/* Informations pratiques */}
-                      <div className="flex items-center gap-4 pt-4 border-t border-gray-200">
-                        <div className="flex items-center gap-1 text-sm text-gray-600">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-4 border-t border-gray-200 text-sm text-gray-600">
+                        <div className="flex items-center gap-1">
                           <Clock className="w-4 h-4 text-[#A0522D]" />
                           <span>{service.duree}</span>
                         </div>
-                        <div className="flex items-center gap-1 text-sm font-semibold text-[#A0522D]">
+                        <div className="flex items-center gap-1 font-semibold text-[#A0522D]">
                           <Info className="w-4 h-4" />
                           <span>{service.prix}</span>
                         </div>
@@ -499,7 +500,7 @@ export default function Services() {
                       {/* Bouton */}
                       <Button
                         variant="ghost"
-                        className="w-full gap-2 text-[#A0522D] hover:text-[#8B4513] hover:bg-[#A0522D]/5 font-semibold mt-4"
+                        className="w-full mt-4 gap-2 text-[#A0522D] hover:text-[#8B4513] hover:bg-[#A0522D]/5 font-semibold"
                         onClick={() => setLocation(`/services/${service.id}`)}
                       >
                         Voir les détails
@@ -507,6 +508,7 @@ export default function Services() {
                       </Button>
                     </CardContent>
                   </Card>
+
                 </motion.div>
               );
             })}

@@ -150,12 +150,12 @@ export function Navbar() {
           
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group" data-testid="link-home">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gradient-to-br from-[#A0522D] to-[#8B4513] flex items-center justify-center transition-transform group-hover:scale-105 shadow-md">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gradient-to-br from-[#8B4513] to-[#8B4513] flex items-center justify-center transition-transform group-hover:scale-105 shadow-md">
               <Home className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
             <div className="flex flex-col">
               <span className="text-lg md:text-xl font-bold text-gray-900 tracking-tight">
-                Services <span className="text-[#A0522D]">Locaux</span>
+                Services <span className="text-[#8B4513]">Locaux</span>
             </span>
               <span className="text-xs text-gray-500 hidden md:block">Votre partenaire de confiance</span>
             </div>
@@ -172,8 +172,8 @@ export function Navbar() {
                         variant={isActive(item.path) ? "default" : "ghost"}
                         className={`gap-2 transition-all duration-300 ${
                           isActive(item.path)
-                            ? "bg-[#A0522D] text-white shadow-md hover:bg-[#8B4513]"
-                            : "hover:bg-[#A0522D]/10 hover:text-[#A0522D] text-gray-700"
+                            ? "bg-[#8B4513] text-white shadow-md hover:bg-[#8B4513]"
+                            : "hover:bg-[#8B4513]/10 hover:text-[#8B4513] text-gray-700"
                         }`}
                         data-testid={`link-${item.label.toLowerCase()}`}
                       >
@@ -185,14 +185,14 @@ export function Navbar() {
                     <DropdownMenuContent align="start" className="w-56 bg-white border border-gray-200 shadow-lg">
                       {item.subItems.map((subItem, idx) => (
                         <DropdownMenuSub key={idx}>
-                          <DropdownMenuSubTrigger className="gap-2 hover:bg-[#A0522D]/10">
-                            <subItem.icon className="w-4 h-4 text-[#A0522D]" />
+                          <DropdownMenuSubTrigger className="gap-2 hover:bg-[#8B4513]/10">
+                            <subItem.icon className="w-4 h-4 text-[#8B4513]" />
                             <span>{subItem.label}</span>
                           </DropdownMenuSubTrigger>
                           <DropdownMenuSubContent className="bg-white border border-gray-200 shadow-lg">
                             {subItem.subSubItems?.map((subSubItem, subIdx) => (
                               <DropdownMenuItem key={subIdx} asChild>
-                                <Link href={subSubItem.path} className="cursor-pointer hover:bg-[#A0522D]/10">
+                                <Link href={subSubItem.path} className="cursor-pointer hover:bg-[#8B4513]/10">
                                   {subSubItem.label}
                                 </Link>
                               </DropdownMenuItem>
@@ -202,7 +202,7 @@ export function Navbar() {
                       ))}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link href={item.path} className="cursor-pointer hover:bg-[#A0522D]/10 font-semibold text-[#A0522D]">
+                        <Link href={item.path} className="cursor-pointer hover:bg-[#8B4513]/10 font-semibold text-[#8B4513]">
                           Voir tous les {item.label.toLowerCase()}
                         </Link>
                       </DropdownMenuItem>
@@ -216,8 +216,8 @@ export function Navbar() {
                   variant={isActive(item.path) ? "default" : "ghost"}
                   className={`gap-2 transition-all duration-300 ${
                     isActive(item.path)
-                        ? "bg-[#A0522D] text-white shadow-md hover:bg-[#8B4513]"
-                        : "hover:bg-[#A0522D]/10 hover:text-[#A0522D] text-gray-700"
+                        ? "bg-[#8B4513] text-white shadow-md hover:bg-[#8B4513]"
+                        : "hover:bg-[#8B4513]/10 hover:text-[#8B4513] text-gray-700"
                   }`}
                   data-testid={`link-${item.label.toLowerCase()}`}
                 >
@@ -233,7 +233,7 @@ export function Navbar() {
           <div className="hidden md:block">
                         <Link href="/devis">
               <Button
-                            className="bg-[#A0522D] hover:bg-[#8B4513] text-white shadow-md hover:shadow-lg transition-all duration-300"
+                            className="bg-[#8B4513] hover:bg-[#8B4513] text-white shadow-md hover:shadow-lg transition-all duration-300"
                 data-testid="button-quote-cta"
               >
                 Demander un devis
@@ -243,7 +243,7 @@ export function Navbar() {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden p-2 text-gray-700 hover:text-[#A0522D] transition-colors"
+            className="md:hidden p-2 text-gray-700 hover:text-[#8B4513] transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -275,7 +275,7 @@ export function Navbar() {
                       <div className="pl-6 space-y-1">
                         {item.subItems.map((subItem, idx) => (
                           <div key={idx} className="space-y-1">
-                            <div className="flex items-center gap-2 px-2 py-1 text-sm font-medium text-[#A0522D]">
+                            <div className="flex items-center gap-2 px-2 py-1 text-sm font-medium text-[#8B4513]">
                               <subItem.icon className="w-3 h-3" />
                               {subItem.label}
                             </div>
@@ -288,7 +288,7 @@ export function Navbar() {
                                 >
                                   <Button
                                     variant="ghost"
-                                    className="w-full justify-start text-xs text-gray-600 hover:bg-[#A0522D]/10 hover:text-[#A0522D]"
+                                    className="w-full justify-start text-xs text-gray-600 hover:bg-[#8B4513]/10 hover:text-[#8B4513]"
                                   >
                                     {subSubItem.label}
                                   </Button>
@@ -300,7 +300,7 @@ export function Navbar() {
                         <Link href={item.path} onClick={() => setMobileMenuOpen(false)}>
                           <Button
                             variant="ghost"
-                            className="w-full justify-start text-sm font-semibold text-[#A0522D] hover:bg-[#A0522D]/10"
+                            className="w-full justify-start text-sm font-semibold text-[#8B4513] hover:bg-[#8B4513]/10"
                           >
                             Voir tous les {item.label.toLowerCase()}
                           </Button>
@@ -315,8 +315,8 @@ export function Navbar() {
                     variant={isActive(item.path) ? "default" : "ghost"}
                       className={`w-full justify-start gap-2 ${
                         isActive(item.path)
-                          ? "bg-[#A0522D] text-white"
-                          : "hover:bg-[#A0522D]/10 hover:text-[#A0522D] text-gray-700"
+                          ? "bg-[#8B4513] text-white"
+                          : "hover:bg-[#8B4513]/10 hover:text-[#8B4513] text-gray-700"
                       }`}
                     onClick={() => setMobileMenuOpen(false)}
                     data-testid={`link-mobile-${item.label.toLowerCase()}`}
@@ -328,7 +328,7 @@ export function Navbar() {
                 );
               })}
                           <Link href="/devis" onClick={() => setMobileMenuOpen(false)}>
-                            <Button className="w-full bg-[#A0522D] hover:bg-[#8B4513] text-white shadow-md">
+                            <Button className="w-full bg-[#8B4513] hover:bg-[#8B4513] text-white shadow-md">
                   Demander un devis
                 </Button>
                           </Link>

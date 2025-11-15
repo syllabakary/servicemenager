@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import { motion } from "framer-motion";
 
-// Type local pour éviter les dépendances
 interface Agency {
   id: number;
   nom: string;
@@ -30,7 +29,6 @@ interface Agency {
   horaires?: string;
 }
 
-// Données mockées pour les agences
 const mockAgencies: Agency[] = [
   {
     id: 1,
@@ -65,28 +63,6 @@ const mockAgencies: Agency[] = [
     email: "info@greentouch.ci",
     horaires: "Lun - Sam: 7h - 17h",
   },
-  {
-    id: 4,
-    nom: "Clean & Fresh",
-    description: "Une équipe moderne et rapide pour redonner éclat et fraîcheur à vos espaces. Service express disponible pour vos urgences. Nous utilisons des techniques de pointe et des produits respectueux de l'environnement pour garantir un nettoyage efficace et durable.",
-    ville: "San Pedro",
-    services: ["Nettoyage", "Blanchisserie", "Service express", "Nettoyage vitres"],
-    image: "./Childcare_service_photo_e9f137e4.png",
-    telephone: "+225 09 87 65 43 21",
-    email: "contact@cleanfresh.ci",
-    horaires: "Lun - Dim: 24h/24",
-  },
-  {
-    id: 5,
-    nom: "BabyCare Pro",
-    description: "Service premium de garde d'enfants à domicile, flexible et sécurisé. Notre agence propose des services de garde haut de gamme avec des professionnels rigoureusement sélectionnés. Chaque intervenant est formé aux premiers secours et à la pédagogie positive.",
-    ville: "Abidjan",
-    services: ["Garde d'enfants", "Soins de nourrissons", "Éveil ludique", "Garde de nuit"],
-    image: "./Abidjan_agency_storefront_41598fcd.png",
-    telephone: "+225 07 11 22 33 44",
-    email: "info@babycarepro.ci",
-    horaires: "Lun - Dim: 24h/24",
-  },
 ];
 
 export default function AgencyDetail() {
@@ -110,19 +86,15 @@ export default function AgencyDetail() {
 
   if (!agency) {
     return (
-      <div className="min-h-screen pt-16 flex items-center justify-center text-center px-6 bg-gradient-to-b from-gray-50 to-white">
-        <div>
-          <h1 className="text-3xl font-bold mb-4 text-gray-900">😕 Agence introuvable</h1>
-          <p className="text-gray-600 mb-6">
-            L'agence que vous recherchez semble ne plus être disponible.
-          </p>
-          <Link href="/agences">
-            <Button variant="outline" className="gap-2 border-[#A0522D] text-[#A0522D] hover:bg-[#A0522D] hover:text-white">
-              <ArrowLeft className="w-4 h-4" />
-              Retour à la liste
-            </Button>
-          </Link>
-        </div>
+      <div className="min-h-screen flex flex-col items-center justify-center text-center px-6 bg-gradient-to-b from-gray-50 to-white">
+        <h1 className="text-3xl font-bold mb-4 text-gray-900">😕 Agence introuvable</h1>
+        <p className="text-gray-600 mb-6">L'agence que vous recherchez semble ne plus être disponible.</p>
+        <Link href="/agences">
+          <Button variant="outline" className="gap-2 border-[#A0522D] text-[#A0522D] hover:bg-[#A0522D] hover:text-white">
+            <ArrowLeft className="w-4 h-4" />
+            Retour à la liste
+          </Button>
+        </Link>
       </div>
     );
   }
@@ -139,34 +111,22 @@ export default function AgencyDetail() {
           alt={agency.nom}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#8B4513]/90 via-[#A0522D]/70 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-black/20 to-transparent" />
         <div className="absolute bottom-10 left-8 md:left-16 text-white drop-shadow-2xl">
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="mb-4"
-          >
-            <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm mb-4">
+          <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} className="mb-2">
+            <Badge className="bg-white/20 text-white border-white/30 backdrop-blur-sm">
               <Building2 className="w-3 h-3 mr-1" />
               Agence certifiée
             </Badge>
           </motion.div>
-          <motion.h1
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 leading-tight"
-          >
+          <motion.h1 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.3 }} className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-2 drop-shadow-lg">
             {agency.nom}
           </motion.h1>
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="flex items-center gap-2 text-base md:text-lg font-medium"
-          >
-            <MapPin className="w-5 h-5 text-[#FFD700]" />
+          <motion.h2 initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.4 }} className="text-lg md:text-xl font-medium opacity-80">
+            Votre partenaire pour un service de qualité
+          </motion.h2>
+          <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }} className="flex items-center gap-2 text-base md:text-lg font-medium mt-2">
+            <MapPin className="w-5 h-5 text-yellow-400" />
             <span>{agency.ville}, Côte d'Ivoire</span>
           </motion.div>
         </div>
@@ -174,6 +134,9 @@ export default function AgencyDetail() {
 
       {/* MAIN CONTENT */}
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 -mt-20 relative z-10 pb-16">
+        {/* Breadcrumb */}
+        <p className="text-sm text-gray-500 mb-2">Agences &gt; {agency.nom}</p>
+
         <Link href="/agences">
           <Button variant="ghost" size="sm" className="gap-2 mb-6 text-gray-700 hover:text-[#A0522D] hover:bg-[#A0522D]/10">
             <ArrowLeft className="w-4 h-4" />
@@ -184,12 +147,9 @@ export default function AgencyDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* INFOS */}
           <div className="lg:col-span-2 space-y-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-            >
-              <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50">
+            {/* À propos */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
+              <Card className="border-0 shadow-lg hover:shadow-2xl transition-all duration-300 bg-white">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-2xl md:text-3xl font-bold flex items-center gap-3 text-gray-900">
                     <div className="w-12 h-12 rounded-lg bg-[#A0522D]/10 flex items-center justify-center">
@@ -199,20 +159,14 @@ export default function AgencyDetail() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-700 leading-relaxed text-base md:text-lg">
-                    {agency.description}
-                  </p>
+                  <p className="text-gray-700 leading-relaxed text-base md:text-lg">{agency.description}</p>
                 </CardContent>
               </Card>
             </motion.div>
 
-            {/* SERVICES */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-            >
-              <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50">
+            {/* Services */}
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}>
+              <Card className="border-0 shadow-lg hover:shadow-2xl transition-all duration-300 bg-white">
                 <CardHeader className="pb-4">
                   <CardTitle className="text-xl md:text-2xl font-bold flex items-center gap-3 text-gray-900">
                     <div className="w-12 h-12 rounded-lg bg-[#A0522D]/10 flex items-center justify-center">
@@ -226,8 +180,8 @@ export default function AgencyDetail() {
                     {agency.services.map((service, index) => (
                       <motion.div
                         key={index}
-                        whileHover={{ scale: 1.02, y: -2 }}
-                        className="flex items-center gap-3 p-4 rounded-lg bg-gradient-to-r from-[#A0522D]/5 to-orange-50/50 hover:from-[#A0522D]/10 hover:to-orange-50/70 transition-all duration-300 border border-[#A0522D]/10 hover:border-[#A0522D]/30"
+                        whileHover={{ scale: 1.03, y: -2 }}
+                        className="flex items-center gap-3 p-4 rounded-xl bg-white border border-gray-200 hover:shadow-md transition-all duration-300"
                       >
                         <CheckCircle2 className="w-5 h-5 text-[#A0522D] flex-shrink-0" />
                         <span className="text-sm md:text-base font-semibold text-gray-800">{service}</span>
@@ -240,13 +194,8 @@ export default function AgencyDetail() {
           </div>
 
           {/* CONTACT */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="lg:sticky lg:top-24 space-y-4"
-          >
-            <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50/50">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="lg:sticky lg:top-24 space-y-4">
+            <Card className="border-0 shadow-2xl bg-white">
               <CardHeader className="pb-4">
                 <CardTitle className="text-xl md:text-2xl font-bold flex items-center gap-3 text-gray-900">
                   <div className="w-12 h-12 rounded-lg bg-[#A0522D]/10 flex items-center justify-center">
@@ -256,84 +205,36 @@ export default function AgencyDetail() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Adresse */}
-                <div className="flex items-start gap-4 p-4 rounded-lg bg-gradient-to-r from-[#A0522D]/5 to-orange-50/50 border border-[#A0522D]/10">
-                  <div className="w-10 h-10 rounded-lg bg-[#A0522D]/10 flex items-center justify-center flex-shrink-0">
-                    <MapPin className="w-5 h-5 text-[#A0522D]" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm text-gray-500 mb-1 uppercase tracking-wide">
-                      Adresse
-                    </p>
-                    <p className="text-base font-medium text-gray-900">{agency.ville}, Côte d'Ivoire</p>
-                  </div>
-                </div>
-
-                {/* Téléphone */}
-                {agency.telephone && (
-                  <div className="flex items-start gap-4 p-4 rounded-lg bg-gradient-to-r from-[#A0522D]/5 to-orange-50/50 border border-[#A0522D]/10">
+                {[
+                  { Icon: MapPin, label: "Adresse", value: `${agency.ville}, Côte d'Ivoire` },
+                  { Icon: Phone, label: "Téléphone", value: agency.telephone, href: `tel:${agency.telephone}` },
+                  { Icon: Mail, label: "Email", value: agency.email, href: `mailto:${agency.email}` },
+                  { Icon: Clock, label: "Horaires", value: agency.horaires },
+                ].filter(item => item.value).map((item, idx) => (
+                  <div key={idx} className="flex items-start gap-4 p-4 rounded-xl bg-white border border-gray-200 shadow-sm">
                     <div className="w-10 h-10 rounded-lg bg-[#A0522D]/10 flex items-center justify-center flex-shrink-0">
-                      <Phone className="w-5 h-5 text-[#A0522D]" />
+                      <item.Icon className="w-5 h-5 text-[#A0522D]" />
                     </div>
                     <div>
-                      <p className="font-semibold text-sm text-gray-500 mb-1 uppercase tracking-wide">
-                        Téléphone
-                      </p>
-                      <a
-                        href={`tel:${agency.telephone}`}
-                        className="text-base font-medium text-[#A0522D] hover:text-[#8B4513] transition-colors"
-                      >
-                        {agency.telephone}
-                      </a>
+                      <p className="font-semibold text-sm text-gray-500 mb-1 uppercase tracking-wide">{item.label}</p>
+                      {item.href ? (
+                        <a href={item.href} className="text-base font-medium text-[#A0522D] hover:text-[#8B4513] transition-colors break-all">
+                          {item.value}
+                        </a>
+                      ) : (
+                        <p className="text-base font-medium text-gray-900">{item.value}</p>
+                      )}
                     </div>
                   </div>
-                )}
+                ))}
 
-                {/* Email */}
-                {agency.email && (
-                  <div className="flex items-start gap-4 p-4 rounded-lg bg-gradient-to-r from-[#A0522D]/5 to-orange-50/50 border border-[#A0522D]/10">
-                    <div className="w-10 h-10 rounded-lg bg-[#A0522D]/10 flex items-center justify-center flex-shrink-0">
-                      <Mail className="w-5 h-5 text-[#A0522D]" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-sm text-gray-500 mb-1 uppercase tracking-wide">
-                        Email
-                      </p>
-                      <a
-                        href={`mailto:${agency.email}`}
-                        className="text-base font-medium text-[#A0522D] hover:text-[#8B4513] transition-colors break-all"
-                      >
-                        {agency.email}
-                      </a>
-                    </div>
-                  </div>
-                )}
-
-                {/* Horaires */}
-                {agency.horaires && (
-                  <div className="flex items-start gap-4 p-4 rounded-lg bg-gradient-to-r from-[#A0522D]/5 to-orange-50/50 border border-[#A0522D]/10">
-                    <div className="w-10 h-10 rounded-lg bg-[#A0522D]/10 flex items-center justify-center flex-shrink-0">
-                      <Clock className="w-5 h-5 text-[#A0522D]" />
-                    </div>
-                    <div>
-                      <p className="font-semibold text-sm text-gray-500 mb-1 uppercase tracking-wide">
-                        Horaires
-                      </p>
-                      <p className="text-base font-medium text-gray-900">{agency.horaires}</p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Bouton */}
+                {/* Bouton devis */}
                 <div className="pt-4 border-t border-gray-200">
                   <Link href="/devis" className="w-full">
-                  <Button
-                      className="w-full bg-[#A0522D] hover:bg-[#8B4513] text-white shadow-lg hover:shadow-xl transition-all duration-300 font-semibold"
-                    size="lg"
-                  >
+                    <Button className="w-full bg-[#A0522D] hover:bg-[#8B4513] text-white shadow-lg hover:shadow-xl transition-all duration-300 font-semibold" size="lg">
                       <Award className="w-5 h-5 mr-2" />
-                    Demander un devis
-                  </Button>
+                      Demander un devis
+                    </Button>
                   </Link>
                 </div>
               </CardContent>
@@ -341,7 +242,6 @@ export default function AgencyDetail() {
           </motion.div>
         </div>
       </div>
-
     </div>
   );
 }

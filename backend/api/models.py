@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Avg
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.text import slugify
@@ -135,6 +136,24 @@ class Service(models.Model):
         verbose_name="Label du prix",
         help_text="Ex: 'À partir de 25€/heure'"
     )
+    currency = models.CharField(
+        max_length=10,
+        choices=[
+            ('EUR', 'Euro (€)'),
+            ('USD', 'Dollar ($)'),
+            ('FCFA', 'Franc CFA (FCFA)'),
+        ],
+        default='EUR',
+        verbose_name="Devise",
+        help_text="Devise pour l'affichage des prix"
+    )
+    contact_phone = models.CharField(
+        max_length=20,
+        blank=True,
+        null=True,
+        verbose_name="Numéro de contact",
+        help_text="Numéro de téléphone spécifique pour ce service (optionnel)"
+    )
     # Note et avis
     rating = models.DecimalField(
         max_digits=3,
@@ -148,6 +167,16 @@ class Service(models.Model):
         default=0,
         verbose_name="Nombre d'avis",
         help_text="Nombre total d'avis clients"
+    )
+    show_reviews = models.BooleanField(
+        default=True,
+        verbose_name="Afficher les avis",
+        help_text="Si désactivé, la section avis ne sera pas affichée sur la page de détail"
+    )
+    show_faq = models.BooleanField(
+        default=True,
+        verbose_name="Afficher les FAQ",
+        help_text="Si désactivé, la section FAQ ne sera pas affichée sur la page de détail"
     )
     # Prestations incluses (JSON)
     included_services = models.JSONField(
@@ -385,3 +414,232 @@ class PageContent(models.Model):
     
     def __str__(self):
         return f"{self.key} - {self.title or 'Sans titre'}"
+
+
+class QuoteRequest(models.Model):
+    """Modèle pour les demandes de devis/réservation"""
+    STATUS_CHOICES = [
+        ('PENDING', 'En attente'),
+        ('CONTACTED', 'Contacté'),
+        ('QUOTED', 'Devis envoyé'),
+        ('ACCEPTED', 'Accepté'),
+        ('REJECTED', 'Refusé'),
+        ('COMPLETED', 'Terminé'),
+    ]
+    
+    service = models.ForeignKey(
+        Service,
+        on_delete=models.CASCADE,
+        related_name='quote_requests',
+        verbose_name="Service"
+    )
+    # Informations de localisation
+    location = models.CharField(
+        max_length=500,
+        verbose_name="Localisation",
+        help_text="Adresse complète du client"
+    )
+    location_lat = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        verbose_name="Latitude"
+    )
+    location_lng = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        verbose_name="Longitude"
+    )
+    # Informations client
+    client_name = models.CharField(
+        max_length=200,
+        verbose_name="Nom complet"
+    )
+    client_email = models.EmailField(
+        verbose_name="Email"
+    )
+    client_phone = models.CharField(
+        max_length=20,
+        verbose_name="Téléphone"
+    )
+    # Informations supplémentaires (JSON)
+    additional_info = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name="Informations supplémentaires",
+        help_text="Informations dynamiques collectées dans le formulaire"
+    )
+    # Statut et suivi
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='PENDING',
+        db_index=True,
+        verbose_name="Statut"
+    )
+    admin_notes = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Notes admin",
+        help_text="Notes internes pour le suivi"
+    )
+    contacted_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Date de contact"
+    )
+    quoted_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Date d'envoi du devis"
+    )
+    # Métadonnées
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    created_by_user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='quote_requests',
+        verbose_name="Utilisateur créateur"
+    )
+    
+    class Meta:
+        verbose_name = "Demande de devis"
+        verbose_name_plural = "Demandes de devis"
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status', '-created_at']),
+            models.Index(fields=['service', 'status']),
+        ]
+    
+    def __str__(self):
+        return f"Devis #{self.id} - {self.client_name} - {self.service.name}"
+
+
+class ServiceReview(models.Model):
+    """Modèle pour les avis clients sur les services"""
+    service = models.ForeignKey(
+        Service,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name="Service"
+    )
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='service_reviews',
+        verbose_name="Utilisateur"
+    )
+    rating = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(5)],
+        verbose_name="Note",
+        help_text="Note de 1 à 5 étoiles"
+    )
+    comment = models.TextField(
+        verbose_name="Commentaire",
+        help_text="Commentaire du client"
+    )
+    client_name = models.CharField(
+        max_length=200,
+        verbose_name="Nom du client",
+        help_text="Nom affiché (peut être anonyme)"
+    )
+    client_email = models.EmailField(
+        blank=True,
+        null=True,
+        verbose_name="Email du client"
+    )
+    approved = models.BooleanField(
+        default=False,
+        db_index=True,
+        verbose_name="Approuvé",
+        help_text="L'avis doit être approuvé par un admin avant d'être affiché"
+    )
+    display_on_page = models.BooleanField(
+        default=True,
+        db_index=True,
+        verbose_name="Afficher sur la page",
+        help_text="Si désactivé, l'avis ne sera pas affiché sur la page de détail même s'il est approuvé"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Avis client"
+        verbose_name_plural = "Avis clients"
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['service', 'approved']),
+            models.Index(fields=['approved', '-created_at']),
+        ]
+    
+    def __str__(self):
+        return f"Avis de {self.client_name} sur {self.service.name} ({self.rating}/5)"
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Mettre à jour la note moyenne et le nombre d'avis du service
+        self.update_service_rating()
+    
+    def update_service_rating(self):
+        """Met à jour la note moyenne et le nombre d'avis du service"""
+        approved_reviews = ServiceReview.objects.filter(
+            service=self.service,
+            approved=True
+        )
+        count = approved_reviews.count()
+        if count > 0:
+            avg_rating = approved_reviews.aggregate(
+                avg=Avg('rating')
+            )['avg']
+            self.service.rating = Decimal(str(round(avg_rating, 1)))
+            self.service.review_count = count
+            self.service.save(update_fields=['rating', 'review_count'])
+
+
+class ServiceFAQ(models.Model):
+    """Modèle pour les questions fréquentes sur les services"""
+    service = models.ForeignKey(
+        Service,
+        on_delete=models.CASCADE,
+        related_name='faqs',
+        verbose_name="Service"
+    )
+    question = models.CharField(
+        max_length=500,
+        verbose_name="Question"
+    )
+    answer = models.TextField(
+        verbose_name="Réponse"
+    )
+    order = models.IntegerField(
+        default=0,
+        db_index=True,
+        verbose_name="Ordre d'affichage"
+    )
+    active = models.BooleanField(
+        default=True,
+        db_index=True,
+        verbose_name="Actif",
+        help_text="Si désactivé, n'apparaît pas sur le site"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Question fréquente"
+        verbose_name_plural = "Questions fréquentes"
+        ordering = ['order', 'question']
+        indexes = [
+            models.Index(fields=['service', 'active', 'order']),
+        ]
+    
+    def __str__(self):
+        return f"FAQ: {self.question[:50]}..."

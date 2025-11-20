@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Service, Agency, Contact, PageContent, Category
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -82,8 +82,8 @@ class ServiceSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'slug', 'short_description', 'detailed_description',
             'image', 'image_url', 'active', 'order', 'category', 'category_name',
-            'duration', 'price_per_hour', 'price_label',
-            'rating', 'review_count',
+            'duration', 'price_per_hour', 'price_label', 'currency', 'contact_phone',
+            'rating', 'review_count', 'show_reviews', 'show_faq',
             'included_services', 'features', 'guarantees', 'process_steps',
             'created_by', 'created_by_username', 'created_at', 'updated_at', 'url'
         ]
@@ -205,3 +205,79 @@ class NavbarSerializer(serializers.Serializer):
     services = ServiceSummarySerializer(many=True)
     agencies = AgencySummarySerializer(many=True)
     pages = PageContentSummarySerializer(many=True)
+
+
+class ServiceReviewSerializer(serializers.ModelSerializer):
+    """Serializer pour ServiceReview"""
+    service_name = serializers.CharField(
+        source='service.name',
+        read_only=True
+    )
+    
+    class Meta:
+        model = ServiceReview
+        fields = [
+            'id', 'service', 'service_name', 'user', 'rating', 'comment',
+            'client_name', 'client_email', 'approved', 'display_on_page', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['created_at', 'updated_at', 'user']
+    
+    def create(self, validated_data):
+        """Création d'un avis (non approuvé par défaut)"""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            validated_data['user'] = request.user
+        validated_data['approved'] = False  # Nécessite validation admin
+        return super().create(validated_data)
+
+
+class ServiceFAQSerializer(serializers.ModelSerializer):
+    """Serializer pour ServiceFAQ"""
+    service_name = serializers.CharField(
+        source='service.name',
+        read_only=True
+    )
+    
+    class Meta:
+        model = ServiceFAQ
+        fields = [
+            'id', 'service', 'service_name', 'question', 'answer',
+            'order', 'active', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['created_at', 'updated_at']
+
+
+class QuoteRequestSerializer(serializers.ModelSerializer):
+    """Serializer pour QuoteRequest"""
+    service_name = serializers.CharField(
+        source='service.name',
+        read_only=True
+    )
+    service_slug = serializers.CharField(
+        source='service.slug',
+        read_only=True
+    )
+    status_display = serializers.CharField(
+        source='get_status_display',
+        read_only=True
+    )
+    
+    class Meta:
+        model = QuoteRequest
+        fields = [
+            'id', 'service', 'service_name', 'service_slug',
+            'location', 'location_lat', 'location_lng',
+            'client_name', 'client_email', 'client_phone',
+            'additional_info', 'status', 'status_display',
+            'admin_notes', 'contacted_at', 'quoted_at',
+            'created_at', 'updated_at', 'created_by_user'
+        ]
+        read_only_fields = ['created_at', 'updated_at', 'contacted_at', 'quoted_at']
+    
+    def create(self, validated_data):
+        """Création d'une demande de devis"""
+        request = self.context.get('request')
+        if request and request.user.is_authenticated:
+            validated_data['created_by_user'] = request.user
+        validated_data['status'] = 'PENDING'
+        return super().create(validated_data)

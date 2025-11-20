@@ -1,43 +1,85 @@
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
 
 export function PromotionalBanner() {
-  // Récupérer le banner depuis l'API
-  const { data: bannerData, isLoading } = useQuery({
-    queryKey: ["home_banner"],
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  // Récupérer toutes les bannières actives depuis l'API
+  const { data: bannersData, isLoading } = useQuery({
+    queryKey: ["home_banners"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:8000/api/pages/?key=home_banner&is_active=true");
+      const response = await fetch("http://localhost:8000/api/pages/?is_active=true");
       const data = await response.json();
-      // Retourner le premier résultat s'il existe
-      return data.results?.[0] || null;
+      // Trier par ordre et retourner toutes les bannières actives
+      return (data.results || []).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
     },
   });
 
-  // Ne rien afficher si le banner n'est pas actif ou n'existe pas
-  if (isLoading || !bannerData || !bannerData.is_active) {
+  const banners = bannersData || [];
+
+  // Carrousel automatique : changer de bannière toutes les 10 secondes
+  useEffect(() => {
+    if (banners.length <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % banners.length);
+    }, 10000); // 10 secondes
+
+    return () => clearInterval(interval);
+  }, [banners.length]);
+
+  // Ne rien afficher si aucune bannière active
+  if (isLoading || banners.length === 0) {
     return null;
   }
 
-  // Utiliser le texte du body ou un texte par défaut
-  const bannerText = bannerData.body || "Réduisez votre facture de moitié avec l'avance immédiate de crédit d'impôt*";
+  const currentBanner = banners[currentIndex];
+  const bannerText = currentBanner.body || "Réduisez votre facture de moitié avec l'avance immédiate de crédit d'impôt*";
 
   return (
-    <section className="bg-[#DC2626] text-white py-2 sm:py-3 overflow-x-hidden w-full max-w-full">
+    <section className="bg-[#DC2626] text-white py-2 sm:py-3 overflow-x-hidden w-full max-w-full relative">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row items-center sm:items-center justify-between gap-2 sm:gap-4">
-          <p className="text-xs sm:text-sm md:text-base font-medium text-center sm:text-left">
-            {bannerText}
-          </p>
-          <Link href="/devis" className="w-full sm:w-auto">
-            <Button
-              size="sm"
-              className="w-full sm:w-auto bg-white text-[#DC2626] hover:bg-gray-100 font-semibold text-xs sm:text-sm"
-            >
-              J'en profite !
-            </Button>
-          </Link>
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col sm:flex-row items-center sm:items-center justify-between gap-2 sm:gap-4"
+          >
+            <p className="text-xs sm:text-sm md:text-base font-medium text-center sm:text-left">
+              {bannerText}
+            </p>
+            <Link href="/devis" className="w-full sm:w-auto">
+              <Button
+                size="sm"
+                className="w-full sm:w-auto bg-white text-[#DC2626] hover:bg-gray-100 font-semibold text-xs sm:text-sm"
+              >
+                J'en profite !
+              </Button>
+            </Link>
+          </motion.div>
+        </AnimatePresence>
+        
+        {/* Indicateurs de bannières (si plusieurs) */}
+        {banners.length > 1 && (
+          <div className="flex justify-center gap-1.5 mt-2">
+            {banners.map((_: any, index: number) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  index === currentIndex ? "w-6 bg-white" : "w-1.5 bg-white/50"
+                }`}
+                aria-label={`Aller à la bannière ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

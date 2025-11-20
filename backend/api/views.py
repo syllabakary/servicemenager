@@ -7,12 +7,12 @@ from django.db.models import Q
 from math import radians, cos, sin, asin, sqrt
 from decimal import Decimal
 
-from .models import CustomUser, Service, Agency, Contact, PageContent, Category
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest
 from .serializers import (
     UserSerializer, ServiceSerializer, ServiceSummarySerializer,
     AgencySerializer, AgencySummarySerializer, ContactSerializer,
     PageContentSerializer, PageContentSummarySerializer, NavbarSerializer,
-    CategorySerializer
+    CategorySerializer, ServiceReviewSerializer, ServiceFAQSerializer, QuoteRequestSerializer
 )
 from .permissions import (
     IsSuperAdmin, IsAdminOrReadOnly, IsOwnerOrAdmin, IsClientOrReadOnly
@@ -348,3 +348,106 @@ class NavbarViewSet(viewsets.ViewSet):
     
     # Alias pour compatibilité
     navbar = list
+
+
+class ServiceReviewViewSet(viewsets.ModelViewSet):
+    """ViewSet pour ServiceReview"""
+    queryset = ServiceReview.objects.all()
+    serializer_class = ServiceReviewSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['service', 'approved']
+    ordering_fields = ['created_at', 'rating']
+    ordering = ['-created_at']
+    
+    def get_queryset(self):
+        """Filtrage : seulement approuvés pour API publique"""
+        queryset = ServiceReview.objects.select_related('service', 'user')
+        
+        # Si pas authentifié ou client, seulement approuvés ET affichables
+        if not self.request.user.is_authenticated or self.request.user.is_client:
+            queryset = queryset.filter(approved=True, display_on_page=True)
+        
+        return queryset
+    
+    def get_permissions(self):
+        """Permissions : création publique, modification admin seulement"""
+        if self.action == 'create':
+            return [AllowAny()]  # Permettre à tous de créer un avis
+        return [IsAdminOrReadOnly()]
+
+
+class ServiceFAQViewSet(viewsets.ModelViewSet):
+    """ViewSet pour ServiceFAQ"""
+    queryset = ServiceFAQ.objects.all()
+    serializer_class = ServiceFAQSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['service', 'active']
+    ordering_fields = ['order', 'question']
+    ordering = ['order', 'question']
+    
+    def get_queryset(self):
+        """Filtrage : seulement actifs pour API publique"""
+        queryset = ServiceFAQ.objects.select_related('service')
+        
+        # Si pas authentifié ou client, seulement actifs
+        if not self.request.user.is_authenticated or self.request.user.is_client:
+            queryset = queryset.filter(active=True)
+        
+        return queryset
+
+
+class QuoteRequestViewSet(viewsets.ModelViewSet):
+    """ViewSet pour QuoteRequest"""
+    queryset = QuoteRequest.objects.all()
+    serializer_class = QuoteRequestSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['client_name', 'client_email', 'client_phone', 'location', 'service__name']
+    filterset_fields = ['service', 'status']
+    ordering_fields = ['created_at', 'status']
+    ordering = ['-created_at']
+    
+    def get_queryset(self):
+        """Filtrage selon le rôle"""
+        queryset = QuoteRequest.objects.select_related('service', 'created_by_user')
+        
+        # Si pas authentifié ou client, seulement leurs propres demandes
+        if not self.request.user.is_authenticated or self.request.user.is_client:
+            if self.request.user.is_authenticated:
+                queryset = queryset.filter(created_by_user=self.request.user)
+            else:
+                # Pour les non authentifiés, on ne peut pas filtrer par utilisateur
+                # On retourne un queryset vide ou on permet la création seulement
+                queryset = QuoteRequest.objects.none()
+        
+        return queryset
+    
+    def get_permissions(self):
+        """Permissions : création publique, modification admin seulement"""
+        if self.action == 'create':
+            return [AllowAny()]  # Permettre à tous de créer une demande
+        return [IsAdminOrReadOnly()]
+    
+    @action(detail=True, methods=['patch'], permission_classes=[IsAdminOrReadOnly])
+    def mark_contacted(self, request, pk=None):
+        """Marquer la demande comme contactée"""
+        quote_request = self.get_object()
+        from django.utils import timezone
+        quote_request.status = 'CONTACTED'
+        quote_request.contacted_at = timezone.now()
+        quote_request.save()
+        serializer = self.get_serializer(quote_request)
+        return Response(serializer.data)
+    
+    @action(detail=True, methods=['patch'], permission_classes=[IsAdminOrReadOnly])
+    def mark_quoted(self, request, pk=None):
+        """Marquer la demande comme devis envoyé"""
+        quote_request = self.get_object()
+        from django.utils import timezone
+        quote_request.status = 'QUOTED'
+        quote_request.quoted_at = timezone.now()
+        quote_request.save()
+        serializer = self.get_serializer(quote_request)
+        return Response(serializer.data)

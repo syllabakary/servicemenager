@@ -22,6 +22,8 @@ import AdminBannieres from "@/pages/admin/Bannieres";
 import AdminUtilisateurs from "@/pages/admin/Utilisateurs";
 import AdminCategories from "@/pages/admin/Categories";
 import AdminParametres from "@/pages/admin/Parametres";
+import AdminAvis from "@/pages/admin/Avis";
+import AdminDevis from "@/pages/admin/Devis";
 
 function Router() {
   return (
@@ -41,6 +43,8 @@ function Router() {
       <Route path="/admin/bannieres" component={AdminBannieres} />
       <Route path="/admin/parametres" component={AdminParametres} />
       <Route path="/admin/utilisateurs" component={AdminUtilisateurs} />
+      <Route path="/admin/avis" component={AdminAvis} />
+      <Route path="/admin/devis" component={AdminDevis} />
       <Route component={NotFound} />
     </Switch>
   );

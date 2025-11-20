@@ -43,6 +43,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { FaInfoCircle } from "react-icons/fa";
 
 const API_URL = "http://localhost:8000/api";
 
@@ -246,8 +252,12 @@ function ServiceDialog({
     duration: "",
     price_per_hour: "",
     price_label: "",
+    currency: "EUR",
+    contact_phone: "",
     rating: "",
     review_count: 0,
+    show_reviews: true,
+    show_faq: true,
     included_services: [] as string[],
     features: [] as string[],
     guarantees: [] as string[],
@@ -353,8 +363,12 @@ function ServiceDialog({
         duration: service.duration || "",
         price_per_hour: service.price_per_hour || "",
         price_label: service.price_label || "",
+        currency: service.currency || "EUR",
+        contact_phone: service.contact_phone || "",
         rating: service.rating || "",
         review_count: service.review_count || 0,
+        show_reviews: service.show_reviews !== undefined ? service.show_reviews : true,
+        show_faq: service.show_faq !== undefined ? service.show_faq : true,
         included_services: service.included_services || [],
         features: service.features || [],
         guarantees: service.guarantees || [],
@@ -380,6 +394,8 @@ function ServiceDialog({
         duration: "",
         price_per_hour: "",
         price_label: "",
+        currency: "EUR",
+        contact_phone: "",
         rating: "",
         review_count: 0,
         included_services: [],
@@ -528,7 +544,17 @@ function ServiceDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="category">Catégorie *</Label>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="category">Catégorie *</Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>La catégorie détermine comment le service apparaît dans le menu de navigation. Si la catégorie est marquée "Navbar", elle apparaîtra dans le menu principal.</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <Select
               value={formData.category?.toString() || ""}
               onValueChange={handleCategoryChange}
@@ -593,7 +619,17 @@ function ServiceDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="short_description">Description courte *</Label>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="short_description">Description courte *</Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Description courte qui apparaît sur la page de liste des services (max 500 caractères)</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <Input
               id="short_description"
               value={formData.short_description}
@@ -601,11 +637,25 @@ function ServiceDialog({
                 setFormData({ ...formData, short_description: e.target.value })
               }
               required
+              maxLength={500}
             />
+            <p className="text-xs text-gray-500">
+              {formData.short_description.length}/500 caractères
+            </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="detailed_description">Description détaillée *</Label>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="detailed_description">Description détaillée *</Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Description complète qui apparaît sur la page de détail du service</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <Textarea
               id="detailed_description"
               value={formData.detailed_description}
@@ -620,9 +670,19 @@ function ServiceDialog({
           {/* Tarification et durée */}
           <div className="border-t pt-4">
             <h3 className="font-semibold text-gray-900 mb-4">Tarification et durée</h3>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="duration">Durée</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="duration">Durée</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Durée estimée du service (ex: "2-4 heures", "1 journée")</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
                 <Input
                   id="duration"
                   value={formData.duration}
@@ -633,7 +693,17 @@ function ServiceDialog({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="price_per_hour">Prix/heure (€)</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="price_per_hour">Prix/heure</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Le prix par heure sera affiché avec la devise sélectionnée</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
                 <Input
                   id="price_per_hour"
                   type="number"
@@ -646,7 +716,43 @@ function ServiceDialog({
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="price_label">Label du prix</Label>
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="currency">Devise</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>La devise sélectionnée sera utilisée pour afficher tous les prix de ce service sur le site</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <Select
+                  value={formData.currency}
+                  onValueChange={(value) => setFormData({ ...formData, currency: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Sélectionner une devise" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="EUR">Euro (€)</SelectItem>
+                    <SelectItem value="USD">Dollar ($)</SelectItem>
+                    <SelectItem value="FCFA">Franc CFA (FCFA)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="price_label">Label du prix</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Texte personnalisé pour le prix (ex: "À partir de 25€/heure"). Si vide, le prix/heure sera utilisé avec la devise.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
                 <Input
                   id="price_label"
                   value={formData.price_label}
@@ -656,12 +762,43 @@ function ServiceDialog({
                   placeholder="Ex: À partir de 25€/heure"
                 />
               </div>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Label htmlFor="contact_phone">Numéro de contact</Label>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Numéro de téléphone spécifique pour ce service. Si vide, le numéro général sera utilisé sur la page de détail.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <Input
+                  id="contact_phone"
+                  value={formData.contact_phone}
+                  onChange={(e) =>
+                    setFormData({ ...formData, contact_phone: e.target.value })
+                  }
+                  placeholder="Ex: +225 01 23 45 67 89"
+                />
+              </div>
             </div>
           </div>
 
           {/* Note et avis */}
           <div className="border-t pt-4">
-            <h3 className="font-semibold text-gray-900 mb-4">Note et avis</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <h3 className="font-semibold text-gray-900">Note et avis</h3>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Ces valeurs sont automatiquement mises à jour quand des clients laissent des avis. Vous pouvez les modifier manuellement si nécessaire.</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="rating">Note (sur 5)</Label>
@@ -691,11 +828,72 @@ function ServiceDialog({
                 />
               </div>
             </div>
+            <div className="mt-4 flex items-center space-x-2">
+              <Switch
+                id="show_reviews"
+                checked={formData.show_reviews}
+                onCheckedChange={(checked) => setFormData({ ...formData, show_reviews: checked })}
+              />
+              <Label htmlFor="show_reviews" className="flex items-center gap-2">
+                Afficher la section avis sur la page de détail
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Si désactivé, la section avis ne sera pas affichée sur la page de détail du service</p>
+                  </TooltipContent>
+                </Tooltip>
+              </Label>
+            </div>
+          </div>
+
+          {/* FAQ */}
+          <div className="border-t pt-4">
+            <div className="flex items-center gap-2 mb-4">
+              <h3 className="font-semibold text-gray-900">Questions fréquentes (FAQ)</h3>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Les FAQ sont gérées depuis la page de détail du service. Vous pouvez activer/désactiver leur affichage ici.</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="show_faq"
+                checked={formData.show_faq}
+                onCheckedChange={(checked) => setFormData({ ...formData, show_faq: checked })}
+              />
+              <Label htmlFor="show_faq" className="flex items-center gap-2">
+                Afficher la section FAQ sur la page de détail
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Si désactivé, la section FAQ ne sera pas affichée sur la page de détail du service</p>
+                  </TooltipContent>
+                </Tooltip>
+              </Label>
+            </div>
           </div>
 
           {/* Prestations incluses */}
           <div className="border-t pt-4">
-            <h3 className="font-semibold text-gray-900 mb-4">Prestations incluses</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <h3 className="font-semibold text-gray-900">Prestations incluses</h3>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Liste des prestations incluses dans ce service. Ces informations apparaissent dans l'onglet "Prestations incluses" de la page de détail du service.</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <div className="space-y-2">
               {formData.included_services.map((item, index) => (
                 <div key={index} className="flex gap-2">
@@ -749,7 +947,17 @@ function ServiceDialog({
 
           {/* Caractéristiques */}
           <div className="border-t pt-4">
-            <h3 className="font-semibold text-gray-900 mb-4">Caractéristiques</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <h3 className="font-semibold text-gray-900">Caractéristiques</h3>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Points forts et caractéristiques du service affichés avec des checkmarks sur la page de détail.</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <div className="space-y-2">
               {formData.features.map((item, index) => (
                 <div key={index} className="flex gap-2">
@@ -803,7 +1011,17 @@ function ServiceDialog({
 
           {/* Garanties */}
           <div className="border-t pt-4">
-            <h3 className="font-semibold text-gray-900 mb-4">Garanties</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <h3 className="font-semibold text-gray-900">Garanties</h3>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Garanties offertes avec ce service. Affichées dans la carte de réservation sur la page de détail.</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <div className="space-y-2">
               {formData.guarantees.map((item, index) => (
                 <div key={index} className="flex gap-2">
@@ -857,7 +1075,17 @@ function ServiceDialog({
 
           {/* Étapes du processus */}
           <div className="border-t pt-4">
-            <h3 className="font-semibold text-gray-900 mb-4">Étapes du processus</h3>
+            <div className="flex items-center gap-2 mb-4">
+              <h3 className="font-semibold text-gray-900">Étapes du processus</h3>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Étapes du processus de commande/réservation. Affichées dans l'onglet "Prestations incluses" de la page de détail du service.</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
             <div className="space-y-4">
               {formData.process_steps.map((step, index) => (
                 <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-3">

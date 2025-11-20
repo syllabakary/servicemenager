@@ -28,8 +28,8 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen pt-16 overflow-x-hidden w-full max-w-full">
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-b from-primary/5 to-background">
+    <div className="min-h-screen pt-16 overflow-x-hidden w-full max-w-full bg-gradient-to-br from-gray-50 via-white to-gray-50">
+      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-b from-[#DC2626]/5 via-white to-gray-50">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -37,10 +37,10 @@ export default function Contact() {
             transition={{ duration: 0.6 }}
             className="text-center mb-8 sm:mb-10 md:mb-12"
           >
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-2 sm:mb-3 md:mb-4 px-2" data-testid="heading-contact-page">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4 px-2" data-testid="heading-contact-page">
               Contactez-nous
             </h1>
-            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-2" data-testid="text-contact-intro">
+            <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto px-2" data-testid="text-contact-intro">
               Une question ? Un projet ? Notre équipe est à votre écoute
             </p>
           </motion.div>
@@ -52,58 +52,62 @@ export default function Contact() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="lg:col-span-2"
             >
-              <Card>
-                <CardHeader>
-                  <CardTitle data-testid="heading-contact-form">Envoyez-nous un message</CardTitle>
-                  <CardDescription data-testid="text-contact-form-description">
+              <Card className="border-2 border-gray-200 shadow-xl bg-white">
+                <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white rounded-t-lg">
+                  <CardTitle className="text-white" data-testid="heading-contact-form">Envoyez-nous un message</CardTitle>
+                  <CardDescription className="text-white/90" data-testid="text-contact-form-description">
                     Remplissez le formulaire ci-dessous et nous vous répondrons rapidement
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                   <form onSubmit={handleSubmit} className="space-y-4" data-testid="form-contact">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="nom">Nom complet</Label>
+                        <Label htmlFor="nom" className="text-gray-700 font-semibold">Nom complet</Label>
                         <Input
                           id="nom"
                           name="nom"
                           placeholder="Votre nom"
                           required
+                          className="border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
                           data-testid="input-name"
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
+                        <Label htmlFor="email" className="text-gray-700 font-semibold">Email</Label>
                         <Input
                           id="email"
                           name="email"
                           type="email"
                           placeholder="votre@email.com"
                           required
+                          className="border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
                           data-testid="input-email"
                         />
                       </div>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="sujet">Sujet</Label>
+                      <Label htmlFor="sujet" className="text-gray-700 font-semibold">Sujet</Label>
                       <Input
                         id="sujet"
                         name="sujet"
                         placeholder="Objet de votre message"
                         required
+                        className="border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
                         data-testid="input-subject"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="message">Message</Label>
+                      <Label htmlFor="message" className="text-gray-700 font-semibold">Message</Label>
                       <Textarea
                         id="message"
                         name="message"
                         placeholder="Votre message..."
                         rows={6}
                         required
+                        className="border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
                         data-testid="textarea-message"
                       />
                     </div>
@@ -111,7 +115,7 @@ export default function Contact() {
                     <Button
                       type="submit"
                       size="lg"
-                      className="w-full gap-2"
+                      className="w-full gap-2 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white shadow-lg hover:shadow-xl transition-all duration-200"
                       disabled={loading}
                       data-testid="button-submit"
                     >
@@ -129,18 +133,20 @@ export default function Contact() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
-                <Card>
-                  <CardHeader>
-                    <CardTitle data-testid="heading-contact-info">Nos coordonnées</CardTitle>
+                <Card className="border-2 border-gray-200 shadow-xl bg-white">
+                  <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white rounded-t-lg">
+                    <CardTitle className="text-white" data-testid="heading-contact-info">Nos coordonnées</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4">
+                  <CardContent className="space-y-4 pt-6">
                     <div className="flex items-start gap-3" data-testid="contact-info-address">
-                      <FaMapMarkerAlt className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                      <div className="w-10 h-10 rounded-lg bg-[#DC2626]/10 flex items-center justify-center flex-shrink-0">
+                        <FaMapMarkerAlt className="w-5 h-5 text-[#DC2626]" />
+                      </div>
                       <div>
-                        <p className="font-medium text-sm text-muted-foreground mb-1">
+                        <p className="font-semibold text-sm text-gray-500 mb-1">
                           Adresse
                         </p>
-                        <p className="text-base" data-testid="text-contact-address">
+                        <p className="text-base text-gray-900" data-testid="text-contact-address">
                           Plateau, Abidjan
                           <br />
                           Côte d'Ivoire
@@ -149,14 +155,16 @@ export default function Contact() {
                     </div>
 
                     <div className="flex items-start gap-3" data-testid="contact-info-phone">
-                      <FaPhone className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                      <div className="w-10 h-10 rounded-lg bg-[#DC2626]/10 flex items-center justify-center flex-shrink-0">
+                        <FaPhone className="w-5 h-5 text-[#DC2626]" />
+                      </div>
                       <div>
-                        <p className="font-medium text-sm text-muted-foreground mb-1">
+                        <p className="font-semibold text-sm text-gray-500 mb-1">
                           Téléphone
                         </p>
                         <a
                           href="tel:+2250123456789"
-                          className="text-base hover:text-primary transition-colors"
+                          className="text-base text-gray-900 hover:text-[#DC2626] transition-colors font-medium"
                           data-testid="link-contact-phone"
                         >
                           +225 01 23 45 67 89
@@ -165,14 +173,16 @@ export default function Contact() {
                     </div>
 
                     <div className="flex items-start gap-3" data-testid="contact-info-email">
-                      <FaEnvelope className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                      <div className="w-10 h-10 rounded-lg bg-[#DC2626]/10 flex items-center justify-center flex-shrink-0">
+                        <FaEnvelope className="w-5 h-5 text-[#DC2626]" />
+                      </div>
                       <div>
-                        <p className="font-medium text-sm text-muted-foreground mb-1">
+                        <p className="font-semibold text-sm text-gray-500 mb-1">
                           Email
                         </p>
                         <a
                           href="mailto:contact@serviceslocaux.ci"
-                          className="text-base hover:text-primary transition-colors"
+                          className="text-base text-gray-900 hover:text-[#DC2626] transition-colors font-medium"
                           data-testid="link-contact-email"
                         >
                           contact@serviceslocaux.ci
@@ -188,22 +198,22 @@ export default function Contact() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
               >
-                <Card>
-                  <CardHeader>
-                    <CardTitle data-testid="heading-hours">Horaires d'ouverture</CardTitle>
+                <Card className="border-2 border-gray-200 shadow-xl bg-white">
+                  <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white rounded-t-lg">
+                    <CardTitle className="text-white" data-testid="heading-hours">Horaires d'ouverture</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-2">
-                    <div className="flex justify-between" data-testid="hours-weekday">
-                      <span className="text-muted-foreground">Lundi - Vendredi</span>
-                      <span className="font-medium">8h00 - 18h00</span>
+                  <CardContent className="space-y-2 pt-6">
+                    <div className="flex justify-between py-2 border-b border-gray-100" data-testid="hours-weekday">
+                      <span className="text-gray-600 font-medium">Lundi - Vendredi</span>
+                      <span className="font-semibold text-gray-900">8h00 - 18h00</span>
                     </div>
-                    <div className="flex justify-between" data-testid="hours-saturday">
-                      <span className="text-muted-foreground">Samedi</span>
-                      <span className="font-medium">9h00 - 14h00</span>
+                    <div className="flex justify-between py-2 border-b border-gray-100" data-testid="hours-saturday">
+                      <span className="text-gray-600 font-medium">Samedi</span>
+                      <span className="font-semibold text-gray-900">9h00 - 14h00</span>
                     </div>
-                    <div className="flex justify-between" data-testid="hours-sunday">
-                      <span className="text-muted-foreground">Dimanche</span>
-                      <span className="font-medium">Fermé</span>
+                    <div className="flex justify-between py-2" data-testid="hours-sunday">
+                      <span className="text-gray-600 font-medium">Dimanche</span>
+                      <span className="font-semibold text-gray-900">Fermé</span>
                     </div>
                   </CardContent>
                 </Card>

@@ -332,7 +332,7 @@ export default function Home() {
                   <span className="text-2xl sm:text-3xl font-bold text-white">4.4</span>
                   <span className="text-white/80 text-xs sm:text-sm">sur 5</span>
                 </div>
-              </div>
+                </div>
               <div className="hidden sm:block h-6 md:h-8 w-px bg-white/30" />
               <div className="flex flex-col">
                 <span className="text-base sm:text-lg font-bold text-white">4132</span>

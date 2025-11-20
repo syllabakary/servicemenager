@@ -3,6 +3,12 @@ import { useParams, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import {
   FaArrowLeft,
   FaStar,
@@ -340,21 +346,99 @@ const mockServiceDetails: Record<number, any> = {
   },
 };
 
+const API_URL = "http://localhost:8000/api";
+
 export default function ServiceDetail() {
   const params = useParams();
   const serviceSlug = params.id;
   const [activeTab, setActiveTab] = useState<"prestations" | "avis" | "faq">("prestations");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [reviewForm, setReviewForm] = useState({
+    client_name: "",
+    client_email: "",
+    rating: 5,
+    comment: "",
+  });
 
   // Récupérer le service depuis l'API
   const { data: service, isLoading } = useQuery({
     queryKey: ["service", serviceSlug],
     queryFn: async () => {
-      const response = await fetch(`http://localhost:8000/api/services/?slug=${serviceSlug}`);
+      const response = await fetch(`${API_URL}/services/?slug=${serviceSlug}`);
       const data = await response.json();
       return data.results?.[0] || null;
     },
     enabled: !!serviceSlug,
   });
+
+  // Récupérer les avis approuvés
+  const { data: reviews = [] } = useQuery({
+    queryKey: ["service-reviews", service?.id],
+    queryFn: async () => {
+      if (!service?.id) return [];
+      const response = await fetch(`${API_URL}/service-reviews/?service=${service.id}&approved=true`);
+      const data = await response.json();
+      // Filtrer les avis qui doivent être affichés (display_on_page !== false)
+      return (data.results || []).filter((review: any) => review.display_on_page !== false);
+    },
+    enabled: !!service?.id,
+  });
+
+  // Récupérer les FAQ actives
+  const { data: faqs = [] } = useQuery({
+    queryKey: ["service-faqs", service?.id],
+    queryFn: async () => {
+      if (!service?.id) return [];
+      const response = await fetch(`${API_URL}/service-faqs/?service=${service.id}&active=true`);
+      const data = await response.json();
+      return data.results || [];
+    },
+    enabled: !!service?.id,
+  });
+
+  // Mutation pour créer un avis
+  const createReviewMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const response = await axios.post(`${API_URL}/service-reviews/`, {
+        ...data,
+        service: service?.id,
+      });
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["service-reviews", service?.id] });
+      queryClient.invalidateQueries({ queryKey: ["service", serviceSlug] });
+      toast({
+        title: "✅ Merci !",
+        description: "Votre avis a été soumis et sera examiné avant publication.",
+        variant: "success",
+      });
+      setShowReviewForm(false);
+      setReviewForm({ client_name: "", client_email: "", rating: 5, comment: "" });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "❌ Erreur",
+        description: error.response?.data?.detail || "Une erreur s'est produite",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSubmitReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reviewForm.client_name || !reviewForm.comment) {
+      toast({
+        title: "⚠️ Champs requis",
+        description: "Veuillez remplir tous les champs obligatoires",
+        variant: "destructive",
+      });
+      return;
+    }
+    createReviewMutation.mutate(reviewForm);
+  };
 
   // Récupérer les services similaires
   const { data: similarServicesData } = useQuery({
@@ -497,7 +581,7 @@ export default function ServiceDetail() {
                       <span className="text-sm font-medium">Tarif</span>
                     </div>
                     <p className="text-lg font-bold text-gray-900">
-                      {service.price_label || (service.price_per_hour ? `À partir de ${service.price_per_hour}€/heure` : "")}
+                      {service.price_label || (service.price_per_hour ? `À partir de ${service.price_per_hour}${service.currency === 'EUR' ? '€' : service.currency === 'USD' ? '$' : ' FCFA'}/heure` : "")}
                     </p>
                   </div>
                 )}
@@ -538,7 +622,7 @@ export default function ServiceDetail() {
                         </Badge>
                       </div>
                       <p className="text-4xl font-bold text-[#DC2626] mb-1">
-                        {service.price_label || (service.price_per_hour ? `À partir de ${service.price_per_hour}€` : "Sur devis")}
+                        {service.price_label || (service.price_per_hour ? `À partir de ${service.price_per_hour}${service.currency === 'EUR' ? '€' : service.currency === 'USD' ? '$' : ' FCFA'}` : "Sur devis")}
                       </p>
                       <p className="text-sm text-gray-600">
                         {service.price_per_hour ? "par heure • " : ""}Devis gratuit
@@ -546,7 +630,7 @@ export default function ServiceDetail() {
                     </div>
 
                     <div className="space-y-3">
-                      <Link href="/devis">
+                      <Link href={`/devis?service=${service.id}`}>
                         <Button className="w-full h-14 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all">
                           <FaCalendar className="w-5 h-5 mr-2" />
                           Réserver maintenant
@@ -554,7 +638,7 @@ export default function ServiceDetail() {
                       </Link>
                       
                       <div className="grid grid-cols-2 gap-3">
-                        <a href="tel:+2250123456789">
+                        <a href={`tel:${service.contact_phone || '+2250123456789'}`}>
                           <Button variant="outline" className="w-full h-12 border-2 border-gray-200 hover:border-[#DC2626] hover:bg-[#DC2626]/5">
                             <FaPhone className="w-4 h-4 mr-2" />
                             Appeler
@@ -616,26 +700,30 @@ export default function ServiceDetail() {
             >
               Prestations incluses
             </button>
-            <button
-              onClick={() => setActiveTab("avis")}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                activeTab === "avis"
-                  ? "bg-[#DC2626] text-white shadow-md"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              Avis clients {service.review_count > 0 && `(${service.review_count})`}
-            </button>
-            <button
-              onClick={() => setActiveTab("faq")}
-              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                activeTab === "faq"
-                  ? "bg-[#DC2626] text-white shadow-md"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-              }`}
-            >
-              Questions fréquentes
-            </button>
+            {service.show_reviews !== false && (
+              <button
+                onClick={() => setActiveTab("avis")}
+                className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                  activeTab === "avis"
+                    ? "bg-[#DC2626] text-white shadow-md"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                Avis clients {service.review_count > 0 && `(${service.review_count})`}
+              </button>
+            )}
+            {service.show_faq !== false && (
+              <button
+                onClick={() => setActiveTab("faq")}
+                className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                  activeTab === "faq"
+                    ? "bg-[#DC2626] text-white shadow-md"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+              >
+                Questions fréquentes
+              </button>
+            )}
           </div>
 
           {/* Tab Content */}
@@ -694,18 +782,148 @@ export default function ServiceDetail() {
               </div>
             )}
 
-            {activeTab === "avis" && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {service.review_count > 0 ? (
-                  <div className="col-span-2 text-center py-12">
-                    <FaStar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                    <p className="text-lg font-semibold text-gray-900 mb-2">
-                      {service.review_count} avis client{service.review_count > 1 ? "s" : ""}
-                    </p>
-                    <p className="text-gray-600">Les avis détaillés seront bientôt disponibles</p>
+            {activeTab === "avis" && service.show_reviews !== false && (
+              <div className="space-y-8">
+                {/* Formulaire d'avis */}
+                <Card className="border-2 border-red-100 bg-red-50/30">
+                  <CardHeader>
+                    <CardTitle className="text-xl font-bold text-gray-900">
+                      Laissez votre avis
+                    </CardTitle>
+                    <CardDescription>
+                      Partagez votre expérience avec ce service
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {!showReviewForm ? (
+                      <Button
+                        onClick={() => setShowReviewForm(true)}
+                        className="bg-[#DC2626] hover:bg-[#B91C1C] text-white"
+                      >
+                        Écrire un avis
+                      </Button>
+                    ) : (
+                      <form onSubmit={handleSubmitReview} className="space-y-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="client_name">Nom *</Label>
+                            <Input
+                              id="client_name"
+                              value={reviewForm.client_name}
+                              onChange={(e) => setReviewForm({ ...reviewForm, client_name: e.target.value })}
+                              required
+                              placeholder="Votre nom"
+                            />
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="client_email">Email</Label>
+                            <Input
+                              id="client_email"
+                              type="email"
+                              value={reviewForm.client_email}
+                              onChange={(e) => setReviewForm({ ...reviewForm, client_email: e.target.value })}
+                              placeholder="votre@email.com"
+                            />
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Note *</Label>
+                          <div className="flex gap-2">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                              <button
+                                key={star}
+                                type="button"
+                                onClick={() => setReviewForm({ ...reviewForm, rating: star })}
+                                className="focus:outline-none"
+                              >
+                                <FaStar
+                                  className={`w-8 h-8 ${
+                                    star <= reviewForm.rating
+                                      ? "text-yellow-400 fill-yellow-400"
+                                      : "text-gray-300"
+                                  } transition-colors`}
+                                />
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="comment">Commentaire *</Label>
+                          <Textarea
+                            id="comment"
+                            value={reviewForm.comment}
+                            onChange={(e) => setReviewForm({ ...reviewForm, comment: e.target.value })}
+                            required
+                            rows={4}
+                            placeholder="Partagez votre expérience..."
+                          />
+                        </div>
+                        <div className="flex gap-3">
+                          <Button
+                            type="submit"
+                            disabled={createReviewMutation.isPending}
+                            className="bg-[#DC2626] hover:bg-[#B91C1C] text-white"
+                          >
+                            {createReviewMutation.isPending ? "Envoi..." : "Envoyer l'avis"}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => {
+                              setShowReviewForm(false);
+                              setReviewForm({ client_name: "", client_email: "", rating: 5, comment: "" });
+                            }}
+                          >
+                            Annuler
+                          </Button>
+                        </div>
+                      </form>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Liste des avis */}
+                {reviews.length > 0 ? (
+                  <div className="space-y-6">
+                    <h3 className="text-2xl font-bold text-gray-900">
+                      {reviews.length} avis client{reviews.length > 1 ? "s" : ""}
+                    </h3>
+                    {reviews.map((review: any) => (
+                      <Card key={review.id} className="border border-gray-200">
+                        <CardContent className="p-6">
+                          <div className="flex items-start justify-between mb-4">
+                            <div>
+                              <h4 className="font-bold text-gray-900 mb-1">{review.client_name}</h4>
+                              <div className="flex items-center gap-2">
+                                <div className="flex">
+                                  {[1, 2, 3, 4, 5].map((star) => (
+                                    <FaStar
+                                      key={star}
+                                      className={`w-4 h-4 ${
+                                        star <= review.rating
+                                          ? "text-yellow-400 fill-yellow-400"
+                                          : "text-gray-300"
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-sm text-gray-500">
+                                  {new Date(review.created_at).toLocaleDateString('fr-FR', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                  })}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <p className="text-gray-700 leading-relaxed">{review.comment}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </div>
                 ) : (
-                  <div className="col-span-2 text-center py-12">
+                  <div className="text-center py-12">
                     <FaStar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
                     <p className="text-lg font-semibold text-gray-900 mb-2">Aucun avis pour le moment</p>
                     <p className="text-gray-600">Soyez le premier à laisser un avis sur ce service</p>
@@ -714,18 +932,43 @@ export default function ServiceDetail() {
               </div>
             )}
 
-            {activeTab === "faq" && (
+            {activeTab === "faq" && service.show_faq !== false && (
               <div className="max-w-3xl mx-auto space-y-4">
-                <div className="text-center py-12">
-                  <FaInfoCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                  <p className="text-lg font-semibold text-gray-900 mb-2">Questions fréquentes</p>
-                  <p className="text-gray-600">Les questions fréquentes seront bientôt disponibles</p>
-                  <Link href="/contact" className="mt-4 inline-block">
-                    <Button variant="outline" className="mt-4">
-                      Nous contacter
-                    </Button>
-                  </Link>
-                </div>
+                {faqs.length > 0 ? (
+                  <>
+                    <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                      Questions fréquentes
+                    </h3>
+                    <div className="space-y-4">
+                      {faqs.map((faq: any, index: number) => (
+                        <Card key={faq.id} className="border border-gray-200 hover:border-[#DC2626] transition-colors">
+                          <CardHeader>
+                            <CardTitle className="text-lg font-semibold text-gray-900 flex items-start gap-3">
+                              <span className="w-6 h-6 rounded-full bg-[#DC2626] text-white flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
+                                {index + 1}
+                              </span>
+                              {faq.question}
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="pt-0">
+                            <p className="text-gray-700 leading-relaxed pl-9">{faq.answer}</p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-12">
+                    <FaInfoCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-lg font-semibold text-gray-900 mb-2">Questions fréquentes</p>
+                    <p className="text-gray-600 mb-4">Aucune question fréquente disponible pour le moment</p>
+                    <Link href="/contact">
+                      <Button variant="outline">
+                        Nous contacter
+                      </Button>
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
           </motion.div>

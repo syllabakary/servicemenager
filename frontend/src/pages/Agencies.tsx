@@ -190,19 +190,19 @@ export default function Agencies() {
       {/* 🟧 SECTION 1 — Pourquoi choisir nos agences */}
       <section className="py-12 sm:py-16 md:py-20 bg-white border-b border-gray-200 -mt-4 sm:-mt-6 md:-mt-8 relative z-20">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="text-center mb-8 sm:mb-10 md:mb-12"
-          >
+            >
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4 px-2">
               Pourquoi choisir nos <span className="text-[#DC2626]">agences</span> ?
             </h2>
             <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto px-2">
               Des avantages concrets qui font la différence
             </p>
-          </motion.div>
+            </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
             {[
@@ -224,20 +224,20 @@ export default function Agencies() {
             ].map((item, i) => {
               const Icon = item.icon;
               return (
-                <motion.div
+            <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                   whileHover={{ y: -4 }}
                   className="bg-white rounded-xl p-4 sm:p-5 md:p-6 border-2 border-gray-100 hover:border-[#DC2626] shadow-md hover:shadow-xl transition-all duration-300 group"
-                >
+            >
                   <div className="w-12 h-12 sm:w-13 sm:h-13 md:w-14 md:h-14 bg-[#DC2626]/10 rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-[#DC2626] transition-colors duration-300">
                     <Icon className="w-6 h-6 sm:w-6.5 sm:h-6.5 md:w-7 md:h-7 text-[#DC2626] group-hover:text-white transition-colors" />
-                  </div>
+              </div>
                   <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1.5 sm:mb-2">{item.title}</h3>
                   <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{item.description}</p>
-                </motion.div>
+            </motion.div>
               );
             })}
           </div>

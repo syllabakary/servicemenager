@@ -456,19 +456,19 @@ export default function Services() {
       {/* 🟧 SECTION 1 — Pourquoi nous choisir */}
       <section className="py-12 sm:py-16 md:py-20 bg-white border-b border-gray-200 -mt-4 sm:-mt-6 md:-mt-8 relative z-20">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="text-center mb-8 sm:mb-10 md:mb-12"
-          >
+            >
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4 px-2">
               Pourquoi choisir nos <span className="text-[#DC2626]">services</span> ?
             </h2>
             <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto px-2">
               Des avantages concrets qui font la différence au quotidien
             </p>
-          </motion.div>
+            </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
             {[
@@ -495,20 +495,20 @@ export default function Services() {
             ].map((item, i) => {
               const Icon = item.icon;
               return (
-                <motion.div
+            <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                   whileHover={{ y: -4 }}
                   className="bg-white rounded-xl p-4 sm:p-5 md:p-6 border-2 border-gray-100 hover:border-[#DC2626] shadow-md hover:shadow-xl transition-all duration-300 group"
-                >
+            >
                   <div className="w-12 h-12 sm:w-13 sm:h-13 md:w-14 md:h-14 bg-[#DC2626]/10 rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-[#DC2626] transition-colors duration-300">
                     <Icon className="w-6 h-6 sm:w-6.5 sm:h-6.5 md:w-7 md:h-7 text-[#DC2626] group-hover:text-white transition-colors" />
-                  </div>
+              </div>
                   <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1.5 sm:mb-2">{item.title}</h3>
                   <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{item.description}</p>
-                </motion.div>
+            </motion.div>
               );
             })}
           </div>
@@ -715,11 +715,11 @@ export default function Services() {
                           </div>
                         </div>
                       )}
-                      <CardHeader className="pb-4">
-                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-3 sm:gap-0">
+                    <CardHeader className="pb-4">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-3 sm:gap-0">
                           <div className="w-16 h-16 rounded-xl bg-[#DC2626]/10 flex items-center justify-center group-hover:bg-[#DC2626] transition-all duration-300 flex-shrink-0 border-2 border-[#DC2626]/20 group-hover:border-[#DC2626]">
                             <IconComponent className="w-8 h-8 text-[#DC2626] group-hover:text-white transition-colors" />
-                          </div>
+                        </div>
                           {service.rating && (
                             <div className="flex items-center gap-1 bg-red-50 border border-red-200 px-3 py-1.5 rounded-full self-start sm:self-center">
                               <FaStar className="w-4 h-4 fill-[#DC2626] text-[#DC2626]" />
@@ -727,17 +727,17 @@ export default function Services() {
                               {service.review_count > 0 && (
                                 <span className="text-xs text-gray-500">({service.review_count})</span>
                               )}
-                            </div>
-                          )}
                         </div>
+                          )}
+                      </div>
 
                         <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 leading-tight">
                           {service.name}
-                        </CardTitle>
+                      </CardTitle>
                         <CardDescription className="text-base text-gray-600 leading-relaxed">
                           {service.short_description || service.detailed_description}
-                        </CardDescription>
-                      </CardHeader>
+                      </CardDescription>
+                    </CardHeader>
 
                       <CardContent className="flex flex-col flex-1 justify-between space-y-5">
                         {/* Caractéristiques */}
@@ -747,36 +747,36 @@ export default function Services() {
                               <div key={i} className="flex items-start gap-3 text-sm text-gray-700">
                                 <FaCheckCircle className="w-5 h-5 text-[#DC2626] mt-0.5 flex-shrink-0" />
                                 <span className="leading-relaxed">{feature}</span>
-                              </div>
-                            ))}
                           </div>
+                        ))}
+                      </div>
                         )}
 
-                        {/* Informations pratiques */}
+                      {/* Informations pratiques */}
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-5 border-t-2 border-gray-100 text-sm">
                           {service.duration && (
                             <div className="flex items-center gap-2 font-medium text-gray-700">
                               <FaClock className="w-5 h-5 text-[#DC2626]" />
                               <span>{service.duration}</span>
-                            </div>
+                        </div>
                           )}
                           {(service.price_label || service.price_per_hour) && (
                             <div className="flex items-center gap-2 font-bold text-[#DC2626]">
                               <FaInfoCircle className="w-5 h-5" />
                               <span>{service.price_label || (service.price_per_hour ? `À partir de ${service.price_per_hour}€/heure` : "")}</span>
-                            </div>
-                          )}
                         </div>
+                          )}
+                      </div>
 
-                        {/* Bouton */}
-                        <Button
+                      {/* Bouton */}
+                      <Button
                           className="w-full mt-6 h-12 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 group-hover:scale-[1.02]"
-                        >
-                          Voir les détails
+                      >
+                        Voir les détails
                           <FaArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                        </Button>
-                      </CardContent>
-                    </Card>
+                      </Button>
+                    </CardContent>
+                  </Card>
                   </Link>
                 </motion.div>
               );

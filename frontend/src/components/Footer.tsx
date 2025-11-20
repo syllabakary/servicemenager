@@ -56,48 +56,48 @@ export default function Footer() {
         </p>
         <div className="flex gap-3">
           {footerInfo.facebook && (
-            <a
+          <a
               href={footerInfo.facebook}
-              target="_blank"
-              rel="noopener noreferrer"
+            target="_blank"
+            rel="noopener noreferrer"
               className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-[#DC2626] transition-colors border border-red-200"
-              aria-label="Facebook"
-            >
+            aria-label="Facebook"
+          >
               <FaFacebook className="w-4 h-4 text-[#DC2626] hover:text-white transition-colors" />
-            </a>
+          </a>
           )}
           {footerInfo.twitter && (
-            <a
+          <a
               href={footerInfo.twitter}
-              target="_blank"
-              rel="noopener noreferrer"
+            target="_blank"
+            rel="noopener noreferrer"
               className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-[#DC2626] transition-colors border border-red-200"
-              aria-label="Twitter"
-            >
+            aria-label="Twitter"
+          >
               <FaTwitter className="w-4 h-4 text-[#DC2626] hover:text-white transition-colors" />
-            </a>
+          </a>
           )}
           {footerInfo.instagram && (
-            <a
+          <a
               href={footerInfo.instagram}
-              target="_blank"
-              rel="noopener noreferrer"
+            target="_blank"
+            rel="noopener noreferrer"
               className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-[#DC2626] transition-colors border border-red-200"
-              aria-label="Instagram"
-            >
+            aria-label="Instagram"
+          >
               <FaInstagram className="w-4 h-4 text-[#DC2626] hover:text-white transition-colors" />
-            </a>
+          </a>
           )}
           {footerInfo.linkedin && (
-            <a
+          <a
               href={footerInfo.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
+            target="_blank"
+            rel="noopener noreferrer"
               className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-[#DC2626] transition-colors border border-red-200"
-              aria-label="LinkedIn"
-            >
+            aria-label="LinkedIn"
+          >
               <FaLinkedin className="w-4 h-4 text-[#DC2626] hover:text-white transition-colors" />
-            </a>
+          </a>
           )}
         </div>
       </div>

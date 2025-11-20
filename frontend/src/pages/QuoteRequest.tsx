@@ -4,22 +4,33 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useMutation } from "@tanstack/react-query";
-import { queryClient, apiRequest } from "@/lib/queryClient";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { FaSpinner, FaArrowLeft, FaArrowRight, FaCheckCircle, FaPhone, FaEnvelope, FaClock, FaMapMarkerAlt, FaChevronRight } from "react-icons/fa";
+import { FaSpinner, FaArrowLeft, FaArrowRight, FaCheckCircle, FaChevronRight } from "react-icons/fa";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
+
+const API_URL = "http://localhost:8000/api";
 
 // Schéma de validation pour les coordonnées finales
 const contactSchema = z.object({
   nom: z.string().min(2, "Le nom doit contenir au moins 2 caractères"),
   email: z.string().email("Email invalide"),
-  telephone: z.string().optional(),
+  telephone: z.string().min(8, "Le téléphone doit contenir au moins 8 caractères"),
   message: z.string().min(10, "Le message doit contenir au moins 10 caractères"),
 });
 
@@ -27,26 +38,17 @@ type ContactFormData = z.infer<typeof contactSchema>;
 
 // Types pour les étapes du formulaire
 interface QuoteFormData {
+  serviceId?: number;
   localisation: string;
-  service: string;
-  typeAide: string;
+  typeAide?: string;
+  typeAideAutre?: string;
   sousTypeAide?: string;
+  sousTypeAideAutre?: string;
   besoins: string[];
-  destinataire: string;
+  besoinAutre?: string;
+  destinataire?: string;
   contact: ContactFormData;
 }
-
-// Services disponibles par région
-const servicesByRegion: Record<string, string[]> = {
-  "france": ["Ménage", "Mécanique", "Baby-sitting", "Jardinage", "Peinture", "Plomberie", "Électricité", "Repassage"],
-  "côte d'ivoire": ["Ménage", "Garde d'enfants", "Jardinage", "Repassage", "Sécurité", "Déménagement", "Peinture"],
-  "ivory coast": ["Ménage", "Garde d'enfants", "Jardinage", "Repassage", "Sécurité", "Déménagement", "Peinture"],
-  "abidjan": ["Ménage", "Garde d'enfants", "Jardinage", "Repassage", "Sécurité", "Déménagement", "Peinture"],
-  "bouaké": ["Ménage", "Garde d'enfants", "Jardinage", "Repassage", "Sécurité", "Déménagement"],
-  "yamoussoukro": ["Ménage", "Garde d'enfants", "Jardinage", "Repassage", "Sécurité"],
-  "san pedro": ["Ménage", "Garde d'enfants", "Jardinage", "Repassage", "Sécurité"],
-  "default": ["Ménage", "Garde d'enfants", "Jardinage", "Repassage", "Peinture", "Sécurité"],
-};
 
 // Types d'aide disponibles
 const typesAide: Record<string, { label: string; sousTypes?: string[] }> = {
@@ -81,6 +83,7 @@ const besoinsAide: string[] = [
   "Soins médicaux",
   "Transport",
   "Courses",
+  "Autre",
 ];
 
 // Destinataires
@@ -92,18 +95,48 @@ const destinataires = [
 
 export default function QuoteRequest() {
   const { toast } = useToast();
-  const [, setLocation] = useLocation();
+  const [location, setLocationState] = useLocation();
   const [currentStep, setCurrentStep] = useState(1);
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [formData, setFormData] = useState<Partial<QuoteFormData>>({
     besoins: [],
+    typeAideAutre: "",
+    sousTypeAideAutre: "",
+    besoinAutre: "",
   });
+
+  // Récupérer le service ID depuis l'URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const serviceIdParam = urlParams.get("service");
+
+  // Récupérer tous les services depuis l'API
+  const { data: servicesData } = useQuery({
+    queryKey: ["services"],
+    queryFn: async () => {
+      const response = await axios.get(`${API_URL}/services/`);
+      return response.data.results || [];
+    },
+  });
+
+  // Récupérer le service pré-sélectionné
+  const selectedService = servicesData?.find((s: any) => s.id === parseInt(serviceIdParam || "0"));
+
+  // Initialiser le service si fourni dans l'URL
+  useEffect(() => {
+    if (selectedService && !formData.serviceId) {
+      setFormData((prev) => ({ ...prev, serviceId: selectedService.id }));
+      // Passer directement à l'étape 2 si le service est déjà sélectionné
+      if (currentStep === 1) {
+        setCurrentStep(2);
+      }
+    }
+  }, [selectedService]);
+
 
   const {
     register,
     handleSubmit,
     reset,
-    setValue,
-    watch,
     formState: { errors },
   } = useForm<ContactFormData>({
     resolver: zodResolver(contactSchema),
@@ -118,61 +151,57 @@ export default function QuoteRequest() {
   const mutation = useMutation({
     mutationFn: async (data: ContactFormData) => {
       const fullData = {
-        ...data,
-        ...formData,
+        service: formData.serviceId,
+        location: formData.localisation || "",
+        location_lat: null,
+        location_lng: null,
+        client_name: data.nom,
+        client_email: data.email,
+        client_phone: data.telephone,
+        additional_info: {
+          typeAide: formData.typeAide === "Autre" ? formData.typeAideAutre : formData.typeAide,
+          typeAideOriginal: formData.typeAide,
+          sousTypeAide: formData.sousTypeAide === "Autre" ? formData.sousTypeAideAutre : formData.sousTypeAide,
+          sousTypeAideOriginal: formData.sousTypeAide,
+          besoins: formData.besoins?.map(b => b === "Autre" ? formData.besoinAutre || "Autre" : b) || [],
+          besoinAutre: formData.besoinAutre,
+          destinataire: formData.destinataire,
+          message: data.message,
+        },
       };
-      const response = await apiRequest("POST", "/api/quote-requests", fullData);
-      return response.json();
+      const response = await axios.post(`${API_URL}/quote-requests/`, fullData);
+      return response.data;
     },
     onSuccess: () => {
-      toast({
-        title: "Demande envoyée !",
-        description: "Nous vous contacterons rapidement pour discuter de votre projet.",
-      });
-      reset();
-      setFormData({ besoins: [] });
-      setCurrentStep(1);
-      setTimeout(() => {
-        setLocation("/");
-      }, 2000);
+      setShowSuccessDialog(true);
     },
-    onError: () => {
+    onError: (error: any) => {
       toast({
-        title: "Erreur",
-        description: "Une erreur s'est produite. Veuillez réessayer.",
+        title: "❌ Erreur",
+        description: error.response?.data?.detail || "Une erreur s'est produite. Veuillez réessayer.",
         variant: "destructive",
       });
     },
   });
 
   const onSubmit = (data: ContactFormData) => {
+    if (!formData.serviceId) {
+      toast({
+        title: "⚠️ Service requis",
+        description: "Veuillez sélectionner un service.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (!formData.localisation) {
+      toast({
+        title: "⚠️ Localisation requise",
+        description: "Veuillez indiquer votre localisation.",
+        variant: "destructive",
+      });
+      return;
+    }
     mutation.mutate(data);
-  };
-
-  // Fonction pour obtenir les services selon la localisation
-  const getServicesForRegion = (localisation: string): string[] => {
-    const locLower = localisation.toLowerCase().trim();
-    
-    // Vérification spécifique pour les villes de Côte d'Ivoire
-    if (locLower.includes("abidjan")) {
-      return servicesByRegion["abidjan"];
-    } else if (locLower.includes("bouaké") || locLower.includes("bouake")) {
-      return servicesByRegion["bouaké"];
-    } else if (locLower.includes("yamoussoukro")) {
-      return servicesByRegion["yamoussoukro"];
-    } else if (locLower.includes("san pedro") || locLower.includes("san-pedro")) {
-      return servicesByRegion["san pedro"];
-    }
-    
-    // Vérification pour les pays
-    if (locLower.includes("france") || locLower.includes("paris") || locLower.includes("lyon") || locLower.includes("marseille")) {
-      return servicesByRegion["france"];
-    } else if (locLower.includes("côte d'ivoire") || locLower.includes("cote d'ivoire") || locLower.includes("ivory coast") || locLower.includes("ci")) {
-      return servicesByRegion["côte d'ivoire"];
-    }
-    
-    // Par défaut, retourner les services génériques
-    return servicesByRegion["default"];
   };
 
   // Navigation entre les étapes
@@ -192,14 +221,18 @@ export default function QuoteRequest() {
   const toggleBesoin = (besoin: string) => {
     const currentBesoins = formData.besoins || [];
     if (currentBesoins.includes(besoin)) {
+      // Si on désélectionne "Autre", on vide aussi le champ texte
+      const newBesoins = currentBesoins.filter((b) => b !== besoin);
       setFormData({
         ...formData,
-        besoins: currentBesoins.filter((b) => b !== besoin),
+        besoins: newBesoins,
+        besoinAutre: besoin === "Autre" ? "" : formData.besoinAutre,
       });
     } else {
       setFormData({
         ...formData,
         besoins: [...currentBesoins, besoin],
+        besoinAutre: besoin === "Autre" ? "" : formData.besoinAutre,
       });
     }
   };
@@ -210,17 +243,29 @@ export default function QuoteRequest() {
       case 1:
         return !!formData.localisation && formData.localisation.trim().length > 0;
       case 2:
-        return !!formData.service;
+        return !!formData.serviceId;
       case 3:
+        // Si "Autre" est sélectionné, on doit avoir un texte
+        if (formData.typeAide === "Autre") {
+          return !!(formData.typeAideAutre && formData.typeAideAutre.trim().length > 0);
+        }
         return !!formData.typeAide;
       case 4:
         // Si le type d'aide a des sous-types, on doit en sélectionner un
         if (formData.typeAide && typesAide[formData.typeAide]?.sousTypes) {
+          // Si "Autre" est sélectionné comme sous-type, on doit avoir un texte
+          if (formData.sousTypeAide === "Autre") {
+            return !!(formData.sousTypeAideAutre && formData.sousTypeAideAutre.trim().length > 0);
+          }
           return !!formData.sousTypeAide;
         }
         return true; // Pas de sous-types, on peut continuer
       case 5:
-        return formData.besoins && formData.besoins.length > 0;
+        // Si "Autre" est dans les besoins, on doit avoir un texte
+        if (formData.besoins && formData.besoins.includes("Autre")) {
+          return !!(formData.besoinAutre && formData.besoinAutre.trim().length > 0);
+        }
+        return !!(formData.besoins && formData.besoins.length > 0);
       case 6:
         return !!formData.destinataire;
       case 7:
@@ -230,7 +275,7 @@ export default function QuoteRequest() {
     }
   };
 
-  const services = formData.localisation ? getServicesForRegion(formData.localisation) : [];
+  const services = servicesData || [];
 
   return (
     <div className="min-h-screen bg-white pt-20 overflow-x-hidden w-full max-w-full">
@@ -312,43 +357,26 @@ export default function QuoteRequest() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {/* ÉTAPE 1: Localisation */}
+                {/* ÉTAPE 1: Localisation avec Google Maps Places */}
                 {currentStep === 1 && (
                   <div className="space-y-6">
-                    <div className="space-y-2">
+                    <div className="space-y-2 relative">
                       <Label htmlFor="localisation" className="text-base font-semibold text-gray-700">
                         Votre localisation *
                       </Label>
                       <Input
                         id="localisation"
                         value={formData.localisation || ""}
-                        onChange={(e) => setFormData({ ...formData, localisation: e.target.value })}
-                        placeholder="Ex: France, Côte d'Ivoire, Abidjan..."
+                        onChange={(e) => {
+                          setFormData({ ...formData, localisation: e.target.value });
+                        }}
+                        placeholder="Ex: France, Côte d'Ivoire, Abidjan, Cocody..."
                         className="h-12 text-base"
                       />
+                      <p className="text-sm text-gray-500">
+                        Indiquez votre ville, région ou pays
+                      </p>
                     </div>
-                    {formData.localisation && services.length > 0 && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="p-4 bg-[#DC2626]/5 rounded-lg border border-[#DC2626]/20"
-                      >
-                        <p className="text-sm font-semibold text-[#DC2626] mb-2">
-                          Services disponibles dans votre région :
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          {services.map((service) => (
-                            <Badge
-                              key={service}
-                              variant="outline"
-                              className="bg-white border-[#DC2626]/30 text-[#DC2626]"
-                            >
-                              {service}
-                            </Badge>
-                          ))}
-                        </div>
-                      </motion.div>
-                    )}
                   </div>
                 )}
 
@@ -356,23 +384,13 @@ export default function QuoteRequest() {
                 {currentStep === 2 && (
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {services.map((service) => (
+                      {services.map((service: any) => (
                         <motion.button
-                          key={service}
+                          key={service.id}
                           type="button"
-                          onClick={() => {
-                            setFormData({ ...formData, service });
-                            // Si le service correspond à un type d'aide, on le pré-remplit
-                            if (service === "Garde d'enfants" || service === "Baby-sitting") {
-                              setFormData((prev) => ({ ...prev, service, typeAide: "Garde d'enfants" }));
-                            } else if (service === "Ménage") {
-                              setFormData((prev) => ({ ...prev, service, typeAide: "Ménage et entretien" }));
-                            } else {
-                              setFormData((prev) => ({ ...prev, service }));
-                            }
-                          }}
+                          onClick={() => setFormData({ ...formData, serviceId: service.id })}
                           className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
-                            formData.service === service
+                            formData.serviceId === service.id
                               ? "border-[#DC2626] bg-[#DC2626]/10 shadow-md"
                               : "border-gray-200 hover:border-[#DC2626]/50 hover:bg-[#DC2626]/5"
                           }`}
@@ -380,11 +398,14 @@ export default function QuoteRequest() {
                           whileTap={{ scale: 0.98 }}
                         >
                           <div className="flex items-center justify-between">
-                            <span className="font-semibold text-gray-900">{service}</span>
-                            {formData.service === service && (
+                            <span className="font-semibold text-gray-900">{service.name}</span>
+                            {formData.serviceId === service.id && (
                               <FaCheckCircle className="w-5 h-5 text-[#DC2626]" />
                             )}
                           </div>
+                          {service.short_description && (
+                            <p className="text-sm text-gray-600 mt-2">{service.short_description}</p>
+                          )}
                         </motion.button>
                       ))}
                     </div>
@@ -402,7 +423,7 @@ export default function QuoteRequest() {
                         <motion.button
                           key={type}
                           type="button"
-                          onClick={() => setFormData({ ...formData, typeAide: type, sousTypeAide: undefined })}
+                          onClick={() => setFormData({ ...formData, typeAide: type, typeAideAutre: "", sousTypeAide: undefined })}
                           className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
                             formData.typeAide === type
                               ? "border-[#DC2626] bg-[#DC2626]/10 shadow-md"
@@ -420,6 +441,26 @@ export default function QuoteRequest() {
                         </motion.button>
                       ))}
                     </div>
+                    {/* Champ de texte pour "Autre" */}
+                    {formData.typeAide === "Autre" && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="mt-4"
+                      >
+                        <Label htmlFor="typeAideAutre" className="text-base font-semibold text-gray-700 mb-2 block">
+                          Précisez le type d'aide *
+                        </Label>
+                        <Input
+                          id="typeAideAutre"
+                          value={formData.typeAideAutre || ""}
+                          onChange={(e) => setFormData({ ...formData, typeAideAutre: e.target.value })}
+                          placeholder="Ex: Assistance administrative, Cours particuliers..."
+                          className="h-12 text-base"
+                        />
+                      </motion.div>
+                    )}
                   </div>
                 )}
 
@@ -431,7 +472,7 @@ export default function QuoteRequest() {
                         <motion.button
                           key={sousType}
                           type="button"
-                          onClick={() => setFormData({ ...formData, sousTypeAide: sousType })}
+                          onClick={() => setFormData({ ...formData, sousTypeAide: sousType, sousTypeAideAutre: "" })}
                           className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
                             formData.sousTypeAide === sousType
                               ? "border-[#DC2626] bg-[#DC2626]/10 shadow-md"
@@ -448,7 +489,46 @@ export default function QuoteRequest() {
                           </div>
                         </motion.button>
                       ))}
+                      {/* Option "Autre" pour les sous-types */}
+                      <motion.button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, sousTypeAide: "Autre", sousTypeAideAutre: "" })}
+                        className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
+                          formData.sousTypeAide === "Autre"
+                            ? "border-[#DC2626] bg-[#DC2626]/10 shadow-md"
+                            : "border-gray-200 hover:border-[#DC2626]/50 hover:bg-[#DC2626]/5"
+                        }`}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-semibold text-gray-900">Autre</span>
+                          {formData.sousTypeAide === "Autre" && (
+                            <FaCheckCircle className="w-5 h-5 text-[#DC2626]" />
+                          )}
+                        </div>
+                      </motion.button>
                     </div>
+                    {/* Champ de texte pour "Autre" sous-type */}
+                    {formData.sousTypeAide === "Autre" && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="mt-4"
+                      >
+                        <Label htmlFor="sousTypeAideAutre" className="text-base font-semibold text-gray-700 mb-2 block">
+                          Précisez le sous-type d'aide *
+                        </Label>
+                        <Input
+                          id="sousTypeAideAutre"
+                          value={formData.sousTypeAideAutre || ""}
+                          onChange={(e) => setFormData({ ...formData, sousTypeAideAutre: e.target.value })}
+                          placeholder="Ex: Assistance spécifique..."
+                          className="h-12 text-base"
+                        />
+                      </motion.div>
+                    )}
                   </div>
                 )}
 
@@ -481,6 +561,26 @@ export default function QuoteRequest() {
                         </motion.button>
                       ))}
                     </div>
+                    {/* Champ de texte pour "Autre" besoin */}
+                    {formData.besoins?.includes("Autre") && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="mt-4"
+                      >
+                        <Label htmlFor="besoinAutre" className="text-base font-semibold text-gray-700 mb-2 block">
+                          Précisez votre besoin *
+                        </Label>
+                        <Input
+                          id="besoinAutre"
+                          value={formData.besoinAutre || ""}
+                          onChange={(e) => setFormData({ ...formData, besoinAutre: e.target.value })}
+                          placeholder="Ex: Assistance administrative, Accompagnement médical..."
+                          className="h-12 text-base"
+                        />
+                      </motion.div>
+                    )}
                   </div>
                 )}
 
@@ -553,7 +653,7 @@ export default function QuoteRequest() {
 
                     <div className="space-y-2">
                       <Label htmlFor="telephone" className="text-base font-semibold text-gray-700">
-                        Téléphone (optionnel)
+                        Téléphone *
                       </Label>
                       <Input
                         id="telephone"
@@ -562,6 +662,11 @@ export default function QuoteRequest() {
                         placeholder="+33 6 12 34 56 78"
                         className="h-12 text-base"
                       />
+                      {errors.telephone && (
+                        <p className="text-sm text-red-600 flex items-center gap-1">
+                          <span>⚠</span> {errors.telephone.message}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-2">
@@ -642,6 +747,34 @@ export default function QuoteRequest() {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* Dialog de succès */}
+      <AlertDialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-2xl font-bold text-gray-900">
+              Demande envoyée avec succès
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base text-gray-700 pt-2">
+              Votre demande de devis a été transmise avec succès. Notre équipe vous contactera rapidement pour discuter de votre projet et vous proposer une solution adaptée à vos besoins.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction
+              onClick={() => {
+                reset();
+                setFormData({ besoins: [] });
+                setCurrentStep(1);
+                setShowSuccessDialog(false);
+                setLocationState("/");
+              }}
+              className="w-full bg-[#DC2626] hover:bg-[#B91C1C] text-white font-semibold"
+            >
+              D'accord
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

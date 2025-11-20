@@ -1,60 +1,51 @@
-# 🚀 Démarrage rapide - Backend
+# Démarrage rapide
 
-## Étape 1 : Installation (une seule fois)
+## 1. Créer les migrations pour l'application api
 
-### Windows
 ```bash
-# Exécutez le script d'installation
-setup.bat
+cd backend
+python manage.py makemigrations api
 ```
 
-### Linux/Mac
+**⚠️ IMPORTANT :** Il faut spécifier `api` car c'est l'application qui contient les modèles.
+
+## 2. Appliquer les migrations
+
 ```bash
-# Activer l'environnement virtuel
-source venv/bin/activate
-
-# Installer les dépendances
-pip install -r requirements.txt
-
-# Créer les migrations
-python manage.py makemigrations
 python manage.py migrate
-
-# Créer un superutilisateur
-python manage.py createsuperuser
 ```
 
-## Étape 2 : Lancer le serveur
+## 3. Créer les données initiales
 
 ```bash
-# Activer l'environnement virtuel (si pas déjà fait)
-venv\Scripts\activate  # Windows
-# ou
-source venv/bin/activate  # Linux/Mac
+python manage.py create_initial_data
+```
 
-# Lancer le serveur
+**⚠️ IMPORTANT :** Utilisez `python manage.py create_initial_data` et NON `python management/commands/create_initial_data.py`
+
+**⚠️ ERREUR "no such table" ?** Cela signifie que les migrations n'ont pas été créées/appliquées. Exécutez d'abord les étapes 1 et 2.
+
+## 4. Lancer le serveur
+
+```bash
 python manage.py runserver
 ```
 
-✅ Backend disponible sur : http://localhost:8000
+## Identifiants créés
 
-## Étape 3 : Accéder à l'admin
+Après avoir exécuté `create_initial_data`, vous aurez :
 
-1. Ouvrez : http://localhost:8000/admin
-2. Connectez-vous avec le superutilisateur créé
-3. Créez des services et agences
-4. Le frontend affichera automatiquement ces données !
+- **Superadmin**: `superadmin` / `superadmin`
+- **Admin**: `admin` / `admin`
+- **Client**: `client` / `client`
 
-## ✅ C'est prêt !
+## Accès à l'admin Django
 
-- **Admin** : http://localhost:8000/admin
-- **API** : http://localhost:8000/api/services/
+- URL: http://localhost:8000/admin/
+- Identifiants: `superadmin` / `superadmin`
 
+## Tester l'API
 
-
-
-
-
-
-
-
+- Navbar: http://localhost:8000/api/navbar/
+- Services: http://localhost:8000/api/services/
+- Agences: http://localhost:8000/api/agencies/

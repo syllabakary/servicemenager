@@ -17,12 +17,47 @@ import {
   FaCalendar,
   FaPhone,
   FaEnvelope,
-  FaComment,
+  FaCommentDots,
   FaAward,
   FaChartLine,
   FaInfoCircle,
   FaDollarSign,
   FaArrowRight,
+  FaBroom,
+  FaWrench,
+  FaCar,
+  FaHome,
+  FaTools,
+  FaHammer,
+  FaCog,
+  FaLaptop,
+  FaGraduationCap,
+  FaUtensils,
+  FaDumbbell,
+  FaMusic,
+  FaDog,
+  FaHeartbeat,
+  FaTooth,
+  FaCut,
+  FaSwimmingPool,
+  FaSnowflake,
+  FaLightbulb,
+  FaPlane,
+  FaShip,
+  FaBicycle,
+  FaMotorcycle,
+  FaBuilding,
+  FaBriefcase,
+  FaHandHoldingHeart,
+  FaUserTie,
+  FaChalkboardTeacher,
+  FaLaptopCode,
+  FaCamera,
+  FaVideo,
+  FaMicrophone,
+  FaGamepad,
+  FaBook,
+  FaShoppingCart,
 } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi";
 import { motion } from "framer-motion";
@@ -35,7 +70,171 @@ const iconMap: Record<string, any> = {
   Paintbrush: FaPaintBrush,
   Shield: FaShieldAlt,
   Truck: FaTruck,
+  Broom: FaBroom,
+  Wrench: FaWrench,
+  Car: FaCar,
+  Home: FaHome,
+  Tools: FaTools,
+  Hammer: FaHammer,
+  Cog: FaCog,
+  Laptop: FaLaptop,
+  GraduationCap: FaGraduationCap,
+  Utensils: FaUtensils,
+  Dumbbell: FaDumbbell,
+  Music: FaMusic,
+  Dog: FaDog,
+  Heartbeat: FaHeartbeat,
+  Tooth: FaTooth,
+  Cut: FaCut,
+  SwimmingPool: FaSwimmingPool,
+  Snowflake: FaSnowflake,
+  Lightbulb: FaLightbulb,
+  Plane: FaPlane,
+  Ship: FaShip,
+  Bicycle: FaBicycle,
+  Motorcycle: FaMotorcycle,
+  Building: FaBuilding,
+  Briefcase: FaBriefcase,
+  HandHoldingHeart: FaHandHoldingHeart,
+  UserTie: FaUserTie,
+  ChalkboardTeacher: FaChalkboardTeacher,
+  LaptopCode: FaLaptopCode,
+  Camera: FaCamera,
+  Video: FaVideo,
+  Microphone: FaMicrophone,
+  Gamepad: FaGamepad,
+  Book: FaBook,
+  ShoppingCart: FaShoppingCart,
 };
+
+// 🔍 Mapping des mots-clés vers les icônes
+const keywordIconMap: Array<{ keywords: string[]; icon: any }> = [
+  // Ménage et nettoyage
+  { keywords: ['ménage', 'menage', 'nettoyage', 'nettoyer', 'ménagère', 'menagere', 'aspirateur', 'aspirateuse', 'repassage', 'repasser', 'lavage', 'laver', 'vitres', 'fenêtres', 'fenetres', 'sol', 'solage', 'balai', 'serpillère', 'serpillere'], icon: FaBroom },
+  
+  // Garde d'enfants
+  { keywords: ['enfant', 'enfants', 'bébé', 'bebe', 'baby', 'nounou', 'nounous', 'garde', 'babysitting', 'babysitter', 'crèche', 'creche', 'puericulture', 'puériculture'], icon: FaBaby },
+  
+  // Jardinage
+  { keywords: ['jardin', 'jardinage', 'jardiner', 'pelouse', 'tonte', 'tondre', 'taille', 'tailler', 'arbres', 'arbuste', 'fleurs', 'fleur', 'plante', 'plantation', 'paysagiste', 'paysage', 'gazon', 'verdure'], icon: FaTree },
+  
+  // Peinture
+  { keywords: ['peinture', 'peindre', 'peintre', 'pinceau', 'rouleau', 'enduit', 'enduire', 'façade', 'facade', 'mur', 'murs', 'décoration', 'decoration', 'décorateur', 'decorateur'], icon: FaPaintBrush },
+  
+  // Sécurité
+  { keywords: ['sécurité', 'securite', 'sécurisation', 'securisation', 'surveillance', 'alarme', 'caméra', 'camera', 'vigilance', 'protection', 'protéger', 'protéger', 'gardiennage', 'garde', 'sécuritaire'], icon: FaShieldAlt },
+  
+  // Déménagement
+  { keywords: ['déménagement', 'demenagement', 'déménager', 'demenager', 'transport', 'transporter', 'camion', 'cartons', 'carton', 'emballage', 'emballer', 'livraison', 'livrer', 'colis'], icon: FaTruck },
+  
+  // Mécanique
+  { keywords: ['mécanique', 'mecanique', 'mécanicien', 'mecanicien', 'réparation', 'reparation', 'réparer', 'reparer', 'garage', 'voiture', 'automobile', 'moteur', 'moteurs', 'entretien auto', 'vidange', 'pneu', 'pneus', 'frein', 'freins'], icon: FaWrench },
+  
+  // Automobile
+  { keywords: ['auto', 'automobile', 'voiture', 'véhicule', 'vehicule', 'conduite', 'chauffeur', 'taxi', 'uber', 'location voiture'], icon: FaCar },
+  
+  // Bricolage
+  { keywords: ['bricolage', 'bricoler', 'bricoleur', 'réparation', 'reparation', 'réparer', 'reparer', 'outil', 'outils', 'perceuse', 'visseuse', 'scie', 'marteau', 'clou', 'vis'], icon: FaTools },
+  
+  // Plomberie
+  { keywords: ['plomberie', 'plombier', 'eau', 'robinet', 'robinets', 'canalisation', 'canalisations', 'fuite', 'fuites', 'chauffe-eau', 'chauffe eau', 'sanitaire', 'sanitaires', 'douche', 'bain', 'lavabo'], icon: FaWrench },
+  
+  // Électricité
+  { keywords: ['électricité', 'electricite', 'électricien', 'electricien', 'électrique', 'electrique', 'éclairage', 'eclairage', 'ampoule', 'ampoules', 'lumière', 'lumiere', 'interrupteur', 'interrupteurs', 'prise', 'prises', 'tableau électrique'], icon: FaLightbulb },
+  
+  // Chauffage
+  { keywords: ['chauffage', 'chauffer', 'chaudière', 'chaudiere', 'radiateur', 'radiateurs', 'chauffagiste', 'climatisation', 'climatiseur', 'ventilation', 'ventilateur'], icon: FaSnowflake },
+  
+  // Informatique
+  { keywords: ['informatique', 'ordinateur', 'ordinateurs', 'pc', 'laptop', 'portable', 'réparation pc', 'reparation pc', 'dépannage informatique', 'depannage informatique', 'installation', 'logiciel', 'logiciels', 'système', 'systeme', 'windows', 'mac', 'linux'], icon: FaLaptop },
+  
+  // Programmation
+  { keywords: ['programmation', 'programmer', 'développement', 'developpement', 'développeur', 'developpeur', 'code', 'coding', 'web', 'site', 'application', 'app', 'mobile', 'android', 'ios', 'javascript', 'python', 'java'], icon: FaLaptopCode },
+  
+  // Enseignement
+  { keywords: ['cours', 'enseignement', 'enseigner', 'professeur', 'prof', 'professeur particulier', 'soutien scolaire', 'aide aux devoirs', 'devoirs', 'mathématiques', 'mathematiques', 'français', 'francais', 'anglais', 'langue', 'langues', 'formation', 'apprendre'], icon: FaChalkboardTeacher },
+  
+  // Cuisine
+  { keywords: ['cuisine', 'cuisiner', 'cuisinier', 'chef', 'repas', 'cooking', 'recette', 'recettes', 'restaurant', 'traiteur', 'catering', 'service traiteur'], icon: FaUtensils },
+  
+  // Sport
+  { keywords: ['sport', 'sportif', 'fitness', 'gym', 'musculation', 'entraînement', 'entrainement', 'coach', 'coaching', 'salle de sport', 'yoga', 'pilates', 'course', 'running', 'vélo', 'velo', 'natation'], icon: FaDumbbell },
+  
+  // Musique
+  { keywords: ['musique', 'musical', 'instrument', 'instruments', 'piano', 'guitare', 'violon', 'cours de musique', 'professeur de musique', 'musicien', 'chanteur', 'chant'], icon: FaMusic },
+  
+  // Animaux
+  { keywords: ['animal', 'animaux', 'chien', 'chiens', 'chat', 'chats', 'vétérinaire', 'veterinaire', 'veto', 'promenade', 'promener', 'garde animal', 'pension', 'toilettage', 'toiletter'], icon: FaDog },
+  
+  // Santé
+  { keywords: ['santé', 'sante', 'médecin', 'medecin', 'infirmier', 'infirmière', 'infirmiere', 'soins', 'soigner', 'aide soignant', 'aide-soignant', 'auxiliaire', 'hospitalier', 'médical', 'medical', 'santé à domicile'], icon: FaHeartbeat },
+  
+  // Dentaire
+  { keywords: ['dent', 'dents', 'dentaire', 'dentiste', 'hygiène dentaire', 'hygiene dentaire', 'blanchiment', 'orthodontie'], icon: FaTooth },
+  
+  // Coiffure
+  { keywords: ['coiffure', 'coiffeur', 'coiffeuse', 'salon', 'coupe', 'couper', 'cheveux', 'cheveu', 'coloration', 'mèche', 'meche', 'balayage', 'brushing', 'permanente'], icon: FaCut },
+  
+  // Piscine
+  { keywords: ['piscine', 'piscines', 'nettoyage piscine', 'entretien piscine', 'bassin', 'spa', 'jacuzzi', 'hammam'], icon: FaSwimmingPool },
+  
+  // Voyage
+  { keywords: ['voyage', 'voyager', 'avion', 'vol', 'vols', 'aéroport', 'aeroport', 'tourisme', 'touriste', 'vacances'], icon: FaPlane },
+  
+  // Bateau
+  { keywords: ['bateau', 'bateaux', 'navire', 'maritime', 'marin', 'navigation', 'port', 'voilier', 'yacht'], icon: FaShip },
+  
+  // Vélo
+  { keywords: ['vélo', 'velo', 'vélos', 'velos', 'bicyclette', 'bicyclettes', 'cyclisme', 'cycliste', 'réparation vélo', 'reparation velo'], icon: FaBicycle },
+  
+  // Moto
+  { keywords: ['moto', 'motos', 'motocyclette', 'motard', 'scooter', 'scooters', 'réparation moto', 'reparation moto'], icon: FaMotorcycle },
+  
+  // Immobilier
+  { keywords: ['immobilier', 'immobilier', 'maison', 'maisons', 'appartement', 'appartements', 'location', 'louer', 'vente', 'vendre', 'agent immobilier', 'agence immobilière', 'agence immobiliere'], icon: FaBuilding },
+  
+  // Bureautique
+  { keywords: ['bureau', 'bureaux', 'secrétaire', 'secretaire', 'assistant', 'assistante', 'secrétariat', 'secretariat', 'comptabilité', 'comptabilite', 'comptable', 'administration'], icon: FaBriefcase },
+  
+  // Aide à domicile
+  { keywords: ['aide à domicile', 'aide a domicile', 'aide domicile', 'accompagnement', 'accompagner', 'personne âgée', 'personne agee', 'senior', 'seniors', 'maintien à domicile', 'maintien a domicile'], icon: FaHandHoldingHeart },
+  
+  // Services professionnels
+  { keywords: ['professionnel', 'professionnels', 'expert', 'experts', 'conseil', 'conseiller', 'consultant', 'consultants', 'service professionnel'], icon: FaUserTie },
+  
+  // Photographie
+  { keywords: ['photo', 'photos', 'photographie', 'photographe', 'photographe', 'shooting', 'mariage', 'portrait', 'événement', 'evenement'], icon: FaCamera },
+  
+  // Vidéo
+  { keywords: ['vidéo', 'video', 'vidéos', 'videos', 'caméraman', 'cameraman', 'tournage', 'montage', 'film', 'films', 'cinéma', 'cinema'], icon: FaVideo },
+  
+  // Audio
+  { keywords: ['audio', 'son', 'sons', 'enregistrement', 'studio', 'micro', 'microphone', 'podcast', 'radio'], icon: FaMicrophone },
+  
+  // Jeux
+  { keywords: ['jeu', 'jeux', 'gaming', 'gamer', 'console', 'consoles', 'playstation', 'xbox', 'nintendo', 'esport', 'e-sport'], icon: FaGamepad },
+  
+  // Livres
+  { keywords: ['livre', 'livres', 'bibliothèque', 'bibliotheque', 'lecture', 'lire', 'écrivain', 'ecrivain', 'auteur', 'auteurs', 'librairie'], icon: FaBook },
+  
+  // Shopping
+  { keywords: ['achat', 'achats', 'shopping', 'courses', 'course', 'magasin', 'magasins', 'commerce', 'commerçant', 'commercant', 'boutique', 'boutiques'], icon: FaShoppingCart },
+];
+
+// 🎯 Fonction pour détecter l'icône appropriée selon les mots-clés
+function getServiceIcon(serviceName: string, serviceDescription: string = ''): any {
+  const text = `${serviceName} ${serviceDescription}`.toLowerCase();
+  
+  // Parcourir les mappings de mots-clés
+  for (const mapping of keywordIconMap) {
+    if (mapping.keywords.some(keyword => text.includes(keyword))) {
+      return mapping.icon;
+    }
+  }
+  
+  // Si aucun mot-clé n'est trouvé, retourner l'icône par défaut
+  return HiSparkles;
+}
 
 // Données mockées pour les services
 const mockServices = [
@@ -143,14 +342,62 @@ const mockServiceDetails: Record<number, any> = {
 
 export default function ServiceDetail() {
   const params = useParams();
-  const serviceId = parseInt(params.id || "1");
-  const service = mockServiceDetails[serviceId] || mockServiceDetails[1];
+  const serviceSlug = params.id;
   const [activeTab, setActiveTab] = useState<"prestations" | "avis" | "faq">("prestations");
 
-  const Icon = iconMap[service.icone] || HiSparkles;
+  // Récupérer le service depuis l'API
+  const { data: service, isLoading } = useQuery({
+    queryKey: ["service", serviceSlug],
+    queryFn: async () => {
+      const response = await fetch(`http://localhost:8000/api/services/?slug=${serviceSlug}`);
+      const data = await response.json();
+      return data.results?.[0] || null;
+    },
+    enabled: !!serviceSlug,
+  });
 
-  // Filtrer les services similaires (exclure le service actuel)
-  const similarServices = mockServices.filter(s => s.id !== serviceId).slice(0, 3);
+  // Récupérer les services similaires
+  const { data: similarServicesData } = useQuery({
+    queryKey: ["services"],
+    queryFn: async () => {
+      const response = await fetch("http://localhost:8000/api/services/?active=true");
+      const data = await response.json();
+      return data.results || [];
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!service) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Service non trouvé</h1>
+          <Link href="/services">
+            <Button>Retour aux services</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Déterminer l'icône du service selon les mots-clés
+  const Icon = getServiceIcon(
+    service.name || '',
+    `${service.short_description || ''} ${service.detailed_description || ''}`
+  );
+  const similarServices = (similarServicesData || [])
+    .filter((s: any) => s.id !== service.id && s.active)
+    .slice(0, 3);
 
   return (
     <div className="min-h-screen bg-white overflow-x-hidden w-full max-w-full">
@@ -176,6 +423,24 @@ export default function ServiceDetail() {
       {/* HERO SECTION */}
       <section className="relative py-8 sm:py-12 md:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          {/* Image du service en haut si disponible */}
+          {service.image_url && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="mb-8 sm:mb-12"
+            >
+              <div className="w-full h-64 sm:h-80 md:h-96 lg:h-[500px] rounded-2xl overflow-hidden shadow-2xl">
+                <img
+                  src={service.image_url}
+                  alt={service.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </motion.div>
+          )}
+          
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 md:gap-12 items-center">
             {/* Left: Info */}
             <motion.div
@@ -189,52 +454,66 @@ export default function ServiceDetail() {
               </Badge>
               
               <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
-                <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 flex items-center justify-center rounded-2xl bg-red-50 shadow-lg border border-red-200">
-                  <Icon className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-[#DC2626]" />
-                </div>
+                {!service.image_url && (
+                  <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 flex items-center justify-center rounded-2xl bg-red-50 shadow-lg border border-red-200">
+                    <Icon className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-[#DC2626]" />
+                  </div>
+                )}
                 <div>
                   <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2">
-                    {service.nom}
+                    {service.name}
                   </h1>
-                  <div className="flex items-center gap-2 text-yellow-500">
-                    <FaStar className="w-5 h-5 fill-yellow-400" />
-                    <span className="text-lg font-bold text-gray-900">{service.note}</span>
-                    <span className="text-gray-600">({service.nombreAvis} avis)</span>
-                  </div>
+                  {service.rating && (
+                    <div className="flex items-center gap-2 text-yellow-500">
+                      <FaStar className="w-5 h-5 fill-[#DC2626] text-[#DC2626]" />
+                      <span className="text-lg font-bold text-gray-900">{service.rating}</span>
+                      {service.review_count > 0 && (
+                        <span className="text-gray-600">({service.review_count} avis)</span>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 
               <p className="text-lg text-gray-700 leading-relaxed mb-8">
-                {service.description}
+                {service.detailed_description || service.short_description}
               </p>
 
               {/* Quick info cards */}
               <div className="grid grid-cols-2 gap-4 mb-8">
-                <div className="bg-white rounded-xl p-4 shadow-md border border-gray-100">
-                  <div className="flex items-center gap-2 text-gray-600 mb-1">
-                    <FaClock className="w-4 h-4 text-[#DC2626]" />
-                    <span className="text-sm font-medium">Durée</span>
+                {service.duration && (
+                  <div className="bg-white rounded-xl p-4 shadow-md border border-gray-100">
+                    <div className="flex items-center gap-2 text-gray-600 mb-1">
+                      <FaClock className="w-4 h-4 text-[#DC2626]" />
+                      <span className="text-sm font-medium">Durée</span>
+                    </div>
+                    <p className="text-lg font-bold text-gray-900">{service.duration}</p>
                   </div>
-                  <p className="text-lg font-bold text-gray-900">{service.duree}</p>
-                </div>
-                <div className="bg-white rounded-xl p-4 shadow-md border border-gray-100">
-                  <div className="flex items-center gap-2 text-gray-600 mb-1">
-                    <FaDollarSign className="w-4 h-4 text-[#DC2626]" />
-                    <span className="text-sm font-medium">Tarif</span>
+                )}
+                {(service.price_label || service.price_per_hour) && (
+                  <div className="bg-white rounded-xl p-4 shadow-md border border-gray-100">
+                    <div className="flex items-center gap-2 text-gray-600 mb-1">
+                      <FaDollarSign className="w-4 h-4 text-[#DC2626]" />
+                      <span className="text-sm font-medium">Tarif</span>
+                    </div>
+                    <p className="text-lg font-bold text-gray-900">
+                      {service.price_label || (service.price_per_hour ? `À partir de ${service.price_per_hour}€/heure` : "")}
+                    </p>
                   </div>
-                  <p className="text-lg font-bold text-gray-900">{service.prixDetail}</p>
-                </div>
+                )}
               </div>
 
-              {/* Avantages clés */}
-              <div className="grid grid-cols-2 gap-3">
-                {service.avantages.map((avantage: string, i: number) => (
-                  <div key={i} className="flex items-center gap-2 text-sm text-gray-700">
-                    <FaCheckCircle className="w-4 h-4 text-[#DC2626] flex-shrink-0" />
-                    <span>{avantage}</span>
-                  </div>
-                ))}
-              </div>
+              {/* Caractéristiques */}
+              {service.features && service.features.length > 0 && (
+                <div className="grid grid-cols-2 gap-3">
+                  {service.features.map((feature: string, i: number) => (
+                    <div key={i} className="flex items-center gap-2 text-sm text-gray-700">
+                      <FaCheckCircle className="w-4 h-4 text-[#DC2626] flex-shrink-0" />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </motion.div>
 
             {/* Right: Booking Card */}
@@ -259,9 +538,11 @@ export default function ServiceDetail() {
                         </Badge>
                       </div>
                       <p className="text-4xl font-bold text-[#DC2626] mb-1">
-                        {service.prix}
+                        {service.price_label || (service.price_per_hour ? `À partir de ${service.price_per_hour}€` : "Sur devis")}
                       </p>
-                      <p className="text-sm text-gray-600">par heure • Devis gratuit</p>
+                      <p className="text-sm text-gray-600">
+                        {service.price_per_hour ? "par heure • " : ""}Devis gratuit
+                      </p>
                     </div>
 
                     <div className="space-y-3">
@@ -281,7 +562,7 @@ export default function ServiceDetail() {
                         </a>
                         <Link href="/contact">
                           <Button variant="outline" className="w-full h-12 border-2 border-gray-200 hover:border-[#DC2626] hover:bg-[#DC2626]/5">
-                            <FaComment className="w-4 h-4 mr-2" />
+                            <FaCommentDots className="w-4 h-4 mr-2" />
                             Chat
                           </Button>
                         </Link>
@@ -289,20 +570,16 @@ export default function ServiceDetail() {
                     </div>
                   </div>
 
-                  <div className="pt-6 border-t border-gray-200">
-                    <div className="flex items-center gap-3 text-sm text-gray-600 mb-3">
-                      <FaCheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                      <span>Réponse sous 24h garantie</span>
+                  {service.guarantees && service.guarantees.length > 0 && (
+                    <div className="pt-6 border-t border-gray-200">
+                      {service.guarantees.map((guarantee: string, index: number) => (
+                        <div key={index} className="flex items-center gap-3 text-sm text-gray-600 mb-3 last:mb-0">
+                          <FaCheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
+                          <span>{guarantee}</span>
+                        </div>
+                      ))}
                     </div>
-                    <div className="flex items-center gap-3 text-sm text-gray-600 mb-3">
-                      <FaCheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                      <span>Devis gratuit et sans engagement</span>
-                    </div>
-                    <div className="flex items-center gap-3 text-sm text-gray-600">
-                      <FaCheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
-                      <span>Satisfait ou remboursé</span>
-                    </div>
-                  </div>
+                  )}
 
                   <div className="bg-red-50 border border-red-100 rounded-lg p-4">
                     <div className="flex items-start gap-3">
@@ -347,7 +624,7 @@ export default function ServiceDetail() {
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
-              Avis clients ({service.nombreAvis})
+              Avis clients {service.review_count > 0 && `(${service.review_count})`}
             </button>
             <button
               onClick={() => setActiveTab("faq")}
@@ -370,95 +647,85 @@ export default function ServiceDetail() {
           >
             {activeTab === "prestations" && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <Card className="border-0 shadow-lg">
-                  <CardContent className="p-8">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                      Ce qui est inclus
-                    </h3>
-                    <ul className="space-y-4">
-                      {service.prestations.map((prestation: string, index: number) => (
-                        <li key={index} className="flex items-start gap-3">
-                          <div className="w-6 h-6 rounded-full bg-[#DC2626]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <FaCheckCircle className="w-4 h-4 text-[#DC2626]" />
-                          </div>
-                          <span className="text-gray-700 leading-relaxed">{prestation}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
+                {service.included_services && service.included_services.length > 0 && (
+                  <Card className="border-0 shadow-lg">
+                    <CardContent className="p-8">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                        Ce qui est inclus
+                      </h3>
+                      <ul className="space-y-4">
+                        {service.included_services.map((prestation: string, index: number) => (
+                          <li key={index} className="flex items-start gap-3">
+                            <div className="w-6 h-6 rounded-full bg-[#DC2626]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <FaCheckCircle className="w-4 h-4 text-[#DC2626]" />
+                            </div>
+                            <span className="text-gray-700 leading-relaxed">{prestation}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                )}
 
-                <Card className="border border-gray-200 shadow-lg bg-red-50">
-                  <CardContent className="p-8">
-                    <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                      Notre processus
-                    </h3>
-                    <div className="space-y-6">
-                      {service.processus.map((etape: any, index: number) => (
-                        <div key={index} className="flex items-start gap-4">
-                          <div className="w-10 h-10 rounded-full bg-[#DC2626] text-white flex items-center justify-center font-bold flex-shrink-0">
-                            {index + 1}
+                {service.process_steps && service.process_steps.length > 0 && (
+                  <Card className="border border-gray-200 shadow-lg bg-red-50">
+                    <CardContent className="p-8">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                        Notre processus
+                      </h3>
+                      <div className="space-y-6">
+                        {service.process_steps.map((etape: any, index: number) => (
+                          <div key={index} className="flex items-start gap-4">
+                            <div className="w-10 h-10 rounded-full bg-[#DC2626] text-white flex items-center justify-center font-bold flex-shrink-0">
+                              {etape.step || index + 1}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-gray-900 mb-1">{etape.title || etape.titre}</h4>
+                              <p className="text-sm text-gray-600 leading-relaxed">
+                                {etape.description}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <h4 className="font-bold text-gray-900 mb-1">{etape.titre}</h4>
-                            <p className="text-sm text-gray-600 leading-relaxed">
-                              {etape.description}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             )}
 
             {activeTab === "avis" && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {service.avis.map((avis: any, i: number) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                  >
-                    <Card className="border-0 shadow-lg hover:shadow-xl transition-shadow h-full">
-                      <CardContent className="p-6">
-                        <div className="flex items-start justify-between mb-4">
-                          <div>
-                            <p className="font-bold text-gray-900 text-lg">{avis.nom}</p>
-                            <p className="text-sm text-gray-500">{avis.date}</p>
-                          </div>
-                          <div className="flex gap-1">
-                            {[...Array(avis.note)].map((_, i) => (
-                              <FaStar
-                                key={i}
-                                className="w-5 h-5 fill-yellow-400 text-yellow-400"
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <p className="text-gray-700 leading-relaxed">{avis.commentaire}</p>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
+                {service.review_count > 0 ? (
+                  <div className="col-span-2 text-center py-12">
+                    <FaStar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-lg font-semibold text-gray-900 mb-2">
+                      {service.review_count} avis client{service.review_count > 1 ? "s" : ""}
+                    </p>
+                    <p className="text-gray-600">Les avis détaillés seront bientôt disponibles</p>
+                  </div>
+                ) : (
+                  <div className="col-span-2 text-center py-12">
+                    <FaStar className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                    <p className="text-lg font-semibold text-gray-900 mb-2">Aucun avis pour le moment</p>
+                    <p className="text-gray-600">Soyez le premier à laisser un avis sur ce service</p>
+                  </div>
+                )}
               </div>
             )}
 
             {activeTab === "faq" && (
               <div className="max-w-3xl mx-auto space-y-4">
-                {service.faq.map((item: any, i: number) => (
-                  <Card key={i} className="border-0 shadow-lg hover:shadow-xl transition-shadow">
-                    <CardContent className="p-6">
-                      <h4 className="font-bold text-gray-900 text-lg mb-3 flex items-start gap-3">
-                        <FaComment className="w-5 h-5 text-[#DC2626] flex-shrink-0 mt-1" />
-                        {item.question}
-                      </h4>
-                      <p className="text-gray-700 leading-relaxed pl-8">{item.reponse}</p>
-                    </CardContent>
-                  </Card>
-                ))}
+                <div className="text-center py-12">
+                  <FaInfoCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <p className="text-lg font-semibold text-gray-900 mb-2">Questions fréquentes</p>
+                  <p className="text-gray-600">Les questions fréquentes seront bientôt disponibles</p>
+                  <Link href="/contact" className="mt-4 inline-block">
+                    <Button variant="outline" className="mt-4">
+                      Nous contacter
+                    </Button>
+                  </Link>
+                </div>
               </div>
             )}
           </motion.div>
@@ -490,43 +757,70 @@ export default function ServiceDetail() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8"
           >
-            {similarServices.map((similarService, index) => {
-              const SimilarIcon = iconMap[similarService.icone as keyof typeof iconMap] || HiSparkles;
-              return (
-                <motion.div
-                  key={similarService.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -4 }}
-                >
-                  <Link href={`/services/${similarService.id}`}>
-                    <Card className="h-full group relative overflow-hidden border-2 border-gray-200 shadow-lg hover:shadow-2xl hover:border-[#DC2626] transition-all duration-300 bg-white flex flex-col cursor-pointer">
-                      <CardHeader className="pb-3 sm:pb-4 px-4 sm:px-5 md:px-6">
-                        <div className="flex items-start justify-between mb-3 sm:mb-4">
-                          <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-[#DC2626]/20 to-[#DC2626]/10 flex items-center justify-center border-2 border-[#DC2626]/30 group-hover:bg-[#DC2626] group-hover:border-[#DC2626] transition-all duration-300">
-                            <SimilarIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#DC2626] group-hover:text-white transition-colors" />
+            {similarServices.length > 0 ? (
+              similarServices.map((similarService: any, index: number) => {
+                const SimilarIcon = getServiceIcon(
+                  similarService.name || '',
+                  `${similarService.short_description || ''} ${similarService.detailed_description || ''}`
+                );
+                return (
+                  <motion.div
+                    key={similarService.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.5, delay: index * 0.1 }}
+                    whileHover={{ y: -4 }}
+                  >
+                    <Link href={`/services/${similarService.slug}`}>
+                      <Card className="h-full group relative overflow-hidden border-2 border-gray-200 shadow-lg hover:shadow-2xl hover:border-[#DC2626] transition-all duration-300 bg-white flex flex-col cursor-pointer">
+                        {/* Image du service similaire */}
+                        {similarService.image_url ? (
+                          <div className="w-full h-40 overflow-hidden bg-gray-100">
+                            <img
+                              src={similarService.image_url}
+                              alt={similarService.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                            />
                           </div>
-                        </div>
-                        <CardTitle className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-[#DC2626] transition-colors">
-                          {similarService.nom}
-                        </CardTitle>
-                        <CardDescription className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                          {similarService.description}
-                        </CardDescription>
-                      </CardHeader>
-                      <CardContent className="px-4 sm:px-5 md:px-6 pt-0 pb-4 sm:pb-5 md:pb-6">
-                        <div className="flex items-center gap-2 text-[#DC2626] font-semibold group-hover:gap-3 transition-all">
-                          <span className="text-sm sm:text-base">Découvrir ce service</span>
-                          <FaArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                </motion.div>
-              );
-            })}
+                        ) : (
+                          <div className="w-full h-40 bg-gradient-to-br from-[#DC2626]/10 to-[#DC2626]/5 flex items-center justify-center">
+                            <div className="w-16 h-16 rounded-xl bg-[#DC2626]/20 flex items-center justify-center">
+                              <SimilarIcon className="w-8 h-8 text-[#DC2626]" />
+                            </div>
+                          </div>
+                        )}
+                        <CardHeader className="pb-3 sm:pb-4 px-4 sm:px-5 md:px-6">
+                          <div className="flex items-start justify-between mb-3 sm:mb-4">
+                            {!similarService.image_url && (
+                              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-[#DC2626]/20 to-[#DC2626]/10 flex items-center justify-center border-2 border-[#DC2626]/30 group-hover:bg-[#DC2626] group-hover:border-[#DC2626] transition-all duration-300">
+                                <SimilarIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#DC2626] group-hover:text-white transition-colors" />
+                              </div>
+                            )}
+                          </div>
+                          <CardTitle className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-[#DC2626] transition-colors">
+                            {similarService.name}
+                          </CardTitle>
+                          <CardDescription className="text-sm sm:text-base text-gray-600 leading-relaxed">
+                            {similarService.short_description}
+                          </CardDescription>
+                        </CardHeader>
+                        <CardContent className="px-4 sm:px-5 md:px-6 pt-0 pb-4 sm:pb-5 md:pb-6">
+                          <div className="flex items-center gap-2 text-[#DC2626] font-semibold group-hover:gap-3 transition-all">
+                            <span className="text-sm sm:text-base">Découvrir ce service</span>
+                            <FaArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  </motion.div>
+                );
+              })
+            ) : (
+              <div className="col-span-3 text-center py-12">
+                <p className="text-gray-600">Aucun autre service disponible pour le moment</p>
+              </div>
+            )}
           </motion.div>
 
           <motion.div

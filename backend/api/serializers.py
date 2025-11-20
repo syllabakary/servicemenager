@@ -1,63 +1,207 @@
 from rest_framework import serializers
-from .models import Service, Agence, Quote, Contact
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """Serializer pour CustomUser"""
+    password = serializers.CharField(
+        write_only=True,
+        required=True
+    )
+    role = serializers.ChoiceField(
+        choices=CustomUser.ROLE_CHOICES,
+        default='CLIENT'
+    )
+    
+    class Meta:
+        model = CustomUser
+        fields = [
+            'id', 'username', 'email', 'password', 'first_name',
+            'last_name', 'role', 'phone', 'date_joined', 'created_at'
+        ]
+        read_only_fields = ['date_joined', 'created_at']
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+    
+    def create(self, validated_data):
+        password = validated_data.pop('password')
+        user = CustomUser(**validated_data)
+        # Validation du mot de passe seulement si pas en DEBUG
+        from django.conf import settings
+        if not settings.DEBUG:
+            validate_password(password)
+        user.set_password(password)
+        user.save()
+        return user
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    """Serializer pour Category"""
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'show_in_navbar', 'order']
+
+
+class ServiceSummarySerializer(serializers.ModelSerializer):
+    """Serializer léger pour navbar et listes"""
+    url = serializers.SerializerMethodField()
+    category_name = serializers.CharField(source='category.name', read_only=True)
+    image_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Service
+        fields = ['id', 'name', 'slug', 'url', 'order', 'category', 'category_name', 'image_url', 'short_description', 'detailed_description', 'duration', 'price_label', 'price_per_hour', 'rating', 'review_count', 'features']
+    
+    def get_url(self, obj):
+        return obj.url
+    
+    def get_image_url(self, obj):
+        if obj.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+        return None
 
 
 class ServiceSerializer(serializers.ModelSerializer):
+    """Serializer complet pour Service"""
+    url = serializers.SerializerMethodField()
+    created_by_username = serializers.CharField(
+        source='created_by.username',
+        read_only=True
+    )
+    image_url = serializers.SerializerMethodField()
+    category_name = serializers.CharField(
+        source='category.name',
+        read_only=True
+    )
+    
     class Meta:
         model = Service
         fields = [
-            'id', 'nom', 'description', 'description_longue',
-            'icone', 'image', 'avantages', 'duree', 'prix',
-            'note', 'nombre_avis', 'actif', 'created_at', 'updated_at'
+            'id', 'name', 'slug', 'short_description', 'detailed_description',
+            'image', 'image_url', 'active', 'order', 'category', 'category_name',
+            'duration', 'price_per_hour', 'price_label',
+            'rating', 'review_count',
+            'included_services', 'features', 'guarantees', 'process_steps',
+            'created_by', 'created_by_username', 'created_at', 'updated_at', 'url'
         ]
-        read_only_fields = ['created_at', 'updated_at']
+        read_only_fields = ['created_at', 'updated_at', 'created_by']
+    
+    def get_url(self, obj):
+        return obj.url
+    
+    def get_image_url(self, obj):
+        if obj.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+        return None
 
 
-class AgenceSerializer(serializers.ModelSerializer):
-    services = ServiceSerializer(many=True, read_only=True)
-    services_ids = serializers.PrimaryKeyRelatedField(
-        many=True,
-        queryset=Service.objects.all(),
-        source='services',
-        write_only=True,
-        required=False
+class AgencySummarySerializer(serializers.ModelSerializer):
+    """Serializer léger pour navbar"""
+    url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Agency
+        fields = [
+            'id', 'name', 'slug', 'url', 'latitude', 'longitude'
+        ]
+    
+    def get_url(self, obj):
+        return obj.url
+
+
+class AgencySerializer(serializers.ModelSerializer):
+    """Serializer complet pour Agency"""
+    url = serializers.SerializerMethodField()
+    created_by_username = serializers.CharField(
+        source='created_by.username',
+        read_only=True
     )
-
+    contacts_count = serializers.SerializerMethodField()
+    
     class Meta:
-        model = Agence
+        model = Agency
         fields = [
-            'id', 'nom', 'description', 'ville', 'adresse',
-            'telephone', 'email', 'horaires', 'image',
-            'services', 'services_ids', 'note', 'nombre_avis',
-            'annee_experience', 'nombre_clients', 'actif',
-            'created_at', 'updated_at'
+            'id', 'name', 'slug', 'address', 'city', 'postal_code',
+            'phone', 'email', 'latitude', 'longitude', 'active',
+            'details', 'created_by', 'created_by_username',
+            'contacts_count', 'created_at', 'updated_at', 'url'
         ]
-        read_only_fields = ['created_at', 'updated_at']
-
-
-class QuoteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Quote
-        fields = [
-            'id', 'localisation', 'service', 'type_aide',
-            'sous_type_aide', 'besoins', 'destinataire',
-            'nom', 'email', 'telephone', 'message', 'statut',
-            'created_at', 'updated_at'
-        ]
-        read_only_fields = ['created_at', 'updated_at', 'statut']
+        read_only_fields = ['created_at', 'updated_at', 'created_by']
+    
+    def get_url(self, obj):
+        return obj.url
+    
+    def get_contacts_count(self, obj):
+        return obj.contacts.count()
 
 
 class ContactSerializer(serializers.ModelSerializer):
+    """Serializer pour Contact"""
+    agency_name = serializers.CharField(
+        source='agency.name',
+        read_only=True
+    )
+    created_by_username = serializers.CharField(
+        source='created_by.username',
+        read_only=True
+    )
+    
     class Meta:
         model = Contact
-        fields = ['id', 'nom', 'email', 'sujet', 'message', 'lu', 'created_at']
-        read_only_fields = ['lu', 'created_at']
+        fields = [
+            'id', 'name', 'role', 'phone', 'email', 'agency',
+            'agency_name', 'is_headquarter', 'address',
+            'created_by', 'created_by_username',
+            'created_at', 'updated_at'
+        ]
+        read_only_fields = ['created_at', 'updated_at', 'created_by']
 
 
+class PageContentSummarySerializer(serializers.ModelSerializer):
+    """Serializer léger pour navbar"""
+    url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = PageContent
+        fields = ['key', 'title', 'url']
+    
+    def get_url(self, obj):
+        # URL basée sur la clé (ex: home_banner -> /)
+        if obj.key == 'home_banner':
+            return '/'
+        return f'/{obj.key}/'
 
 
+class PageContentSerializer(serializers.ModelSerializer):
+    """Serializer complet pour PageContent"""
+    url = serializers.SerializerMethodField()
+    created_by_username = serializers.CharField(
+        source='created_by.username',
+        read_only=True
+    )
+    
+    class Meta:
+        model = PageContent
+        fields = [
+            'id', 'key', 'title', 'body', 'is_active', 'order',
+            'created_by', 'created_by_username',
+            'created_at', 'updated_at', 'url'
+        ]
+        read_only_fields = ['created_at', 'updated_at', 'created_by']
+    
+    def get_url(self, obj):
+        if obj.key == 'home_banner':
+            return '/'
+        return f'/{obj.key}/'
 
 
-
-
-
+class NavbarSerializer(serializers.Serializer):
+    """Serializer pour l'endpoint navbar"""
+    services = ServiceSummarySerializer(many=True)
+    agencies = AgencySummarySerializer(many=True)
+    pages = PageContentSummarySerializer(many=True)

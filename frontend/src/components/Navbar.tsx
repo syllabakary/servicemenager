@@ -6,6 +6,7 @@ import { HiSparkles } from "react-icons/hi";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { IconType } from "react-icons";
+import { useQuery } from "@tanstack/react-query";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,10 +38,57 @@ interface NavItem {
   subItems?: SubItem[];
 }
 
+// Mapping des icônes par catégorie
+const categoryIconMap: Record<string, IconType> = {
+  "Garde d'enfants": FaBaby,
+  "Ménage et repassage": HiSparkles,
+  "Jardinage": FaTree,
+  "Peinture": FaPaintBrush,
+  "Sécurité": FaShieldAlt,
+  "Déménagement": FaTruck,
+};
+
 export function Navbar() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({});
+
+  // Récupérer les services depuis l'API
+  const { data: navbarData } = useQuery({
+    queryKey: ["navbar"],
+    queryFn: async () => {
+      const response = await fetch("http://localhost:8000/api/navbar/");
+      return response.json();
+    },
+  });
+
+  // Construire les items de navigation pour les services
+  const buildServicesSubItems = (): SubItem[] => {
+    if (!navbarData?.services_by_category) {
+      return [];
+    }
+
+    const subItems: SubItem[] = [];
+    const categories = Object.keys(navbarData.services_by_category).sort();
+
+    for (const categoryName of categories) {
+      const services = navbarData.services_by_category[categoryName];
+      if (services && services.length > 0) {
+        subItems.push({
+          label: categoryName,
+          icon: categoryIconMap[categoryName] || FaBriefcase,
+          subSubItems: services.map((service: any) => ({
+            label: service.name,
+            path: `/services/${service.slug}`,
+          })),
+        });
+      }
+    }
+
+    return subItems;
+  };
+
+  const servicesSubItems = buildServicesSubItems();
 
   const navItems: NavItem[] = [
     { path: "/", label: "Accueil", icon: FaHome, hasDropdown: false },
@@ -48,61 +96,8 @@ export function Navbar() {
       path: "/services", 
       label: "Services", 
       icon: FaBriefcase, 
-      hasDropdown: true,
-      subItems: [
-        {
-          label: "Garde d'enfants",
-          icon: FaBaby,
-          subSubItems: [
-            { label: "Garde d'enfants régulière", path: "/services?type=garde-reguliere" },
-            { label: "Baby-sitting", path: "/services?type=babysitting" },
-            { label: "Nounou partagée", path: "/services?type=nounou-partagee" },
-            { label: "Aide aux devoirs", path: "/services?type=aide-devoirs" },
-          ]
-        },
-        {
-          label: "Ménage et repassage",
-          icon: HiSparkles,
-          subSubItems: [
-            { label: "Ménage régulier", path: "/services?type=menage-regulier" },
-            { label: "Ménage ponctuel", path: "/services?type=menage-ponctuel" },
-            { label: "Repassage à domicile", path: "/services?type=repassage" },
-          ]
-        },
-        {
-          label: "Jardinage",
-          icon: FaTree,
-          subSubItems: [
-            { label: "Entretien régulier", path: "/services?type=jardinage-regulier" },
-            { label: "Entretien ponctuel", path: "/services?type=jardinage-ponctuel" },
-            { label: "Aménagement paysager", path: "/services?type=amenagement" },
-          ]
-        },
-        {
-          label: "Peinture",
-          icon: FaPaintBrush,
-          subSubItems: [
-            { label: "Peinture intérieure", path: "/services?type=peinture-interieure" },
-            { label: "Peinture extérieure", path: "/services?type=peinture-exterieure" },
-          ]
-        },
-        {
-          label: "Sécurité",
-          icon: FaShieldAlt,
-          subSubItems: [
-            { label: "Installation système", path: "/services?type=securite-installation" },
-            { label: "Surveillance", path: "/services?type=surveillance" },
-          ]
-        },
-        {
-          label: "Déménagement",
-          icon: FaTruck,
-          subSubItems: [
-            { label: "Déménagement complet", path: "/services?type=demenagement-complet" },
-            { label: "Transport de meubles", path: "/services?type=transport" },
-          ]
-        },
-      ]
+      hasDropdown: servicesSubItems.length > 0,
+      subItems: servicesSubItems.length > 0 ? servicesSubItems : undefined,
     },
     { 
       path: "/agences", 
@@ -233,16 +228,24 @@ export function Navbar() {
             })}
           </div>
 
-          {/* CTA button */}
-          <div className="hidden md:block">
-                        <Link href="/devis">
+          {/* CTA buttons */}
+          <div className="hidden md:flex items-center gap-3">
+            <Link href="/admin/login">
               <Button
-                            className="bg-[#DC2626] hover:bg-[#DC2626] text-white shadow-md hover:shadow-lg transition-all duration-300"
+                variant="outline"
+                className="border-[#DC2626] text-[#DC2626] hover:bg-[#DC2626] hover:text-white transition-colors"
+              >
+                Connexion
+              </Button>
+            </Link>
+            <Link href="/devis">
+              <Button
+                className="bg-[#DC2626] hover:bg-[#DC2626] text-white shadow-md hover:shadow-lg transition-all duration-300"
                 data-testid="button-quote-cta"
               >
                 Demander un devis
               </Button>
-                        </Link>
+            </Link>
           </div>
 
           {/* Mobile menu button */}
@@ -362,10 +365,15 @@ export function Navbar() {
                 </Link>
                 );
               })}
+                          <Link href="/admin/login" onClick={() => setMobileMenuOpen(false)}>
+                            <Button variant="outline" className="w-full border-[#DC2626] text-[#DC2626] hover:bg-[#DC2626] hover:text-white">
+                              Connexion
+                            </Button>
+                          </Link>
                           <Link href="/devis" onClick={() => setMobileMenuOpen(false)}>
                             <Button className="w-full bg-[#DC2626] hover:bg-[#DC2626] text-white shadow-md">
-                  Demander un devis
-                </Button>
+                              Demander un devis
+                            </Button>
                           </Link>
             </div>
           </motion.div>

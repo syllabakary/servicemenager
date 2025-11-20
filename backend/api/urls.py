@@ -1,22 +1,33 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ServiceViewSet, AgenceViewSet, QuoteViewSet, ContactViewSet
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from .views import (
+    UserViewSet, ServiceViewSet, AgencyViewSet,
+    ContactViewSet, PageContentViewSet, NavbarViewSet, CategoryViewSet
+)
+from .views_auth import register
 
 router = DefaultRouter()
+router.register(r'users', UserViewSet, basename='user')
 router.register(r'services', ServiceViewSet, basename='service')
-router.register(r'agencies', AgenceViewSet, basename='agence')
-router.register(r'quotes', QuoteViewSet, basename='quote')
-router.register(r'contact', ContactViewSet, basename='contact')
+router.register(r'agencies', AgencyViewSet, basename='agency')
+router.register(r'contacts', ContactViewSet, basename='contact')
+router.register(r'pages', PageContentViewSet, basename='page')
+router.register(r'categories', CategoryViewSet, basename='category')
+router.register(r'meta', NavbarViewSet, basename='meta')
 
 urlpatterns = [
+    # JWT Authentication
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    
+    # Registration
+    path('register/', register, name='register'),
+    
+    # Router URLs
     path('', include(router.urls)),
+    
+    # Endpoint navbar direct
+    path('navbar/', NavbarViewSet.as_view({'get': 'list'}), name='navbar'),
+    path('meta/navbar/', NavbarViewSet.as_view({'get': 'list'}), name='meta-navbar'),
 ]
-
-
-
-
-
-
-
-
-

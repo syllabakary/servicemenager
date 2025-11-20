@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useLocation, Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,41 @@ import {
   FaSearch,
   FaFilter,
   FaTimes,
+  FaBroom,
+  FaWrench,
+  FaCar,
+  FaHome,
+  FaTools,
+  FaHammer,
+  FaCog,
+  FaLaptop,
+  FaGraduationCap,
+  FaUtensils,
+  FaDumbbell,
+  FaMusic,
+  FaDog,
+  FaHeartbeat,
+  FaTooth,
+  FaCut,
+  FaSwimmingPool,
+  FaSnowflake,
+  FaLightbulb,
+  FaPlane,
+  FaShip,
+  FaBicycle,
+  FaMotorcycle,
+  FaBuilding,
+  FaBriefcase,
+  FaHandHoldingHeart,
+  FaUserTie,
+  FaChalkboardTeacher,
+  FaLaptopCode,
+  FaCamera,
+  FaVideo,
+  FaMicrophone,
+  FaGamepad,
+  FaBook,
+  FaShoppingCart,
 } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi";
 import { motion } from "framer-motion";
@@ -31,15 +67,179 @@ interface Service {
   icone: string;
 }
 
-// 🧠 Mapping des icônes
-const iconMap = {
+// 🧠 Mapping des icônes disponibles
+const iconMap: Record<string, any> = {
   Sparkles: HiSparkles,
   Baby: FaBaby,
   TreeDeciduous: FaTree,
   Paintbrush: FaPaintBrush,
   Shield: FaShieldAlt,
   Truck: FaTruck,
+  Broom: FaBroom,
+  Wrench: FaWrench,
+  Car: FaCar,
+  Home: FaHome,
+  Tools: FaTools,
+  Hammer: FaHammer,
+  Cog: FaCog,
+  Laptop: FaLaptop,
+  GraduationCap: FaGraduationCap,
+  Utensils: FaUtensils,
+  Dumbbell: FaDumbbell,
+  Music: FaMusic,
+  Dog: FaDog,
+  Heartbeat: FaHeartbeat,
+  Tooth: FaTooth,
+  Cut: FaCut,
+  SwimmingPool: FaSwimmingPool,
+  Snowflake: FaSnowflake,
+  Lightbulb: FaLightbulb,
+  Plane: FaPlane,
+  Ship: FaShip,
+  Bicycle: FaBicycle,
+  Motorcycle: FaMotorcycle,
+  Building: FaBuilding,
+  Briefcase: FaBriefcase,
+  HandHoldingHeart: FaHandHoldingHeart,
+  UserTie: FaUserTie,
+  ChalkboardTeacher: FaChalkboardTeacher,
+  LaptopCode: FaLaptopCode,
+  Camera: FaCamera,
+  Video: FaVideo,
+  Microphone: FaMicrophone,
+  Gamepad: FaGamepad,
+  Book: FaBook,
+  ShoppingCart: FaShoppingCart,
 };
+
+// 🔍 Mapping des mots-clés vers les icônes
+const keywordIconMap: Array<{ keywords: string[]; icon: any }> = [
+  // Ménage et nettoyage
+  { keywords: ['ménage', 'menage', 'nettoyage', 'nettoyer', 'ménagère', 'menagere', 'aspirateur', 'aspirateuse', 'repassage', 'repasser', 'lavage', 'laver', 'vitres', 'fenêtres', 'fenetres', 'sol', 'solage', 'balai', 'serpillère', 'serpillere'], icon: FaBroom },
+  
+  // Garde d'enfants
+  { keywords: ['enfant', 'enfants', 'bébé', 'bebe', 'baby', 'nounou', 'nounous', 'garde', 'babysitting', 'babysitter', 'crèche', 'creche', 'puericulture', 'puériculture'], icon: FaBaby },
+  
+  // Jardinage
+  { keywords: ['jardin', 'jardinage', 'jardiner', 'pelouse', 'tonte', 'tondre', 'taille', 'tailler', 'arbres', 'arbuste', 'fleurs', 'fleur', 'plante', 'plantation', 'paysagiste', 'paysage', 'gazon', 'verdure'], icon: FaTree },
+  
+  // Peinture
+  { keywords: ['peinture', 'peindre', 'peintre', 'pinceau', 'rouleau', 'enduit', 'enduire', 'façade', 'facade', 'mur', 'murs', 'décoration', 'decoration', 'décorateur', 'decorateur'], icon: FaPaintBrush },
+  
+  // Sécurité
+  { keywords: ['sécurité', 'securite', 'sécurisation', 'securisation', 'surveillance', 'alarme', 'caméra', 'camera', 'vigilance', 'protection', 'protéger', 'protéger', 'gardiennage', 'garde', 'sécuritaire'], icon: FaShieldAlt },
+  
+  // Déménagement
+  { keywords: ['déménagement', 'demenagement', 'déménager', 'demenager', 'transport', 'transporter', 'camion', 'cartons', 'carton', 'emballage', 'emballer', 'livraison', 'livrer', 'colis'], icon: FaTruck },
+  
+  // Mécanique
+  { keywords: ['mécanique', 'mecanique', 'mécanicien', 'mecanicien', 'réparation', 'reparation', 'réparer', 'reparer', 'garage', 'voiture', 'automobile', 'moteur', 'moteurs', 'entretien auto', 'vidange', 'pneu', 'pneus', 'frein', 'freins'], icon: FaWrench },
+  
+  // Automobile
+  { keywords: ['auto', 'automobile', 'voiture', 'véhicule', 'vehicule', 'conduite', 'chauffeur', 'taxi', 'uber', 'location voiture'], icon: FaCar },
+  
+  // Bricolage
+  { keywords: ['bricolage', 'bricoler', 'bricoleur', 'réparation', 'reparation', 'réparer', 'reparer', 'outil', 'outils', 'perceuse', 'visseuse', 'scie', 'marteau', 'clou', 'vis'], icon: FaTools },
+  
+  // Plomberie
+  { keywords: ['plomberie', 'plombier', 'eau', 'robinet', 'robinets', 'canalisation', 'canalisations', 'fuite', 'fuites', 'chauffe-eau', 'chauffe eau', 'sanitaire', 'sanitaires', 'douche', 'bain', 'lavabo'], icon: FaWrench },
+  
+  // Électricité
+  { keywords: ['électricité', 'electricite', 'électricien', 'electricien', 'électrique', 'electrique', 'éclairage', 'eclairage', 'ampoule', 'ampoules', 'lumière', 'lumiere', 'interrupteur', 'interrupteurs', 'prise', 'prises', 'tableau électrique'], icon: FaLightbulb },
+  
+  // Chauffage
+  { keywords: ['chauffage', 'chauffer', 'chaudière', 'chaudiere', 'radiateur', 'radiateurs', 'chauffagiste', 'climatisation', 'climatiseur', 'ventilation', 'ventilateur'], icon: FaSnowflake },
+  
+  // Informatique
+  { keywords: ['informatique', 'ordinateur', 'ordinateurs', 'pc', 'laptop', 'portable', 'réparation pc', 'reparation pc', 'dépannage informatique', 'depannage informatique', 'installation', 'logiciel', 'logiciels', 'système', 'systeme', 'windows', 'mac', 'linux'], icon: FaLaptop },
+  
+  // Programmation
+  { keywords: ['programmation', 'programmer', 'développement', 'developpement', 'développeur', 'developpeur', 'code', 'coding', 'web', 'site', 'application', 'app', 'mobile', 'android', 'ios', 'javascript', 'python', 'java'], icon: FaLaptopCode },
+  
+  // Enseignement
+  { keywords: ['cours', 'enseignement', 'enseigner', 'professeur', 'prof', 'professeur particulier', 'soutien scolaire', 'aide aux devoirs', 'devoirs', 'mathématiques', 'mathematiques', 'français', 'francais', 'anglais', 'langue', 'langues', 'formation', 'apprendre'], icon: FaChalkboardTeacher },
+  
+  // Cuisine
+  { keywords: ['cuisine', 'cuisiner', 'cuisinier', 'chef', 'repas', 'cooking', 'recette', 'recettes', 'restaurant', 'traiteur', 'catering', 'service traiteur'], icon: FaUtensils },
+  
+  // Sport
+  { keywords: ['sport', 'sportif', 'fitness', 'gym', 'musculation', 'entraînement', 'entrainement', 'coach', 'coaching', 'salle de sport', 'yoga', 'pilates', 'course', 'running', 'vélo', 'velo', 'natation'], icon: FaDumbbell },
+  
+  // Musique
+  { keywords: ['musique', 'musical', 'instrument', 'instruments', 'piano', 'guitare', 'violon', 'cours de musique', 'professeur de musique', 'musicien', 'chanteur', 'chant'], icon: FaMusic },
+  
+  // Animaux
+  { keywords: ['animal', 'animaux', 'chien', 'chiens', 'chat', 'chats', 'vétérinaire', 'veterinaire', 'veto', 'promenade', 'promener', 'garde animal', 'pension', 'toilettage', 'toiletter'], icon: FaDog },
+  
+  // Santé
+  { keywords: ['santé', 'sante', 'médecin', 'medecin', 'infirmier', 'infirmière', 'infirmiere', 'soins', 'soigner', 'aide soignant', 'aide-soignant', 'auxiliaire', 'hospitalier', 'médical', 'medical', 'santé à domicile'], icon: FaHeartbeat },
+  
+  // Dentaire
+  { keywords: ['dent', 'dents', 'dentaire', 'dentiste', 'hygiène dentaire', 'hygiene dentaire', 'blanchiment', 'orthodontie'], icon: FaTooth },
+  
+  // Coiffure
+  { keywords: ['coiffure', 'coiffeur', 'coiffeuse', 'salon', 'coupe', 'couper', 'cheveux', 'cheveu', 'coloration', 'mèche', 'meche', 'balayage', 'brushing', 'permanente'], icon: FaCut },
+  
+  // Piscine
+  { keywords: ['piscine', 'piscines', 'nettoyage piscine', 'entretien piscine', 'bassin', 'spa', 'jacuzzi', 'hammam'], icon: FaSwimmingPool },
+  
+  // Voyage
+  { keywords: ['voyage', 'voyager', 'avion', 'vol', 'vols', 'aéroport', 'aeroport', 'tourisme', 'touriste', 'vacances'], icon: FaPlane },
+  
+  // Bateau
+  { keywords: ['bateau', 'bateaux', 'navire', 'maritime', 'marin', 'navigation', 'port', 'voilier', 'yacht'], icon: FaShip },
+  
+  // Vélo
+  { keywords: ['vélo', 'velo', 'vélos', 'velos', 'bicyclette', 'bicyclettes', 'cyclisme', 'cycliste', 'réparation vélo', 'reparation velo'], icon: FaBicycle },
+  
+  // Moto
+  { keywords: ['moto', 'motos', 'motocyclette', 'motard', 'scooter', 'scooters', 'réparation moto', 'reparation moto'], icon: FaMotorcycle },
+  
+  // Immobilier
+  { keywords: ['immobilier', 'immobilier', 'maison', 'maisons', 'appartement', 'appartements', 'location', 'louer', 'vente', 'vendre', 'agent immobilier', 'agence immobilière', 'agence immobiliere'], icon: FaBuilding },
+  
+  // Bureautique
+  { keywords: ['bureau', 'bureaux', 'secrétaire', 'secretaire', 'assistant', 'assistante', 'secrétariat', 'secretariat', 'comptabilité', 'comptabilite', 'comptable', 'administration'], icon: FaBriefcase },
+  
+  // Aide à domicile
+  { keywords: ['aide à domicile', 'aide a domicile', 'aide domicile', 'accompagnement', 'accompagner', 'personne âgée', 'personne agee', 'senior', 'seniors', 'maintien à domicile', 'maintien a domicile'], icon: FaHandHoldingHeart },
+  
+  // Services professionnels
+  { keywords: ['professionnel', 'professionnels', 'expert', 'experts', 'conseil', 'conseiller', 'consultant', 'consultants', 'service professionnel'], icon: FaUserTie },
+  
+  // Photographie
+  { keywords: ['photo', 'photos', 'photographie', 'photographe', 'photographe', 'shooting', 'mariage', 'portrait', 'événement', 'evenement'], icon: FaCamera },
+  
+  // Vidéo
+  { keywords: ['vidéo', 'video', 'vidéos', 'videos', 'caméraman', 'cameraman', 'tournage', 'montage', 'film', 'films', 'cinéma', 'cinema'], icon: FaVideo },
+  
+  // Audio
+  { keywords: ['audio', 'son', 'sons', 'enregistrement', 'studio', 'micro', 'microphone', 'podcast', 'radio'], icon: FaMicrophone },
+  
+  // Jeux
+  { keywords: ['jeu', 'jeux', 'gaming', 'gamer', 'console', 'consoles', 'playstation', 'xbox', 'nintendo', 'esport', 'e-sport'], icon: FaGamepad },
+  
+  // Livres
+  { keywords: ['livre', 'livres', 'bibliothèque', 'bibliotheque', 'lecture', 'lire', 'écrivain', 'ecrivain', 'auteur', 'auteurs', 'librairie'], icon: FaBook },
+  
+  // Shopping
+  { keywords: ['achat', 'achats', 'shopping', 'courses', 'course', 'magasin', 'magasins', 'commerce', 'commerçant', 'commercant', 'boutique', 'boutiques'], icon: FaShoppingCart },
+];
+
+// 🎯 Fonction pour détecter l'icône appropriée selon les mots-clés
+function getServiceIcon(serviceName: string, serviceDescription: string = ''): any {
+  const text = `${serviceName} ${serviceDescription}`.toLowerCase();
+  
+  // Parcourir les mappings de mots-clés
+  for (const mapping of keywordIconMap) {
+    if (mapping.keywords.some(keyword => text.includes(keyword))) {
+      return mapping.icon;
+    }
+  }
+  
+  // Si aucun mot-clé n'est trouvé, retourner l'icône par défaut
+  return HiSparkles;
+}
 
 // 🌟 Données fictives enrichies
 const mockServices: (Service & {
@@ -159,37 +359,55 @@ export default function Services() {
   const [minRating, setMinRating] = useState<number | null>(null);
   const [showFilters, setShowFilters] = useState(false);
 
+  // Récupérer les services depuis l'API
+  const { data: servicesData, isLoading } = useQuery({
+    queryKey: ["services"],
+    queryFn: async () => {
+      const response = await fetch("http://localhost:8000/api/services/?active=true");
+      const data = await response.json();
+      return data.results || [];
+    },
+  });
+
   // Filtrer les services
   const filteredServices = useMemo(() => {
-    let filtered = [...mockServices];
+    if (!servicesData) return [];
+    
+    let filtered = [...servicesData];
 
     // Filtre par recherche
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
-        (service) =>
-          service.nom.toLowerCase().includes(query) ||
-          service.description.toLowerCase().includes(query) ||
-          service.avantages.some((av) => av.toLowerCase().includes(query))
+        (service: any) =>
+          service.name?.toLowerCase().includes(query) ||
+          service.short_description?.toLowerCase().includes(query) ||
+          service.detailed_description?.toLowerCase().includes(query) ||
+          (service.features && Array.isArray(service.features) && service.features.some((f: string) => f.toLowerCase().includes(query)))
       );
     }
 
     // Filtre par note minimale
     if (minRating !== null) {
-      filtered = filtered.filter((service) => service.note >= minRating);
+      filtered = filtered.filter((service: any) => service.rating && service.rating >= minRating);
     }
 
     return filtered;
-  }, [searchQuery, minRating]);
+  }, [servicesData, searchQuery, minRating]);
 
   // Statistiques
   const stats = useMemo(() => {
-    const totalServices = mockServices.length;
-    const avgRating =
-      mockServices.reduce((sum, s) => sum + s.note, 0) / totalServices;
-    const totalReviews = mockServices.reduce((sum, s) => sum + s.nombreAvis, 0);
+    if (!servicesData || servicesData.length === 0) {
+      return { totalServices: 0, avgRating: 0, totalReviews: 0 };
+    }
+    const totalServices = servicesData.length;
+    const servicesWithRating = servicesData.filter((s: any) => s.rating);
+    const avgRating = servicesWithRating.length > 0
+      ? servicesWithRating.reduce((sum: number, s: any) => sum + parseFloat(s.rating || 0), 0) / servicesWithRating.length
+      : 0;
+    const totalReviews = servicesData.reduce((sum: number, s: any) => sum + (s.review_count || 0), 0);
     return { totalServices, avgRating, totalReviews };
-  }, []);
+  }, [servicesData]);
 
   return (
     <div className="min-h-screen bg-white pt-20 overflow-x-hidden w-full max-w-full">
@@ -412,8 +630,14 @@ export default function Services() {
             </div>
           </motion.div>
 
-          {/* Message si aucun résultat */}
-          {filteredServices.length === 0 ? (
+          {/* Loading state */}
+          {isLoading ? (
+            <div className="text-center py-16">
+              <div className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className="text-gray-600">Chargement des services...</p>
+            </div>
+          ) : filteredServices.length === 0 ? (
+            /* Message si aucun résultat */
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -426,7 +650,9 @@ export default function Services() {
                 Aucun service trouvé
               </h3>
               <p className="text-gray-600 mb-6">
-                Essayez de modifier vos critères de recherche ou vos filtres.
+                {servicesData && servicesData.length === 0
+                  ? "Aucun service n'est disponible pour le moment."
+                  : "Essayez de modifier vos critères de recherche ou vos filtres."}
               </p>
               <Button
                 variant="outline"
@@ -455,9 +681,11 @@ export default function Services() {
                 },
               }}
             >
-              {filteredServices.map((service) => {
-              const IconComponent =
-                iconMap[service.icone as keyof typeof iconMap] || HiSparkles;
+              {filteredServices.map((service: any) => {
+              const IconComponent = getServiceIcon(
+                service.name || '',
+                `${service.short_description || ''} ${service.detailed_description || ''}`
+              );
 
               return (
                 <motion.div
@@ -469,61 +697,87 @@ export default function Services() {
                   whileHover={{ y: -4 }}
                   transition={{ type: "spring", stiffness: 150, damping: 12 }}
                 >
-                  <Card className="h-full min-h-[420px] group relative overflow-hidden border-2 border-gray-200 shadow-lg hover:shadow-2xl hover:border-[#DC2626] transition-all duration-300 bg-white flex flex-col">
-                    <CardHeader className="pb-4">
-                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-3 sm:gap-0">
-                        <div className="w-16 h-16 rounded-xl bg-[#DC2626]/10 flex items-center justify-center group-hover:bg-[#DC2626] transition-all duration-300 flex-shrink-0 border-2 border-[#DC2626]/20 group-hover:border-[#DC2626]">
-                          <IconComponent className="w-8 h-8 text-[#DC2626] group-hover:text-white transition-colors" />
+                  <Link href={`/services/${service.slug}`}>
+                    <Card className="h-full min-h-[420px] group relative overflow-hidden border-2 border-gray-200 shadow-lg hover:shadow-2xl hover:border-[#DC2626] transition-all duration-300 bg-white flex flex-col cursor-pointer">
+                      {/* Image du service */}
+                      {service.image_url ? (
+                        <div className="w-full h-48 overflow-hidden bg-gray-100">
+                          <img
+                            src={service.image_url}
+                            alt={service.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
                         </div>
-                        <div className="flex items-center gap-1 bg-red-50 border border-red-200 px-3 py-1.5 rounded-full self-start sm:self-center">
-                          <FaStar className="w-4 h-4 fill-[#DC2626] text-[#DC2626]" />
-                          <span className="text-sm font-bold text-gray-900">{service.note}</span>
-                          <span className="text-xs text-gray-500">({service.nombreAvis})</span>
-                        </div>
-                      </div>
-
-                      <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 leading-tight">
-                        {service.nom}
-                      </CardTitle>
-                      <CardDescription className="text-base text-gray-600 leading-relaxed">
-                        {service.description}
-                      </CardDescription>
-                    </CardHeader>
-
-                    <CardContent className="flex flex-col flex-1 justify-between space-y-5">
-                      {/* Avantages */}
-                      <div className="space-y-3">
-                        {service.avantages.slice(0, 3).map((avantage, i) => (
-                          <div key={i} className="flex items-start gap-3 text-sm text-gray-700">
-                            <FaCheckCircle className="w-5 h-5 text-[#DC2626] mt-0.5 flex-shrink-0" />
-                            <span className="leading-relaxed">{avantage}</span>
+                      ) : (
+                        <div className="w-full h-48 bg-gradient-to-br from-[#DC2626]/10 to-[#DC2626]/5 flex items-center justify-center">
+                          <div className="w-20 h-20 rounded-xl bg-[#DC2626]/20 flex items-center justify-center">
+                            <IconComponent className="w-10 h-10 text-[#DC2626]" />
                           </div>
-                        ))}
-                      </div>
-
-                      {/* Informations pratiques */}
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-5 border-t-2 border-gray-100 text-sm">
-                        <div className="flex items-center gap-2 font-medium text-gray-700">
-                          <FaClock className="w-5 h-5 text-[#DC2626]" />
-                          <span>{service.duree}</span>
                         </div>
-                        <div className="flex items-center gap-2 font-bold text-[#DC2626]">
-                          <FaInfoCircle className="w-5 h-5" />
-                          <span>{service.prix}</span>
+                      )}
+                      <CardHeader className="pb-4">
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-3 sm:gap-0">
+                          <div className="w-16 h-16 rounded-xl bg-[#DC2626]/10 flex items-center justify-center group-hover:bg-[#DC2626] transition-all duration-300 flex-shrink-0 border-2 border-[#DC2626]/20 group-hover:border-[#DC2626]">
+                            <IconComponent className="w-8 h-8 text-[#DC2626] group-hover:text-white transition-colors" />
+                          </div>
+                          {service.rating && (
+                            <div className="flex items-center gap-1 bg-red-50 border border-red-200 px-3 py-1.5 rounded-full self-start sm:self-center">
+                              <FaStar className="w-4 h-4 fill-[#DC2626] text-[#DC2626]" />
+                              <span className="text-sm font-bold text-gray-900">{service.rating}</span>
+                              {service.review_count > 0 && (
+                                <span className="text-xs text-gray-500">({service.review_count})</span>
+                              )}
+                            </div>
+                          )}
                         </div>
-                      </div>
 
-                      {/* Bouton */}
-                      <Button
-                        className="w-full mt-6 h-12 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 group-hover:scale-[1.02]"
-                        onClick={() => setLocation(`/services/${service.id}`)}
-                      >
-                        Voir les détails
-                        <FaArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                    </CardContent>
-                  </Card>
+                        <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900 mb-3 leading-tight">
+                          {service.name}
+                        </CardTitle>
+                        <CardDescription className="text-base text-gray-600 leading-relaxed">
+                          {service.short_description || service.detailed_description}
+                        </CardDescription>
+                      </CardHeader>
 
+                      <CardContent className="flex flex-col flex-1 justify-between space-y-5">
+                        {/* Caractéristiques */}
+                        {service.features && service.features.length > 0 && (
+                          <div className="space-y-3">
+                            {service.features.slice(0, 3).map((feature: string, i: number) => (
+                              <div key={i} className="flex items-start gap-3 text-sm text-gray-700">
+                                <FaCheckCircle className="w-5 h-5 text-[#DC2626] mt-0.5 flex-shrink-0" />
+                                <span className="leading-relaxed">{feature}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Informations pratiques */}
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-5 border-t-2 border-gray-100 text-sm">
+                          {service.duration && (
+                            <div className="flex items-center gap-2 font-medium text-gray-700">
+                              <FaClock className="w-5 h-5 text-[#DC2626]" />
+                              <span>{service.duration}</span>
+                            </div>
+                          )}
+                          {(service.price_label || service.price_per_hour) && (
+                            <div className="flex items-center gap-2 font-bold text-[#DC2626]">
+                              <FaInfoCircle className="w-5 h-5" />
+                              <span>{service.price_label || (service.price_per_hour ? `À partir de ${service.price_per_hour}€/heure` : "")}</span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Bouton */}
+                        <Button
+                          className="w-full mt-6 h-12 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 group-hover:scale-[1.02]"
+                        >
+                          Voir les détails
+                          <FaArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 </motion.div>
               );
             })}

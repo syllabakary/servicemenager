@@ -140,6 +140,136 @@ const mockAgencies: Agency[] = [
   },
 ];
 
+// Composant pour la section de localisation
+function LocationSection() {
+  // Récupérer les données de localisation depuis l'API
+  const { data: locationData } = useQuery({
+    queryKey: ["headquarters_location"],
+    queryFn: async () => {
+      try {
+        const response = await fetch("http://localhost:8000/api/pages/?key=headquarters_location&is_active=true");
+        const data = await response.json();
+        return data.results?.[0] || null;
+      } catch {
+        return null;
+      }
+    },
+  });
+
+  // Parser les données JSON ou utiliser les valeurs par défaut
+  let locationInfo = {
+    title: "Notre siège à Paris",
+    subtitle: "Nous sommes basés au cœur de Paris pour mieux vous servir partout en France",
+    location: "Paris, France",
+    address: "Paris, France",
+    description: "Notre équipe est à votre disposition pour répondre à tous vos besoins en services à la personne",
+    mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.9916256937606!2d2.352221915674389!3d48.85661400000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e1f06e2b70f%3A0x40b82c3688c9460!2sParis%2C%20France!5e0!3m2!1sfr!2sfr!4v1234567890123!5m2!1sfr!2sfr",
+  };
+
+  if (locationData?.body) {
+    try {
+      locationInfo = { ...locationInfo, ...JSON.parse(locationData.body) };
+    } catch {
+      // Si ce n'est pas du JSON valide, utiliser les valeurs par défaut
+    }
+  }
+
+  // Extraire le texte du titre pour mettre "siège" en rouge
+  const titleText = locationInfo.title;
+  const titleParts = titleText.split(/(siège|Siège)/i);
+  const hasSiege = titleText.toLowerCase().includes('siège');
+
+  return (
+    <section className="py-20 bg-gray-50 relative">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 relative z-10">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            {hasSiege ? (
+              <>
+                {titleParts[0]}
+                <span className="text-[#DC2626]">{titleParts[1]}</span>
+                {titleParts[2]}
+              </>
+            ) : (
+              titleText
+            )}
+          </h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            {locationInfo.subtitle}
+          </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200"
+        >
+          <div className="relative w-full h-[500px] md:h-[600px]">
+            {/* Carte Google Maps */}
+            <iframe
+              src={locationInfo.mapUrl}
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              className="w-full h-full"
+            />
+            
+            {/* Overlay avec informations */}
+            <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-6 md:p-8">
+              <div className="max-w-2xl mx-auto text-white">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 bg-[#DC2626] rounded-full flex items-center justify-center flex-shrink-0">
+                    <FaMapMarkerAlt className="w-6 h-6 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="text-xl font-bold mb-2">Siège Social</h3>
+                    <p className="text-white/90 mb-1">{locationInfo.location || locationInfo.address}</p>
+                    <p className="text-sm text-white/80">
+                      {locationInfo.description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          className="mt-8 text-center"
+        >
+          <p className="text-sm text-gray-600 mb-4">
+            Nous intervenons dans toute la France métropolitaine
+          </p>
+          <Link href="/contact">
+            <Button
+              size="lg"
+              className="bg-[#DC2626] hover:bg-[#B91C1C] text-white px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+            >
+              Nous contacter
+              <FaArrowRight className="ml-2 w-5 h-5" />
+            </Button>
+          </Link>
+        </motion.div>
+      </div>
+    </section>
+  );
+}
+
 export default function Home() {
 
   const { data: services = mockServices, isLoading: servicesLoading } = useQuery<Service[]>({
@@ -600,86 +730,7 @@ export default function Home() {
       </section>
 
       {/* === LOCATION SECTION === */}
-      <section className="py-20 bg-gray-50 relative">
-        
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Notre <span className="text-[#DC2626]">siège</span> à Paris
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Nous sommes basés au cœur de Paris pour mieux vous servir partout en France
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200"
-          >
-            <div className="relative w-full h-[500px] md:h-[600px]">
-              {/* Carte de la France avec marqueur Paris */}
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.9916256937606!2d2.352221915674389!3d48.85661400000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e1f06e2b70f%3A0x40b82c3688c9460!2sParis%2C%20France!5e0!3m2!1sfr!2sfr!4v1234567890123!5m2!1sfr!2sfr"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                className="w-full h-full"
-              />
-              
-              {/* Overlay avec informations */}
-              <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-6 md:p-8">
-                <div className="max-w-2xl mx-auto text-white">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-[#DC2626] rounded-full flex items-center justify-center flex-shrink-0">
-                      <FaMapMarkerAlt className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="text-xl font-bold mb-2">Siège Social</h3>
-                      <p className="text-white/90 mb-1">Paris, France</p>
-                      <p className="text-sm text-white/80">
-                        Notre équipe est à votre disposition pour répondre à tous vos besoins en services à la personne
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="mt-8 text-center"
-          >
-            <p className="text-sm text-gray-600 mb-4">
-              Nous intervenons dans toute la France métropolitaine
-            </p>
-            <Link href="/contact">
-              <Button
-                size="lg"
-                className="bg-[#DC2626] hover:bg-[#B91C1C] text-white px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
-              >
-                Nous contacter
-                <FaArrowRight className="ml-2 w-5 h-5" />
-              </Button>
-            </Link>
-          </motion.div>
-        </div>
-      </section>
+      <LocationSection />
 
     </div>
   );

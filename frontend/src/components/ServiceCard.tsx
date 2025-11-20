@@ -1,6 +1,7 @@
+import { useState } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FaArrowRight, FaCheckCircle } from "react-icons/fa";
+import { FaArrowRight, FaCheckCircle, FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { IconType } from "react-icons";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
@@ -17,6 +18,14 @@ interface ServiceCardProps {
 }
 
 export function ServiceCard({ service, icon: Icon, delay = 0 }: ServiceCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Vérifier si le contenu dépasse 3 lignes
+  const hasBulletPoints = service.id === 1;
+  const bulletPointsCount = hasBulletPoints ? 3 : 0;
+  const descriptionLength = service.description.length;
+  const shouldTruncate = descriptionLength > 120 || bulletPointsCount > 0;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -25,18 +34,22 @@ export function ServiceCard({ service, icon: Icon, delay = 0 }: ServiceCardProps
       transition={{ duration: 0.5, delay }}
       whileHover={{ y: -2 }}
     >
-      <Card className="h-full min-h-[320px] group relative overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50 flex flex-col" data-testid={`card-service-${service.id}`}>
-        <CardHeader className="text-left relative z-10 pb-4 flex-1">
-          <CardTitle className="text-xl font-bold mb-3 text-gray-900" data-testid={`text-service-name-${service.id}`}>
+      <Card className="h-full group relative overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50 flex flex-col" data-testid={`card-service-${service.id}`}>
+        <CardHeader className="text-left relative z-10 pb-3 pt-5 flex-1 flex flex-col">
+          <CardTitle className="text-xl font-bold mb-2 text-gray-900" data-testid={`text-service-name-${service.id}`}>
             {service.nom}
           </CardTitle>
-          <CardDescription className="text-base mb-4 leading-relaxed text-gray-600" data-testid={`text-service-description-${service.id}`}>
+          
+          <CardDescription 
+            className={`text-base mb-3 leading-relaxed text-gray-600 ${!isExpanded && shouldTruncate ? 'line-clamp-3' : ''}`}
+            data-testid={`text-service-description-${service.id}`}
+          >
             {service.description}
           </CardDescription>
           
           {/* Bullet points for first service */}
-          {service.id === 1 && (
-            <ul className="space-y-2 mb-4">
+          {hasBulletPoints && (
+            <ul className={`space-y-1.5 mb-3 ${!isExpanded ? 'line-clamp-3' : ''}`}>
               {[
                 "Aides-ménagères qualifiées et valorisées",
                 "Prestations 100% personnalisables",
@@ -50,22 +63,47 @@ export function ServiceCard({ service, icon: Icon, delay = 0 }: ServiceCardProps
             </ul>
           )}
           
-          <Link href="/agences" data-testid={`link-discover-service-${service.id}`}>
-            <Button 
-              variant="ghost" 
-              className="gap-2 group/btn text-[#DC2626] hover:text-[#B91C1C] hover:bg-[#DC2626]/5 font-semibold p-0 h-auto justify-start" 
-              data-testid={`button-discover-service-${service.id}`}
-            >
-              Découvrir le service
-              <FaArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-            </Button>
-          </Link>
+          {/* Boutons alignés sur la même ligne */}
+          <div className="flex items-center gap-2 flex-wrap mt-auto">
+            {shouldTruncate && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="gap-1.5 text-[#DC2626] hover:text-[#B91C1C] hover:bg-[#DC2626]/5 font-medium p-0 h-auto text-sm"
+              >
+                {isExpanded ? (
+                  <>
+                    Voir moins
+                    <FaChevronUp className="w-3 h-3" />
+                  </>
+                ) : (
+                  <>
+                    Voir plus
+                    <FaChevronDown className="w-3 h-3" />
+                  </>
+                )}
+              </Button>
+            )}
+            
+            <Link href="/agences" data-testid={`link-discover-service-${service.id}`}>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="gap-2 group/btn text-[#DC2626] hover:text-[#B91C1C] hover:bg-[#DC2626]/5 font-semibold p-0 h-auto text-sm" 
+                data-testid={`button-discover-service-${service.id}`}
+              >
+                Découvrir le service
+                <FaArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
+              </Button>
+            </Link>
+          </div>
         </CardHeader>
         
         {/* Icon in bottom right */}
         <div className="relative mt-auto">
-          <div className="absolute bottom-0 right-0 w-16 h-16 bg-red-100 rounded-full flex items-center justify-center" data-testid={`icon-service-${service.id}`}>
-            <Icon className="w-8 h-8 text-red-500" />
+          <div className="absolute bottom-0 right-0 w-14 h-14 bg-red-100 rounded-full flex items-center justify-center" data-testid={`icon-service-${service.id}`}>
+            <Icon className="w-7 h-7 text-red-500" />
           </div>
         </div>
       </Card>

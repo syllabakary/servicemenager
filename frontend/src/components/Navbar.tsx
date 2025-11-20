@@ -1,8 +1,11 @@
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Home, Briefcase, Building2, Phone, Menu, X, ChevronDown, Sparkles, Baby, TreeDeciduous, Paintbrush, Shield, Truck, MapPin, Users, Info, LucideIcon } from "lucide-react";
+import { FaHome, FaBriefcase, FaBuilding, FaPhone, FaChevronDown, FaBaby, FaTree, FaPaintBrush, FaShieldAlt, FaTruck, FaMapMarkerAlt, FaUsers, FaInfoCircle } from "react-icons/fa";
+import { HiMenu, HiX } from "react-icons/hi";
+import { HiSparkles } from "react-icons/hi";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { IconType } from "react-icons";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,14 +25,14 @@ interface SubSubItem {
 
 interface SubItem {
   label: string;
-  icon: LucideIcon;
+  icon: IconType;
   subSubItems?: SubSubItem[];
 }
 
 interface NavItem {
   path: string;
   label: string;
-  icon: LucideIcon;
+  icon: IconType;
   hasDropdown: boolean;
   subItems?: SubItem[];
 }
@@ -37,18 +40,19 @@ interface NavItem {
 export function Navbar() {
   const [location] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({});
 
   const navItems: NavItem[] = [
-    { path: "/", label: "Accueil", icon: Home, hasDropdown: false },
+    { path: "/", label: "Accueil", icon: FaHome, hasDropdown: false },
     { 
       path: "/services", 
       label: "Services", 
-      icon: Briefcase, 
+      icon: FaBriefcase, 
       hasDropdown: true,
       subItems: [
         {
           label: "Garde d'enfants",
-          icon: Baby,
+          icon: FaBaby,
           subSubItems: [
             { label: "Garde d'enfants régulière", path: "/services?type=garde-reguliere" },
             { label: "Baby-sitting", path: "/services?type=babysitting" },
@@ -58,7 +62,7 @@ export function Navbar() {
         },
         {
           label: "Ménage et repassage",
-          icon: Sparkles,
+          icon: HiSparkles,
           subSubItems: [
             { label: "Ménage régulier", path: "/services?type=menage-regulier" },
             { label: "Ménage ponctuel", path: "/services?type=menage-ponctuel" },
@@ -67,7 +71,7 @@ export function Navbar() {
         },
         {
           label: "Jardinage",
-          icon: TreeDeciduous,
+          icon: FaTree,
           subSubItems: [
             { label: "Entretien régulier", path: "/services?type=jardinage-regulier" },
             { label: "Entretien ponctuel", path: "/services?type=jardinage-ponctuel" },
@@ -76,7 +80,7 @@ export function Navbar() {
         },
         {
           label: "Peinture",
-          icon: Paintbrush,
+          icon: FaPaintBrush,
           subSubItems: [
             { label: "Peinture intérieure", path: "/services?type=peinture-interieure" },
             { label: "Peinture extérieure", path: "/services?type=peinture-exterieure" },
@@ -84,7 +88,7 @@ export function Navbar() {
         },
         {
           label: "Sécurité",
-          icon: Shield,
+          icon: FaShieldAlt,
           subSubItems: [
             { label: "Installation système", path: "/services?type=securite-installation" },
             { label: "Surveillance", path: "/services?type=surveillance" },
@@ -92,7 +96,7 @@ export function Navbar() {
         },
         {
           label: "Déménagement",
-          icon: Truck,
+          icon: FaTruck,
           subSubItems: [
             { label: "Déménagement complet", path: "/services?type=demenagement-complet" },
             { label: "Transport de meubles", path: "/services?type=transport" },
@@ -103,12 +107,12 @@ export function Navbar() {
     { 
       path: "/agences", 
       label: "Agences", 
-      icon: Building2, 
+      icon: FaBuilding, 
       hasDropdown: true,
       subItems: [
         {
           label: "Par ville",
-          icon: MapPin,
+          icon: FaMapMarkerAlt,
           subSubItems: [
             { label: "Abidjan", path: "/agences?ville=abidjan" },
             { label: "Bouaké", path: "/agences?ville=bouake" },
@@ -118,7 +122,7 @@ export function Navbar() {
         },
         {
           label: "Par service",
-          icon: Briefcase,
+          icon: FaBriefcase,
           subSubItems: [
             { label: "Agences de nettoyage", path: "/agences?service=nettoyage" },
             { label: "Agences de garde d'enfants", path: "/agences?service=garde-enfants" },
@@ -127,7 +131,7 @@ export function Navbar() {
         },
         {
           label: "Recherche",
-          icon: Users,
+          icon: FaUsers,
           subSubItems: [
             { label: "Trouver une agence", path: "/agences" },
             { label: "Devenir partenaire", path: "/contact?type=partenaire" },
@@ -135,7 +139,7 @@ export function Navbar() {
         },
       ]
     },
-    { path: "/contact", label: "Contact", icon: Phone, hasDropdown: false },
+    { path: "/contact", label: "Contact", icon: FaPhone, hasDropdown: false },
   ];
 
   const isActive = (path: string) => location === path;
@@ -143,19 +147,19 @@ export function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 
       bg-white/95 backdrop-blur-md border-b border-gray-200 
-      shadow-sm transition-all duration-300">
+      shadow-sm w-full max-w-full overflow-x-hidden">
       
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group" data-testid="link-home">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gradient-to-br from-[#8B4513] to-[#8B4513] flex items-center justify-center transition-transform group-hover:scale-105 shadow-md">
-              <Home className="w-5 h-5 md:w-6 md:h-6 text-white" />
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gradient-to-br from-[#DC2626] to-black flex items-center justify-center transition-transform duration-200 group-hover:scale-105 shadow-md">
+              <FaHome className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
             <div className="flex flex-col">
               <span className="text-lg md:text-xl font-bold text-gray-900 tracking-tight">
-                Services <span className="text-[#8B4513]">Locaux</span>
+                Services <span className="text-[#DC2626]">Locaux</span>
             </span>
               <span className="text-xs text-gray-500 hidden md:block">Votre partenaire de confiance</span>
             </div>
@@ -170,29 +174,29 @@ export function Navbar() {
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant={isActive(item.path) ? "default" : "ghost"}
-                        className={`gap-2 transition-all duration-300 ${
+                        className={`gap-2 transition-colors duration-200 ${
                           isActive(item.path)
-                            ? "bg-[#8B4513] text-white shadow-md hover:bg-[#8B4513]"
-                            : "hover:bg-[#8B4513]/10 hover:text-[#8B4513] text-gray-700"
+                            ? "bg-[#DC2626] text-white shadow-md hover:bg-[#DC2626]"
+                            : "hover:bg-[#DC2626]/10 hover:text-[#DC2626] text-gray-700"
                         }`}
                         data-testid={`link-${item.label.toLowerCase()}`}
                       >
-                        <item.icon className="w-4 h-4" />
-                        {item.label}
-                        <ChevronDown className="w-3 h-3 ml-1" />
+                        <item.icon className="w-4 h-4 flex-shrink-0" />
+                        <span className="whitespace-nowrap">{item.label}</span>
+                        <FaChevronDown className="w-3 h-3 ml-1 flex-shrink-0" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-56 bg-white border border-gray-200 shadow-lg">
+                    <DropdownMenuContent align="start" className="w-56 bg-white border border-gray-200 shadow-lg" sideOffset={5}>
                       {item.subItems.map((subItem, idx) => (
                         <DropdownMenuSub key={idx}>
-                          <DropdownMenuSubTrigger className="gap-2 hover:bg-[#8B4513]/10">
-                            <subItem.icon className="w-4 h-4 text-[#8B4513]" />
+                          <DropdownMenuSubTrigger className="gap-2 hover:bg-[#DC2626]/10 focus:bg-[#DC2626]/10 focus:text-gray-900 data-[state=open]:bg-[#DC2626]/10">
+                            <subItem.icon className="w-4 h-4 text-[#DC2626]" />
                             <span>{subItem.label}</span>
                           </DropdownMenuSubTrigger>
                           <DropdownMenuSubContent className="bg-white border border-gray-200 shadow-lg">
                             {subItem.subSubItems?.map((subSubItem, subIdx) => (
                               <DropdownMenuItem key={subIdx} asChild>
-                                <Link href={subSubItem.path} className="cursor-pointer hover:bg-[#8B4513]/10">
+                                <Link href={subSubItem.path} className="cursor-pointer hover:bg-[#DC2626]/10 hover:text-gray-900 focus:bg-[#DC2626]/10 focus:text-gray-900">
                                   {subSubItem.label}
                                 </Link>
                               </DropdownMenuItem>
@@ -202,7 +206,7 @@ export function Navbar() {
                       ))}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link href={item.path} className="cursor-pointer hover:bg-[#8B4513]/10 font-semibold text-[#8B4513]">
+                        <Link href={item.path} className="cursor-pointer hover:bg-[#DC2626]/10 hover:text-[#DC2626] focus:bg-[#DC2626]/10 focus:text-[#DC2626] font-semibold text-[#DC2626]">
                           Voir tous les {item.label.toLowerCase()}
                         </Link>
                       </DropdownMenuItem>
@@ -214,15 +218,15 @@ export function Navbar() {
               <Link key={item.path} href={item.path}>
                 <Button
                   variant={isActive(item.path) ? "default" : "ghost"}
-                  className={`gap-2 transition-all duration-300 ${
+                  className={`gap-2 transition-colors duration-200 ${
                     isActive(item.path)
-                        ? "bg-[#8B4513] text-white shadow-md hover:bg-[#8B4513]"
-                        : "hover:bg-[#8B4513]/10 hover:text-[#8B4513] text-gray-700"
+                        ? "bg-[#DC2626] text-white shadow-md hover:bg-[#DC2626]"
+                        : "hover:bg-[#DC2626]/10 hover:text-[#DC2626] text-gray-700"
                   }`}
                   data-testid={`link-${item.label.toLowerCase()}`}
                 >
-                  <item.icon className="w-4 h-4" />
-                  {item.label}
+                  <item.icon className="w-4 h-4 flex-shrink-0" />
+                  <span className="whitespace-nowrap">{item.label}</span>
                 </Button>
               </Link>
               );
@@ -233,7 +237,7 @@ export function Navbar() {
           <div className="hidden md:block">
                         <Link href="/devis">
               <Button
-                            className="bg-[#8B4513] hover:bg-[#8B4513] text-white shadow-md hover:shadow-lg transition-all duration-300"
+                            className="bg-[#DC2626] hover:bg-[#DC2626] text-white shadow-md hover:shadow-lg transition-all duration-300"
                 data-testid="button-quote-cta"
               >
                 Demander un devis
@@ -243,11 +247,11 @@ export function Navbar() {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden p-2 text-gray-700 hover:text-[#8B4513] transition-colors"
+            className="md:hidden p-2 text-gray-700 hover:text-[#DC2626] transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
-            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileMenuOpen ? <HiX className="w-6 h-6" /> : <HiMenu className="w-6 h-6" />}
           </button>
         </div>
       </div>
@@ -264,48 +268,79 @@ export function Navbar() {
             <div className="px-4 py-4 space-y-2">
               {navItems.map((item) => {
                 if (item.hasDropdown && item.subItems) {
+                  const isSubMenuOpen = openSubMenus[item.path] || false;
                   return (
                     <div key={item.path} className="space-y-1">
-                      <div className="flex items-center justify-between px-2 py-2 text-sm font-semibold text-gray-700">
+                      <button
+                        onClick={() => setOpenSubMenus(prev => ({ ...prev, [item.path]: !prev[item.path] }))}
+                        className="flex items-center justify-between w-full px-2 py-2 text-sm font-semibold text-gray-700 hover:bg-[#DC2626]/10 rounded-lg transition-colors"
+                      >
                         <div className="flex items-center gap-2">
                           <item.icon className="w-4 h-4" />
                           {item.label}
                         </div>
-                      </div>
-                      <div className="pl-6 space-y-1">
-                        {item.subItems.map((subItem, idx) => (
-                          <div key={idx} className="space-y-1">
-                            <div className="flex items-center gap-2 px-2 py-1 text-sm font-medium text-[#8B4513]">
-                              <subItem.icon className="w-3 h-3" />
-                              {subItem.label}
-                            </div>
-                            <div className="pl-6 space-y-1">
-                              {subItem.subSubItems?.map((subSubItem, subIdx) => (
-                                <Link
-                                  key={subIdx}
-                                  href={subSubItem.path}
-                                  onClick={() => setMobileMenuOpen(false)}
+                        <FaChevronDown className={`w-4 h-4 transition-transform ${isSubMenuOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                      {isSubMenuOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="pl-6 space-y-1"
+                        >
+                          {item.subItems.map((subItem, idx) => {
+                            const subSubMenuKey = `${item.path}-${idx}`;
+                            const isSubSubMenuOpen = openSubMenus[subSubMenuKey] || false;
+                            return (
+                              <div key={idx} className="space-y-1">
+                                <button
+                                  onClick={() => setOpenSubMenus(prev => ({ ...prev, [subSubMenuKey]: !prev[subSubMenuKey] }))}
+                                  className="flex items-center justify-between w-full px-2 py-1 text-sm font-medium text-[#DC2626] hover:bg-[#DC2626]/10 rounded-lg transition-colors"
                                 >
-                                  <Button
-                                    variant="ghost"
-                                    className="w-full justify-start text-xs text-gray-600 hover:bg-[#8B4513]/10 hover:text-[#8B4513]"
+                                  <div className="flex items-center gap-2">
+                                    <subItem.icon className="w-3 h-3" />
+                                    {subItem.label}
+                                  </div>
+                                  {subItem.subSubItems && subItem.subSubItems.length > 0 && (
+                                    <FaChevronDown className={`w-3 h-3 transition-transform ${isSubSubMenuOpen ? 'rotate-180' : ''}`} />
+                                  )}
+                                </button>
+                                {isSubSubMenuOpen && subItem.subSubItems && (
+                                  <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    className="pl-6 space-y-1"
                                   >
-                                    {subSubItem.label}
-                                  </Button>
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                        <Link href={item.path} onClick={() => setMobileMenuOpen(false)}>
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-start text-sm font-semibold text-[#8B4513] hover:bg-[#8B4513]/10"
-                          >
-                            Voir tous les {item.label.toLowerCase()}
-                          </Button>
-                        </Link>
-                      </div>
+                                    {subItem.subSubItems.map((subSubItem, subIdx) => (
+                                      <Link
+                                        key={subIdx}
+                                        href={subSubItem.path}
+                                        onClick={() => setMobileMenuOpen(false)}
+                                      >
+                                        <Button
+                                          variant="ghost"
+                                          className="w-full justify-start text-xs text-gray-600 hover:bg-[#DC2626]/10 hover:text-[#DC2626]"
+                                        >
+                                          {subSubItem.label}
+                                        </Button>
+                                      </Link>
+                                    ))}
+                                  </motion.div>
+                                )}
+                              </div>
+                            );
+                          })}
+                          <Link href={item.path} onClick={() => setMobileMenuOpen(false)}>
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start text-sm font-semibold text-[#DC2626] hover:bg-[#DC2626]/10"
+                            >
+                              Voir tous les {item.label.toLowerCase()}
+                            </Button>
+                          </Link>
+                        </motion.div>
+                      )}
                     </div>
                   );
                 }
@@ -315,8 +350,8 @@ export function Navbar() {
                     variant={isActive(item.path) ? "default" : "ghost"}
                       className={`w-full justify-start gap-2 ${
                         isActive(item.path)
-                          ? "bg-[#8B4513] text-white"
-                          : "hover:bg-[#8B4513]/10 hover:text-[#8B4513] text-gray-700"
+                          ? "bg-[#DC2626] text-white"
+                          : "hover:bg-[#DC2626]/10 hover:text-[#DC2626] text-gray-700"
                       }`}
                     onClick={() => setMobileMenuOpen(false)}
                     data-testid={`link-mobile-${item.label.toLowerCase()}`}
@@ -328,7 +363,7 @@ export function Navbar() {
                 );
               })}
                           <Link href="/devis" onClick={() => setMobileMenuOpen(false)}>
-                            <Button className="w-full bg-[#8B4513] hover:bg-[#8B4513] text-white shadow-md">
+                            <Button className="w-full bg-[#DC2626] hover:bg-[#DC2626] text-white shadow-md">
                   Demander un devis
                 </Button>
                           </Link>

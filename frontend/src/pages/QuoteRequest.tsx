@@ -10,7 +10,7 @@ import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, ArrowLeft, ArrowRight, CheckCircle2, Phone, Mail, Clock, MapPin, ChevronRight } from "lucide-react";
+import { FaSpinner, FaArrowLeft, FaArrowRight, FaCheckCircle, FaPhone, FaEnvelope, FaClock, FaMapMarkerAlt, FaChevronRight } from "react-icons/fa";
 import { Link, useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState } from "react";
@@ -233,18 +233,18 @@ export default function QuoteRequest() {
   const services = formData.localisation ? getServicesForRegion(formData.localisation) : [];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 via-white to-gray-50/30 pt-20">
+    <div className="min-h-screen bg-white pt-20 overflow-x-hidden w-full max-w-full">
       {/* Header Section */}
-      <section className="relative py-12 md:py-16 bg-gradient-to-r from-[#8B4513] via-[#A0522D] to-[#8B4513] text-white overflow-hidden">
+      <section className="relative py-8 sm:py-10 md:py-12 lg:py-16 bg-[#DC2626] text-white overflow-hidden">
         <div className="absolute inset-0 bg-black/10" />
-        <div className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8 relative z-10">
+        <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative z-10">
           <Link href="/">
             <Button
               variant="ghost"
               size="sm"
               className="gap-2 mb-6 text-white hover:bg-white/20"
             >
-              <ArrowLeft className="w-4 h-4" />
+              <FaArrowLeft className="w-4 h-4" />
               Retour
             </Button>
           </Link>
@@ -255,10 +255,10 @@ export default function QuoteRequest() {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 sm:mb-4 px-2">
               Demandez votre <span className="text-[#FFD700]">devis gratuit</span>
             </h1>
-            <p className="text-base md:text-lg text-white/90 mb-6">
+            <p className="text-sm sm:text-base md:text-lg text-white/90 mb-4 sm:mb-6 px-2">
               Répondez à quelques questions pour obtenir un devis personnalisé
             </p>
             
@@ -281,7 +281,7 @@ export default function QuoteRequest() {
       </section>
 
       {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 md:px-6 lg:px-8 py-12 md:py-16">
+      <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-8 sm:py-10 md:py-12 lg:py-16">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentStep}
@@ -290,9 +290,9 @@ export default function QuoteRequest() {
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.3 }}
           >
-            <Card className="border-0 shadow-xl bg-gradient-to-br from-white to-gray-50/50">
-              <CardHeader className="pb-6">
-                <CardTitle className="text-2xl md:text-3xl font-bold text-gray-900">
+            <Card className="border border-gray-200 shadow-xl bg-white">
+              <CardHeader className="pb-4 sm:pb-6 px-4 sm:px-6">
+                <CardTitle className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
                   {currentStep === 1 && "Où êtes-vous situé ?"}
                   {currentStep === 2 && "Comment pouvons-nous vous aider ?"}
                   {currentStep === 3 && "Votre situation"}
@@ -331,9 +331,9 @@ export default function QuoteRequest() {
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="p-4 bg-[#A0522D]/5 rounded-lg border border-[#A0522D]/20"
+                        className="p-4 bg-[#DC2626]/5 rounded-lg border border-[#DC2626]/20"
                       >
-                        <p className="text-sm font-semibold text-[#A0522D] mb-2">
+                        <p className="text-sm font-semibold text-[#DC2626] mb-2">
                           Services disponibles dans votre région :
                         </p>
                         <div className="flex flex-wrap gap-2">
@@ -341,7 +341,7 @@ export default function QuoteRequest() {
                             <Badge
                               key={service}
                               variant="outline"
-                              className="bg-white border-[#A0522D]/30 text-[#A0522D]"
+                              className="bg-white border-[#DC2626]/30 text-[#DC2626]"
                             >
                               {service}
                             </Badge>
@@ -373,8 +373,8 @@ export default function QuoteRequest() {
                           }}
                           className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
                             formData.service === service
-                              ? "border-[#A0522D] bg-[#A0522D]/10 shadow-md"
-                              : "border-gray-200 hover:border-[#A0522D]/50 hover:bg-[#A0522D]/5"
+                              ? "border-[#DC2626] bg-[#DC2626]/10 shadow-md"
+                              : "border-gray-200 hover:border-[#DC2626]/50 hover:bg-[#DC2626]/5"
                           }`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
@@ -382,7 +382,7 @@ export default function QuoteRequest() {
                           <div className="flex items-center justify-between">
                             <span className="font-semibold text-gray-900">{service}</span>
                             {formData.service === service && (
-                              <CheckCircle2 className="w-5 h-5 text-[#A0522D]" />
+                              <FaCheckCircle className="w-5 h-5 text-[#DC2626]" />
                             )}
                           </div>
                         </motion.button>
@@ -405,8 +405,8 @@ export default function QuoteRequest() {
                           onClick={() => setFormData({ ...formData, typeAide: type, sousTypeAide: undefined })}
                           className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
                             formData.typeAide === type
-                              ? "border-[#A0522D] bg-[#A0522D]/10 shadow-md"
-                              : "border-gray-200 hover:border-[#A0522D]/50 hover:bg-[#A0522D]/5"
+                              ? "border-[#DC2626] bg-[#DC2626]/10 shadow-md"
+                              : "border-gray-200 hover:border-[#DC2626]/50 hover:bg-[#DC2626]/5"
                           }`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
@@ -414,7 +414,7 @@ export default function QuoteRequest() {
                           <div className="flex items-center justify-between">
                             <span className="font-semibold text-gray-900">{type}</span>
                             {formData.typeAide === type && (
-                              <CheckCircle2 className="w-5 h-5 text-[#A0522D]" />
+                              <FaCheckCircle className="w-5 h-5 text-[#DC2626]" />
                             )}
                           </div>
                         </motion.button>
@@ -434,8 +434,8 @@ export default function QuoteRequest() {
                           onClick={() => setFormData({ ...formData, sousTypeAide: sousType })}
                           className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
                             formData.sousTypeAide === sousType
-                              ? "border-[#A0522D] bg-[#A0522D]/10 shadow-md"
-                              : "border-gray-200 hover:border-[#A0522D]/50 hover:bg-[#A0522D]/5"
+                              ? "border-[#DC2626] bg-[#DC2626]/10 shadow-md"
+                              : "border-gray-200 hover:border-[#DC2626]/50 hover:bg-[#DC2626]/5"
                           }`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
@@ -443,7 +443,7 @@ export default function QuoteRequest() {
                           <div className="flex items-center justify-between">
                             <span className="font-semibold text-gray-900">{sousType}</span>
                             {formData.sousTypeAide === sousType && (
-                              <CheckCircle2 className="w-5 h-5 text-[#A0522D]" />
+                              <FaCheckCircle className="w-5 h-5 text-[#DC2626]" />
                             )}
                           </div>
                         </motion.button>
@@ -466,8 +466,8 @@ export default function QuoteRequest() {
                           onClick={() => toggleBesoin(besoin)}
                           className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
                             formData.besoins?.includes(besoin)
-                              ? "border-[#A0522D] bg-[#A0522D]/10 shadow-md"
-                              : "border-gray-200 hover:border-[#A0522D]/50 hover:bg-[#A0522D]/5"
+                              ? "border-[#DC2626] bg-[#DC2626]/10 shadow-md"
+                              : "border-gray-200 hover:border-[#DC2626]/50 hover:bg-[#DC2626]/5"
                           }`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
@@ -475,7 +475,7 @@ export default function QuoteRequest() {
                           <div className="flex items-center justify-between">
                             <span className="font-semibold text-gray-900">{besoin}</span>
                             {formData.besoins?.includes(besoin) && (
-                              <CheckCircle2 className="w-5 h-5 text-[#A0522D]" />
+                              <FaCheckCircle className="w-5 h-5 text-[#DC2626]" />
                             )}
                           </div>
                         </motion.button>
@@ -495,8 +495,8 @@ export default function QuoteRequest() {
                           onClick={() => setFormData({ ...formData, destinataire: dest.value })}
                           className={`p-6 rounded-lg border-2 transition-all duration-300 text-center ${
                             formData.destinataire === dest.value
-                              ? "border-[#A0522D] bg-[#A0522D]/10 shadow-md"
-                              : "border-gray-200 hover:border-[#A0522D]/50 hover:bg-[#A0522D]/5"
+                              ? "border-[#DC2626] bg-[#DC2626]/10 shadow-md"
+                              : "border-gray-200 hover:border-[#DC2626]/50 hover:bg-[#DC2626]/5"
                           }`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
@@ -504,7 +504,7 @@ export default function QuoteRequest() {
                           <div className="flex flex-col items-center gap-2">
                             <span className="font-semibold text-gray-900">{dest.label}</span>
                             {formData.destinataire === dest.value && (
-                              <CheckCircle2 className="w-5 h-5 text-[#A0522D]" />
+                              <FaCheckCircle className="w-5 h-5 text-[#DC2626]" />
                             )}
                           </div>
                         </motion.button>
@@ -589,23 +589,23 @@ export default function QuoteRequest() {
                         onClick={prevStep}
                         className="flex-1 h-12 text-base border-gray-300 hover:bg-gray-50"
                       >
-                        <ArrowLeft className="w-4 h-4 mr-2" />
+                        <FaArrowLeft className="w-4 h-4 mr-2" />
                         Précédent
                       </Button>
                       <Button
                         type="submit"
                         disabled={mutation.isPending}
-                        className="flex-1 h-12 text-base bg-[#A0522D] hover:bg-[#8B4513] text-white shadow-lg hover:shadow-xl transition-all duration-300 font-semibold gap-2"
+                        className="flex-1 h-12 text-base bg-[#DC2626] hover:bg-[#B91C1C] text-white shadow-lg hover:shadow-xl transition-all duration-300 font-semibold gap-2"
                       >
                         {mutation.isPending ? (
                           <>
-                            <Loader2 className="w-5 h-5 animate-spin" />
+                            <FaSpinner className="w-5 h-5 animate-spin" />
                             Envoi en cours...
                           </>
                         ) : (
                           <>
                             Confirmer et envoyer
-                            <ChevronRight className="w-5 h-5" />
+                            <FaChevronRight className="w-5 h-5" />
                           </>
                         )}
                       </Button>
@@ -623,17 +623,17 @@ export default function QuoteRequest() {
                       disabled={currentStep === 1}
                       className="flex-1 h-12 text-base border-gray-300 hover:bg-gray-50"
                     >
-                      <ArrowLeft className="w-4 h-4 mr-2" />
+                      <FaArrowLeft className="w-4 h-4 mr-2" />
                       Précédent
                     </Button>
                     <Button
                       type="button"
                       onClick={nextStep}
                       disabled={!canProceed()}
-                      className="flex-1 h-12 text-base bg-[#A0522D] hover:bg-[#8B4513] text-white shadow-lg hover:shadow-xl transition-all duration-300 font-semibold gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 h-12 text-base bg-[#DC2626] hover:bg-[#B91C1C] text-white shadow-lg hover:shadow-xl transition-all duration-300 font-semibold gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Suivant
-                      <ArrowRight className="w-5 h-5" />
+                      <FaArrowRight className="w-5 h-5" />
                     </Button>
                   </div>
                 )}

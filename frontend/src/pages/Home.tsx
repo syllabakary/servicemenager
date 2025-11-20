@@ -3,30 +3,31 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { 
-  Sparkles, 
-  ArrowRight, 
-  CheckCircle2, 
-  Star, 
-  MapPin, 
-  Quote,
-  Baby,
-  TreeDeciduous,
-  Paintbrush,
-  Shield,
-  Truck,
-  FileText,
-  Users,
-  Settings,
-  Heart,
-  Phone,
-  Clock,
-  Info,
-  ChevronRight,
-  HandHeart
-} from "lucide-react";
+  FaArrowRight, 
+  FaCheckCircle, 
+  FaStar, 
+  FaMapMarkerAlt, 
+  FaQuoteLeft,
+  FaBaby,
+  FaTree,
+  FaPaintBrush,
+  FaShieldAlt,
+  FaTruck,
+  FaFileAlt,
+  FaUsers,
+  FaCog,
+  FaHeart,
+  FaPhone,
+  FaClock,
+  FaInfoCircle,
+  FaChevronRight,
+  FaHandHoldingHeart
+} from "react-icons/fa";
+import { HiSparkles } from "react-icons/hi";
 import { Button } from "@/components/ui/button";
 import { ServiceCard } from "@/components/ServiceCard";
 import { AgencyCard } from "@/components/AgencyCard";
+import { PromotionalBanner } from "@/components/PromotionalBanner";
 import heroImage from "/Hero_team_photo_c8870b4f.png";
 // Types locaux
 interface Service {
@@ -47,12 +48,12 @@ interface Agency {
 
 // Mapping des icônes
 const iconMap = {
-  Sparkles,
-  Baby,
-  TreeDeciduous,
-  Paintbrush,
-  Shield,
-  Truck,
+  Sparkles: HiSparkles,
+  Baby: FaBaby,
+  TreeDeciduous: FaTree,
+  Paintbrush: FaPaintBrush,
+  Shield: FaShieldAlt,
+  Truck: FaTruck,
 };
 
 // Données mockées pour les services
@@ -152,101 +153,94 @@ export default function Home() {
   });
 
   return (
-    <div className="overflow-hidden bg-gradient-to-b from-gray-50 to-white text-foreground">
+    <div className="overflow-x-hidden bg-white text-foreground pt-16 sm:pt-20 w-full max-w-full">
       {/* === PROMOTIONAL BANNER === */}
-      <section className="bg-gradient-to-r from-[#8B4513] via-[#A0522D] to-[#8B4513] text-white py-3 shadow-md">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <p className="text-sm md:text-base font-medium">
-              Réduisez votre facture de moitié avec l'avance immédiate de crédit d'impôt*
-            </p>
-            <Link href="/devis">
-              <Button
-                size="sm"
-                className="bg-white text-[#A0522D] hover:bg-gray-100 font-semibold"
-              >
-                J'en profite !
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </section>
+      <PromotionalBanner />
 
       {/* === HERO SECTION === */}
-      <section className="relative min-h-[600px] md:min-h-[700px] flex items-center overflow-hidden">
+      <section className="relative min-h-[500px] sm:min-h-[600px] md:min-h-[700px] flex items-center overflow-hidden">
         {/* Background Image */}
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroImage})` }}
         >
-          <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/60 to-black/50" />
+          <div className="absolute inset-0 bg-black/60" />
         </div>
 
         {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 md:px-6 lg:px-8 w-full py-20">
+        <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 w-full py-12 sm:py-16 md:py-20">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             className="max-w-3xl text-white"
           >
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-              Nous aimons vous rendre la vie plus <span className="text-[#FFD700]">facile</span> !
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 leading-tight drop-shadow-lg">
+              Nous aimons vous rendre la vie plus <span className="text-yellow-400 relative">
+                <span className="relative z-10">facile</span>
+                <span className="absolute bottom-0 left-0 right-0 h-2 sm:h-3 bg-yellow-400/20 -z-0"></span>
+              </span> !
             </h1>
-            <p className="text-lg md:text-xl mb-6 leading-relaxed">
-              Ménage, aide à domicile, jardinage, garde d'enfant : depuis + de 20 ans, 
-              nous nous tenons à vos côtés pour <span className="font-semibold">rendre votre quotidien plus serein</span>.
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl mb-3 sm:mb-4 leading-relaxed text-white/95 drop-shadow-md">
+              Ménage, aide à domicile, jardinage, garde d'enfant : depuis <span className="font-bold text-white">+ de 20 ans</span>, 
+              nous nous tenons à vos côtés pour <span className="font-semibold text-white">rendre votre quotidien plus serein</span>.
             </p>
-            <p className="text-base md:text-lg mb-8">
-              Retrouvez du temps pour vous grâce aux <strong>services à la personne</strong>.
+            <p className="text-xs sm:text-sm md:text-base lg:text-lg mb-6 sm:mb-8 text-white/90 drop-shadow-sm">
+              Retrouvez du temps pour vous grâce aux <strong className="text-white">services à la personne</strong>.
             </p>
             
             {/* Rating */}
-            <div className="flex items-center gap-4 mb-8">
-              <div className="flex items-center gap-2">
-                <div className="flex items-center">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 md:gap-6 mb-8 sm:mb-10 bg-white/10 backdrop-blur-sm rounded-lg px-4 sm:px-6 py-3 sm:py-4 w-full sm:w-fit border border-white/20">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="flex items-center gap-0.5">
                   {[1, 2, 3, 4].map((i) => (
-                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    <FaStar key={i} className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400 text-yellow-400" />
                   ))}
-                  <Star className="w-5 h-5 fill-yellow-400/50 text-yellow-400" />
+                  <FaStar className="w-4 h-4 sm:w-5 sm:h-5 fill-yellow-400/50 text-yellow-400" />
                 </div>
-                <span className="text-2xl font-bold">4.4</span>
-                <span className="text-white/80">sur 5</span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-2xl sm:text-3xl font-bold text-white">4.4</span>
+                  <span className="text-white/80 text-xs sm:text-sm">sur 5</span>
+                </div>
               </div>
-              <div className="h-6 w-px bg-white/30" />
-              <span className="text-sm text-white/90">
-                <strong>4132</strong> avis authentifiés
-              </span>
+              <div className="hidden sm:block h-6 md:h-8 w-px bg-white/30" />
+              <div className="flex flex-col">
+                <span className="text-base sm:text-lg font-bold text-white">4132</span>
+                <span className="text-xs text-white/80">avis authentifiés</span>
+              </div>
             </div>
           </motion.div>
 
           {/* Interactive Cards */}
-          <div className="grid md:grid-cols-2 gap-6 mt-12 max-w-5xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mt-8 sm:mt-12 max-w-5xl">
             {/* Card 1 */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="bg-white rounded-lg shadow-xl p-6"
+              whileHover={{ y: -4 }}
+              className="bg-white rounded-xl shadow-lg hover:shadow-2xl p-4 sm:p-6 md:p-8 border border-gray-100 transition-all duration-300 group"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <HandHeart className="w-6 h-6 text-orange-500" />
+              <div className="flex items-start gap-3 sm:gap-4 md:gap-5 mb-4 sm:mb-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0 border-2 border-yellow-300 group-hover:scale-110 transition-transform duration-300">
+                  <FaHandHoldingHeart className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-yellow-600" />
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">
+                <div className="flex-1 pt-0.5 sm:pt-1">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-1 sm:mb-2 leading-tight">
                     Besoin d'un coup de pouce à la maison ?
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                     Demandez votre tarif sur mesure
                   </p>
                 </div>
               </div>
-              <Link href="/devis" className="w-full">
+              <Link href="/devis" className="w-full block">
                 <Button
-                  className="w-full bg-[#A0522D] hover:bg-[#8B4513] text-white shadow-lg hover:shadow-xl transition-all"
+                  className="w-full bg-[#DC2626] hover:bg-[#B91C1C] text-white h-10 sm:h-12 text-xs sm:text-sm md:text-base font-semibold shadow-md hover:shadow-lg transition-all duration-300 group-hover:scale-[1.02]"
                 >
-                  Obtenez votre devis personnalisé
+                  <span className="hidden sm:inline">Obtenez votre devis personnalisé</span>
+                  <span className="sm:hidden">Devis personnalisé</span>
+                  <FaArrowRight className="ml-1.5 sm:ml-2 w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
             </motion.div>
@@ -256,26 +250,28 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="bg-white rounded-lg shadow-xl p-6"
+              whileHover={{ y: -4 }}
+              className="bg-white rounded-xl shadow-lg hover:shadow-2xl p-4 sm:p-6 md:p-8 border border-gray-100 transition-all duration-300 group"
             >
-              <div className="flex items-start gap-4 mb-4">
-                <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Users className="w-6 h-6 text-teal-600" />
+              <div className="flex items-start gap-3 sm:gap-4 md:gap-5 mb-4 sm:mb-6">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 border-2 border-teal-300 group-hover:scale-110 transition-transform duration-300">
+                  <FaUsers className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-teal-600" />
                 </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-gray-900 mb-1">
+                <div className="flex-1 pt-0.5 sm:pt-1">
+                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-1 sm:mb-2 leading-tight">
                     Vous cherchez un métier qui a du sens ?
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
                     Nous recrutons près de chez vous
                   </p>
                 </div>
               </div>
               <Button
                 variant="outline"
-                className="w-full border-teal-600 text-teal-600 hover:bg-teal-50"
+                className="w-full h-10 sm:h-12 text-xs sm:text-sm md:text-base font-semibold border-2 border-teal-600 text-teal-600 hover:bg-teal-600 hover:text-white transition-all duration-300 group-hover:scale-[1.02]"
               >
                 Je postule
+                <FaArrowRight className="ml-1.5 sm:ml-2 w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
               </Button>
             </motion.div>
           </div>
@@ -283,33 +279,31 @@ export default function Home() {
       </section>
 
       {/* === SERVICES SECTION === */}
-      <section id="services-section" className="py-20 bg-gradient-to-b from-blue-50/40 via-white to-gray-50/30 relative overflow-hidden">
-        {/* Decorative background elements */}
-        <div className="absolute top-0 left-0 w-96 h-96 bg-[#A0522D]/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 bg-orange-100/30 rounded-full blur-3xl" />
+      <section id="services-section" className="py-12 sm:py-16 md:py-20 bg-gray-50 relative">
         
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 relative z-10">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative z-10">
           {/* Header with CTA */}
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-12 gap-4">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 sm:mb-10 md:mb-12 gap-4">
             <div className="flex-1">
-              <p className="text-sm md:text-base font-semibold text-[#A0522D] uppercase tracking-wide mb-2">
+              <p className="text-xs sm:text-sm md:text-base font-semibold text-[#DC2626] uppercase tracking-wide mb-2">
                 Découvrez nos services à la personne sur mesure et sans engagement
               </p>
-              <h2 className="text-3xl md:text-5xl font-bold text-gray-900">
-                De quoi avez-vous <span className="text-[#A0522D]">besoin</span> ?
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900">
+                De quoi avez-vous <span className="text-[#DC2626]">besoin</span> ?
               </h2>
             </div>
-            <div className="flex-shrink-0 text-right">
-              <Link href="/devis">
+            <div className="flex-shrink-0 text-left md:text-right">
+              <Link href="/devis" className="block">
                 <Button
                   size="lg"
-                  className="bg-[#A0522D] hover:bg-[#8B4513] text-white mb-2 shadow-lg hover:shadow-xl transition-all"
+                  className="w-full md:w-auto bg-[#DC2626] hover:bg-[#B91C1C] text-white mb-2 shadow-lg hover:shadow-xl transition-all text-sm sm:text-base"
                 >
-                  Obtenez votre devis personnalisé
+                  <span className="hidden sm:inline">Obtenez votre devis personnalisé</span>
+                  <span className="sm:hidden">Devis personnalisé</span>
                 </Button>
               </Link>
-              <div className="flex items-center justify-end gap-1 text-xs text-gray-500">
-                <Info className="w-3 h-3" />
+              <div className="flex items-center gap-1 text-xs text-gray-500">
+                <FaInfoCircle className="w-3 h-3" />
                 <span>Gratuit et sans engagement</span>
               </div>
             </div>
@@ -323,7 +317,7 @@ export default function Home() {
             </div>
           ) : services && services.length > 0 ? (
             <motion.div
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
@@ -333,10 +327,11 @@ export default function Home() {
             >
               {services.slice(0, 3).map((service, index) => {
                 const IconComponent = 
-                  iconMap[(service.icone || "Sparkles") as keyof typeof iconMap] || Sparkles;
+                  iconMap[(service.icone || "Sparkles") as keyof typeof iconMap] || HiSparkles;
                 return (
                 <motion.div
                   key={service.id}
+                  className="h-full"
                   variants={{
                     hidden: { opacity: 0, y: 30 },
                     visible: { opacity: 1, y: 0 },
@@ -368,10 +363,10 @@ export default function Home() {
             <Link href="/services">
                 <Button 
                   size="lg" 
-                  className="gap-2 group px-8 py-6 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-r from-[#A0522D] to-[#8B4513] hover:from-[#8B4513] hover:to-[#A0522D] text-white"
+                  className="gap-2 group px-8 py-6 text-base font-semibold bg-[#DC2626] hover:bg-[#B91C1C] text-white transition-colors"
                 >
                 Voir tous les services
-                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-2" />
+                  <FaArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-2" />
               </Button>
             </Link>
             </motion.div>
@@ -380,7 +375,7 @@ export default function Home() {
       </section>
 
       {/* === AGENCIES SECTION === */}
-      <section id="agencies-section" className="py-20 bg-gradient-to-b from-gray-50/50 via-white to-blue-50/30">
+      <section id="agencies-section" className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
@@ -442,10 +437,10 @@ export default function Home() {
             <Link href="/agences">
                 <Button 
                   size="lg" 
-                  className="gap-2 group px-8 py-6 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 bg-gradient-to-r from-[#A0522D] to-[#8B4513] hover:from-[#8B4513] hover:to-[#A0522D] text-white"
+                  className="gap-2 group px-8 py-6 text-base font-semibold bg-[#DC2626] hover:bg-[#B91C1C] text-white transition-colors"
                 >
                 Voir toutes les agences
-                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-2" />
+                  <FaArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-2" />
               </Button>
             </Link>
             </motion.div>
@@ -454,25 +449,22 @@ export default function Home() {
       </section>
 
       {/* === HOW IT WORKS SECTION === */}
-      <section id="how-it-works" className="py-20 bg-gradient-to-b from-white via-gray-50/50 to-white relative overflow-hidden">
-        {/* Decorative background elements */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(59,130,246,0.08),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(251,146,60,0.08),transparent_50%)]" />
+      <section id="how-it-works" className="py-12 sm:py-16 md:py-20 bg-gray-50 relative">
         
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 relative z-10">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-8 sm:mb-12 md:mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 px-2">
               Comment ça marche ?
             </h2>
           </motion.div>
 
-          <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-2">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-6 sm:gap-8 md:gap-4 lg:gap-2">
             {[
               {
                 step: "1",
@@ -495,22 +487,22 @@ export default function Home() {
                 description: "Tout au long de votre contrat, vous bénéficiez d'un interlocuteur dédié au sein de votre agence locale. Des bilans de suivi réguliers sont réalisés pour garantir la qualité et l'efficacité de nos services.",
               },
             ].map((item, i) => (
-              <div key={i} className="flex items-center w-full md:w-auto">
+              <div key={i} className="flex items-center justify-center w-full md:w-auto">
               <motion.div
                   initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
                 viewport={{ once: true }}
-                  className="flex flex-col items-center text-center max-w-[240px]"
+                  className="flex flex-col items-center text-center max-w-[280px] sm:max-w-[300px] md:max-w-[240px] w-full"
               >
-                  <div className="w-16 h-16 bg-orange-400 rounded-full flex items-center justify-center mb-4 flex-shrink-0">
-                    <span className="text-2xl font-bold text-white">{item.step}</span>
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#DC2626] rounded-full flex items-center justify-center mb-3 sm:mb-4 flex-shrink-0">
+                    <span className="text-xl sm:text-2xl font-bold text-white">{item.step}</span>
                 </div>
-                  <h3 className="text-base font-bold text-gray-900 mb-2">{item.title}</h3>
-                  <p className="text-sm text-gray-600 leading-relaxed">{item.description}</p>
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 px-2">{item.title}</h3>
+                  <p className="text-xs sm:text-sm text-gray-600 leading-relaxed px-2">{item.description}</p>
               </motion.div>
                 {i < 3 && (
-                  <ChevronRight className="w-6 h-6 text-[#A0522D] mx-2 hidden md:block flex-shrink-0" />
+                  <FaChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-[#DC2626] mx-2 hidden md:block flex-shrink-0" />
                 )}
               </div>
             ))}
@@ -526,10 +518,10 @@ export default function Home() {
             <Link href="/devis">
               <Button
                 size="lg"
-                className="bg-[#A0522D] hover:bg-[#8B4513] text-white px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+                className="bg-[#DC2626] hover:bg-[#B91C1C] text-white px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
               >
                 Demande de devis
-                <ArrowRight className="ml-2 w-5 h-5" />
+                <FaArrowRight className="ml-2 w-5 h-5" />
               </Button>
             </Link>
           </motion.div>
@@ -537,10 +529,7 @@ export default function Home() {
       </section>
 
       {/* === TESTIMONIALS SECTION === */}
-      <section className="py-20 bg-gradient-to-br from-pink-50 via-purple-50/30 to-blue-50/40 relative overflow-hidden">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-orange-200/30 rounded-full blur-3xl" />
+      <section className="py-20 bg-white relative">
         
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 relative z-10">
         <motion.div
@@ -551,13 +540,13 @@ export default function Home() {
             className="text-center mb-12"
         >
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              Nos clients retrouvent le <span className="text-[#A0522D] italic font-serif">sourire</span> avec nous
+              Nos clients retrouvent le <span className="text-[#DC2626] italic font-serif">sourire</span> avec nous
             </h2>
             <div className="flex items-center justify-center gap-2 mt-4">
               <span className="text-sm text-gray-600">Avis authentiques</span>
               <div className="flex items-center gap-1">
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <FaStar key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                 ))}
               </div>
               <span className="text-sm font-semibold text-gray-900">4.4/5</span>
@@ -596,7 +585,7 @@ export default function Home() {
                 <div className="flex items-center gap-2 mb-3">
                   <div className="flex items-center">
                     {[1, 2, 3, 4, 5].map((j) => (
-                      <Star key={j} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                      <FaStar key={j} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
                   <span className="text-sm font-semibold text-gray-900">{testimonial.rating}/5</span>
@@ -607,6 +596,88 @@ export default function Home() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* === LOCATION SECTION === */}
+      <section className="py-20 bg-gray-50 relative">
+        
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Notre <span className="text-[#DC2626]">siège</span> à Paris
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Nous sommes basés au cœur de Paris pour mieux vous servir partout en France
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200"
+          >
+            <div className="relative w-full h-[500px] md:h-[600px]">
+              {/* Carte de la France avec marqueur Paris */}
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.9916256937606!2d2.352221915674389!3d48.85661400000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e1f06e2b70f%3A0x40b82c3688c9460!2sParis%2C%20France!5e0!3m2!1sfr!2sfr!4v1234567890123!5m2!1sfr!2sfr"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="w-full h-full"
+              />
+              
+              {/* Overlay avec informations */}
+              <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-6 md:p-8">
+                <div className="max-w-2xl mx-auto text-white">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-[#DC2626] rounded-full flex items-center justify-center flex-shrink-0">
+                      <FaMapMarkerAlt className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold mb-2">Siège Social</h3>
+                      <p className="text-white/90 mb-1">Paris, France</p>
+                      <p className="text-sm text-white/80">
+                        Notre équipe est à votre disposition pour répondre à tous vos besoins en services à la personne
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+            className="mt-8 text-center"
+          >
+            <p className="text-sm text-gray-600 mb-4">
+              Nous intervenons dans toute la France métropolitaine
+            </p>
+            <Link href="/contact">
+              <Button
+                size="lg"
+                className="bg-[#DC2626] hover:bg-[#B91C1C] text-white px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+              >
+                Nous contacter
+                <FaArrowRight className="ml-2 w-5 h-5" />
+              </Button>
+            </Link>
+          </motion.div>
         </div>
       </section>
 

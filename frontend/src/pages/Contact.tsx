@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { MapPin, Phone, Mail, Send } from "lucide-react";
+import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaPaperPlane } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
@@ -28,24 +28,24 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen pt-16">
-      <section className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-background">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+    <div className="min-h-screen pt-16 overflow-x-hidden w-full max-w-full">
+      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-b from-primary/5 to-background">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-12"
+            className="text-center mb-8 sm:mb-10 md:mb-12"
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-foreground mb-4" data-testid="heading-contact-page">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-2 sm:mb-3 md:mb-4 px-2" data-testid="heading-contact-page">
               Contactez-nous
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto" data-testid="text-contact-intro">
+            <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-2" data-testid="text-contact-intro">
               Une question ? Un projet ? Notre équipe est à votre écoute
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -115,7 +115,7 @@ export default function Contact() {
                       disabled={loading}
                       data-testid="button-submit"
                     >
-                      <Send className="w-4 h-4" />
+                      <FaPaperPlane className="w-4 h-4" />
                       Envoyer le message
                     </Button>
                   </form>
@@ -135,7 +135,7 @@ export default function Contact() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex items-start gap-3" data-testid="contact-info-address">
-                      <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                      <FaMapMarkerAlt className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="font-medium text-sm text-muted-foreground mb-1">
                           Adresse
@@ -149,7 +149,7 @@ export default function Contact() {
                     </div>
 
                     <div className="flex items-start gap-3" data-testid="contact-info-phone">
-                      <Phone className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                      <FaPhone className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="font-medium text-sm text-muted-foreground mb-1">
                           Téléphone
@@ -165,7 +165,7 @@ export default function Contact() {
                     </div>
 
                     <div className="flex items-start gap-3" data-testid="contact-info-email">
-                      <Mail className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                      <FaEnvelope className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="font-medium text-sm text-muted-foreground mb-1">
                           Email

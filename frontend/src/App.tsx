@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Navbar } from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { ScrollToTop } from "@/components/ScrollToTop";
 import Home from "@/pages/Home";
 import Services from "@/pages/Services";
 import ServiceDetail from "@/pages/ServiceDetail";
@@ -33,9 +34,10 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="flex flex-col min-h-screen">
+        <ScrollToTop />
+        <div className="flex flex-col min-h-screen overflow-x-hidden w-full max-w-full">
           <Navbar />
-          <main className="flex-1">
+          <main className="flex-1 w-full max-w-full overflow-x-hidden">
             <Router />
           </main>
           <Footer />

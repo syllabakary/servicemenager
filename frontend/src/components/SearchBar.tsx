@@ -27,13 +27,13 @@ export function SearchBar({
     <div className="bg-white rounded-2xl shadow-xl p-4 md:p-6 border-2 border-gray-100">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
         <div className="relative">
-          <FaSearch className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#DC2626] pointer-events-none" />
+          <FaSearch className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[site-primary] pointer-events-none" />
           <Input
             type="search"
             placeholder="Rechercher une agence..."
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 md:pl-12 h-12 md:h-14 text-base border-2 border-gray-200 focus:border-[#DC2626] focus:ring-2 focus:ring-[#DC2626]/20 rounded-xl"
+            className="pl-10 md:pl-12 h-12 md:h-14 text-base border-2 border-gray-200 focus:border-[site-primary] focus:ring-2 focus:ring-[site-primary]/20 rounded-xl"
             data-testid="input-search"
           />
         </div>
@@ -41,7 +41,7 @@ export function SearchBar({
         <Select value={selectedCity} onValueChange={onCityChange}>
           <SelectTrigger 
             data-testid="select-city"
-            className="h-12 md:h-14 text-base border-2 border-gray-200 focus:border-[#DC2626] rounded-xl"
+            className="h-12 md:h-14 text-base border-2 border-gray-200 focus:border-[site-primary] rounded-xl"
           >
             <SelectValue placeholder="Toutes les villes" />
           </SelectTrigger>
@@ -58,7 +58,7 @@ export function SearchBar({
         <Select value={selectedService} onValueChange={onServiceChange}>
           <SelectTrigger 
             data-testid="select-service"
-            className="h-12 md:h-14 text-base border-2 border-gray-200 focus:border-[#DC2626] rounded-xl"
+            className="h-12 md:h-14 text-base border-2 border-gray-200 focus:border-[site-primary] rounded-xl"
           >
             <SelectValue placeholder="Tous les services" />
           </SelectTrigger>

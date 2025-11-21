@@ -449,7 +449,7 @@ export default function Services() {
           <Link href="/devis" className="block px-2">
             <Button
               size="lg"
-              className="bg-[#DC2626] hover:bg-[#B91C1C] text-white shadow-xl hover:shadow-2xl px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 text-sm sm:text-base md:text-lg font-semibold transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+              className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text shadow-xl hover:shadow-2xl px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 text-sm sm:text-base md:text-lg font-semibold transition-all duration-300 hover:scale-105 w-full sm:w-auto"
             >
               <span className="hidden sm:inline">Obtenir un devis gratuit</span>
               <span className="sm:hidden">Devis gratuit</span>
@@ -469,7 +469,7 @@ export default function Services() {
             className="text-center mb-8 sm:mb-10 md:mb-12"
             >
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4 px-2">
-              Pourquoi choisir nos <span className="text-[#DC2626]">services</span> ?
+              Pourquoi choisir nos <span className="text-site-text-primary">services</span> ?
             </h2>
             <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto px-2">
               Des avantages concrets qui font la différence au quotidien
@@ -507,10 +507,10 @@ export default function Services() {
               animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
                   whileHover={{ y: -4 }}
-                  className="bg-white rounded-xl p-4 sm:p-5 md:p-6 border-2 border-gray-100 hover:border-[#DC2626] shadow-md hover:shadow-xl transition-all duration-300 group"
+                  className="bg-white rounded-xl p-4 sm:p-5 md:p-6 border-2 border-gray-100 hover:border-site-primary shadow-md hover:shadow-xl transition-all duration-300 group"
             >
-                  <div className="w-12 h-12 sm:w-13 sm:h-13 md:w-14 md:h-14 bg-[#DC2626]/10 rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-[#DC2626] transition-colors duration-300">
-                    <Icon className="w-6 h-6 sm:w-6.5 sm:h-6.5 md:w-7 md:h-7 text-[#DC2626] group-hover:text-white transition-colors" />
+                  <div className="w-12 h-12 sm:w-13 sm:h-13 md:w-14 md:h-14 bg-site-primary/10 rounded-xl flex items-center justify-center mb-3 sm:mb-4 group-hover:bg-site-button-primary transition-colors duration-300">
+                    <Icon className="w-6 h-6 sm:w-6.5 sm:h-6.5 md:w-7 md:h-7 text-site-primary group-hover:text-site-button-text transition-colors" />
               </div>
                   <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-1.5 sm:mb-2">{item.title}</h3>
                   <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">{item.description}</p>
@@ -532,7 +532,7 @@ export default function Services() {
             className="text-center mb-8 sm:mb-10 md:mb-12"
           >
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2 sm:mb-3 md:mb-4 px-2">
-              Tous nos services en <span className="text-[#DC2626]">détail</span>
+              Tous nos services en <span className="text-site-text-primary">détail</span>
             </h2>
             <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
               Nous combinons expertise humaine et technologies modernes pour vous offrir des prestations fiables et accessibles.
@@ -546,16 +546,16 @@ export default function Services() {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mb-12"
           >
-            <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border-2 border-gray-100 hover:border-[#DC2626]/30 transition-all duration-300">
+            <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-6 md:p-8 border-2 border-gray-100 hover:border-site-primary/30 transition-all duration-300">
               {/* Barre de recherche principale */}
               <div className="relative mb-4 sm:mb-6">
-                <FaSearch className="absolute left-3 sm:left-4 md:left-5 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[#DC2626]" />
+                <FaSearch className="absolute left-3 sm:left-4 md:left-5 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-site-primary" />
                 <Input
                   type="text"
                   placeholder="Rechercher un service..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 sm:pl-12 md:pl-14 pr-10 sm:pr-12 md:pr-14 h-12 sm:h-14 md:h-16 text-sm sm:text-base border-2 border-gray-200 focus:border-[#DC2626] focus:ring-2 focus:ring-[#DC2626]/20 rounded-xl shadow-sm hover:border-[#DC2626]/50 transition-all"
+                  className="pl-10 sm:pl-12 md:pl-14 pr-10 sm:pr-12 md:pr-14 h-12 sm:h-14 md:h-16 text-sm sm:text-base border-2 border-gray-200 focus:border-site-primary focus:ring-2 focus:ring-site-primary/20 rounded-xl shadow-sm hover:border-site-primary/50 transition-all"
                 />
                 {searchQuery && (
                   <button
@@ -572,12 +572,12 @@ export default function Services() {
                 <Button
                   variant="outline"
                   onClick={() => setShowFilters(!showFilters)}
-                  className="gap-2 border-2 border-gray-200 hover:border-[#DC2626] text-xs sm:text-sm w-full sm:w-auto"
+                  className="gap-2 border-2 border-gray-200 hover:border-site-primary text-xs sm:text-sm w-full sm:w-auto"
                 >
                   <FaFilter className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   Filtres
                   {minRating !== null && (
-                    <Badge className="ml-1 sm:ml-2 bg-[#DC2626] text-white text-xs">{minRating}+ ⭐</Badge>
+                    <Badge className="ml-1 sm:ml-2 bg-site-button-primary text-site-button-text text-xs">{minRating}+ ⭐</Badge>
                   )}
                 </Button>
                 <div className="text-xs sm:text-sm text-gray-600 text-center sm:text-right">
@@ -607,8 +607,8 @@ export default function Services() {
                             onClick={() => setMinRating(rating)}
                             className={
                               minRating === rating
-                                ? "bg-[#DC2626] text-white hover:bg-[#B91C1C]"
-                                : "border-gray-200 hover:border-[#DC2626]"
+                                ? "bg-site-button-primary text-site-button-text hover:bg-site-button-primary-hover"
+                                : "border-gray-200 hover:border-site-primary"
                             }
                           >
                             {rating ? `${rating}+ ⭐` : "Toutes"}
@@ -624,7 +624,7 @@ export default function Services() {
                           setMinRating(null);
                           setSearchQuery("");
                         }}
-                        className="text-[#DC2626] hover:text-[#B91C1C]"
+                        className="text-site-text-link hover:text-site-text-link-hover"
                       >
                         <FaTimes className="w-4 h-4 mr-2" />
                         Réinitialiser les filtres
@@ -639,7 +639,7 @@ export default function Services() {
           {/* Loading state */}
           {isLoading ? (
             <div className="text-center py-16">
-              <div className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <div className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
               <p className="text-gray-600">Chargement des services...</p>
             </div>
           ) : filteredServices.length === 0 ? (
@@ -666,7 +666,7 @@ export default function Services() {
                   setSearchQuery("");
                   setMinRating(null);
                 }}
-                className="border-2 border-[#DC2626] text-[#DC2626] hover:bg-[#DC2626] hover:text-white"
+                className="border-2 border-site-primary text-site-text-link hover:bg-site-button-primary hover:text-site-button-text"
               >
                 Réinitialiser la recherche
               </Button>
@@ -703,8 +703,7 @@ export default function Services() {
                   whileHover={{ y: -4 }}
                   transition={{ type: "spring", stiffness: 150, damping: 12 }}
                 >
-                  <Link href={`/services/${service.slug}`}>
-                    <Card className="h-full min-h-[420px] group relative overflow-hidden border-2 border-gray-200 shadow-lg hover:shadow-2xl hover:border-[#DC2626] transition-all duration-300 bg-white flex flex-col cursor-pointer">
+                  <Card className="h-full min-h-[420px] group relative overflow-hidden border-2 border-gray-200 shadow-lg hover:shadow-2xl hover:border-site-primary transition-all duration-300 bg-white flex flex-col">
                       {/* Image du service */}
                       {service.image_url ? (
                         <div className="w-full h-48 overflow-hidden bg-gray-100">
@@ -715,20 +714,20 @@ export default function Services() {
                           />
                         </div>
                       ) : (
-                        <div className="w-full h-48 bg-gradient-to-br from-[#DC2626]/10 to-[#DC2626]/5 flex items-center justify-center">
-                          <div className="w-20 h-20 rounded-xl bg-[#DC2626]/20 flex items-center justify-center">
-                            <IconComponent className="w-10 h-10 text-[#DC2626]" />
+                        <div className="w-full h-48 bg-gradient-to-br from-site-primary/10 to-site-primary/5 flex items-center justify-center">
+                          <div className="w-20 h-20 rounded-xl bg-site-primary/20 flex items-center justify-center">
+                            <IconComponent className="w-10 h-10 text-site-primary" />
                           </div>
                         </div>
                       )}
                     <CardHeader className="pb-4">
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-3 sm:gap-0">
-                          <div className="w-16 h-16 rounded-xl bg-[#DC2626]/10 flex items-center justify-center group-hover:bg-[#DC2626] transition-all duration-300 flex-shrink-0 border-2 border-[#DC2626]/20 group-hover:border-[#DC2626]">
-                            <IconComponent className="w-8 h-8 text-[#DC2626] group-hover:text-white transition-colors" />
+                          <div className="w-16 h-16 rounded-xl bg-site-primary/10 flex items-center justify-center group-hover:bg-site-button-primary transition-all duration-300 flex-shrink-0 border-2 border-site-primary/20 group-hover:border-site-button-primary">
+                            <IconComponent className="w-8 h-8 text-site-primary group-hover:text-site-button-text transition-colors" />
                         </div>
                           {service.rating && (
                             <div className="flex items-center gap-1 bg-red-50 border border-red-200 px-3 py-1.5 rounded-full self-start sm:self-center">
-                              <FaStar className="w-4 h-4 fill-[#DC2626] text-[#DC2626]" />
+                              <FaStar className="w-4 h-4 fill-site-primary text-site-primary" />
                               <span className="text-sm font-bold text-gray-900">{service.rating}</span>
                               {service.review_count > 0 && (
                                 <span className="text-xs text-gray-500">({service.review_count})</span>
@@ -751,7 +750,7 @@ export default function Services() {
                           <div className="space-y-3">
                             {service.features.slice(0, 3).map((feature: string, i: number) => (
                               <div key={i} className="flex items-start gap-3 text-sm text-gray-700">
-                                <FaCheckCircle className="w-5 h-5 text-[#DC2626] mt-0.5 flex-shrink-0" />
+                                <FaCheckCircle className="w-5 h-5 text-site-primary mt-0.5 flex-shrink-0" />
                                 <span className="leading-relaxed">{feature}</span>
                           </div>
                         ))}
@@ -762,12 +761,12 @@ export default function Services() {
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-5 border-t-2 border-gray-100 text-sm">
                           {service.duration && (
                             <div className="flex items-center gap-2 font-medium text-gray-700">
-                              <FaClock className="w-5 h-5 text-[#DC2626]" />
+                              <FaClock className="w-5 h-5 text-site-primary" />
                               <span>{service.duration}</span>
                         </div>
                           )}
                           {(service.price_label || service.price_per_hour) && (
-                            <div className="flex items-center gap-2 font-bold text-[#DC2626]">
+                            <div className="flex items-center gap-2 font-bold text-site-text-primary">
                               <FaInfoCircle className="w-5 h-5" />
                               <span>{service.price_label || (service.price_per_hour ? `À partir de ${service.price_per_hour}€/heure` : "")}</span>
                         </div>
@@ -775,15 +774,16 @@ export default function Services() {
                       </div>
 
                       {/* Bouton */}
-                      <Button
-                          className="w-full mt-6 h-12 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-semibold shadow-md hover:shadow-lg transition-all duration-300 group-hover:scale-[1.02]"
-                      >
-                        Voir les détails
+                      <Link href={`/services/${service.slug}`} className="w-full mt-6">
+                        <Button
+                          className="w-full h-12 bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text font-semibold shadow-md hover:shadow-lg transition-all duration-300 group-hover:scale-[1.02]"
+                        >
+                          Voir les détails
                           <FaArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                      </Button>
+                        </Button>
+                      </Link>
                     </CardContent>
                   </Card>
-                  </Link>
                 </motion.div>
               );
             })}
@@ -794,7 +794,7 @@ export default function Services() {
 
 
       {/* 🟪 SECTION 4 — CTA Devis */}
-      <section className="relative py-24 bg-[#DC2626] text-white overflow-hidden">
+      <section className="relative py-24 bg-site-primary text-white overflow-hidden">
         <div className="relative max-w-4xl mx-auto px-4 md:px-6 lg:px-8 text-center z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -813,7 +813,7 @@ export default function Services() {
               <Link href="/devis">
                 <Button
                   size="lg"
-                  className="bg-white text-[#DC2626] hover:bg-gray-50 shadow-2xl hover:shadow-3xl transition-all duration-300 px-8 py-6 text-lg font-semibold hover:scale-105"
+                  className="bg-white text-site-button-primary hover:bg-gray-50 shadow-2xl hover:shadow-3xl transition-all duration-300 px-8 py-6 text-lg font-semibold hover:scale-105"
                 >
                   Demander un devis gratuit
                   <FaArrowRight className="ml-2 w-5 h-5" />
@@ -822,7 +822,7 @@ export default function Services() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-2 border-white text-white hover:bg-white hover:text-[#DC2626] transition-all duration-300 px-8 py-6 text-lg font-semibold"
+                className="border-2 border-white text-white hover:bg-white hover:text-site-button-primary transition-all duration-300 px-8 py-6 text-lg font-semibold"
                 onClick={() => setLocation("/contact")}
               >
                 Nous contacter

@@ -56,7 +56,7 @@ export function ServiceCard({ service, icon: Icon, delay = 0 }: ServiceCardProps
                 "Aucune gestion administrative"
               ].map((point, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                  <FaCheckCircle className="w-4 h-4 text-[#DC2626] mt-0.5 flex-shrink-0" />
+                  <FaCheckCircle className="w-4 h-4 text-site-primary mt-0.5 flex-shrink-0" />
                   <span>{point}</span>
                 </li>
               ))}
@@ -70,7 +70,7 @@ export function ServiceCard({ service, icon: Icon, delay = 0 }: ServiceCardProps
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="gap-1.5 text-[#DC2626] hover:text-[#B91C1C] hover:bg-[#DC2626]/5 font-medium p-0 h-auto text-sm"
+                className="gap-1.5 text-site-primary hover:text-site-secondary hover:bg-site-primary/5 font-medium p-0 h-auto text-sm"
               >
                 {isExpanded ? (
                   <>
@@ -90,7 +90,7 @@ export function ServiceCard({ service, icon: Icon, delay = 0 }: ServiceCardProps
               <Button 
                 variant="ghost" 
                 size="sm"
-                className="gap-2 group/btn text-[#DC2626] hover:text-[#B91C1C] hover:bg-[#DC2626]/5 font-semibold p-0 h-auto text-sm" 
+                className="gap-2 group/btn text-site-primary hover:text-site-secondary hover:bg-site-primary/5 font-semibold p-0 h-auto text-sm" 
                 data-testid={`button-discover-service-${service.id}`}
               >
                 Découvrir le service
@@ -102,8 +102,8 @@ export function ServiceCard({ service, icon: Icon, delay = 0 }: ServiceCardProps
         
         {/* Icon in bottom right */}
         <div className="relative mt-auto">
-          <div className="absolute bottom-0 right-0 w-14 h-14 bg-red-100 rounded-full flex items-center justify-center" data-testid={`icon-service-${service.id}`}>
-            <Icon className="w-7 h-7 text-red-500" />
+          <div className="absolute bottom-0 right-0 w-14 h-14 bg-site-primary/10 rounded-full flex items-center justify-center" data-testid={`icon-service-${service.id}`}>
+            <Icon className="w-7 h-7 text-site-primary" />
           </div>
         </div>
       </Card>

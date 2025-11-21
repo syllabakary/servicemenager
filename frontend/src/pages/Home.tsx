@@ -50,6 +50,7 @@ interface Agency {
   ville: string;
   services: string[];
   image: string;
+  slug?: string;
 }
 
 // Mapping des icônes
@@ -158,7 +159,7 @@ function ServiceAdvantagesSection() {
           className="text-center mb-12"
         >
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Pourquoi choisir nos <span className="text-[#DC2626]">services</span> ?
+            Pourquoi choisir nos <span className="text-site-primary">services</span> ?
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
             Des avantages concrets qui font la différence au quotidien
@@ -177,8 +178,8 @@ function ServiceAdvantagesSection() {
                 transition={{ duration: 0.6, delay: i * 0.1 }}
                 className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all"
               >
-                <div className="w-12 h-12 bg-[#DC2626]/10 rounded-lg flex items-center justify-center mb-4">
-                  <IconComponent className="w-6 h-6 text-[#DC2626]" />
+                <div className="w-12 h-12 bg-site-primary/10 rounded-lg flex items-center justify-center mb-4">
+                  <IconComponent className="w-6 h-6 text-site-primary" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-2">{advantage.title}</h3>
                 <p className="text-gray-600 leading-relaxed">{advantage.description}</p>
@@ -328,7 +329,7 @@ function LocationSection() {
             {hasSiege ? (
               <>
                 {titleParts[0]}
-                <span className="text-[#DC2626]">{titleParts[1]}</span>
+                <span className="text-site-primary">{titleParts[1]}</span>
                 {titleParts[2]}
               </>
             ) : (
@@ -364,7 +365,7 @@ function LocationSection() {
             <div className="absolute bottom-0 left-0 right-0 bg-black/80 p-6 md:p-8">
               <div className="max-w-2xl mx-auto text-white">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-[#DC2626] rounded-full flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 bg-site-primary rounded-full flex items-center justify-center flex-shrink-0">
                     <FaMapMarkerAlt className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1">
@@ -393,7 +394,7 @@ function LocationSection() {
           <Link href="/contact">
             <Button
               size="lg"
-              className="bg-[#DC2626] hover:bg-[#B91C1C] text-white px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+              className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
             >
               Nous contacter
               <FaArrowRight className="ml-2 w-5 h-5" />
@@ -406,16 +407,61 @@ function LocationSection() {
 }
 
 export default function Home() {
-
-  const { data: services = mockServices, isLoading: servicesLoading } = useQuery<Service[]>({
-    queryKey: ["/api/services"],
-    queryFn: async () => mockServices,
+  // Récupérer les services depuis l'API
+  const { data: servicesData, isLoading: servicesLoading } = useQuery({
+    queryKey: ["home-services"],
+    queryFn: async () => {
+      try {
+        const res = await axios.get(`${API_URL}/services/?active=true`);
+        return res.data.results || [];
+      } catch {
+        return mockServices;
+      }
+    },
   });
 
-  const { data: agencies = mockAgencies, isLoading: agenciesLoading } = useQuery<Agency[]>({
-    queryKey: ["/api/agencies"],
-    queryFn: async () => mockAgencies,
+  // Récupérer les agences depuis l'API
+  const { data: agenciesData, isLoading: agenciesLoading } = useQuery({
+    queryKey: ["home-agencies"],
+    queryFn: async () => {
+      try {
+        const res = await axios.get(`${API_URL}/agencies/?active=true`);
+        return res.data.results || [];
+      } catch {
+        return [];
+      }
+    },
   });
+
+  // Mapper les services de l'API vers le format attendu
+  const services: Service[] = servicesData?.length > 0 
+    ? servicesData.slice(0, 3).map((s: any) => ({
+        id: s.id,
+        nom: s.name,
+        description: s.short_description || s.detailed_description || "",
+        icone: s.icon || "Sparkles",
+      }))
+    : mockServices.slice(0, 3);
+
+  // Mapper les agences de l'API vers le format attendu
+  const agencies: Agency[] = agenciesData?.length > 0
+    ? agenciesData.slice(0, 3).map((a: any) => {
+        // Extraire les noms des services depuis la relation many-to-many
+        const serviceNames = a.services?.map((s: any) => 
+          typeof s === 'string' ? s : (s.name || s.title || 'Service')
+        ) || [];
+        
+        return {
+          id: a.id,
+          nom: a.name,
+          description: a.details || `${a.name} - Agence située à ${a.city}`,
+          ville: a.city,
+          services: serviceNames.length > 0 ? serviceNames : ["Services divers"],
+          image: a.image_url || "./Abidjan_agency_storefront_41598fcd.png",
+          slug: a.slug,
+        };
+      })
+    : [];
 
   return (
     <div className="overflow-x-hidden bg-white text-foreground pt-16 sm:pt-20 w-full max-w-full">
@@ -501,7 +547,7 @@ export default function Home() {
               </div>
               <Link href="/devis" className="w-full block">
                 <Button
-                  className="w-full bg-[#DC2626] hover:bg-[#B91C1C] text-white h-10 sm:h-12 text-xs sm:text-sm md:text-base font-semibold shadow-md hover:shadow-lg transition-all duration-300 group-hover:scale-[1.02]"
+                  className="w-full bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text h-10 sm:h-12 text-xs sm:text-sm md:text-base font-semibold shadow-md hover:shadow-lg transition-all duration-300 group-hover:scale-[1.02]"
                 >
                   <span className="hidden sm:inline">Obtenez votre devis personnalisé</span>
                   <span className="sm:hidden">Devis personnalisé</span>
@@ -550,18 +596,18 @@ export default function Home() {
           {/* Header with CTA */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 sm:mb-10 md:mb-12 gap-4">
             <div className="flex-1">
-              <p className="text-xs sm:text-sm md:text-base font-semibold text-[#DC2626] uppercase tracking-wide mb-2">
+              <p className="text-xs sm:text-sm md:text-base font-semibold text-site-primary uppercase tracking-wide mb-2">
                 Découvrez nos services à la personne sur mesure et sans engagement
               </p>
               <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900">
-                De quoi avez-vous <span className="text-[#DC2626]">besoin</span> ?
+                De quoi avez-vous <span className="text-site-primary">besoin</span> ?
               </h2>
             </div>
             <div className="flex-shrink-0 text-left md:text-right">
               <Link href="/devis" className="block">
                 <Button
                   size="lg"
-                  className="w-full md:w-auto bg-[#DC2626] hover:bg-[#B91C1C] text-white mb-2 shadow-lg hover:shadow-xl transition-all text-sm sm:text-base"
+                  className="w-full md:w-auto bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text mb-2 shadow-lg hover:shadow-xl transition-all text-sm sm:text-base"
                 >
                   <span className="hidden sm:inline">Obtenez votre devis personnalisé</span>
                   <span className="sm:hidden">Devis personnalisé</span>
@@ -628,7 +674,7 @@ export default function Home() {
             <Link href="/services">
                 <Button 
                   size="lg" 
-                  className="gap-2 group px-8 py-6 text-base font-semibold bg-[#DC2626] hover:bg-[#B91C1C] text-white transition-colors"
+                  className="gap-2 group px-8 py-6 text-base font-semibold bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text transition-colors"
                 >
                 Voir tous les services
                   <FaArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-2" />
@@ -702,7 +748,7 @@ export default function Home() {
             <Link href="/agences">
                 <Button 
                   size="lg" 
-                  className="gap-2 group px-8 py-6 text-base font-semibold bg-[#DC2626] hover:bg-[#B91C1C] text-white transition-colors"
+                  className="gap-2 group px-8 py-6 text-base font-semibold bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text transition-colors"
                 >
                 Voir toutes les agences
                   <FaArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-2" />
@@ -763,14 +809,14 @@ export default function Home() {
                 viewport={{ once: true }}
                   className="flex flex-col items-center text-center max-w-[280px] sm:max-w-[300px] md:max-w-[240px] w-full"
               >
-                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-[#DC2626] rounded-full flex items-center justify-center mb-3 sm:mb-4 flex-shrink-0">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-site-primary rounded-full flex items-center justify-center mb-3 sm:mb-4 flex-shrink-0">
                     <span className="text-xl sm:text-2xl font-bold text-white">{item.step}</span>
                 </div>
                   <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-2 px-2">{item.title}</h3>
                   <p className="text-xs sm:text-sm text-gray-600 leading-relaxed px-2">{item.description}</p>
               </motion.div>
                 {i < 3 && (
-                  <FaChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-[#DC2626] mx-2 hidden md:block flex-shrink-0" />
+                  <FaChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-site-primary mx-2 hidden md:block flex-shrink-0" />
                 )}
               </div>
             ))}
@@ -786,7 +832,7 @@ export default function Home() {
             <Link href="/devis">
               <Button
                 size="lg"
-                className="bg-[#DC2626] hover:bg-[#B91C1C] text-white px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+                className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text px-8 py-6 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
               >
                 Demande de devis
                 <FaArrowRight className="ml-2 w-5 h-5" />
@@ -808,7 +854,7 @@ export default function Home() {
             className="text-center mb-12"
         >
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
-              Nos clients retrouvent le <span className="text-[#DC2626] italic font-serif">sourire</span> avec nous
+              Nos clients retrouvent le <span className="text-site-primary italic font-serif">sourire</span> avec nous
             </h2>
             <div className="flex items-center justify-center gap-2 mt-4">
               <span className="text-sm text-gray-600">Avis authentiques</span>

@@ -17,6 +17,7 @@ interface Agency {
   anneeExperience?: number;
   nombreClients?: number;
   horaires?: string;
+  slug?: string;
 }
 
 interface AgencyCardProps {
@@ -33,7 +34,7 @@ export function AgencyCard({ agency, delay = 0 }: AgencyCardProps) {
       transition={{ duration: 0.5, delay }}
       whileHover={{ y: -4 }}
     >
-      <Card className="h-full flex flex-col group relative overflow-hidden border-2 border-gray-200 shadow-lg hover:shadow-2xl hover:border-[#DC2626] transition-all duration-300 bg-white" data-testid={`card-agency-${agency.id}`}>
+      <Card className="h-full flex flex-col group relative overflow-hidden border-2 border-gray-200 shadow-lg hover:shadow-2xl hover:border-site-primary transition-all duration-300 bg-white" data-testid={`card-agency-${agency.id}`}>
         
         <div className="aspect-video w-full overflow-hidden relative">
           <img
@@ -43,7 +44,7 @@ export function AgencyCard({ agency, delay = 0 }: AgencyCardProps) {
             data-testid={`img-agency-${agency.id}`}
           />
           <div className="absolute top-3 right-3">
-            <Badge className="gap-1 bg-white/95 backdrop-blur-sm text-[#DC2626] border-2 border-[#DC2626]/20 font-semibold shadow-md" data-testid={`badge-city-${agency.id}`}>
+            <Badge className="gap-1 bg-white/95 backdrop-blur-sm text-site-text-primary border-2 border-site-primary/20 font-semibold shadow-md" data-testid={`badge-city-${agency.id}`}>
               <FaMapMarkerAlt className="w-3.5 h-3.5" />
               {agency.ville}
             </Badge>
@@ -73,7 +74,7 @@ export function AgencyCard({ agency, delay = 0 }: AgencyCardProps) {
               <Badge 
                 key={index} 
                 variant="outline" 
-                className="text-xs px-2 py-0.5 border-[#DC2626]/30 bg-[#DC2626]/5 text-[#DC2626] font-medium" 
+                className="text-xs px-2 py-0.5 border-site-primary/30 bg-site-primary/5 text-site-text-primary font-medium" 
                 data-testid={`badge-service-${agency.id}-${index}`}
               >
                 {service}
@@ -82,7 +83,7 @@ export function AgencyCard({ agency, delay = 0 }: AgencyCardProps) {
             {agency.services.length > 2 && (
               <Badge 
                 variant="outline" 
-                className="text-xs px-2 py-0.5 border-[#DC2626]/30 bg-[#DC2626]/10 text-[#DC2626] font-semibold" 
+                className="text-xs px-2 py-0.5 border-site-primary/30 bg-site-primary/10 text-site-text-primary font-semibold" 
                 data-testid={`badge-more-services-${agency.id}`}
               >
                 +{agency.services.length - 2}
@@ -92,9 +93,9 @@ export function AgencyCard({ agency, delay = 0 }: AgencyCardProps) {
         </CardContent>
 
         <CardFooter className="pt-3 pb-4">
-          <Link href={`/agences/${agency.id}`} className="w-full" data-testid={`link-agency-detail-${agency.id}`}>
+          <Link href={`/agences/${agency.slug || agency.id}`} className="w-full" data-testid={`link-agency-detail-${agency.id}`}>
             <Button 
-              className="w-full h-11 gap-2 group/btn bg-[#DC2626] hover:bg-[#B91C1C] text-white shadow-md hover:shadow-lg transition-all duration-300 font-semibold" 
+              className="w-full h-11 gap-2 group/btn bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text shadow-md hover:shadow-lg transition-all duration-300 font-semibold" 
               data-testid={`button-view-agency-${agency.id}`}
             >
               Voir les détails

@@ -195,6 +195,7 @@ function PageDialog({
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 }) {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     key: "",
     title: "",

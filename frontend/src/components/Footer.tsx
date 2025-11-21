@@ -46,7 +46,7 @@ export default function Footer() {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
       <div>
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-10 h-10 rounded-md bg-[#DC2626] flex items-center justify-center">
+          <div className="w-10 h-10 rounded-md bg-[site-primary] flex items-center justify-center">
             <FaHome className="w-5 h-5 text-white" />
           </div>
           <span className="text-xl font-semibold text-gray-900">{footerInfo.copyright}</span>
@@ -60,10 +60,10 @@ export default function Footer() {
               href={footerInfo.facebook}
             target="_blank"
             rel="noopener noreferrer"
-              className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-[#DC2626] transition-colors border border-red-200"
+              className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-[site-primary] transition-colors border border-red-200"
             aria-label="Facebook"
           >
-              <FaFacebook className="w-4 h-4 text-[#DC2626] hover:text-white transition-colors" />
+              <FaFacebook className="w-4 h-4 text-[site-primary] hover:text-white transition-colors" />
           </a>
           )}
           {footerInfo.twitter && (
@@ -71,10 +71,10 @@ export default function Footer() {
               href={footerInfo.twitter}
             target="_blank"
             rel="noopener noreferrer"
-              className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-[#DC2626] transition-colors border border-red-200"
+              className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-[site-primary] transition-colors border border-red-200"
             aria-label="Twitter"
           >
-              <FaTwitter className="w-4 h-4 text-[#DC2626] hover:text-white transition-colors" />
+              <FaTwitter className="w-4 h-4 text-[site-primary] hover:text-white transition-colors" />
           </a>
           )}
           {footerInfo.instagram && (
@@ -82,10 +82,10 @@ export default function Footer() {
               href={footerInfo.instagram}
             target="_blank"
             rel="noopener noreferrer"
-              className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-[#DC2626] transition-colors border border-red-200"
+              className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-[site-primary] transition-colors border border-red-200"
             aria-label="Instagram"
           >
-              <FaInstagram className="w-4 h-4 text-[#DC2626] hover:text-white transition-colors" />
+              <FaInstagram className="w-4 h-4 text-[site-primary] hover:text-white transition-colors" />
           </a>
           )}
           {footerInfo.linkedin && (
@@ -93,10 +93,10 @@ export default function Footer() {
               href={footerInfo.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-              className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-[#DC2626] transition-colors border border-red-200"
+              className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-[site-primary] transition-colors border border-red-200"
             aria-label="LinkedIn"
           >
-              <FaLinkedin className="w-4 h-4 text-[#DC2626] hover:text-white transition-colors" />
+              <FaLinkedin className="w-4 h-4 text-[site-primary] hover:text-white transition-colors" />
           </a>
           )}
         </div>
@@ -107,22 +107,22 @@ export default function Footer() {
         <h3 className="font-semibold text-gray-900 mb-4">Services</h3>
         <ul className="space-y-2">
           <li>
-            <Link href="/services" className="text-gray-700 hover:text-[#DC2626] transition-colors text-sm">
+            <Link href="/services" className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
               Ménage à domicile
             </Link>
           </li>
           <li>
-            <Link href="/services" className="text-gray-700 hover:text-[#DC2626] transition-colors text-sm">
+            <Link href="/services" className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
               Garde d'enfants
             </Link>
           </li>
           <li>
-            <Link href="/services" className="text-gray-700 hover:text-[#DC2626] transition-colors text-sm">
+            <Link href="/services" className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
               Jardinage
             </Link>
           </li>
           <li>
-            <Link href="/services" className="text-gray-700 hover:text-[#DC2626] transition-colors text-sm">
+            <Link href="/services" className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
               Tous les services
             </Link>
           </li>
@@ -134,17 +134,17 @@ export default function Footer() {
         <h3 className="font-semibold text-gray-900 mb-4">Navigation</h3>
         <ul className="space-y-2">
           <li>
-            <Link href="/" className="text-gray-700 hover:text-[#DC2626] transition-colors text-sm">
+            <Link href="/" className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
               Accueil
             </Link>
           </li>
           <li>
-            <Link href="/agences" className="text-gray-700 hover:text-[#DC2626] transition-colors text-sm">
+            <Link href="/agences" className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
               Nos agences
             </Link>
           </li>
           <li>
-            <Link href="/contact" className="text-gray-700 hover:text-[#DC2626] transition-colors text-sm">
+            <Link href="/contact" className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
               Contact
             </Link>
           </li>
@@ -156,18 +156,18 @@ export default function Footer() {
         <h3 className="font-semibold text-gray-900 mb-4">Contact</h3>
         <ul className="space-y-3">
           <li className="flex items-start gap-2">
-            <FaMapMarkerAlt className="w-4 h-4 mt-0.5 text-[#DC2626] flex-shrink-0" />
+            <FaMapMarkerAlt className="w-4 h-4 mt-0.5 text-[site-primary] flex-shrink-0" />
             <span className="text-gray-700 text-sm">{footerInfo.address}</span>
           </li>
           <li className="flex items-start gap-2">
-            <FaPhone className="w-4 h-4 mt-0.5 text-[#DC2626] flex-shrink-0" />
-            <a href={`tel:${footerInfo.phone.replace(/\s/g, '')}`} className="text-gray-700 hover:text-[#DC2626] transition-colors text-sm">
+            <FaPhone className="w-4 h-4 mt-0.5 text-[site-primary] flex-shrink-0" />
+            <a href={`tel:${footerInfo.phone.replace(/\s/g, '')}`} className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
               {footerInfo.phone}
             </a>
           </li>
           <li className="flex items-start gap-2">
-            <FaEnvelope className="w-4 h-4 mt-0.5 text-[#DC2626] flex-shrink-0" />
-            <a href={`mailto:${footerInfo.email}`} className="text-gray-700 hover:text-[#DC2626] transition-colors text-sm">
+            <FaEnvelope className="w-4 h-4 mt-0.5 text-[site-primary] flex-shrink-0" />
+            <a href={`mailto:${footerInfo.email}`} className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
               {footerInfo.email}
             </a>
           </li>
@@ -180,10 +180,10 @@ export default function Footer() {
         © {currentYear} {footerInfo.copyright}. Tous droits réservés.
       </p>
       <div className="flex gap-6">
-        <a href="#" className="text-sm text-gray-700 hover:text-[#DC2626] transition-colors">
+        <a href="#" className="text-sm text-gray-700 hover:text-[site-primary] transition-colors">
           Mentions légales
         </a>
-        <a href="#" className="text-sm text-gray-700 hover:text-[#DC2626] transition-colors">
+        <a href="#" className="text-sm text-gray-700 hover:text-[site-primary] transition-colors">
           Confidentialité
         </a>
       </div>

@@ -11,6 +11,18 @@ export default {
         sm: ".1875rem", /* 3px */
       },
       colors: {
+        // Couleurs du site (dynamiques depuis l'API)
+        site: {
+          primary: "var(--site-primary-hex, #DC2626)",
+          secondary: "var(--site-secondary-hex, #B91C1C)",
+          tertiary: "var(--site-tertiary-hex, #991B1B)",
+          "button-primary": "var(--site-button-primary-hex, var(--site-primary-hex, #DC2626))",
+          "button-primary-hover": "var(--site-button-primary-hover-hex, var(--site-secondary-hex, #B91C1C))",
+          "button-text": "var(--site-button-text-hex, #FFFFFF)",
+          "text-primary": "var(--site-text-primary-hex, var(--site-primary-hex, #DC2626))",
+          "text-link": "var(--site-text-link-hex, var(--site-primary-hex, #DC2626))",
+          "text-link-hover": "var(--site-text-link-hover-hex, var(--site-secondary-hex, #B91C1C))",
+        },
         // Flat / base colors (regular buttons)
         background: "hsl(var(--background) / <alpha-value>)",
         foreground: "hsl(var(--foreground) / <alpha-value>)",

@@ -90,6 +90,46 @@ export function Navbar() {
 
   const servicesSubItems = buildServicesSubItems();
 
+  // Construire les items de navigation pour les agences
+  const buildAgenciesSubItems = (): SubSubItem[] => {
+    if (!navbarData?.agencies) {
+      return [];
+    }
+    return navbarData.agencies.map((agency: any) => ({
+      label: `${agency.name} - ${agency.city}`,
+      path: `/agences/${agency.slug}`,
+    }));
+  };
+
+  // Construire les villes uniques depuis les agences
+  const buildCitiesSubItems = (): SubSubItem[] => {
+    if (!navbarData?.agencies || navbarData.agencies.length === 0) {
+      return [];
+    }
+    // Extraire toutes les villes uniques et les trier
+    const cities = [...new Set(navbarData.agencies.map((a: any) => a.city))].sort();
+    return cities.map((city: string) => ({
+      label: city,
+      // Utiliser le nom exact de la ville (avec la bonne casse) dans l'URL
+      path: `/agences?ville=${encodeURIComponent(city)}`,
+    }));
+  };
+
+  // Construire les services pour le filtre des agences
+  const buildServicesForAgenciesSubItems = (): SubSubItem[] => {
+    if (!navbarData?.services || navbarData.services.length === 0) {
+      return [];
+    }
+    // Tous les services actifs, limités à 10 pour ne pas surcharger le menu
+    return navbarData.services.slice(0, 10).map((service: any) => ({
+      label: service.name,
+      path: `/services/${service.slug}`, // Rediriger vers la page du service
+    }));
+  };
+
+  const citiesSubItems = buildCitiesSubItems();
+  const servicesForAgenciesSubItems = buildServicesForAgenciesSubItems();
+
   const navItems: NavItem[] = [
     { path: "/", label: "Accueil", icon: FaHome, hasDropdown: false },
     { 
@@ -99,40 +139,35 @@ export function Navbar() {
       hasDropdown: servicesSubItems.length > 0,
       subItems: servicesSubItems.length > 0 ? servicesSubItems : undefined,
     },
-    { 
-      path: "/agences", 
-      label: "Agences", 
-      icon: FaBuilding, 
+    {
+      path: "/agences",
+      label: "Agences",
+      icon: FaBuilding,
       hasDropdown: true,
       subItems: [
         {
+          label: "Toutes nos agences",
+          icon: FaBuilding,
+          subSubItems: [],
+        },
+        {
           label: "Par ville",
           icon: FaMapMarkerAlt,
-          subSubItems: [
-            { label: "Abidjan", path: "/agences?ville=abidjan" },
-            { label: "Bouaké", path: "/agences?ville=bouake" },
-            { label: "Yamoussoukro", path: "/agences?ville=yamoussoukro" },
-            { label: "San Pedro", path: "/agences?ville=san-pedro" },
-          ]
+          subSubItems: citiesSubItems.length > 0 ? citiesSubItems : [],
         },
         {
           label: "Par service",
           icon: FaBriefcase,
-          subSubItems: [
-            { label: "Agences de nettoyage", path: "/agences?service=nettoyage" },
-            { label: "Agences de garde d'enfants", path: "/agences?service=garde-enfants" },
-            { label: "Agences de jardinage", path: "/agences?service=jardinage" },
-          ]
+          subSubItems: servicesForAgenciesSubItems.length > 0 ? servicesForAgenciesSubItems : [],
         },
         {
           label: "Recherche",
           icon: FaUsers,
           subSubItems: [
             { label: "Trouver une agence", path: "/agences" },
-            { label: "Devenir partenaire", path: "/contact?type=partenaire" },
-          ]
+          ],
         },
-      ]
+      ],
     },
     { path: "/contact", label: "Contact", icon: FaPhone, hasDropdown: false },
   ];
@@ -171,8 +206,8 @@ export function Navbar() {
                         variant={isActive(item.path) ? "default" : "ghost"}
                         className={`gap-2 transition-colors duration-200 ${
                           isActive(item.path)
-                            ? "bg-[#DC2626] text-white shadow-md hover:bg-[#DC2626]"
-                            : "hover:bg-[#DC2626]/10 hover:text-[#DC2626] text-gray-700"
+                            ? "bg-site-button-primary text-site-button-text shadow-md hover:bg-site-button-primary-hover"
+                            : "hover:bg-site-primary/10 hover:text-site-primary text-gray-700"
                         }`}
                         data-testid={`link-${item.label.toLowerCase()}`}
                       >
@@ -184,14 +219,14 @@ export function Navbar() {
                     <DropdownMenuContent align="start" className="w-56 bg-white border border-gray-200 shadow-lg" sideOffset={5}>
                       {item.subItems.map((subItem, idx) => (
                         <DropdownMenuSub key={idx}>
-                          <DropdownMenuSubTrigger className="gap-2 hover:bg-[#DC2626]/10 focus:bg-[#DC2626]/10 focus:text-gray-900 data-[state=open]:bg-[#DC2626]/10">
-                            <subItem.icon className="w-4 h-4 text-[#DC2626]" />
+                          <DropdownMenuSubTrigger className="gap-2 hover:bg-site-primary/10 focus:bg-site-primary/10 focus:text-gray-900 data-[state=open]:bg-site-primary/10">
+                            <subItem.icon className="w-4 h-4 text-site-primary" />
                             <span>{subItem.label}</span>
                           </DropdownMenuSubTrigger>
                           <DropdownMenuSubContent className="bg-white border border-gray-200 shadow-lg">
                             {subItem.subSubItems?.map((subSubItem, subIdx) => (
                               <DropdownMenuItem key={subIdx} asChild>
-                                <Link href={subSubItem.path} className="cursor-pointer hover:bg-[#DC2626]/10 hover:text-gray-900 focus:bg-[#DC2626]/10 focus:text-gray-900">
+                                <Link href={subSubItem.path} className="cursor-pointer hover:bg-site-primary/10 hover:text-gray-900 focus:bg-site-primary/10 focus:text-gray-900">
                                   {subSubItem.label}
                                 </Link>
                               </DropdownMenuItem>
@@ -201,7 +236,7 @@ export function Navbar() {
                       ))}
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link href={item.path} className="cursor-pointer hover:bg-[#DC2626]/10 hover:text-[#DC2626] focus:bg-[#DC2626]/10 focus:text-[#DC2626] font-semibold text-[#DC2626]">
+                        <Link href={item.path} className="cursor-pointer hover:bg-site-primary/10 hover:text-site-primary focus:bg-site-primary/10 focus:text-site-primary font-semibold text-site-primary">
                           Voir tous les {item.label.toLowerCase()}
                         </Link>
                       </DropdownMenuItem>
@@ -215,8 +250,8 @@ export function Navbar() {
                   variant={isActive(item.path) ? "default" : "ghost"}
                   className={`gap-2 transition-colors duration-200 ${
                     isActive(item.path)
-                        ? "bg-[#DC2626] text-white shadow-md hover:bg-[#DC2626]"
-                        : "hover:bg-[#DC2626]/10 hover:text-[#DC2626] text-gray-700"
+                        ? "bg-site-button-primary text-site-button-text shadow-md hover:bg-site-button-primary-hover"
+                        : "hover:bg-site-primary/10 hover:text-site-primary text-gray-700"
                   }`}
                   data-testid={`link-${item.label.toLowerCase()}`}
                 >
@@ -233,14 +268,14 @@ export function Navbar() {
             <Link href="/admin/login">
               <Button
                 variant="outline"
-                className="border-[#DC2626] text-[#DC2626] hover:bg-[#DC2626] hover:text-white transition-colors"
+                className="border-site-primary text-site-text-link hover:bg-site-button-primary hover:text-site-button-text transition-colors"
               >
                 Connexion
               </Button>
             </Link>
             <Link href="/devis">
               <Button
-                className="bg-[#DC2626] hover:bg-[#DC2626] text-white shadow-md hover:shadow-lg transition-all duration-300"
+                className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text shadow-md hover:shadow-lg transition-all duration-300"
                 data-testid="button-quote-cta"
               >
                 Demander un devis
@@ -250,7 +285,7 @@ export function Navbar() {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden p-2 text-gray-700 hover:text-[#DC2626] transition-colors"
+            className="md:hidden p-2 text-gray-700 hover:text-site-primary transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -276,7 +311,7 @@ export function Navbar() {
                     <div key={item.path} className="space-y-1">
                       <button
                         onClick={() => setOpenSubMenus(prev => ({ ...prev, [item.path]: !prev[item.path] }))}
-                        className="flex items-center justify-between w-full px-2 py-2 text-sm font-semibold text-gray-700 hover:bg-[#DC2626]/10 rounded-lg transition-colors"
+                        className="flex items-center justify-between w-full px-2 py-2 text-sm font-semibold text-gray-700 hover:bg-site-primary/10 rounded-lg transition-colors"
                       >
                         <div className="flex items-center gap-2">
                           <item.icon className="w-4 h-4" />
@@ -298,7 +333,7 @@ export function Navbar() {
                               <div key={idx} className="space-y-1">
                                 <button
                                   onClick={() => setOpenSubMenus(prev => ({ ...prev, [subSubMenuKey]: !prev[subSubMenuKey] }))}
-                                  className="flex items-center justify-between w-full px-2 py-1 text-sm font-medium text-[#DC2626] hover:bg-[#DC2626]/10 rounded-lg transition-colors"
+                                  className="flex items-center justify-between w-full px-2 py-1 text-sm font-medium text-site-primary hover:bg-site-primary/10 rounded-lg transition-colors"
                                 >
                                   <div className="flex items-center gap-2">
                                     <subItem.icon className="w-3 h-3" />
@@ -323,7 +358,7 @@ export function Navbar() {
                                       >
                                         <Button
                                           variant="ghost"
-                                          className="w-full justify-start text-xs text-gray-600 hover:bg-[#DC2626]/10 hover:text-[#DC2626]"
+                                          className="w-full justify-start text-xs text-gray-600 hover:bg-site-primary/10 hover:text-site-primary"
                                         >
                                           {subSubItem.label}
                                         </Button>
@@ -337,7 +372,7 @@ export function Navbar() {
                           <Link href={item.path} onClick={() => setMobileMenuOpen(false)}>
                             <Button
                               variant="ghost"
-                              className="w-full justify-start text-sm font-semibold text-[#DC2626] hover:bg-[#DC2626]/10"
+                              className="w-full justify-start text-sm font-semibold text-site-primary hover:bg-site-primary/10"
                             >
                               Voir tous les {item.label.toLowerCase()}
                             </Button>
@@ -353,8 +388,8 @@ export function Navbar() {
                     variant={isActive(item.path) ? "default" : "ghost"}
                       className={`w-full justify-start gap-2 ${
                         isActive(item.path)
-                          ? "bg-[#DC2626] text-white"
-                          : "hover:bg-[#DC2626]/10 hover:text-[#DC2626] text-gray-700"
+                          ? "bg-site-button-primary text-site-button-text"
+                          : "hover:bg-site-primary/10 hover:text-site-primary text-gray-700"
                       }`}
                     onClick={() => setMobileMenuOpen(false)}
                     data-testid={`link-mobile-${item.label.toLowerCase()}`}

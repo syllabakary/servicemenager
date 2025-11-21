@@ -280,7 +280,7 @@ export default function QuoteRequest() {
   return (
     <div className="min-h-screen bg-white pt-20 overflow-x-hidden w-full max-w-full">
       {/* Header Section */}
-      <section className="relative py-8 sm:py-10 md:py-12 lg:py-16 bg-[#DC2626] text-white overflow-hidden">
+      <section className="relative py-8 sm:py-10 md:py-12 lg:py-16 bg-site-primary text-white overflow-hidden">
         <div className="absolute inset-0 bg-black/10" />
         <div className="max-w-4xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative z-10">
           <Link href="/">
@@ -391,8 +391,8 @@ export default function QuoteRequest() {
                           onClick={() => setFormData({ ...formData, serviceId: service.id })}
                           className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
                             formData.serviceId === service.id
-                              ? "border-[#DC2626] bg-[#DC2626]/10 shadow-md"
-                              : "border-gray-200 hover:border-[#DC2626]/50 hover:bg-[#DC2626]/5"
+                              ? "border-[site-primary] bg-[site-primary]/10 shadow-md"
+                              : "border-gray-200 hover:border-[site-primary]/50 hover:bg-[site-primary]/5"
                           }`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
@@ -400,7 +400,7 @@ export default function QuoteRequest() {
                           <div className="flex items-center justify-between">
                             <span className="font-semibold text-gray-900">{service.name}</span>
                             {formData.serviceId === service.id && (
-                              <FaCheckCircle className="w-5 h-5 text-[#DC2626]" />
+                              <FaCheckCircle className="w-5 h-5 text-[site-primary]" />
                             )}
                           </div>
                           {service.short_description && (
@@ -426,8 +426,8 @@ export default function QuoteRequest() {
                           onClick={() => setFormData({ ...formData, typeAide: type, typeAideAutre: "", sousTypeAide: undefined })}
                           className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
                             formData.typeAide === type
-                              ? "border-[#DC2626] bg-[#DC2626]/10 shadow-md"
-                              : "border-gray-200 hover:border-[#DC2626]/50 hover:bg-[#DC2626]/5"
+                              ? "border-[site-primary] bg-[site-primary]/10 shadow-md"
+                              : "border-gray-200 hover:border-[site-primary]/50 hover:bg-[site-primary]/5"
                           }`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
@@ -435,7 +435,7 @@ export default function QuoteRequest() {
                           <div className="flex items-center justify-between">
                             <span className="font-semibold text-gray-900">{type}</span>
                             {formData.typeAide === type && (
-                              <FaCheckCircle className="w-5 h-5 text-[#DC2626]" />
+                              <FaCheckCircle className="w-5 h-5 text-[site-primary]" />
                             )}
                           </div>
                         </motion.button>
@@ -475,8 +475,8 @@ export default function QuoteRequest() {
                           onClick={() => setFormData({ ...formData, sousTypeAide: sousType, sousTypeAideAutre: "" })}
                           className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
                             formData.sousTypeAide === sousType
-                              ? "border-[#DC2626] bg-[#DC2626]/10 shadow-md"
-                              : "border-gray-200 hover:border-[#DC2626]/50 hover:bg-[#DC2626]/5"
+                              ? "border-[site-primary] bg-[site-primary]/10 shadow-md"
+                              : "border-gray-200 hover:border-[site-primary]/50 hover:bg-[site-primary]/5"
                           }`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
@@ -484,7 +484,7 @@ export default function QuoteRequest() {
                           <div className="flex items-center justify-between">
                             <span className="font-semibold text-gray-900">{sousType}</span>
                             {formData.sousTypeAide === sousType && (
-                              <FaCheckCircle className="w-5 h-5 text-[#DC2626]" />
+                              <FaCheckCircle className="w-5 h-5 text-[site-primary]" />
                             )}
                           </div>
                         </motion.button>
@@ -495,8 +495,8 @@ export default function QuoteRequest() {
                         onClick={() => setFormData({ ...formData, sousTypeAide: "Autre", sousTypeAideAutre: "" })}
                         className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
                           formData.sousTypeAide === "Autre"
-                            ? "border-[#DC2626] bg-[#DC2626]/10 shadow-md"
-                            : "border-gray-200 hover:border-[#DC2626]/50 hover:bg-[#DC2626]/5"
+                            ? "border-[site-primary] bg-[site-primary]/10 shadow-md"
+                            : "border-gray-200 hover:border-[site-primary]/50 hover:bg-[site-primary]/5"
                         }`}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
@@ -504,7 +504,7 @@ export default function QuoteRequest() {
                         <div className="flex items-center justify-between">
                           <span className="font-semibold text-gray-900">Autre</span>
                           {formData.sousTypeAide === "Autre" && (
-                            <FaCheckCircle className="w-5 h-5 text-[#DC2626]" />
+                            <FaCheckCircle className="w-5 h-5 text-[site-primary]" />
                           )}
                         </div>
                       </motion.button>
@@ -546,8 +546,8 @@ export default function QuoteRequest() {
                           onClick={() => toggleBesoin(besoin)}
                           className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
                             formData.besoins?.includes(besoin)
-                              ? "border-[#DC2626] bg-[#DC2626]/10 shadow-md"
-                              : "border-gray-200 hover:border-[#DC2626]/50 hover:bg-[#DC2626]/5"
+                              ? "border-[site-primary] bg-[site-primary]/10 shadow-md"
+                              : "border-gray-200 hover:border-[site-primary]/50 hover:bg-[site-primary]/5"
                           }`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
@@ -555,7 +555,7 @@ export default function QuoteRequest() {
                           <div className="flex items-center justify-between">
                             <span className="font-semibold text-gray-900">{besoin}</span>
                             {formData.besoins?.includes(besoin) && (
-                              <FaCheckCircle className="w-5 h-5 text-[#DC2626]" />
+                              <FaCheckCircle className="w-5 h-5 text-[site-primary]" />
                             )}
                           </div>
                         </motion.button>
@@ -595,8 +595,8 @@ export default function QuoteRequest() {
                           onClick={() => setFormData({ ...formData, destinataire: dest.value })}
                           className={`p-6 rounded-lg border-2 transition-all duration-300 text-center ${
                             formData.destinataire === dest.value
-                              ? "border-[#DC2626] bg-[#DC2626]/10 shadow-md"
-                              : "border-gray-200 hover:border-[#DC2626]/50 hover:bg-[#DC2626]/5"
+                              ? "border-[site-primary] bg-[site-primary]/10 shadow-md"
+                              : "border-gray-200 hover:border-[site-primary]/50 hover:bg-[site-primary]/5"
                           }`}
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
@@ -604,7 +604,7 @@ export default function QuoteRequest() {
                           <div className="flex flex-col items-center gap-2">
                             <span className="font-semibold text-gray-900">{dest.label}</span>
                             {formData.destinataire === dest.value && (
-                              <FaCheckCircle className="w-5 h-5 text-[#DC2626]" />
+                              <FaCheckCircle className="w-5 h-5 text-[site-primary]" />
                             )}
                           </div>
                         </motion.button>
@@ -700,7 +700,7 @@ export default function QuoteRequest() {
                       <Button
                         type="submit"
                         disabled={mutation.isPending}
-                        className="flex-1 h-12 text-base bg-[#DC2626] hover:bg-[#B91C1C] text-white shadow-lg hover:shadow-xl transition-all duration-300 font-semibold gap-2"
+                        className="flex-1 h-12 text-base bg-[site-primary] hover:bg-[site-secondary] text-white shadow-lg hover:shadow-xl transition-all duration-300 font-semibold gap-2"
                       >
                         {mutation.isPending ? (
                           <>
@@ -735,7 +735,7 @@ export default function QuoteRequest() {
                       type="button"
                       onClick={nextStep}
                       disabled={!canProceed()}
-                      className="flex-1 h-12 text-base bg-[#DC2626] hover:bg-[#B91C1C] text-white shadow-lg hover:shadow-xl transition-all duration-300 font-semibold gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 h-12 text-base bg-[site-primary] hover:bg-[site-secondary] text-white shadow-lg hover:shadow-xl transition-all duration-300 font-semibold gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Suivant
                       <FaArrowRight className="w-5 h-5" />
@@ -768,7 +768,7 @@ export default function QuoteRequest() {
                 setShowSuccessDialog(false);
                 setLocationState("/");
               }}
-              className="w-full bg-[#DC2626] hover:bg-[#B91C1C] text-white font-semibold"
+              className="w-full bg-[site-primary] hover:bg-[site-secondary] text-white font-semibold"
             >
               D'accord
             </AlertDialogAction>

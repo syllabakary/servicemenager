@@ -28,8 +28,8 @@ export default function Contact() {
   };
 
   return (
-    <div className="min-h-screen pt-16 overflow-x-hidden w-full max-w-full bg-gradient-to-br from-gray-50 via-white to-gray-50">
-      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-gradient-to-b from-[#DC2626]/5 via-white to-gray-50">
+    <div className="min-h-screen pt-16 overflow-x-hidden w-full max-w-full bg-white">
+      <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -53,7 +53,7 @@ export default function Contact() {
               className="lg:col-span-2"
             >
               <Card className="border-2 border-gray-200 shadow-xl bg-white">
-                <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white rounded-t-lg">
+                <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-site-primary to-site-secondary text-white rounded-t-lg">
                   <CardTitle className="text-white" data-testid="heading-contact-form">Envoyez-nous un message</CardTitle>
                   <CardDescription className="text-white/90" data-testid="text-contact-form-description">
                     Remplissez le formulaire ci-dessous et nous vous répondrons rapidement
@@ -69,7 +69,7 @@ export default function Contact() {
                           name="nom"
                           placeholder="Votre nom"
                           required
-                          className="border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                          className="border-gray-300 focus:border-site-primary focus:ring-site-primary"
                           data-testid="input-name"
                         />
                       </div>
@@ -81,7 +81,7 @@ export default function Contact() {
                           type="email"
                           placeholder="votre@email.com"
                           required
-                          className="border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                          className="border-gray-300 focus:border-site-primary focus:ring-site-primary"
                           data-testid="input-email"
                         />
                       </div>
@@ -94,7 +94,7 @@ export default function Contact() {
                         name="sujet"
                         placeholder="Objet de votre message"
                         required
-                        className="border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                        className="border-gray-300 focus:border-site-primary focus:ring-site-primary"
                         data-testid="input-subject"
                       />
                     </div>
@@ -107,7 +107,7 @@ export default function Contact() {
                         placeholder="Votre message..."
                         rows={6}
                         required
-                        className="border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                        className="border-gray-300 focus:border-site-primary focus:ring-site-primary"
                         data-testid="textarea-message"
                       />
                     </div>
@@ -115,7 +115,7 @@ export default function Contact() {
                     <Button
                       type="submit"
                       size="lg"
-                      className="w-full gap-2 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                      className="w-full gap-2 bg-gradient-to-r from-site-button-primary to-site-button-primary-hover hover:from-site-button-primary-hover hover:to-site-tertiary text-site-button-text shadow-lg hover:shadow-xl transition-all duration-200"
                       disabled={loading}
                       data-testid="button-submit"
                     >
@@ -134,13 +134,13 @@ export default function Contact() {
                 transition={{ duration: 0.6, delay: 0.2 }}
               >
                 <Card className="border-2 border-gray-200 shadow-xl bg-white">
-                  <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white rounded-t-lg">
+                  <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-site-primary to-site-secondary text-white rounded-t-lg">
                     <CardTitle className="text-white" data-testid="heading-contact-info">Nos coordonnées</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4 pt-6">
                     <div className="flex items-start gap-3" data-testid="contact-info-address">
-                      <div className="w-10 h-10 rounded-lg bg-[#DC2626]/10 flex items-center justify-center flex-shrink-0">
-                        <FaMapMarkerAlt className="w-5 h-5 text-[#DC2626]" />
+                      <div className="w-10 h-10 rounded-lg bg-site-primary/10 flex items-center justify-center flex-shrink-0">
+                        <FaMapMarkerAlt className="w-5 h-5 text-site-primary" />
                       </div>
                       <div>
                         <p className="font-semibold text-sm text-gray-500 mb-1">
@@ -155,8 +155,8 @@ export default function Contact() {
                     </div>
 
                     <div className="flex items-start gap-3" data-testid="contact-info-phone">
-                      <div className="w-10 h-10 rounded-lg bg-[#DC2626]/10 flex items-center justify-center flex-shrink-0">
-                        <FaPhone className="w-5 h-5 text-[#DC2626]" />
+                      <div className="w-10 h-10 rounded-lg bg-site-primary/10 flex items-center justify-center flex-shrink-0">
+                        <FaPhone className="w-5 h-5 text-site-primary" />
                       </div>
                       <div>
                         <p className="font-semibold text-sm text-gray-500 mb-1">
@@ -164,7 +164,7 @@ export default function Contact() {
                         </p>
                         <a
                           href="tel:+2250123456789"
-                          className="text-base text-gray-900 hover:text-[#DC2626] transition-colors font-medium"
+                          className="text-base text-gray-900 hover:text-site-text-link transition-colors font-medium"
                           data-testid="link-contact-phone"
                         >
                           +225 01 23 45 67 89
@@ -173,8 +173,8 @@ export default function Contact() {
                     </div>
 
                     <div className="flex items-start gap-3" data-testid="contact-info-email">
-                      <div className="w-10 h-10 rounded-lg bg-[#DC2626]/10 flex items-center justify-center flex-shrink-0">
-                        <FaEnvelope className="w-5 h-5 text-[#DC2626]" />
+                      <div className="w-10 h-10 rounded-lg bg-site-primary/10 flex items-center justify-center flex-shrink-0">
+                        <FaEnvelope className="w-5 h-5 text-site-primary" />
                       </div>
                       <div>
                         <p className="font-semibold text-sm text-gray-500 mb-1">
@@ -182,7 +182,7 @@ export default function Contact() {
                         </p>
                         <a
                           href="mailto:contact@serviceslocaux.ci"
-                          className="text-base text-gray-900 hover:text-[#DC2626] transition-colors font-medium"
+                          className="text-base text-gray-900 hover:text-site-text-link transition-colors font-medium"
                           data-testid="link-contact-email"
                         >
                           contact@serviceslocaux.ci
@@ -199,7 +199,7 @@ export default function Contact() {
                 transition={{ duration: 0.6, delay: 0.3 }}
               >
                 <Card className="border-2 border-gray-200 shadow-xl bg-white">
-                  <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white rounded-t-lg">
+                  <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-site-primary to-site-secondary text-white rounded-t-lg">
                     <CardTitle className="text-white" data-testid="heading-hours">Horaires d'ouverture</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2 pt-6">

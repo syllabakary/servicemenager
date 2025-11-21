@@ -64,6 +64,7 @@ import {
   FaGamepad,
   FaBook,
   FaShoppingCart,
+  FaMapMarkerAlt,
 } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi";
 import { motion } from "framer-motion";
@@ -454,7 +455,7 @@ export default function ServiceDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </div>
@@ -495,7 +496,7 @@ export default function ServiceDetail() {
           <Link href="/services">
             <Button
               variant="ghost"
-              className="gap-2 text-gray-600 hover:text-[#DC2626] hover:bg-[#DC2626]/5"
+              className="gap-2 text-gray-600 hover:text-site-text-link hover:bg-site-primary/5"
             >
               <FaArrowLeft className="w-4 h-4" />
               Retour aux services
@@ -532,7 +533,7 @@ export default function ServiceDetail() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
             >
-              <Badge className="mb-4 bg-[#DC2626]/10 text-[#DC2626] border-[#DC2626]/20">
+              <Badge className="mb-4 bg-site-primary/10 text-site-text-primary border-site-primary/20">
                 <FaChartLine className="w-3 h-3 mr-1" />
                 Service populaire
               </Badge>
@@ -540,7 +541,7 @@ export default function ServiceDetail() {
               <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
                 {!service.image_url && (
                   <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 flex items-center justify-center rounded-2xl bg-red-50 shadow-lg border border-red-200">
-                    <Icon className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-[#DC2626]" />
+                    <Icon className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-site-primary" />
                   </div>
                 )}
                 <div>
@@ -549,7 +550,7 @@ export default function ServiceDetail() {
                   </h1>
                   {service.rating && (
                     <div className="flex items-center gap-2 text-yellow-500">
-                      <FaStar className="w-5 h-5 fill-[#DC2626] text-[#DC2626]" />
+                      <FaStar className="w-5 h-5 fill-site-primary text-site-primary" />
                       <span className="text-lg font-bold text-gray-900">{service.rating}</span>
                       {service.review_count > 0 && (
                         <span className="text-gray-600">({service.review_count} avis)</span>
@@ -568,7 +569,7 @@ export default function ServiceDetail() {
                 {service.duration && (
                   <div className="bg-white rounded-xl p-4 shadow-md border border-gray-100">
                     <div className="flex items-center gap-2 text-gray-600 mb-1">
-                      <FaClock className="w-4 h-4 text-[#DC2626]" />
+                      <FaClock className="w-4 h-4 text-site-primary" />
                       <span className="text-sm font-medium">Durée</span>
                     </div>
                     <p className="text-lg font-bold text-gray-900">{service.duration}</p>
@@ -577,7 +578,7 @@ export default function ServiceDetail() {
                 {(service.price_label || service.price_per_hour) && (
                   <div className="bg-white rounded-xl p-4 shadow-md border border-gray-100">
                     <div className="flex items-center gap-2 text-gray-600 mb-1">
-                      <FaDollarSign className="w-4 h-4 text-[#DC2626]" />
+                      <FaDollarSign className="w-4 h-4 text-site-primary" />
                       <span className="text-sm font-medium">Tarif</span>
                     </div>
                     <p className="text-lg font-bold text-gray-900">
@@ -592,7 +593,7 @@ export default function ServiceDetail() {
                 <div className="grid grid-cols-2 gap-3">
                   {service.features.map((feature: string, i: number) => (
                     <div key={i} className="flex items-center gap-2 text-sm text-gray-700">
-                      <FaCheckCircle className="w-4 h-4 text-[#DC2626] flex-shrink-0" />
+                      <FaCheckCircle className="w-4 h-4 text-site-primary flex-shrink-0" />
                       <span>{feature}</span>
                     </div>
                   ))}
@@ -607,7 +608,7 @@ export default function ServiceDetail() {
               transition={{ duration: 0.6, delay: 0.2 }}
             >
               <Card className="border-0 shadow-2xl bg-white overflow-hidden">
-                <div className="bg-[#DC2626] p-6 text-white">
+                <div className="bg-site-button-primary p-6 text-site-button-text">
                   <h3 className="text-2xl font-bold mb-2">Réservez maintenant</h3>
                   <p className="text-white/90">Obtenez un devis gratuit et personnalisé</p>
                 </div>
@@ -621,7 +622,7 @@ export default function ServiceDetail() {
                           Meilleur prix
                         </Badge>
                       </div>
-                      <p className="text-4xl font-bold text-[#DC2626] mb-1">
+                      <p className="text-4xl font-bold text-site-text-primary mb-1">
                         {service.price_label || (service.price_per_hour ? `À partir de ${service.price_per_hour}${service.currency === 'EUR' ? '€' : service.currency === 'USD' ? '$' : ' FCFA'}` : "Sur devis")}
                       </p>
                       <p className="text-sm text-gray-600">
@@ -631,7 +632,7 @@ export default function ServiceDetail() {
 
                     <div className="space-y-3">
                       <Link href={`/devis?service=${service.id}`}>
-                        <Button className="w-full h-14 bg-[#DC2626] hover:bg-[#B91C1C] text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all">
+                        <Button className="w-full h-14 bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text font-semibold text-lg shadow-lg hover:shadow-xl transition-all">
                           <FaCalendar className="w-5 h-5 mr-2" />
                           Réserver maintenant
                         </Button>
@@ -639,13 +640,13 @@ export default function ServiceDetail() {
                       
                       <div className="grid grid-cols-2 gap-3">
                         <a href={`tel:${service.contact_phone || '+2250123456789'}`}>
-                          <Button variant="outline" className="w-full h-12 border-2 border-gray-200 hover:border-[#DC2626] hover:bg-[#DC2626]/5">
+                          <Button variant="outline" className="w-full h-12 border-2 border-gray-200 hover:border-site-primary hover:bg-site-primary/5">
                             <FaPhone className="w-4 h-4 mr-2" />
                             Appeler
                           </Button>
                         </a>
                         <Link href="/contact">
-                          <Button variant="outline" className="w-full h-12 border-2 border-gray-200 hover:border-[#DC2626] hover:bg-[#DC2626]/5">
+                          <Button variant="outline" className="w-full h-12 border-2 border-gray-200 hover:border-site-primary hover:bg-site-primary/5">
                             <FaCommentDots className="w-4 h-4 mr-2" />
                             Chat
                           </Button>
@@ -667,7 +668,7 @@ export default function ServiceDetail() {
 
                   <div className="bg-red-50 border border-red-100 rounded-lg p-4">
                     <div className="flex items-start gap-3">
-                      <FaInfoCircle className="w-5 h-5 text-[#DC2626] flex-shrink-0 mt-0.5" />
+                      <FaInfoCircle className="w-5 h-5 text-site-primary flex-shrink-0 mt-0.5" />
                       <div>
                         <p className="text-sm font-semibold text-gray-900 mb-1">
                           Besoin d'aide ?
@@ -694,7 +695,7 @@ export default function ServiceDetail() {
               onClick={() => setActiveTab("prestations")}
               className={`px-6 py-3 rounded-lg font-semibold transition-all ${
                 activeTab === "prestations"
-                  ? "bg-[#DC2626] text-white shadow-md"
+                  ? "bg-site-button-primary text-site-button-text shadow-md"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
@@ -705,7 +706,7 @@ export default function ServiceDetail() {
                 onClick={() => setActiveTab("avis")}
                 className={`px-6 py-3 rounded-lg font-semibold transition-all ${
                   activeTab === "avis"
-                    ? "bg-[#DC2626] text-white shadow-md"
+                    ? "bg-site-button-primary text-site-button-text shadow-md"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
@@ -717,7 +718,7 @@ export default function ServiceDetail() {
                 onClick={() => setActiveTab("faq")}
                 className={`px-6 py-3 rounded-lg font-semibold transition-all ${
                   activeTab === "faq"
-                    ? "bg-[#DC2626] text-white shadow-md"
+                    ? "bg-site-button-primary text-site-button-text shadow-md"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                 }`}
               >
@@ -744,8 +745,8 @@ export default function ServiceDetail() {
                       <ul className="space-y-4">
                         {service.included_services.map((prestation: string, index: number) => (
                           <li key={index} className="flex items-start gap-3">
-                            <div className="w-6 h-6 rounded-full bg-[#DC2626]/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                              <FaCheckCircle className="w-4 h-4 text-[#DC2626]" />
+                            <div className="w-6 h-6 rounded-full bg-site-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                              <FaCheckCircle className="w-4 h-4 text-site-primary" />
                             </div>
                             <span className="text-gray-700 leading-relaxed">{prestation}</span>
                           </li>
@@ -764,7 +765,7 @@ export default function ServiceDetail() {
                       <div className="space-y-6">
                         {service.process_steps.map((etape: any, index: number) => (
                           <div key={index} className="flex items-start gap-4">
-                            <div className="w-10 h-10 rounded-full bg-[#DC2626] text-white flex items-center justify-center font-bold flex-shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-site-button-primary text-site-button-text flex items-center justify-center font-bold flex-shrink-0">
                               {etape.step || index + 1}
                             </div>
                             <div>
@@ -798,7 +799,7 @@ export default function ServiceDetail() {
                     {!showReviewForm ? (
                       <Button
                         onClick={() => setShowReviewForm(true)}
-                        className="bg-[#DC2626] hover:bg-[#B91C1C] text-white"
+                        className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text"
                       >
                         Écrire un avis
                       </Button>
@@ -862,7 +863,7 @@ export default function ServiceDetail() {
                           <Button
                             type="submit"
                             disabled={createReviewMutation.isPending}
-                            className="bg-[#DC2626] hover:bg-[#B91C1C] text-white"
+                            className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text"
                           >
                             {createReviewMutation.isPending ? "Envoi..." : "Envoyer l'avis"}
                           </Button>
@@ -941,10 +942,10 @@ export default function ServiceDetail() {
                     </h3>
                     <div className="space-y-4">
                       {faqs.map((faq: any, index: number) => (
-                        <Card key={faq.id} className="border border-gray-200 hover:border-[#DC2626] transition-colors">
+                        <Card key={faq.id} className="border border-gray-200 hover:border-site-primary transition-colors">
                           <CardHeader>
                             <CardTitle className="text-lg font-semibold text-gray-900 flex items-start gap-3">
-                              <span className="w-6 h-6 rounded-full bg-[#DC2626] text-white flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
+                              <span className="w-6 h-6 rounded-full bg-site-button-primary text-site-button-text flex items-center justify-center text-sm font-bold flex-shrink-0 mt-0.5">
                                 {index + 1}
                               </span>
                               {faq.question}
@@ -974,6 +975,71 @@ export default function ServiceDetail() {
           </motion.div>
         </div>
       </section>
+
+      {/* Section Agences disponibles */}
+      {service?.agencies && service.agencies.length > 0 && (
+        <section className="py-12 bg-gradient-to-b from-white to-gray-50">
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-center mb-8"
+            >
+              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+                Disponible dans nos agences
+              </h2>
+              <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
+                Ce service est disponible dans les agences suivantes
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {service.agencies.map((agency: any) => (
+                <motion.div
+                  key={agency.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.1 }}
+                >
+                  <Link href={`/agences/${agency.slug}`}>
+                    <Card className="h-full group hover:shadow-xl transition-all duration-300 border-2 border-gray-200 hover:border-site-primary cursor-pointer">
+                      <CardContent className="p-6">
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-site-primary/20 to-site-primary/10 flex items-center justify-center flex-shrink-0 border border-site-primary/30">
+                            <FaMapMarkerAlt className="w-6 h-6 text-site-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="font-bold text-lg text-gray-900 mb-1 group-hover:text-site-text-link transition-colors">
+                              {agency.name}
+                            </h3>
+                            <p className="text-sm text-gray-600 mb-2">
+                              <FaMapMarkerAlt className="w-3 h-3 inline mr-1" />
+                              {agency.city}
+                            </p>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="mt-2 border-site-primary text-site-text-link hover:bg-site-button-primary hover:text-site-button-text"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                window.location.href = `/agences/${agency.slug}`;
+                              }}
+                            >
+                              Voir l'agence
+                              <FaArrowRight className="w-3 h-3 ml-2" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* SERVICES SIMILAIRES */}
       <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-white to-red-50/30">
@@ -1020,7 +1086,7 @@ export default function ServiceDetail() {
                       className={`${similarServices.length === 2 ? 'w-full sm:w-[calc(50%-1rem)] md:w-[calc(50%-1.5rem)]' : 'w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.5rem)]'} max-w-sm`}
                     >
                       <Link href={`/services/${similarService.slug}`} className="block h-full">
-                        <Card className="h-full group relative overflow-hidden border-2 border-gray-200 shadow-lg hover:shadow-2xl hover:border-[#DC2626] transition-all duration-300 bg-white flex flex-col cursor-pointer">
+                        <Card className="h-full group relative overflow-hidden border-2 border-gray-200 shadow-lg hover:shadow-2xl hover:border-site-primary transition-all duration-300 bg-white flex flex-col cursor-pointer">
                           {/* Image du service similaire */}
                           {similarService.image_url ? (
                             <div className="w-full h-40 overflow-hidden bg-gray-100">
@@ -1031,21 +1097,21 @@ export default function ServiceDetail() {
                               />
                             </div>
                           ) : (
-                            <div className="w-full h-40 bg-gradient-to-br from-[#DC2626]/10 to-[#DC2626]/5 flex items-center justify-center">
-                              <div className="w-16 h-16 rounded-xl bg-[#DC2626]/20 flex items-center justify-center">
-                                <SimilarIcon className="w-8 h-8 text-[#DC2626]" />
+                            <div className="w-full h-40 bg-gradient-to-br from-site-primary/10 to-site-primary/5 flex items-center justify-center">
+                              <div className="w-16 h-16 rounded-xl bg-site-primary/20 flex items-center justify-center">
+                                <SimilarIcon className="w-8 h-8 text-site-primary" />
                               </div>
                             </div>
                           )}
                           <CardHeader className="pb-3 sm:pb-4 px-4 sm:px-5 md:px-6">
                             <div className="flex items-start justify-between mb-3 sm:mb-4">
                               {!similarService.image_url && (
-                                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-[#DC2626]/20 to-[#DC2626]/10 flex items-center justify-center border-2 border-[#DC2626]/30 group-hover:bg-[#DC2626] group-hover:border-[#DC2626] transition-all duration-300">
-                                  <SimilarIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#DC2626] group-hover:text-white transition-colors" />
+                                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-site-primary/20 to-site-primary/10 flex items-center justify-center border-2 border-site-primary/30 group-hover:bg-site-button-primary group-hover:border-site-button-primary transition-all duration-300">
+                                  <SimilarIcon className="w-6 h-6 sm:w-7 sm:h-7 text-site-primary group-hover:text-site-button-text transition-colors" />
                                 </div>
                               )}
                             </div>
-                            <CardTitle className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-[#DC2626] transition-colors">
+                            <CardTitle className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-site-text-link transition-colors">
                               {similarService.name}
                             </CardTitle>
                             <CardDescription className="text-sm sm:text-base text-gray-600 leading-relaxed">
@@ -1053,7 +1119,7 @@ export default function ServiceDetail() {
                             </CardDescription>
                           </CardHeader>
                           <CardContent className="px-4 sm:px-5 md:px-6 pt-0 pb-4 sm:pb-5 md:pb-6">
-                            <div className="flex items-center gap-2 text-[#DC2626] font-semibold group-hover:gap-3 transition-all">
+                            <div className="flex items-center gap-2 text-site-text-link font-semibold group-hover:gap-3 transition-all">
                               <span className="text-sm sm:text-base">Découvrir ce service</span>
                               <FaArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                             </div>
@@ -1081,7 +1147,7 @@ export default function ServiceDetail() {
             <Link href="/services">
               <Button
                 size="lg"
-                className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#DC2626] text-white shadow-lg hover:shadow-xl transition-all duration-300 font-semibold px-6 sm:px-8 py-3 sm:py-4"
+                className="bg-gradient-to-r from-site-button-primary to-site-button-primary-hover hover:from-site-button-primary-hover hover:to-site-button-primary text-site-button-text shadow-lg hover:shadow-xl transition-all duration-300 font-semibold px-6 sm:px-8 py-3 sm:py-4"
               >
                 Voir tous les services
                 <FaArrowRight className="w-4 h-4 sm:w-5 sm:h-5 ml-2" />

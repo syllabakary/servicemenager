@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -262,6 +263,7 @@ function ServiceDialog({
     features: [] as string[],
     guarantees: [] as string[],
     process_steps: [] as any[],
+    agencies_ids: [] as number[],
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -270,6 +272,18 @@ function ServiceDialog({
   const [addToNavbar, setAddToNavbar] = useState(true);
 
   const queryClient = useQueryClient();
+
+  // Récupérer les agences
+  const { data: agenciesData } = useQuery({
+    queryKey: ["admin-agencies"],
+    queryFn: async () => {
+      const token = localStorage.getItem("access_token");
+      const res = await axios.get(`${API_URL}/agencies/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.data;
+    },
+  });
 
   // Récupérer les catégories dans ServiceDialog
   const { data: categoriesData } = useQuery({
@@ -313,6 +327,11 @@ function ServiceDialog({
         } else if (key === 'category' && data[key] !== null) {
           // Le champ category doit être un ID
           formDataToSend.append(key, data[key]);
+        } else if (key === 'agencies_ids' && Array.isArray(data[key])) {
+          // Les agences doivent être envoyées comme un tableau d'IDs
+          data[key].forEach((agencyId: number) => {
+            formDataToSend.append('agencies_ids', agencyId.toString());
+          });
         } else if (data[key] !== null && data[key] !== undefined && data[key] !== '') {
           formDataToSend.append(key, data[key]);
         }
@@ -373,6 +392,7 @@ function ServiceDialog({
         features: service.features || [],
         guarantees: service.guarantees || [],
         process_steps: service.process_steps || [],
+        agencies_ids: service.agencies ? service.agencies.map((a: any) => a.id) : [],
       });
       // Afficher l'image existante si disponible
       if (service.image_url) {
@@ -398,10 +418,13 @@ function ServiceDialog({
         contact_phone: "",
         rating: "",
         review_count: 0,
+        show_reviews: true,
+        show_faq: true,
         included_services: [],
         features: [],
         guarantees: [],
         process_steps: [],
+        agencies_ids: [],
       });
       setImagePreview(null);
       setImageFile(null);
@@ -878,6 +901,54 @@ function ServiceDialog({
                   </TooltipContent>
                 </Tooltip>
               </Label>
+            </div>
+          </div>
+
+          {/* Agences disponibles */}
+          <div className="border-t pt-4">
+            <div className="flex items-center gap-2 mb-4">
+              <h3 className="font-semibold text-gray-900">Agences disponibles</h3>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Sélectionnez les agences où ce service est disponible. Les agences sélectionnées apparaîtront sur la page de détail du service.</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <div className="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-3">
+              {agenciesData?.results?.length > 0 ? (
+                agenciesData.results.map((agency: any) => (
+                  <div key={agency.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`agency-${agency.id}`}
+                      checked={(formData.agencies_ids || []).includes(agency.id)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setFormData({
+                            ...formData,
+                            agencies_ids: [...(formData.agencies_ids || []), agency.id],
+                          });
+                        } else {
+                          setFormData({
+                            ...formData,
+                            agencies_ids: (formData.agencies_ids || []).filter((id) => id !== agency.id),
+                          });
+                        }
+                      }}
+                    />
+                    <Label
+                      htmlFor={`agency-${agency.id}`}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                    >
+                      {agency.name} - {agency.city}
+                    </Label>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">Aucune agence disponible</p>
+              )}
             </div>
           </div>
 

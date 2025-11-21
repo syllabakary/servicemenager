@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.html import format_html
-from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage, SiteSettings
 
 
 @admin.register(CustomUser)
@@ -592,23 +592,54 @@ class ServiceAdvantageAdmin(admin.ModelAdmin):
     list_filter = ['active', 'icon', 'created_at']
     search_fields = ['title', 'description']
     list_editable = ['order', 'active']
-    ordering = ['order', 'title']
+
+
+@admin.register(SiteSettings)
+class SiteSettingsAdmin(admin.ModelAdmin):
+    """Admin pour SiteSettings"""
+    list_display = ['site_name', 'primary_color', 'secondary_color', 'logo_preview', 'updated_at']
+    readonly_fields = ['created_at', 'updated_at', 'logo_preview', 'logo_favicon_preview']
     
     fieldsets = (
-        ('Contenu', {
-            'fields': ('title', 'description', 'icon')
+        ('Informations générales', {
+            'fields': ('site_name', 'site_tagline')
         }),
-        ('Affichage', {
-            'fields': ('order', 'active')
+        ('Couleurs principales', {
+            'fields': ('primary_color', 'secondary_color', 'tertiary_color'),
+            'description': 'Couleurs principales utilisées pour la navigation, titres et éléments visuels (format hex: #DC2626)'
+        }),
+        ('Couleurs des boutons', {
+            'fields': ('button_primary_color', 'button_primary_hover_color', 'button_text_color'),
+            'description': 'Couleurs spécifiques pour tous les boutons du site. Si vides, utilisent les couleurs principales.'
+        }),
+        ('Couleurs des textes et liens', {
+            'fields': ('text_primary_color', 'text_link_color', 'text_link_hover_color'),
+            'description': 'Couleurs pour les textes importants et les liens cliquables. Si vides, utilisent les couleurs principales.'
+        }),
+        ('Logo et favicon', {
+            'fields': ('logo', 'logo_preview', 'logo_favicon', 'logo_favicon_preview')
         }),
         ('Métadonnées', {
-            'fields': ('created_at', 'updated_at'),
-            'classes': ('collapse',)
+            'fields': ('created_at', 'updated_at')
         }),
     )
     
-    readonly_fields = ['created_at', 'updated_at']
+    def logo_preview(self, obj):
+        if obj.logo:
+            return format_html('<img src="{}" style="max-height: 100px; max-width: 200px;" />', obj.logo.url)
+        return "Aucun logo"
+    logo_preview.short_description = "Aperçu du logo"
     
-    def get_queryset(self, request):
-        """Optimisation avec select_related si nécessaire"""
-        return super().get_queryset(request)
+    def logo_favicon_preview(self, obj):
+        if obj.logo_favicon:
+            return format_html('<img src="{}" style="max-height: 32px; max-width: 32px;" />', obj.logo_favicon.url)
+        return "Aucun favicon"
+    logo_favicon_preview.short_description = "Aperçu du favicon"
+    
+    def has_add_permission(self, request):
+        # Ne permettre qu'une seule instance
+        return not SiteSettings.objects.exists()
+    
+    def has_delete_permission(self, request, obj=None):
+        # Ne pas permettre la suppression
+        return False

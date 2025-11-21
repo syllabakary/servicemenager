@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage, SiteSettings
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -64,6 +64,18 @@ class ServiceSummarySerializer(serializers.ModelSerializer):
         return None
 
 
+class AgencySummarySerializer(serializers.ModelSerializer):
+    """Serializer léger pour les agences dans les services"""
+    url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Agency
+        fields = ['id', 'name', 'slug', 'city', 'url']
+    
+    def get_url(self, obj):
+        return obj.url
+
+
 class ServiceSerializer(serializers.ModelSerializer):
     """Serializer complet pour Service"""
     url = serializers.SerializerMethodField()
@@ -76,6 +88,14 @@ class ServiceSerializer(serializers.ModelSerializer):
         source='category.name',
         read_only=True
     )
+    agencies = AgencySummarySerializer(many=True, read_only=True)
+    agencies_ids = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Agency.objects.filter(active=True),
+        source='agencies',
+        write_only=True,
+        required=False
+    )
     
     class Meta:
         model = Service
@@ -85,6 +105,7 @@ class ServiceSerializer(serializers.ModelSerializer):
             'duration', 'price_per_hour', 'price_label', 'currency', 'contact_phone',
             'rating', 'review_count', 'show_reviews', 'show_faq',
             'included_services', 'features', 'guarantees', 'process_steps',
+            'agencies', 'agencies_ids',
             'created_by', 'created_by_username', 'created_at', 'updated_at', 'url'
         ]
         read_only_fields = ['created_at', 'updated_at', 'created_by']
@@ -101,13 +122,13 @@ class ServiceSerializer(serializers.ModelSerializer):
 
 
 class AgencySummarySerializer(serializers.ModelSerializer):
-    """Serializer léger pour navbar"""
+    """Serializer léger pour navbar et services"""
     url = serializers.SerializerMethodField()
     
     class Meta:
         model = Agency
         fields = [
-            'id', 'name', 'slug', 'url', 'latitude', 'longitude'
+            'id', 'name', 'slug', 'url', 'city', 'latitude', 'longitude'
         ]
     
     def get_url(self, obj):
@@ -122,22 +143,55 @@ class AgencySerializer(serializers.ModelSerializer):
         read_only=True
     )
     contacts_count = serializers.SerializerMethodField()
+    services_count = serializers.SerializerMethodField()
+    services_summary = serializers.SerializerMethodField()
+    services_ids = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Service.objects.filter(active=True),
+        source='services',
+        write_only=True,
+        required=False
+    )
+    image_url = serializers.SerializerMethodField()
     
     class Meta:
         model = Agency
         fields = [
             'id', 'name', 'slug', 'address', 'city', 'postal_code',
             'phone', 'email', 'latitude', 'longitude', 'active',
-            'details', 'created_by', 'created_by_username',
-            'contacts_count', 'created_at', 'updated_at', 'url'
+            'details', 'image', 'image_url', 'created_by', 'created_by_username',
+            'contacts_count', 'services_count', 'services_summary', 'services_ids',
+            'created_at', 'updated_at', 'url'
         ]
         read_only_fields = ['created_at', 'updated_at', 'created_by']
+    
+    def get_image_url(self, obj):
+        if obj.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+            return obj.image.url
+        return None
     
     def get_url(self, obj):
         return obj.url
     
     def get_contacts_count(self, obj):
         return obj.contacts.count()
+    
+    def get_services_count(self, obj):
+        return obj.services.filter(active=True).count()
+    
+    def get_services_summary(self, obj):
+        services = obj.services.filter(active=True)[:5]  # Limiter à 5 services
+        return ServiceSummarySerializer(services, many=True, context=self.context).data
+    
+    def get_services_count(self, obj):
+        return obj.services.filter(active=True).count()
+    
+    def get_services_summary(self, obj):
+        services = obj.services.filter(active=True)[:5]  # Limiter à 5 services
+        return ServiceSummarySerializer(services, many=True, context=self.context).data
 
 
 class ContactSerializer(serializers.ModelSerializer):
@@ -293,3 +347,36 @@ class QuoteRequestSerializer(serializers.ModelSerializer):
             validated_data['created_by_user'] = request.user
         validated_data['status'] = 'PENDING'
         return super().create(validated_data)
+
+
+class SiteSettingsSerializer(serializers.ModelSerializer):
+    """Serializer pour SiteSettings"""
+    logo_url = serializers.SerializerMethodField()
+    logo_favicon_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = SiteSettings
+        fields = [
+            'id', 'primary_color', 'secondary_color', 'tertiary_color',
+            'button_primary_color', 'button_primary_hover_color', 'button_text_color',
+            'text_primary_color', 'text_link_color', 'text_link_hover_color',
+            'logo', 'logo_url', 'logo_favicon', 'logo_favicon_url',
+            'site_name', 'site_tagline', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['created_at', 'updated_at']
+    
+    def get_logo_url(self, obj):
+        if obj.logo:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.logo.url)
+            return obj.logo.url
+        return None
+    
+    def get_logo_favicon_url(self, obj):
+        if obj.logo_favicon:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.logo_favicon.url)
+            return obj.logo_favicon.url
+        return None

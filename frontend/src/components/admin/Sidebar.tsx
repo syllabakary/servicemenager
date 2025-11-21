@@ -104,8 +104,8 @@ export function Sidebar({ userRole }: SidebarProps) {
       ],
     },
     {
-      title: "Contenu",
-      icon: FaLayerGroup,
+      title: "Agences",
+      icon: FaBuilding,
       items: [
         {
           name: "Agences",
@@ -113,6 +113,12 @@ export function Sidebar({ userRole }: SidebarProps) {
           path: "/admin/agences",
           roles: ["ADMIN", "SUPERADMIN"],
         },
+      ],
+    },
+    {
+      title: "Contenu",
+      icon: FaLayerGroup,
+      items: [
         {
           name: "Bannières",
           icon: FaImages,

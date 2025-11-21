@@ -178,6 +178,14 @@ class Service(models.Model):
         verbose_name="Afficher les FAQ",
         help_text="Si désactivé, la section FAQ ne sera pas affichée sur la page de détail"
     )
+    # Relation Many-to-Many avec les agences
+    agencies = models.ManyToManyField(
+        'Agency',
+        related_name='services',
+        blank=True,
+        verbose_name="Agences",
+        help_text="Agences où ce service est disponible"
+    )
     # Prestations incluses (JSON)
     included_services = models.JSONField(
         default=list,
@@ -275,6 +283,13 @@ class Agency(models.Model):
         null=True,
         verbose_name="Détails",
         help_text="Informations complémentaires sur l'agence"
+    )
+    image = models.ImageField(
+        upload_to='agencies/',
+        blank=True,
+        null=True,
+        verbose_name="Image",
+        help_text="Image de l'agence"
     )
     created_by = models.ForeignKey(
         CustomUser,
@@ -643,6 +658,115 @@ class ServiceFAQ(models.Model):
     
     def __str__(self):
         return f"FAQ: {self.question[:50]}..."
+
+
+class SiteSettings(models.Model):
+    """Modèle pour les paramètres du site (couleurs, logo, etc.)"""
+    # Couleurs principales
+    primary_color = models.CharField(
+        max_length=7,
+        default="#DC2626",
+        verbose_name="Couleur principale",
+        help_text="Couleur principale utilisée pour les titres, liens importants et éléments de navigation (format hex: #DC2626)"
+    )
+    secondary_color = models.CharField(
+        max_length=7,
+        default="#B91C1C",
+        verbose_name="Couleur secondaire",
+        help_text="Couleur secondaire utilisée pour les dégradés et effets hover sur les boutons (format hex: #B91C1C)"
+    )
+    tertiary_color = models.CharField(
+        max_length=7,
+        default="#991B1B",
+        verbose_name="Couleur tertiaire",
+        help_text="Couleur tertiaire utilisée pour les effets hover et états actifs (format hex: #991B1B)"
+    )
+    # Couleurs des boutons
+    button_primary_color = models.CharField(
+        max_length=7,
+        default="#DC2626",
+        verbose_name="Couleur des boutons principaux",
+        help_text="Couleur de fond des boutons principaux (CTA, actions importantes) - Si vide, utilise la couleur principale"
+    )
+    button_primary_hover_color = models.CharField(
+        max_length=7,
+        default="#B91C1C",
+        verbose_name="Couleur hover des boutons principaux",
+        help_text="Couleur au survol des boutons principaux - Si vide, utilise la couleur secondaire"
+    )
+    button_text_color = models.CharField(
+        max_length=7,
+        default="#FFFFFF",
+        verbose_name="Couleur du texte des boutons",
+        help_text="Couleur du texte à l'intérieur des boutons (généralement blanc #FFFFFF)"
+    )
+    # Couleurs des textes
+    text_primary_color = models.CharField(
+        max_length=7,
+        default="#DC2626",
+        verbose_name="Couleur des textes importants",
+        help_text="Couleur utilisée pour les textes importants, titres secondaires et accents (format hex: #DC2626)"
+    )
+    text_link_color = models.CharField(
+        max_length=7,
+        default="#DC2626",
+        verbose_name="Couleur des liens",
+        help_text="Couleur des liens cliquables dans le contenu - Si vide, utilise la couleur principale"
+    )
+    text_link_hover_color = models.CharField(
+        max_length=7,
+        default="#B91C1C",
+        verbose_name="Couleur hover des liens",
+        help_text="Couleur au survol des liens - Si vide, utilise la couleur secondaire"
+    )
+    # Logo
+    logo = models.ImageField(
+        upload_to='site/',
+        blank=True,
+        null=True,
+        verbose_name="Logo du site",
+        help_text="Logo principal du site"
+    )
+    logo_favicon = models.ImageField(
+        upload_to='site/',
+        blank=True,
+        null=True,
+        verbose_name="Favicon",
+        help_text="Icône du site (favicon)"
+    )
+    # Métadonnées
+    site_name = models.CharField(
+        max_length=200,
+        default="Services Locaux",
+        verbose_name="Nom du site",
+        help_text="Nom affiché sur le site"
+    )
+    site_tagline = models.CharField(
+        max_length=500,
+        default="Votre partenaire de confiance",
+        verbose_name="Slogan du site",
+        help_text="Slogan ou tagline du site"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Paramètres du site"
+        verbose_name_plural = "Paramètres du site"
+    
+    def __str__(self):
+        return f"Paramètres du site - {self.site_name}"
+    
+    def save(self, *args, **kwargs):
+        # S'assurer qu'il n'y a qu'une seule instance
+        self.pk = 1
+        super().save(*args, **kwargs)
+    
+    @classmethod
+    def get_settings(cls):
+        """Récupère ou crée les paramètres par défaut"""
+        settings, created = cls.objects.get_or_create(pk=1)
+        return settings
 
 
 class ServiceAdvantage(models.Model):

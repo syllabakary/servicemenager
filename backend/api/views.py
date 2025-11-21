@@ -7,13 +7,13 @@ from django.db.models import Q
 from math import radians, cos, sin, asin, sqrt
 from decimal import Decimal
 
-from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage, SiteSettings
 from .serializers import (
     UserSerializer, ServiceSerializer, ServiceSummarySerializer,
     AgencySerializer, AgencySummarySerializer, ContactSerializer,
     PageContentSerializer, PageContentSummarySerializer, NavbarSerializer,
     CategorySerializer, ServiceReviewSerializer, ServiceFAQSerializer, QuoteRequestSerializer,
-    ServiceAdvantageSerializer
+    ServiceAdvantageSerializer, SiteSettingsSerializer
 )
 from .permissions import (
     IsSuperAdmin, IsAdminOrReadOnly, IsOwnerOrAdmin, IsClientOrReadOnly
@@ -131,6 +131,11 @@ class AgencyViewSet(viewsets.ModelViewSet):
     queryset = Agency.objects.all()
     serializer_class = AgencySerializer
     permission_classes = [IsAdminOrReadOnly]
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'city', 'address']
     filterset_fields = ['active', 'city']
@@ -473,4 +478,40 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
         quote_request.quoted_at = timezone.now()
         quote_request.save()
         serializer = self.get_serializer(quote_request)
+        return Response(serializer.data)
+
+
+class SiteSettingsViewSet(viewsets.ModelViewSet):
+    """ViewSet pour SiteSettings"""
+    queryset = SiteSettings.objects.all()
+    serializer_class = SiteSettingsSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['request'] = self.request
+        return context
+    
+    def get_queryset(self):
+        # Toujours retourner l'instance unique (pk=1)
+        return SiteSettings.objects.filter(pk=1)
+    
+    def list(self, request, *args, **kwargs):
+        # Récupérer ou créer l'instance unique
+        settings = SiteSettings.get_settings()
+        serializer = self.get_serializer(settings)
+        return Response(serializer.data)
+    
+    def retrieve(self, request, *args, **kwargs):
+        # Récupérer ou créer l'instance unique
+        settings = SiteSettings.get_settings()
+        serializer = self.get_serializer(settings)
+        return Response(serializer.data)
+    
+    def update(self, request, *args, **kwargs):
+        # Mettre à jour l'instance unique
+        settings = SiteSettings.get_settings()
+        serializer = self.get_serializer(settings, data=request.data, partial=kwargs.get('partial', False))
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         return Response(serializer.data)

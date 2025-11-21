@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Navbar } from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { SiteTheme } from "@/components/SiteTheme";
 import Home from "@/pages/Home";
 import Services from "@/pages/Services";
 import ServiceDetail from "@/pages/ServiceDetail";
@@ -33,7 +34,7 @@ function Router() {
       <Route path="/services" component={Services} />
       <Route path="/services/:id" component={ServiceDetail} />
       <Route path="/agences" component={Agencies} />
-      <Route path="/agences/:id" component={AgencyDetail} />
+      <Route path="/agences/:slug" component={AgencyDetail} />
       <Route path="/contact" component={Contact} />
       <Route path="/devis" component={QuoteRequest} />
       <Route path="/admin/login" component={AdminLogin} />
@@ -59,6 +60,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
+        <SiteTheme />
         <ScrollToTop />
         {!isAdminPage ? (
           <div className="flex flex-col min-h-screen overflow-x-hidden w-full max-w-full">

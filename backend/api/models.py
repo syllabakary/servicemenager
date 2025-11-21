@@ -643,3 +643,63 @@ class ServiceFAQ(models.Model):
     
     def __str__(self):
         return f"FAQ: {self.question[:50]}..."
+
+
+class ServiceAdvantage(models.Model):
+    """Modèle pour les avantages de la section 'Pourquoi choisir nos services'"""
+    ICON_CHOICES = [
+        ('FaUsers', 'Utilisateurs'),
+        ('FaShieldAlt', 'Bouclier'),
+        ('FaClock', 'Horloge'),
+        ('FaCheckCircle', 'Coche'),
+        ('FaStar', 'Étoile'),
+        ('FaAward', 'Récompense'),
+        ('FaMapMarkerAlt', 'Localisation'),
+        ('FaPhone', 'Téléphone'),
+        ('FaEnvelope', 'Email'),
+        ('FaHeart', 'Cœur'),
+        ('FaHandHoldingHeart', 'Main avec cœur'),
+        ('FaUserTie', 'Professionnel'),
+    ]
+    
+    title = models.CharField(
+        max_length=200,
+        verbose_name="Titre",
+        help_text="Titre de l'avantage (ex: Professionnels certifiés)"
+    )
+    description = models.TextField(
+        verbose_name="Description",
+        help_text="Description de l'avantage"
+    )
+    icon = models.CharField(
+        max_length=50,
+        choices=ICON_CHOICES,
+        default='FaUsers',
+        verbose_name="Icône",
+        help_text="Icône à afficher pour cet avantage"
+    )
+    order = models.IntegerField(
+        default=0,
+        db_index=True,
+        verbose_name="Ordre d'affichage",
+        help_text="Ordre d'affichage (plus petit = affiché en premier)"
+    )
+    active = models.BooleanField(
+        default=True,
+        db_index=True,
+        verbose_name="Actif",
+        help_text="Si désactivé, n'apparaît pas sur le site"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Avantage service"
+        verbose_name_plural = "Avantages services"
+        ordering = ['order', 'title']
+        indexes = [
+            models.Index(fields=['active', 'order']),
+        ]
+    
+    def __str__(self):
+        return self.title

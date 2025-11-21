@@ -7,12 +7,13 @@ from django.db.models import Q
 from math import radians, cos, sin, asin, sqrt
 from decimal import Decimal
 
-from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage
 from .serializers import (
     UserSerializer, ServiceSerializer, ServiceSummarySerializer,
     AgencySerializer, AgencySummarySerializer, ContactSerializer,
     PageContentSerializer, PageContentSummarySerializer, NavbarSerializer,
-    CategorySerializer, ServiceReviewSerializer, ServiceFAQSerializer, QuoteRequestSerializer
+    CategorySerializer, ServiceReviewSerializer, ServiceFAQSerializer, QuoteRequestSerializer,
+    ServiceAdvantageSerializer
 )
 from .permissions import (
     IsSuperAdmin, IsAdminOrReadOnly, IsOwnerOrAdmin, IsClientOrReadOnly
@@ -396,6 +397,28 @@ class ServiceFAQViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(active=True)
         
         return queryset
+
+
+class ServiceAdvantageViewSet(viewsets.ModelViewSet):
+    """ViewSet pour ServiceAdvantage"""
+    queryset = ServiceAdvantage.objects.all()
+    serializer_class = ServiceAdvantageSerializer
+    permission_classes = [IsAdminOrReadOnly]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['title', 'description']
+    filterset_fields = ['active', 'icon']
+    ordering_fields = ['order', 'title']
+    ordering = ['order', 'title']
+    
+    def get_queryset(self):
+        """Filtrage : actifs seulement pour API publique"""
+        queryset = ServiceAdvantage.objects.all()
+        
+        # Si pas authentifié ou client, seulement actifs
+        if not self.request.user.is_authenticated or (hasattr(self.request.user, 'is_client') and self.request.user.is_client):
+            queryset = queryset.filter(active=True)
+        
+        return queryset.order_by('order', 'title')
 
 
 class QuoteRequestViewSet(viewsets.ModelViewSet):

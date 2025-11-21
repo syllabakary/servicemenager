@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useLocation, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -48,6 +49,11 @@ import {
   FaHandHoldingHeart,
   FaUserTie,
   FaChalkboardTeacher,
+  FaAward,
+  FaMapMarkerAlt,
+  FaPhone,
+  FaEnvelope,
+  FaHeart,
   FaLaptopCode,
   FaCamera,
   FaVideo,
@@ -786,63 +792,6 @@ export default function Services() {
         </div>
       </section>
 
-      {/* 🟪 SECTION 3 — Pourquoi nous choisir */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              Pourquoi choisir nos services ?
-            </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Des avantages qui font la différence
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            {[
-              {
-                icon: FaUsers,
-                title: "Professionnels certifiés",
-                description: "Tous nos intervenants sont sélectionnés, formés et régulièrement évalués pour garantir la qualité de nos services.",
-              },
-              {
-                icon: FaShieldAlt,
-                title: "Assurance et garantie",
-                description: "Vos biens et votre tranquillité sont protégés par nos assurances et nos garanties de satisfaction.",
-              },
-              {
-                icon: FaClock,
-                title: "Disponibilité flexible",
-                description: "Des services adaptés à vos horaires, disponibles même en urgence pour certains services.",
-              },
-            ].map((item, i) => {
-              const Icon = item.icon;
-              return (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: i * 0.1 }}
-                  className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all"
-                >
-                  <div className="w-12 h-12 bg-[#DC2626]/10 rounded-lg flex items-center justify-center mb-4">
-                    <Icon className="w-6 h-6 text-[#DC2626]" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">{item.title}</h3>
-                  <p className="text-gray-600 leading-relaxed">{item.description}</p>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
 
       {/* 🟪 SECTION 4 — CTA Devis */}
       <section className="relative py-24 bg-[#DC2626] text-white overflow-hidden">

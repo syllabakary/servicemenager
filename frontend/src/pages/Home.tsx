@@ -2,6 +2,9 @@ import { useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
+
+const API_URL = "http://localhost:8000/api";
 import { 
   FaArrowRight, 
   FaCheckCircle, 
@@ -21,7 +24,10 @@ import {
   FaClock,
   FaInfoCircle,
   FaChevronRight,
-  FaHandHoldingHeart
+  FaHandHoldingHeart,
+  FaAward,
+  FaEnvelope,
+  FaUserTie,
 } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi";
 import { Button } from "@/components/ui/button";
@@ -55,6 +61,135 @@ const iconMap = {
   Shield: FaShieldAlt,
   Truck: FaTruck,
 };
+
+// Mapping des icônes pour les avantages
+const advantageIconMap: Record<string, any> = {
+  FaUsers: FaUsers,
+  FaShieldAlt: FaShieldAlt,
+  FaClock: FaClock,
+  FaCheckCircle: FaCheckCircle,
+  FaStar: FaStar,
+  FaAward: FaAward,
+  FaMapMarkerAlt: FaMapMarkerAlt,
+  FaPhone: FaPhone,
+  FaEnvelope: FaEnvelope,
+  FaHeart: FaHeart,
+  FaHandHoldingHeart: FaHandHoldingHeart,
+  FaUserTie: FaUserTie,
+};
+
+// Composant pour la section des avantages
+function ServiceAdvantagesSection() {
+  const { data: advantages, isLoading, error } = useQuery({
+    queryKey: ["service-advantages"],
+    queryFn: async () => {
+      try {
+        const res = await axios.get(`${API_URL}/service-advantages/`);
+        return res.data;
+      } catch (err) {
+        console.error("Erreur lors de la récupération des avantages:", err);
+        return null;
+      }
+    },
+  });
+
+  // Gérer différents formats de réponse API
+  let advantagesList: any[] = [];
+  if (advantages) {
+    if (Array.isArray(advantages)) {
+      advantagesList = advantages;
+    } else if (advantages.results && Array.isArray(advantages.results)) {
+      advantagesList = advantages.results;
+    } else if (advantages.data && Array.isArray(advantages.data)) {
+      advantagesList = advantages.data;
+    }
+  }
+
+  // Filtrer seulement les avantages actifs (active doit être true ou undefined/null)
+  advantagesList = advantagesList.filter((adv: any) => {
+    // Si active n'est pas défini, on considère que c'est actif par défaut
+    return adv.active !== false && adv.active !== 0;
+  });
+
+  // Trier par ordre
+  advantagesList.sort((a: any, b: any) => {
+    const orderA = a.order || 0;
+    const orderB = b.order || 0;
+    if (orderA !== orderB) {
+      return orderA - orderB;
+    }
+    return (a.title || '').localeCompare(b.title || '');
+  });
+
+  if (isLoading) {
+    return (
+      <section className="py-20 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <div className="h-8 bg-gray-200 rounded w-64 mx-auto mb-4 animate-pulse"></div>
+            <div className="h-4 bg-gray-200 rounded w-96 mx-auto animate-pulse"></div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-lg shadow-md p-6 animate-pulse">
+                <div className="w-12 h-12 bg-gray-200 rounded-lg mb-4"></div>
+                <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (error || !advantagesList || advantagesList.length === 0) {
+    return null;
+  }
+
+  return (
+    <section className="py-20 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-12"
+        >
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Pourquoi choisir nos <span className="text-[#DC2626]">services</span> ?
+          </h2>
+          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            Des avantages concrets qui font la différence au quotidien
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-16">
+          {advantagesList.map((advantage: any, i: number) => {
+            const IconComponent = advantageIconMap[advantage.icon] || FaUsers;
+            return (
+              <motion.div
+                key={advantage.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all"
+              >
+                <div className="w-12 h-12 bg-[#DC2626]/10 rounded-lg flex items-center justify-center mb-4">
+                  <IconComponent className="w-6 h-6 text-[#DC2626]" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{advantage.title}</h3>
+                <p className="text-gray-600 leading-relaxed">{advantage.description}</p>
+              </motion.div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 // Données mockées pour les services
 const mockServices: Service[] = [
@@ -577,6 +712,9 @@ export default function Home() {
           )}
         </div>
       </section>
+
+      {/* === SERVICE ADVANTAGES SECTION === */}
+      <ServiceAdvantagesSection />
 
       {/* === HOW IT WORKS SECTION === */}
       <section id="how-it-works" className="py-12 sm:py-16 md:py-20 bg-gray-50 relative">

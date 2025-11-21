@@ -993,78 +993,83 @@ export default function ServiceDetail() {
             </p>
           </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8"
-          >
-            {similarServices.length > 0 ? (
-              similarServices.map((similarService: any, index: number) => {
-                const SimilarIcon = getServiceIcon(
-                  similarService.name || '',
-                  `${similarService.short_description || ''} ${similarService.detailed_description || ''}`
-                );
-                return (
-                  <motion.div
-                    key={similarService.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    whileHover={{ y: -4 }}
-                  >
-                    <Link href={`/services/${similarService.slug}`}>
-                      <Card className="h-full group relative overflow-hidden border-2 border-gray-200 shadow-lg hover:shadow-2xl hover:border-[#DC2626] transition-all duration-300 bg-white flex flex-col cursor-pointer">
-                        {/* Image du service similaire */}
-                        {similarService.image_url ? (
-                          <div className="w-full h-40 overflow-hidden bg-gray-100">
-                            <img
-                              src={similarService.image_url}
-                              alt={similarService.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                            />
-                          </div>
-                        ) : (
-                          <div className="w-full h-40 bg-gradient-to-br from-[#DC2626]/10 to-[#DC2626]/5 flex items-center justify-center">
-                            <div className="w-16 h-16 rounded-xl bg-[#DC2626]/20 flex items-center justify-center">
-                              <SimilarIcon className="w-8 h-8 text-[#DC2626]" />
+          <div className="flex justify-center">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className={`flex flex-wrap justify-center gap-4 sm:gap-6 md:gap-8 ${
+                similarServices.length === 2 ? 'max-w-4xl' : 'max-w-6xl'
+              } w-full`}
+            >
+              {similarServices.length > 0 ? (
+                similarServices.map((similarService: any, index: number) => {
+                  const SimilarIcon = getServiceIcon(
+                    similarService.name || '',
+                    `${similarService.short_description || ''} ${similarService.detailed_description || ''}`
+                  );
+                  return (
+                    <motion.div
+                      key={similarService.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      whileHover={{ y: -4 }}
+                      className={`${similarServices.length === 2 ? 'w-full sm:w-[calc(50%-1rem)] md:w-[calc(50%-1.5rem)]' : 'w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.5rem)]'} max-w-sm`}
+                    >
+                      <Link href={`/services/${similarService.slug}`} className="block h-full">
+                        <Card className="h-full group relative overflow-hidden border-2 border-gray-200 shadow-lg hover:shadow-2xl hover:border-[#DC2626] transition-all duration-300 bg-white flex flex-col cursor-pointer">
+                          {/* Image du service similaire */}
+                          {similarService.image_url ? (
+                            <div className="w-full h-40 overflow-hidden bg-gray-100">
+                              <img
+                                src={similarService.image_url}
+                                alt={similarService.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
                             </div>
-                          </div>
-                        )}
-                        <CardHeader className="pb-3 sm:pb-4 px-4 sm:px-5 md:px-6">
-                          <div className="flex items-start justify-between mb-3 sm:mb-4">
-                            {!similarService.image_url && (
-                              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-[#DC2626]/20 to-[#DC2626]/10 flex items-center justify-center border-2 border-[#DC2626]/30 group-hover:bg-[#DC2626] group-hover:border-[#DC2626] transition-all duration-300">
-                                <SimilarIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#DC2626] group-hover:text-white transition-colors" />
+                          ) : (
+                            <div className="w-full h-40 bg-gradient-to-br from-[#DC2626]/10 to-[#DC2626]/5 flex items-center justify-center">
+                              <div className="w-16 h-16 rounded-xl bg-[#DC2626]/20 flex items-center justify-center">
+                                <SimilarIcon className="w-8 h-8 text-[#DC2626]" />
                               </div>
-                            )}
-                          </div>
-                          <CardTitle className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-[#DC2626] transition-colors">
-                            {similarService.name}
-                          </CardTitle>
-                          <CardDescription className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                            {similarService.short_description}
-                          </CardDescription>
-                        </CardHeader>
-                        <CardContent className="px-4 sm:px-5 md:px-6 pt-0 pb-4 sm:pb-5 md:pb-6">
-                          <div className="flex items-center gap-2 text-[#DC2626] font-semibold group-hover:gap-3 transition-all">
-                            <span className="text-sm sm:text-base">Découvrir ce service</span>
-                            <FaArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </Link>
-                  </motion.div>
-                );
-              })
-            ) : (
-              <div className="col-span-3 text-center py-12">
-                <p className="text-gray-600">Aucun autre service disponible pour le moment</p>
-              </div>
-            )}
-          </motion.div>
+                            </div>
+                          )}
+                          <CardHeader className="pb-3 sm:pb-4 px-4 sm:px-5 md:px-6">
+                            <div className="flex items-start justify-between mb-3 sm:mb-4">
+                              {!similarService.image_url && (
+                                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-[#DC2626]/20 to-[#DC2626]/10 flex items-center justify-center border-2 border-[#DC2626]/30 group-hover:bg-[#DC2626] group-hover:border-[#DC2626] transition-all duration-300">
+                                  <SimilarIcon className="w-6 h-6 sm:w-7 sm:h-7 text-[#DC2626] group-hover:text-white transition-colors" />
+                                </div>
+                              )}
+                            </div>
+                            <CardTitle className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900 mb-2 sm:mb-3 group-hover:text-[#DC2626] transition-colors">
+                              {similarService.name}
+                            </CardTitle>
+                            <CardDescription className="text-sm sm:text-base text-gray-600 leading-relaxed">
+                              {similarService.short_description}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="px-4 sm:px-5 md:px-6 pt-0 pb-4 sm:pb-5 md:pb-6">
+                            <div className="flex items-center gap-2 text-[#DC2626] font-semibold group-hover:gap-3 transition-all">
+                              <span className="text-sm sm:text-base">Découvrir ce service</span>
+                              <FaArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    </motion.div>
+                  );
+                })
+              ) : (
+                <div className="w-full text-center py-12">
+                  <p className="text-gray-600">Aucun autre service disponible pour le moment</p>
+                </div>
+              )}
+            </motion.div>
+          </div>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}

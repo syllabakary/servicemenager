@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -243,6 +243,18 @@ class ServiceFAQSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'service', 'service_name', 'question', 'answer',
             'order', 'active', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['created_at', 'updated_at']
+
+
+class ServiceAdvantageSerializer(serializers.ModelSerializer):
+    """Serializer pour ServiceAdvantage"""
+    
+    class Meta:
+        model = ServiceAdvantage
+        fields = [
+            'id', 'title', 'description', 'icon', 'order', 'active',
+            'created_at', 'updated_at'
         ]
         read_only_fields = ['created_at', 'updated_at']
 

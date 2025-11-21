@@ -24,6 +24,7 @@ import AdminCategories from "@/pages/admin/Categories";
 import AdminParametres from "@/pages/admin/Parametres";
 import AdminAvis from "@/pages/admin/Avis";
 import AdminDevis from "@/pages/admin/Devis";
+import AdminAvantages from "@/pages/admin/Avantages";
 
 function Router() {
   return (
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/admin/utilisateurs" component={AdminUtilisateurs} />
       <Route path="/admin/avis" component={AdminAvis} />
       <Route path="/admin/devis" component={AdminDevis} />
+      <Route path="/admin/avantages" component={AdminAvantages} />
       <Route component={NotFound} />
     </Switch>
   );

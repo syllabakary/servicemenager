@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.html import format_html
-from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage
 
 
 @admin.register(CustomUser)
@@ -583,3 +583,32 @@ class QuoteRequestAdmin(admin.ModelAdmin):
         count = queryset.update(status='REJECTED')
         self.message_user(request, f'{count} demande(s) marquée(s) comme refusée(s).')
     mark_rejected.short_description = "✗ Marquer comme refusé"
+
+
+@admin.register(ServiceAdvantage)
+class ServiceAdvantageAdmin(admin.ModelAdmin):
+    """Admin pour ServiceAdvantage"""
+    list_display = ['title', 'icon', 'order', 'active', 'created_at']
+    list_filter = ['active', 'icon', 'created_at']
+    search_fields = ['title', 'description']
+    list_editable = ['order', 'active']
+    ordering = ['order', 'title']
+    
+    fieldsets = (
+        ('Contenu', {
+            'fields': ('title', 'description', 'icon')
+        }),
+        ('Affichage', {
+            'fields': ('order', 'active')
+        }),
+        ('Métadonnées', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    readonly_fields = ['created_at', 'updated_at']
+    
+    def get_queryset(self, request):
+        """Optimisation avec select_related si nécessaire"""
+        return super().get_queryset(request)

@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
     UserViewSet, ServiceViewSet, AgencyViewSet,
     ContactViewSet, PageContentViewSet, NavbarViewSet, CategoryViewSet,
-    ServiceReviewViewSet, ServiceFAQViewSet, QuoteRequestViewSet
+    ServiceReviewViewSet, ServiceFAQViewSet, QuoteRequestViewSet, ServiceAdvantageViewSet
 )
 from .views_auth import register
 
@@ -17,6 +17,7 @@ router.register(r'pages', PageContentViewSet, basename='page')
 router.register(r'categories', CategoryViewSet, basename='category')
 router.register(r'service-reviews', ServiceReviewViewSet, basename='service-review')
 router.register(r'service-faqs', ServiceFAQViewSet, basename='service-faq')
+router.register(r'service-advantages', ServiceAdvantageViewSet, basename='service-advantage')
 router.register(r'quote-requests', QuoteRequestViewSet, basename='quote-request')
 router.register(r'meta', NavbarViewSet, basename='meta')
 

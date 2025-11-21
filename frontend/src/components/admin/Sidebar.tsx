@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   FaHome,
   FaBriefcase,
@@ -16,6 +16,8 @@ import {
   FaChartLine,
   FaLayerGroup,
   FaImages,
+  FaChevronDown,
+  FaChevronRight,
 } from "react-icons/fa";
 
 interface SidebarProps {
@@ -38,6 +40,7 @@ interface MenuSection {
 export function Sidebar({ userRole }: SidebarProps) {
   const [location] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   const menuSections: MenuSection[] = [
     {
@@ -92,6 +95,12 @@ export function Sidebar({ userRole }: SidebarProps) {
           path: "/admin/devis",
           roles: ["ADMIN", "SUPERADMIN"],
         },
+        {
+          name: "Avantages",
+          icon: FaStar,
+          path: "/admin/avantages",
+          roles: ["ADMIN", "SUPERADMIN"],
+        },
       ],
     },
     {
@@ -126,6 +135,33 @@ export function Sidebar({ userRole }: SidebarProps) {
     ...section,
     items: section.items.filter((item) => item.roles.includes(userRole)),
   })).filter((section) => section.items.length > 0);
+
+  // Auto-expand section containing the active route
+  useEffect(() => {
+    const sectionsToExpand: Record<string, boolean> = {};
+    menuSections.forEach((section) => {
+      const sectionItems = section.items.filter((item) => item.roles.includes(userRole));
+      const hasActiveItem = sectionItems.some((item) => location === item.path);
+      if (hasActiveItem) {
+        sectionsToExpand[section.title] = true;
+      }
+    });
+    
+    if (Object.keys(sectionsToExpand).length > 0) {
+      setExpandedSections((prev) => ({
+        ...prev,
+        ...sectionsToExpand,
+      }));
+    }
+  }, [location, userRole]);
+
+  // Toggle section expansion
+  const toggleSection = (sectionTitle: string) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [sectionTitle]: !prev[sectionTitle],
+    }));
+  };
 
   return (
     <>
@@ -168,45 +204,59 @@ export function Sidebar({ userRole }: SidebarProps) {
           </div>
 
           {/* Menu */}
-          <nav className="flex-1 px-3 py-4 space-y-6 overflow-y-auto">
+          <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
             {filteredSections.map((section, sectionIndex) => {
               const SectionIcon = section.icon;
+              const isExpanded = expandedSections[section.title] || false;
+              
               return (
-                <div key={sectionIndex} className="space-y-2">
-                  {/* Section Header */}
-                  <div className="flex items-center gap-2 px-4 py-2">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#DC2626] to-[#B91C1C] flex items-center justify-center shadow-md">
-                      <SectionIcon className="w-4 h-4 text-white" />
+                <div key={sectionIndex} className="space-y-1">
+                  {/* Section Header - Clickable */}
+                  <button
+                    onClick={() => toggleSection(section.title)}
+                    className="w-full flex items-center justify-between gap-2 px-4 py-2 hover:bg-gray-50 rounded-lg transition-colors group"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#DC2626] to-[#B91C1C] flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
+                        <SectionIcon className="w-4 h-4 text-white" />
+                      </div>
+                      <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        {section.title}
+                      </span>
                     </div>
-                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                      {section.title}
-                    </span>
-                  </div>
+                    {isExpanded ? (
+                      <FaChevronDown className="w-3 h-3 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                    ) : (
+                      <FaChevronRight className="w-3 h-3 text-gray-400 group-hover:text-gray-600 transition-colors" />
+                    )}
+                  </button>
                   
-                  {/* Section Items */}
-                  <div className="space-y-1">
-                    {section.items.map((item) => {
-                      const Icon = item.icon;
-                      const isActive = location === item.path;
-                      return (
-                        <Link
-                          key={item.path}
-                          href={item.path}
-                          onClick={() => setMobileOpen(false)}
-                          className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ml-2 ${
-                            isActive
-                              ? "bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white shadow-lg shadow-red-200/50"
-                              : "text-gray-700 hover:bg-gray-100 hover:text-[#DC2626] hover:shadow-md"
-                          }`}
-                        >
-                          <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-white" : "text-gray-600"}`} />
-                          <span className={`font-medium text-sm ${isActive ? "text-white" : "text-gray-700"}`}>
-                            {item.name}
-                          </span>
-                        </Link>
-                      );
-                    })}
-                  </div>
+                  {/* Section Items - Collapsible */}
+                  {isExpanded && (
+                    <div className="space-y-1 mt-1">
+                      {section.items.map((item) => {
+                        const Icon = item.icon;
+                        const isActive = location === item.path;
+                        return (
+                          <Link
+                            key={item.path}
+                            href={item.path}
+                            onClick={() => setMobileOpen(false)}
+                            className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ml-2 ${
+                              isActive
+                                ? "bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white shadow-lg shadow-red-200/50"
+                                : "text-gray-700 hover:bg-gray-100 hover:text-[#DC2626] hover:shadow-md"
+                            }`}
+                          >
+                            <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-white" : "text-gray-600"}`} />
+                            <span className={`font-medium text-sm ${isActive ? "text-white" : "text-gray-700"}`}>
+                              {item.name}
+                            </span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               );
             })}

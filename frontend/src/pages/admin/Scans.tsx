@@ -504,25 +504,39 @@ export default function AdminScans() {
                                       {format(new Date(pair.arrival.scan_time), "dd MMM yyyy à HH:mm", { locale: fr })}
                                     </span>
                                   </div>
-                                  {pair.arrival.latitude && pair.arrival.longitude && (
-                                    <div className="mt-1.5 p-1.5 bg-white/70 rounded border border-green-200">
-                                      <div className="flex items-center gap-1 mb-0.5">
-                                        <FaMapMarkerAlt className="w-2.5 h-2.5 text-green-700" />
-                                        <span className="text-[10px] font-semibold text-green-800">GPS</span>
-                                      </div>
-                                      <p className="text-[10px] font-mono text-green-700 mb-0.5">
-                                        {Number(pair.arrival.latitude).toFixed(6)}, {Number(pair.arrival.longitude).toFixed(6)}
-                                      </p>
-                                      <a
-                                        href={`https://www.google.com/maps?q=${pair.arrival.latitude},${pair.arrival.longitude}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-[10px] text-green-600 hover:text-green-800 underline"
-                                      >
-                                        Voir sur Google Maps
-                                      </a>
-                                    </div>
-                                  )}
+                                  {(() => {
+                                    const lat = pair.arrival?.latitude;
+                                    const lng = pair.arrival?.longitude;
+                                    // Vérifier si les coordonnées existent et sont valides
+                                    const hasValidCoords = lat != null && lng != null && 
+                                                          lat !== '' && lng !== '' &&
+                                                          !isNaN(Number(lat)) && !isNaN(Number(lng));
+                                    
+                                    if (hasValidCoords) {
+                                      const latNum = Number(lat);
+                                      const lngNum = Number(lng);
+                                      return (
+                                        <div className="mt-1.5 p-1.5 bg-white/70 rounded border border-green-200">
+                                          <div className="flex items-center gap-1 mb-0.5">
+                                            <FaMapMarkerAlt className="w-2.5 h-2.5 text-green-700" />
+                                            <span className="text-[10px] font-semibold text-green-800">GPS</span>
+                                          </div>
+                                          <p className="text-[10px] font-mono text-green-700 mb-0.5">
+                                            {latNum.toFixed(6)}, {lngNum.toFixed(6)}
+                                          </p>
+                                          <a
+                                            href={`https://www.google.com/maps?q=${latNum},${lngNum}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-[10px] text-green-600 hover:text-green-800 underline"
+                                          >
+                                            Voir sur Google Maps
+                                          </a>
+                                        </div>
+                                      );
+                                    }
+                                    return null;
+                                  })()}
                                   {pair.arrival.notes && (
                                     <div className="mt-1.5 p-1.5 bg-yellow-100 rounded border border-yellow-300">
                                       <p className="text-[10px] text-yellow-800 font-medium">Commentaire:</p>
@@ -578,25 +592,39 @@ export default function AdminScans() {
                                       {format(new Date(pair.departure.scan_time), "dd MMM yyyy à HH:mm", { locale: fr })}
                                     </span>
                                   </div>
-                                  {pair.departure.latitude && pair.departure.longitude && (
-                                    <div className="mt-1.5 p-1.5 bg-white/70 rounded border border-orange-200">
-                                      <div className="flex items-center gap-1 mb-0.5">
-                                        <FaMapMarkerAlt className="w-2.5 h-2.5 text-orange-700" />
-                                        <span className="text-[10px] font-semibold text-orange-800">GPS</span>
-                                      </div>
-                                      <p className="text-[10px] font-mono text-orange-700 mb-0.5">
-                                        {Number(pair.departure.latitude).toFixed(6)}, {Number(pair.departure.longitude).toFixed(6)}
-                                      </p>
-                                      <a
-                                        href={`https://www.google.com/maps?q=${pair.departure.latitude},${pair.departure.longitude}`}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-[10px] text-orange-600 hover:text-orange-800 underline"
-                                      >
-                                        Voir sur Google Maps
-                                      </a>
-                                    </div>
-                                  )}
+                                  {(() => {
+                                    const lat = pair.departure?.latitude;
+                                    const lng = pair.departure?.longitude;
+                                    // Vérifier si les coordonnées existent et sont valides
+                                    const hasValidCoords = lat != null && lng != null && 
+                                                          lat !== '' && lng !== '' &&
+                                                          !isNaN(Number(lat)) && !isNaN(Number(lng));
+                                    
+                                    if (hasValidCoords) {
+                                      const latNum = Number(lat);
+                                      const lngNum = Number(lng);
+                                      return (
+                                        <div className="mt-1.5 p-1.5 bg-white/70 rounded border border-orange-200">
+                                          <div className="flex items-center gap-1 mb-0.5">
+                                            <FaMapMarkerAlt className="w-2.5 h-2.5 text-orange-700" />
+                                            <span className="text-[10px] font-semibold text-orange-800">GPS</span>
+                                          </div>
+                                          <p className="text-[10px] font-mono text-orange-700 mb-0.5">
+                                            {latNum.toFixed(6)}, {lngNum.toFixed(6)}
+                                          </p>
+                                          <a
+                                            href={`https://www.google.com/maps?q=${latNum},${lngNum}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-[10px] text-orange-600 hover:text-orange-800 underline"
+                                          >
+                                            Voir sur Google Maps
+                                          </a>
+                                        </div>
+                                      );
+                                    }
+                                    return null;
+                                  })()}
                                   {pair.departure.notes && (
                                     <div className="mt-1.5 p-1.5 bg-yellow-100 rounded border border-yellow-300">
                                       <p className="text-[10px] text-yellow-800 font-medium">Commentaire:</p>

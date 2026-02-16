@@ -29,8 +29,7 @@ import {
 } from "react-icons/fa";
 import axios from "axios";
 import { useState } from "react";
-
-const API_URL = "http://localhost:8000/api";
+import { API_URL } from "@/config/api";
 
 const iconMap: Record<string, any> = {
   FaUsers: FaUsers,

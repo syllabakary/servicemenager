@@ -26,8 +26,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-
-const API_URL = "http://localhost:8000/api";
+import { API_URL } from "@/config/api";
 
 export default function AdminBannieres() {
   const queryClient = useQueryClient();

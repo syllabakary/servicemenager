@@ -18,6 +18,7 @@ import {
 } from "react-icons/fa";
 import { motion } from "framer-motion";
 import axios from "axios";
+import { API_URL } from "@/config/api";
 
 interface Agency {
   id: number;
@@ -33,8 +34,6 @@ interface Agency {
   latitude?: string;
   longitude?: string;
 }
-
-const API_URL = "http://localhost:8000/api";
 
 export default function AgencyDetail() {
   const [, params] = useRoute("/agences/:slug");

@@ -6,6 +6,7 @@ import {
   FaBuilding,
   FaFileAlt,
   FaUsers,
+  FaUser,
   FaSignOutAlt,
   FaBars,
   FaTimes,
@@ -18,6 +19,7 @@ import {
   FaImages,
   FaChevronDown,
   FaChevronRight,
+  FaQrcode,
 } from "react-icons/fa";
 
 interface SidebarProps {
@@ -60,6 +62,24 @@ export function Sidebar({ userRole }: SidebarProps) {
           roles: ["SUPERADMIN"],
         },
         {
+          name: "Employés",
+          icon: FaUsers,
+          path: "/admin/employes",
+          roles: ["ADMIN", "SUPERADMIN"],
+        },
+        {
+          name: "Patients",
+          icon: FaUser,
+          path: "/admin/patients",
+          roles: ["ADMIN", "SUPERADMIN"],
+        },
+        {
+          name: "Scans",
+          icon: FaQrcode,
+          path: "/admin/scans",
+          roles: ["ADMIN", "SUPERADMIN"],
+        },
+        {
           name: "Paramètres",
           icon: FaCog,
           path: "/admin/parametres",
@@ -93,6 +113,12 @@ export function Sidebar({ userRole }: SidebarProps) {
           name: "Devis",
           icon: FaCalendar,
           path: "/admin/devis",
+          roles: ["ADMIN", "SUPERADMIN"],
+        },
+        {
+          name: "Formulaires de devis",
+          icon: FaFileAlt,
+          path: "/admin/formulaires-devis",
           roles: ["ADMIN", "SUPERADMIN"],
         },
         {

@@ -1,0 +1,107 @@
+================================================================================
+                    RAPPORT DE TEST SMTP
+                    Date: 2025-02-03
+================================================================================
+
+CONFIGURATION TESTÉE:
+---------------------
+Serveur SMTP: smtp.gmail.com
+Email: issouf.fof0@gmail.com
+Mot de passe: gxvwifedvgemdrge
+
+TESTS EFFECTUÉS:
+----------------
+
+1. TEST PORT 587 (TLS):
+   ❌ ÉCHEC
+   Erreur: [WinError 10054] Une connexion existante a dû être fermée par l'hôte distant
+   
+   Analyse:
+   - La connexion TCP est établie
+   - L'activation TLS échoue ou la connexion est fermée par Gmail
+   - Possible cause: Gmail bloque la connexion pour des raisons de sécurité
+
+2. TEST PORT 465 (SSL):
+   ❌ ÉCHEC
+   Erreur: [WinError 10060] Timeout de connexion
+   
+   Analyse:
+   - Impossible de se connecter au serveur
+   - Le port 465 est peut-être bloqué par le firewall
+   - Timeout après 30 secondes
+
+CAUSES POSSIBLES:
+-----------------
+
+1. FIREWALL / RÉSEAU:
+   - Les ports SMTP (587, 465) sont peut-être bloqués par votre firewall
+   - Votre FAI (Fournisseur d'Accès Internet) peut bloquer les ports SMTP sortants
+   - Votre routeur peut avoir des restrictions
+
+2. GMAIL BLOQUE LA CONNEXION:
+   - Gmail peut bloquer les connexions depuis votre IP pour des raisons de sécurité
+   - Le mot de passe d'application peut être incorrect ou expiré
+   - L'authentification à deux facteurs n'est peut-être pas activée
+
+3. MOT DE PASSE D'APPLICATION:
+   - Le mot de passe fourni (gxvwifedvgemdrge) peut ne pas être un mot de passe 
+     d'application valide
+   - Il doit être généré depuis: https://myaccount.google.com/apppasswords
+   - Il doit être de 16 caractères (sans espaces)
+
+SOLUTIONS RECOMMANDÉES:
+-----------------------
+
+1. VÉRIFIER LE MOT DE PASSE D'APPLICATION:
+   a) Allez sur: https://myaccount.google.com/security
+   b) Assurez-vous que l'authentification à deux facteurs est activée
+   c) Allez sur: https://myaccount.google.com/apppasswords
+   d) Créez un nouveau mot de passe d'application:
+      - Sélectionnez "Mail"
+      - Sélectionnez "Autre (nom personnalisé)"
+      - Entrez "ServiceManager"
+      - Copiez le mot de passe généré (16 caractères)
+   e) Utilisez ce nouveau mot de passe dans la configuration
+
+2. VÉRIFIER LE FIREWALL:
+   a) Vérifiez que Windows Firewall n'bloque pas les connexions sortantes
+   b) Vérifiez les paramètres de votre antivirus
+   c) Testez depuis un autre réseau (ex: hotspot mobile)
+
+3. TESTER AVEC UN AUTRE FOURNISSEUR EMAIL:
+   - Essayez avec Outlook (smtp-mail.outlook.com, port 587)
+   - Essayez avec Yahoo (smtp.mail.yahoo.com, port 587)
+
+4. UTILISER UN SERVICE SMTP EXTERNE:
+   - SendGrid
+   - Mailgun
+   - Amazon SES
+   - Ces services sont plus fiables et ont moins de restrictions
+
+PROCHAINES ÉTAPES:
+------------------
+
+1. Vérifiez que le mot de passe d'application est correct
+2. Testez depuis un autre réseau pour éliminer le problème de firewall
+3. Si le problème persiste, utilisez un service SMTP externe
+4. Une fois la configuration testée et fonctionnelle, mettez à jour les 
+   paramètres dans /admin/parametres
+
+NOTES IMPORTANTES:
+------------------
+
+- Le mot de passe d'application Gmail est différent de votre mot de passe Gmail
+- Le mot de passe d'application doit être généré depuis le compte Google
+- Les ports SMTP peuvent être bloqués par certains FAI
+- Gmail peut temporairement bloquer les connexions suspectes
+
+================================================================================
+                    FIN DU RAPPORT
+================================================================================
+
+
+
+
+
+
+

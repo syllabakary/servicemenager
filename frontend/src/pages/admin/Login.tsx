@@ -129,7 +129,12 @@ export default function AdminLogin() {
               {loading ? "Connexion..." : "Se connecter"}
             </Button>
 
-            <div className="text-center">
+            <div className="text-center space-y-2">
+              <Link href="/employe/login">
+                <Button variant="ghost" className="text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 w-full">
+                  Connexion Employé
+                </Button>
+              </Link>
               <Link href="/">
                 <Button variant="ghost" className="text-sm text-gray-600 hover:text-[#DC2626]">
                   <FaHome className="w-4 h-4 mr-2" />

@@ -7,6 +7,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { IconType } from "react-icons";
 import { useQuery } from "@tanstack/react-query";
+import { API_URL } from "@/config/api";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,7 +58,7 @@ export function Navbar() {
   const { data: navbarData } = useQuery({
     queryKey: ["navbar"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:8000/api/navbar/");
+      const response = await fetch(`${API_URL}/navbar/`);
       return response.json();
     },
   });

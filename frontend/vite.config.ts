@@ -31,6 +31,8 @@ export default defineConfig({
     emptyOutDir: true,
   },
   server: {
+    host: '0.0.0.0', // Permet l'accès depuis le réseau local
+    port: 5173,
     fs: {
       strict: true,
       deny: ["**/.*"],

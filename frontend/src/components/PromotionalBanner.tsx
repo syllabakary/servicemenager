@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
+import { API_URL } from "@/config/api";
 
 export function PromotionalBanner() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -11,7 +12,7 @@ export function PromotionalBanner() {
   const { data: bannersData, isLoading } = useQuery({
     queryKey: ["home_banners"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:8000/api/pages/?is_active=true");
+      const response = await fetch(`${API_URL}/pages/?is_active=true`);
       const data = await response.json();
       // Trier par ordre et retourner toutes les bannières actives
       return (data.results || []).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));

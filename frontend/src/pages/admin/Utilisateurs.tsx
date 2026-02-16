@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { API_URL } from "@/config/api";
 import {
   Select,
   SelectContent,
@@ -30,8 +31,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-const API_URL = "http://localhost:8000/api";
 
 export default function AdminUtilisateurs() {
   const queryClient = useQueryClient();

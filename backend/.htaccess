@@ -1,0 +1,20 @@
+# Configuration Apache pour Django sur cPanel avec Passenger
+# Placez ce fichier dans le dossier backend/
+
+PassengerEnabled On
+PassengerAppRoot /home/votreuser/public_html/backend
+PassengerBaseURI /api
+PassengerPython /home/votreuser/virtualenv/backend/3.13/bin/python
+PassengerAppType wsgi
+PassengerStartupFile passenger_wsgi.py
+
+# Note: Remplacez 'votreuser' par votre nom d'utilisateur cPanel
+# Remplacez '3.13' par la version Python que vous utilisez
+# Ajustez le chemin selon votre structure de dossiers
+
+
+
+
+
+
+

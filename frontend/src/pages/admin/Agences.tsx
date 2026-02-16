@@ -34,8 +34,7 @@ import {
 } from "@/components/ui/tooltip";
 import { FaInfoCircle } from "react-icons/fa";
 import { useToast } from "@/hooks/use-toast";
-
-const API_URL = "http://localhost:8000/api";
+import { API_URL } from "@/config/api";
 
 export default function AdminAgences() {
   const queryClient = useQueryClient();

@@ -69,6 +69,7 @@ import {
 import { HiSparkles } from "react-icons/hi";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
+import { API_URL } from "@/config/api";
 
 const iconMap: Record<string, any> = {
   Sparkles: HiSparkles,
@@ -347,8 +348,6 @@ const mockServiceDetails: Record<number, any> = {
   },
 };
 
-const API_URL = "http://localhost:8000/api";
-
 export default function ServiceDetail() {
   const params = useParams();
   const serviceSlug = params.id;
@@ -445,7 +444,7 @@ export default function ServiceDetail() {
   const { data: similarServicesData } = useQuery({
     queryKey: ["services"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:8000/api/services/?active=true");
+      const response = await fetch(`${API_URL}/services/?active=true`);
       const data = await response.json();
       return data.results || [];
     },
@@ -493,15 +492,15 @@ export default function ServiceDetail() {
         className="sticky top-0 z-40 bg-white/95 backdrop-blur-lg border-b border-gray-200 shadow-sm"
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4">
-          <Link href="/services">
-            <Button
-              variant="ghost"
+            <Link href="/services">
+              <Button
+                variant="ghost"
               className="gap-2 text-gray-600 hover:text-site-text-link hover:bg-site-primary/5"
-            >
+              >
               <FaArrowLeft className="w-4 h-4" />
-              Retour aux services
-            </Button>
-          </Link>
+                Retour aux services
+              </Button>
+            </Link>
         </div>
       </motion.header>
 
@@ -542,20 +541,20 @@ export default function ServiceDetail() {
                 {!service.image_url && (
                   <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 flex items-center justify-center rounded-2xl bg-red-50 shadow-lg border border-red-200">
                     <Icon className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-site-primary" />
-                  </div>
+                </div>
                 )}
                 <div>
                   <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2">
                     {service.name}
                   </h1>
                   {service.rating && (
-                    <div className="flex items-center gap-2 text-yellow-500">
+                  <div className="flex items-center gap-2 text-yellow-500">
                       <FaStar className="w-5 h-5 fill-site-primary text-site-primary" />
                       <span className="text-lg font-bold text-gray-900">{service.rating}</span>
                       {service.review_count > 0 && (
                         <span className="text-gray-600">({service.review_count} avis)</span>
                       )}
-                    </div>
+                  </div>
                   )}
                 </div>
               </div>
@@ -567,37 +566,37 @@ export default function ServiceDetail() {
               {/* Quick info cards */}
               <div className="grid grid-cols-2 gap-4 mb-8">
                 {service.duration && (
-                  <div className="bg-white rounded-xl p-4 shadow-md border border-gray-100">
-                    <div className="flex items-center gap-2 text-gray-600 mb-1">
+                <div className="bg-white rounded-xl p-4 shadow-md border border-gray-100">
+                  <div className="flex items-center gap-2 text-gray-600 mb-1">
                       <FaClock className="w-4 h-4 text-site-primary" />
-                      <span className="text-sm font-medium">Durée</span>
-                    </div>
-                    <p className="text-lg font-bold text-gray-900">{service.duration}</p>
+                    <span className="text-sm font-medium">Durée</span>
                   </div>
+                    <p className="text-lg font-bold text-gray-900">{service.duration}</p>
+                </div>
                 )}
                 {(service.price_label || service.price_per_hour) && (
-                  <div className="bg-white rounded-xl p-4 shadow-md border border-gray-100">
-                    <div className="flex items-center gap-2 text-gray-600 mb-1">
+                <div className="bg-white rounded-xl p-4 shadow-md border border-gray-100">
+                  <div className="flex items-center gap-2 text-gray-600 mb-1">
                       <FaDollarSign className="w-4 h-4 text-site-primary" />
-                      <span className="text-sm font-medium">Tarif</span>
-                    </div>
+                    <span className="text-sm font-medium">Tarif</span>
+                  </div>
                     <p className="text-lg font-bold text-gray-900">
                       {service.price_label || (service.price_per_hour ? `À partir de ${service.price_per_hour}${service.currency === 'EUR' ? '€' : service.currency === 'USD' ? '$' : ' FCFA'}/heure` : "")}
                     </p>
-                  </div>
+                </div>
                 )}
               </div>
 
               {/* Caractéristiques */}
               {service.features && service.features.length > 0 && (
-                <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                   {service.features.map((feature: string, i: number) => (
-                    <div key={i} className="flex items-center gap-2 text-sm text-gray-700">
+                  <div key={i} className="flex items-center gap-2 text-sm text-gray-700">
                       <FaCheckCircle className="w-4 h-4 text-site-primary flex-shrink-0" />
                       <span>{feature}</span>
-                    </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
+              </div>
               )}
             </motion.div>
 
@@ -634,34 +633,34 @@ export default function ServiceDetail() {
                       <Link href={`/devis?service=${service.id}`}>
                         <Button className="w-full h-14 bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text font-semibold text-lg shadow-lg hover:shadow-xl transition-all">
                           <FaCalendar className="w-5 h-5 mr-2" />
-                          Réserver maintenant
-                        </Button>
+                        Réserver maintenant
+                      </Button>
                       </Link>
                       
                       <div className="grid grid-cols-2 gap-3">
                         <a href={`tel:${service.contact_phone || '+2250123456789'}`}>
                           <Button variant="outline" className="w-full h-12 border-2 border-gray-200 hover:border-site-primary hover:bg-site-primary/5">
                             <FaPhone className="w-4 h-4 mr-2" />
-                            Appeler
-                          </Button>
+                          Appeler
+                        </Button>
                         </a>
                         <Link href="/contact">
                           <Button variant="outline" className="w-full h-12 border-2 border-gray-200 hover:border-site-primary hover:bg-site-primary/5">
                             <FaCommentDots className="w-4 h-4 mr-2" />
-                            Chat
-                          </Button>
+                          Chat
+                        </Button>
                         </Link>
                       </div>
                     </div>
                   </div>
 
                   {service.guarantees && service.guarantees.length > 0 && (
-                    <div className="pt-6 border-t border-gray-200">
+                  <div className="pt-6 border-t border-gray-200">
                       {service.guarantees.map((guarantee: string, index: number) => (
                         <div key={index} className="flex items-center gap-3 text-sm text-gray-600 mb-3 last:mb-0">
                           <FaCheckCircle className="w-5 h-5 text-green-500 flex-shrink-0" />
                           <span>{guarantee}</span>
-                        </div>
+                    </div>
                       ))}
                     </div>
                   )}
@@ -702,28 +701,28 @@ export default function ServiceDetail() {
               Prestations incluses
             </button>
             {service.show_reviews !== false && (
-              <button
-                onClick={() => setActiveTab("avis")}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                  activeTab === "avis"
+            <button
+              onClick={() => setActiveTab("avis")}
+              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                activeTab === "avis"
                     ? "bg-site-button-primary text-site-button-text shadow-md"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
                 Avis clients {service.review_count > 0 && `(${service.review_count})`}
-              </button>
+            </button>
             )}
             {service.show_faq !== false && (
-              <button
-                onClick={() => setActiveTab("faq")}
-                className={`px-6 py-3 rounded-lg font-semibold transition-all ${
-                  activeTab === "faq"
+            <button
+              onClick={() => setActiveTab("faq")}
+              className={`px-6 py-3 rounded-lg font-semibold transition-all ${
+                activeTab === "faq"
                     ? "bg-site-button-primary text-site-button-text shadow-md"
-                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                }`}
-              >
-                Questions fréquentes
-              </button>
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              Questions fréquentes
+            </button>
             )}
           </div>
 
@@ -737,48 +736,48 @@ export default function ServiceDetail() {
             {activeTab === "prestations" && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {service.included_services && service.included_services.length > 0 && (
-                  <Card className="border-0 shadow-lg">
-                    <CardContent className="p-8">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                        Ce qui est inclus
-                      </h3>
-                      <ul className="space-y-4">
+                <Card className="border-0 shadow-lg">
+                  <CardContent className="p-8">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                      Ce qui est inclus
+                    </h3>
+                    <ul className="space-y-4">
                         {service.included_services.map((prestation: string, index: number) => (
-                          <li key={index} className="flex items-start gap-3">
+                        <li key={index} className="flex items-start gap-3">
                             <div className="w-6 h-6 rounded-full bg-site-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                               <FaCheckCircle className="w-4 h-4 text-site-primary" />
-                            </div>
-                            <span className="text-gray-700 leading-relaxed">{prestation}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
+                          </div>
+                          <span className="text-gray-700 leading-relaxed">{prestation}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
                 )}
 
                 {service.process_steps && service.process_steps.length > 0 && (
                   <Card className="border border-gray-200 shadow-lg bg-red-50">
-                    <CardContent className="p-8">
-                      <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                        Notre processus
-                      </h3>
-                      <div className="space-y-6">
+                  <CardContent className="p-8">
+                    <h3 className="text-2xl font-bold text-gray-900 mb-6">
+                      Notre processus
+                    </h3>
+                    <div className="space-y-6">
                         {service.process_steps.map((etape: any, index: number) => (
-                          <div key={index} className="flex items-start gap-4">
+                        <div key={index} className="flex items-start gap-4">
                             <div className="w-10 h-10 rounded-full bg-site-button-primary text-site-button-text flex items-center justify-center font-bold flex-shrink-0">
                               {etape.step || index + 1}
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-gray-900 mb-1">{etape.title || etape.titre}</h4>
-                              <p className="text-sm text-gray-600 leading-relaxed">
-                                {etape.description}
-                              </p>
-                            </div>
                           </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                          <div>
+                              <h4 className="font-bold text-gray-900 mb-1">{etape.title || etape.titre}</h4>
+                            <p className="text-sm text-gray-600 leading-relaxed">
+                              {etape.description}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
                 )}
               </div>
             )}
@@ -874,7 +873,7 @@ export default function ServiceDetail() {
                               setShowReviewForm(false);
                               setReviewForm({ client_name: "", client_email: "", rating: 5, comment: "" });
                             }}
-                          >
+                  >
                             Annuler
                           </Button>
                         </div>
@@ -891,9 +890,9 @@ export default function ServiceDetail() {
                     </h3>
                     {reviews.map((review: any) => (
                       <Card key={review.id} className="border border-gray-200">
-                        <CardContent className="p-6">
-                          <div className="flex items-start justify-between mb-4">
-                            <div>
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between mb-4">
+                          <div>
                               <h4 className="font-bold text-gray-900 mb-1">{review.client_name}</h4>
                               <div className="flex items-center gap-2">
                                 <div className="flex">
@@ -905,8 +904,8 @@ export default function ServiceDetail() {
                                           ? "text-yellow-400 fill-yellow-400"
                                           : "text-gray-300"
                                       }`}
-                                    />
-                                  ))}
+                              />
+                            ))}
                                 </div>
                                 <span className="text-sm text-gray-500">
                                   {new Date(review.created_at).toLocaleDateString('fr-FR', {
@@ -916,11 +915,11 @@ export default function ServiceDetail() {
                                   })}
                                 </span>
                               </div>
-                            </div>
                           </div>
+                        </div>
                           <p className="text-gray-700 leading-relaxed">{review.comment}</p>
-                        </CardContent>
-                      </Card>
+                      </CardContent>
+                    </Card>
                     ))}
                   </div>
                 ) : (
@@ -953,9 +952,9 @@ export default function ServiceDetail() {
                           </CardHeader>
                           <CardContent className="pt-0">
                             <p className="text-gray-700 leading-relaxed pl-9">{faq.answer}</p>
-                          </CardContent>
-                        </Card>
-                      ))}
+                    </CardContent>
+                  </Card>
+                ))}
                     </div>
                   </>
                 ) : (

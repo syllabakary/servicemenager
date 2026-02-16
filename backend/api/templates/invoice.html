@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facture {{ invoice.invoice_number }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html, body {
+            height: 100%;
+            font-family: 'Arial', 'Helvetica', sans-serif;
+            font-size: 11px;
+            color: #333;
+            line-height: 1.5;
+            background-color: #fff;
+        }
+        .container {
+            max-width: 210mm;
+            min-height: 100%;
+            margin: 0 auto;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+        }
+        .content {
+            flex: 1;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #DC2626;
+        }
+        .header-left {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 15px;
+        }
+        .invoice-logo {
+            display: block;
+            width: 35px;
+            height: 35px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .invoice-logo img {
+            width: 35px !important;
+            height: 35px !important;
+            max-width: 35px !important;
+            max-height: 35px !important;
+            min-width: 35px !important;
+            min-height: 35px !important;
+            display: block;
+            object-fit: contain;
+            object-position: center;
+        }
+        .header-left .invoice-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 4px;
+        }
+        .invoice-number {
+            font-size: 11px;
+            margin-bottom: 8px;
+            color: #555;
+        }
+        .invoice-number strong {
+            color: #333;
+            font-weight: 600;
+        }
+        .service-location {
+            font-size: 11px;
+            color: #666;
+            line-height: 1.6;
+        }
+        .service-location strong {
+            color: #333;
+            font-weight: 600;
+        }
+        .header-right {
+            flex: 1;
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: flex-start;
+            gap: 10px;
+        }
+        .header-right h1 {
+            color: #DC2626;
+            font-size: 48px;
+            font-weight: bold;
+            margin: 0;
+            letter-spacing: 4px;
+            text-shadow: 1px 1px 2px rgba(220, 38, 38, 0.1);
+            line-height: 1;
+            white-space: nowrap;
+        }
+        .company-info {
+            font-size: 10px;
+            color: #333;
+            line-height: 1.8;
+            margin-top: 15px;
+        }
+        .company-info p {
+            margin: 3px 0;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #DC2626;
+            margin-bottom: 18px;
+            text-transform: uppercase;
+            border-bottom: 2px solid #DC2626;
+            padding-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+            margin-bottom: 20px;
+        }
+        .info-item {
+            margin-bottom: 10px;
+            font-size: 11px;
+            line-height: 1.8;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #555;
+            display: inline-block;
+            min-width: 140px;
+        }
+        .info-value {
+            color: #333;
+            font-weight: 400;
+        }
+        .service-section {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-left: 5px solid #DC2626;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+        .service-name {
+            font-size: 13px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        .service-name strong {
+            color: #DC2626;
+            font-weight: 700;
+        }
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+        .items-table thead {
+            background-color: #DC2626;
+            color: white;
+        }
+        .items-table th {
+            padding: 12px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: bold;
+        }
+        .items-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 11px;
+        }
+        .text-right {
+            text-align: right;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .price-section {
+            background-color: #fff;
+            border: 2px solid #DC2626;
+            border-radius: 6px;
+            padding: 25px;
+            margin-top: 25px;
+            box-shadow: 0 3px 8px rgba(220, 38, 38, 0.15);
+        }
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 0;
+            font-size: 12px;
+            border-bottom: 1px solid #eee;
+        }
+        .price-row:last-child {
+            border-bottom: none;
+        }
+        .price-row.total {
+            border-top: 3px solid #DC2626;
+            font-weight: bold;
+            font-size: 16px;
+            padding-top: 18px;
+            margin-top: 15px;
+            color: #DC2626;
+        }
+        .price-label {
+            font-weight: 600;
+            color: #555;
+        }
+        .price-value {
+            text-align: right;
+            font-weight: 600;
+            color: #333;
+        }
+        .price-row.total .price-value {
+            color: #DC2626;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .footer {
+            margin-top: 50px;
+            padding-top: 25px;
+            border-top: 2px solid #ddd;
+            text-align: center;
+            font-size: 10px;
+            color: #777;
+            line-height: 1.8;
+        }
+        .footer p {
+            margin: 6px 0;
+        }
+        .footer strong {
+            color: #333;
+            font-weight: 600;
+        }
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            .container {
+                padding: 20px;
+                min-height: auto;
+            }
+            .footer {
+                margin-top: 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <!-- Header -->
+            <div class="header">
+                <div class="header-left">
+                    {% if site_settings and site_settings.logo and logo_path %}
+                    <div class="invoice-logo">
+                        <img src="{{ logo_path }}" alt="{{ site_settings.site_name|default:'Logo' }}" />
+                    </div>
+                    {% endif %}
+                    <div class="invoice-info">
+                        <div class="invoice-number">
+                            <strong>Numéro:</strong> {{ invoice.invoice_number }}
+                        </div>
+                        <div class="invoice-number">
+                            <strong>Date d'émission:</strong> {{ invoice.invoice_date|date:"d/m/Y" }}
+                        </div>
+                        {% if invoice.due_date %}
+                        <div class="invoice-number">
+                            <strong>Date d'échéance:</strong> {{ invoice.due_date|date:"d/m/Y" }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="header-right">
+                    <h1>FACTURE</h1>
+                    <div class="company-info">
+                        <p>Plateau, Abidjan - Côte d'Ivoire</p>
+                        <p>Tél: +225 01 23 45 67 89</p>
+                        <p>Email: contact@serviceslocaux.ci</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informations client -->
+            <div class="section">
+                <div class="section-title">Informations client</div>
+                <div class="info-grid">
+                    <div>
+                        <div class="info-item">
+                            <span class="info-label">Nom complet:</span>
+                            <span class="info-value">{{ quote_request.client_name }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Email:</span>
+                            <span class="info-value">{{ quote_request.client_email }}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="info-item">
+                            <span class="info-label">Téléphone:</span>
+                            <span class="info-value">{{ quote_request.client_phone }}</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Localisation:</span>
+                            <span class="info-value">{{ quote_request.location }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service et localisation -->
+            <div class="section">
+                <div class="section-title">Service et localisation</div>
+                <div class="service-section">
+                    <div class="service-name">
+                        <strong>Service facturé:</strong> {% if quote_request.service %}{{ quote_request.service.name }}{% else %}Non spécifié{% endif %}
+                    </div>
+                    <div class="service-location">
+                        <strong>Localisation:</strong> {{ quote_request.location }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Détails de la facture -->
+            <div class="section">
+                <div class="section-title">Détails de la facture</div>
+                <table class="items-table">
+                    <thead>
+                        <tr>
+                            <th>Description</th>
+                            <th class="text-center">Quantité</th>
+                            <th class="text-right">Prix unitaire</th>
+                            <th class="text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong>{% if quote_request.service %}{{ quote_request.service.name }}{% else %}Service{% endif %}</strong>
+                            </td>
+                            <td class="text-center">1</td>
+                            <td class="text-right">{{ invoice.subtotal|floatformat:2 }} {% if invoice.currency == 'EUR' %}€{% elif invoice.currency == 'USD' %}${% elif invoice.currency == 'FCFA' %}FCFA{% else %}{{ invoice.currency }}{% endif %}</td>
+                            <td class="text-right">{{ invoice.subtotal|floatformat:2 }} {% if invoice.currency == 'EUR' %}€{% elif invoice.currency == 'USD' %}${% elif invoice.currency == 'FCFA' %}FCFA{% else %}{{ invoice.currency }}{% endif %}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Total -->
+            <div class="section">
+                <div class="section-title">Détails du prix</div>
+                <div class="price-section">
+                    <div class="price-row">
+                        <span class="price-label">Sous-total HT:</span>
+                        <span class="price-value">{{ invoice.subtotal|floatformat:2 }} {% if invoice.currency == 'EUR' %}€{% elif invoice.currency == 'USD' %}${% elif invoice.currency == 'FCFA' %}FCFA{% else %}{{ invoice.currency }}{% endif %}</span>
+                    </div>
+                    {% if invoice.tax_rate and invoice.tax_rate > 0 %}
+                    <div class="price-row">
+                        <span class="price-label">TVA ({{ invoice.tax_rate|floatformat:2 }}%):</span>
+                        <span class="price-value">{{ invoice.tax_amount|floatformat:2 }} {% if invoice.currency == 'EUR' %}€{% elif invoice.currency == 'USD' %}${% elif invoice.currency == 'FCFA' %}FCFA{% else %}{{ invoice.currency }}{% endif %}</span>
+                    </div>
+                    {% endif %}
+                    <div class="price-row total">
+                        <span class="price-label">Total TTC:</span>
+                        <span class="price-value">{{ invoice.total|floatformat:2 }} {% if invoice.currency == 'EUR' %}€{% elif invoice.currency == 'USD' %}${% elif invoice.currency == 'FCFA' %}FCFA{% else %}{{ invoice.currency }}{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if invoice.notes or invoice.payment_terms %}
+            <div class="section">
+                <div class="section-title">Notes et conditions</div>
+                <div class="service-section">
+                    {% if invoice.payment_terms %}
+                    <div class="info-item">
+                        <span class="info-label">Conditions de paiement:</span>
+                        <span class="info-value">{{ invoice.payment_terms }}</span>
+                    </div>
+                    {% endif %}
+                    {% if invoice.notes %}
+                    <div class="info-item">
+                        <span class="info-label">Notes:</span>
+                        <span class="info-value">{{ invoice.notes }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Merci de votre confiance !</p>
+            <p><strong>{{ site_settings.site_name|default:"Services Locaux" }}</strong> - {{ site_settings.site_tagline|default:"Votre partenaire de confiance" }}</p>
+            <p>Plateau, Abidjan - Côte d'Ivoire | Tél: +225 01 23 45 67 89 | Email: contact@serviceslocaux.ci</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,8 +1,7 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-
-const API_URL = "http://localhost:8000/api";
+import { API_URL } from "@/config/api";
 
 /**
  * Composant pour injecter les variables CSS dynamiques depuis l'API

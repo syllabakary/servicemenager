@@ -224,16 +224,20 @@ export default function Agencies() {
           <p className="max-w-2xl mx-auto text-sm sm:text-base md:text-lg lg:text-xl text-white/95 mb-4 sm:mb-6 md:mb-8 leading-relaxed drop-shadow-md px-2">
             Explorez les agences de confiance à travers toute la Côte d'Ivoire. Proximité, qualité et savoir-faire local au rendez-vous.
           </p>
-          <Link href="/devis" className="block px-2">
-            <Button
-              size="lg"
-              className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text shadow-xl hover:shadow-2xl px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 text-sm sm:text-base md:text-lg font-semibold transition-all duration-300 hover:scale-105 w-full sm:w-auto"
-            >
-              <span className="hidden sm:inline">Trouver une agence</span>
-              <span className="sm:hidden">Trouver</span>
-              <FaArrowRight className="ml-1.5 sm:ml-2 w-4 h-4 sm:w-5 sm:h-5" />
-            </Button>
-          </Link>
+          <Button
+            size="lg"
+            onClick={() => {
+              const searchSection = document.getElementById('agencies-search-section');
+              if (searchSection) {
+                searchSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }}
+            className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text shadow-xl hover:shadow-2xl px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 text-sm sm:text-base md:text-lg font-semibold transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+          >
+            <span className="hidden sm:inline">Trouver une agence</span>
+            <span className="sm:hidden">Trouver</span>
+            <FaArrowRight className="ml-1.5 sm:ml-2 w-4 h-4 sm:w-5 sm:h-5" />
+          </Button>
         </motion.div>
       </header>
 
@@ -295,7 +299,7 @@ export default function Agencies() {
       </section>
 
       {/* 🟧 SECTION 2 — Liste des agences avec recherche */}
-      <section className="py-12 sm:py-16 md:py-20 lg:py-28 bg-white relative">
+      <section id="agencies-search-section" className="py-12 sm:py-16 md:py-20 lg:py-28 bg-white relative">
         
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 relative z-10">
           <motion.div

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useToast } from "@/hooks/use-toast";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -55,6 +56,7 @@ const API_URL = "http://localhost:8000/api";
 
 export default function AdminServices() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [editingService, setEditingService] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -78,6 +80,36 @@ export default function AdminServices() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-services"] });
+      toast({
+        title: "✅ Service supprimé",
+        description: "Le service a été supprimé avec succès.",
+      });
+    },
+    onError: (error: any) => {
+      console.error("Erreur lors de la suppression:", error);
+      let errorMessage = "Impossible de supprimer le service.";
+      
+      if (error?.response?.status === 401) {
+        errorMessage = "Vous n'êtes pas autorisé à supprimer ce service. Veuillez vous reconnecter.";
+      } else if (error?.response?.status === 403) {
+        errorMessage = "Vous n'avez pas les permissions nécessaires pour supprimer ce service.";
+      } else if (error?.response?.status === 404) {
+        errorMessage = "Le service n'existe plus.";
+      } else if (error?.response?.status === 500) {
+        errorMessage = "Erreur serveur. Le service est peut-être utilisé dans des devis, des formulaires ou d'autres éléments.";
+      } else if (error?.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error?.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
+      toast({
+        title: "❌ Erreur de suppression",
+        description: errorMessage,
+        variant: "destructive",
+      });
     },
   });
 
@@ -198,11 +230,12 @@ export default function AdminServices() {
                             variant="ghost"
                             size="sm"
                             onClick={() => {
-                              if (confirm("Êtes-vous sûr de vouloir supprimer ce service ?")) {
+                              if (window.confirm("Êtes-vous sûr de vouloir supprimer ce service ?")) {
                                 deleteMutation.mutate(service.id);
                               }
                             }}
                             className="hover:bg-red-50 hover:text-red-600 rounded-lg"
+                            disabled={deleteMutation.isPending}
                           >
                             <FaTrash className="w-5 h-5 text-red-500" />
                           </Button>
@@ -571,7 +604,9 @@ function ServiceDialog({
               <Label htmlFor="category">Catégorie *</Label>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  <span className="inline-flex items-center">
+                    <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>La catégorie détermine comment le service apparaît dans le menu de navigation. Si la catégorie est marquée "Navbar", elle apparaîtra dans le menu principal.</p>
@@ -646,7 +681,9 @@ function ServiceDialog({
               <Label htmlFor="short_description">Description courte *</Label>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  <span className="inline-flex items-center">
+                    <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Description courte qui apparaît sur la page de liste des services (max 500 caractères)</p>
@@ -672,7 +709,9 @@ function ServiceDialog({
               <Label htmlFor="detailed_description">Description détaillée *</Label>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  <span className="inline-flex items-center">
+                    <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Description complète qui apparaît sur la page de détail du service</p>
@@ -815,7 +854,9 @@ function ServiceDialog({
               <h3 className="font-semibold text-gray-900">Note et avis</h3>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  <span className="inline-flex items-center">
+                    <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Ces valeurs sont automatiquement mises à jour quand des clients laissent des avis. Vous pouvez les modifier manuellement si nécessaire.</p>
@@ -877,7 +918,9 @@ function ServiceDialog({
               <h3 className="font-semibold text-gray-900">Questions fréquentes (FAQ)</h3>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  <span className="inline-flex items-center">
+                    <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Les FAQ sont gérées depuis la page de détail du service. Vous pouvez activer/désactiver leur affichage ici.</p>
@@ -910,7 +953,9 @@ function ServiceDialog({
               <h3 className="font-semibold text-gray-900">Agences disponibles</h3>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  <span className="inline-flex items-center">
+                    <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Sélectionnez les agences où ce service est disponible. Les agences sélectionnées apparaîtront sur la page de détail du service.</p>
@@ -958,7 +1003,9 @@ function ServiceDialog({
               <h3 className="font-semibold text-gray-900">Prestations incluses</h3>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  <span className="inline-flex items-center">
+                    <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Liste des prestations incluses dans ce service. Ces informations apparaissent dans l'onglet "Prestations incluses" de la page de détail du service.</p>
@@ -1022,7 +1069,9 @@ function ServiceDialog({
               <h3 className="font-semibold text-gray-900">Caractéristiques</h3>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  <span className="inline-flex items-center">
+                    <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Points forts et caractéristiques du service affichés avec des checkmarks sur la page de détail.</p>
@@ -1086,7 +1135,9 @@ function ServiceDialog({
               <h3 className="font-semibold text-gray-900">Garanties</h3>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  <span className="inline-flex items-center">
+                    <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Garanties offertes avec ce service. Affichées dans la carte de réservation sur la page de détail.</p>
@@ -1150,7 +1201,9 @@ function ServiceDialog({
               <h3 className="font-semibold text-gray-900">Étapes du processus</h3>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  <span className="inline-flex items-center">
+                    <FaInfoCircle className="w-4 h-4 text-gray-400 cursor-help" />
+                  </span>
                 </TooltipTrigger>
                 <TooltipContent>
                   <p>Étapes du processus de commande/réservation. Affichées dans l'onglet "Prestations incluses" de la page de détail du service.</p>

@@ -4,10 +4,11 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
     UserViewSet, ServiceViewSet, AgencyViewSet,
     ContactViewSet, PageContentViewSet, NavbarViewSet, CategoryViewSet,
-    ServiceReviewViewSet, ServiceFAQViewSet, QuoteRequestViewSet, ServiceAdvantageViewSet,
-    SiteSettingsViewSet
+    ServiceReviewViewSet, ServiceFAQViewSet, QuoteRequestViewSet, ServiceAdvantageViewSet, InvoiceViewSet,
+    SiteSettingsViewSet, QuoteFormStepViewSet, QuoteFormOptionViewSet, PatientViewSet, PresenceViewSet,
+    EmployeeProfileViewSet
 )
-from .views_auth import register
+from .views_auth import register, login_with_matricule
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
@@ -20,7 +21,13 @@ router.register(r'service-reviews', ServiceReviewViewSet, basename='service-revi
 router.register(r'service-faqs', ServiceFAQViewSet, basename='service-faq')
 router.register(r'service-advantages', ServiceAdvantageViewSet, basename='service-advantage')
 router.register(r'quote-requests', QuoteRequestViewSet, basename='quote-request')
+router.register(r'invoices', InvoiceViewSet, basename='invoice')
+router.register(r'quote-form-steps', QuoteFormStepViewSet, basename='quote-form-step')
+router.register(r'quote-form-options', QuoteFormOptionViewSet, basename='quote-form-option')
 router.register(r'site-settings', SiteSettingsViewSet, basename='site-settings')
+router.register(r'patients', PatientViewSet, basename='patient')
+router.register(r'presences', PresenceViewSet, basename='presence')
+router.register(r'employee-profiles', EmployeeProfileViewSet, basename='employee-profile')
 router.register(r'meta', NavbarViewSet, basename='meta')
 
 urlpatterns = [
@@ -30,6 +37,9 @@ urlpatterns = [
     
     # Registration
     path('register/', register, name='register'),
+    
+    # Login par matricule (pour employés)
+    path('login-matricule/', login_with_matricule, name='login_matricule'),
     
     # Router URLs
     path('', include(router.urls)),

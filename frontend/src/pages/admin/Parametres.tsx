@@ -327,6 +327,15 @@ export default function AdminParametres() {
     logo_favicon: null as File | null,
   });
 
+  const [smtpSettings, setSmtpSettings] = useState({
+    smtp_host: "",
+    smtp_port: 587,
+    smtp_use_tls: true,
+    smtp_use_ssl: false,
+    smtp_username: "",
+    smtp_password: "",
+  });
+
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [faviconPreview, setFaviconPreview] = useState<string | null>(null);
 
@@ -353,6 +362,17 @@ export default function AdminParametres() {
       }
       if (siteSettings.logo_favicon_url) {
         setFaviconPreview(siteSettings.logo_favicon_url);
+      }
+      // Charger les paramètres SMTP
+      if (siteSettings) {
+        setSmtpSettings({
+          smtp_host: siteSettings.smtp_host || "",
+          smtp_port: siteSettings.smtp_port || 587,
+          smtp_use_tls: siteSettings.smtp_use_tls !== undefined ? siteSettings.smtp_use_tls : true,
+          smtp_use_ssl: siteSettings.smtp_use_ssl || false,
+          smtp_username: siteSettings.smtp_username || "",
+          smtp_password: siteSettings.smtp_password || "",
+        });
       }
     }
   }, [siteSettings]);
@@ -440,6 +460,14 @@ export default function AdminParametres() {
       if (data.logo_favicon) {
         formData.append("logo_favicon", data.logo_favicon);
       }
+      
+      // Ajouter les paramètres SMTP
+      formData.append("smtp_host", smtpSettings.smtp_host || "");
+      formData.append("smtp_port", smtpSettings.smtp_port.toString());
+      formData.append("smtp_use_tls", smtpSettings.smtp_use_tls.toString());
+      formData.append("smtp_use_ssl", smtpSettings.smtp_use_ssl.toString());
+      formData.append("smtp_username", smtpSettings.smtp_username || "");
+      formData.append("smtp_password", smtpSettings.smtp_password || "");
 
       try {
         await axios.patch(`${API_URL}/site-settings/1/`, formData, {
@@ -478,6 +506,18 @@ export default function AdminParametres() {
         try {
           const res = await axios.get(`${API_URL}/site-settings/`);
           const newSettings = res.data;
+          
+          // Mettre à jour les paramètres SMTP avec les nouvelles valeurs
+          if (newSettings) {
+            setSmtpSettings({
+              smtp_host: newSettings.smtp_host || "",
+              smtp_port: newSettings.smtp_port || 587,
+              smtp_use_tls: newSettings.smtp_use_tls !== undefined ? newSettings.smtp_use_tls : true,
+              smtp_use_ssl: newSettings.smtp_use_ssl || false,
+              smtp_username: newSettings.smtp_username || "",
+              smtp_password: newSettings.smtp_password || "",
+            });
+          }
           
           // Appliquer immédiatement les nouvelles couleurs
           const root = document.documentElement;
@@ -532,8 +572,8 @@ export default function AdminParametres() {
       }, 200);
       
       toast({
-        title: "Succès",
-        description: "Paramètres du thème enregistrés avec succès ! Les changements sont appliqués immédiatement.",
+        title: "✅ Succès",
+        description: "Paramètres du thème et configuration SMTP enregistrés avec succès ! Les changements sont appliqués immédiatement.",
         variant: "default",
       });
     },
@@ -564,6 +604,106 @@ export default function AdminParametres() {
   const handleSaveTheme = (e: React.FormEvent) => {
     e.preventDefault();
     saveThemeMutation.mutate(themeSettings);
+  };
+
+  // Mutation séparée pour sauvegarder uniquement les paramètres SMTP
+  const saveSmtpMutation = useMutation({
+    mutationFn: async (data: typeof smtpSettings) => {
+      const token = localStorage.getItem("access_token");
+      
+      if (!token) {
+        throw new Error("Token d'authentification manquant. Veuillez vous reconnecter.");
+      }
+      
+      const formData = new FormData();
+      // Ajouter les paramètres SMTP
+      formData.append("smtp_host", data.smtp_host || "");
+      formData.append("smtp_port", data.smtp_port.toString());
+      formData.append("smtp_use_tls", data.smtp_use_tls.toString());
+      formData.append("smtp_use_ssl", data.smtp_use_ssl.toString());
+      formData.append("smtp_username", data.smtp_username || "");
+      formData.append("smtp_password", data.smtp_password || "");
+
+      try {
+        await axios.patch(`${API_URL}/site-settings/1/`, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      } catch (error: any) {
+        if (error.response?.status === 401) {
+          localStorage.removeItem("access_token");
+          localStorage.removeItem("refresh_token");
+          throw new Error("Votre session a expiré. Veuillez vous reconnecter.");
+        }
+        throw error;
+      }
+    },
+    onSuccess: async () => {
+      // Invalider et refetch les paramètres du site
+      queryClient.invalidateQueries({ queryKey: ["site-settings"] });
+      await queryClient.refetchQueries({ 
+        queryKey: ["site-settings"],
+        type: "active"
+      });
+      
+      // Mettre à jour les paramètres SMTP avec les nouvelles valeurs
+      setTimeout(async () => {
+        try {
+          const res = await axios.get(`${API_URL}/site-settings/`);
+          const newSettings = res.data;
+          
+          if (newSettings) {
+            setSmtpSettings({
+              smtp_host: newSettings.smtp_host || "",
+              smtp_port: newSettings.smtp_port || 587,
+              smtp_use_tls: newSettings.smtp_use_tls !== undefined ? newSettings.smtp_use_tls : true,
+              smtp_use_ssl: newSettings.smtp_use_ssl || false,
+              smtp_username: newSettings.smtp_username || "",
+              smtp_password: newSettings.smtp_password || "",
+            });
+          }
+        } catch (err) {
+          console.error("Erreur lors de la mise à jour des paramètres SMTP:", err);
+        }
+      }, 200);
+      
+      toast({
+        title: "✅ Succès",
+        description: "Configuration SMTP enregistrée avec succès !",
+        variant: "default",
+      });
+    },
+    onError: (error: any) => {
+      let errorMessage = "Une erreur s'est produite lors de l'enregistrement";
+      
+      if (error.response?.status === 401) {
+        errorMessage = "Votre session a expiré. Veuillez vous reconnecter.";
+        localStorage.removeItem("access_token");
+        localStorage.removeItem("refresh_token");
+        setTimeout(() => {
+          window.location.href = "/admin/login";
+        }, 2000);
+      } else if (error.message) {
+        errorMessage = error.message;
+      } else if (error.response?.data?.detail) {
+        errorMessage = error.response.data.detail;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      }
+      
+      toast({
+        title: "❌ Erreur",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleSaveSmtp = (e: React.FormEvent) => {
+    e.preventDefault();
+    saveSmtpMutation.mutate(smtpSettings);
   };
 
   if (footerLoading || locationLoading || siteSettingsLoading) {
@@ -1280,6 +1420,144 @@ export default function AdminParametres() {
                 >
                   <FaSave className="w-4 h-4 mr-2" />
                   {saveThemeMutation.isPending ? "Enregistrement..." : "Enregistrer le thème"}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Configuration SMTP */}
+        <Card className="shadow-xl border-0 bg-white">
+          <CardHeader className="border-b">
+            <CardTitle className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
+              <FaEnvelope className="w-6 h-6 text-[#DC2626]" />
+              Configuration Email (SMTP)
+            </CardTitle>
+            <CardDescription>
+              Configurez les paramètres SMTP pour l'envoi automatique de devis et factures par email
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <form onSubmit={handleSaveSmtp} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="smtp_host">
+                    Serveur SMTP *
+                    <span className="text-xs font-normal text-gray-500 ml-2">(ex: smtp.gmail.com)</span>
+                  </Label>
+                  <Input
+                    id="smtp_host"
+                    type="text"
+                    value={smtpSettings.smtp_host}
+                    onChange={(e) => setSmtpSettings({ ...smtpSettings, smtp_host: e.target.value })}
+                    placeholder="smtp.gmail.com"
+                    required
+                  />
+                  <p className="text-xs text-gray-500">Adresse du serveur SMTP de votre fournisseur email</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="smtp_port">
+                    Port SMTP *
+                    <span className="text-xs font-normal text-gray-500 ml-2">(587 pour TLS, 465 pour SSL)</span>
+                  </Label>
+                  <Input
+                    id="smtp_port"
+                    type="number"
+                    value={smtpSettings.smtp_port}
+                    onChange={(e) => setSmtpSettings({ ...smtpSettings, smtp_port: parseInt(e.target.value) || 587 })}
+                    min="1"
+                    max="65535"
+                    required
+                  />
+                  <p className="text-xs text-gray-500">Port de connexion au serveur SMTP</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="smtp_username">
+                    Email expéditeur *
+                    <span className="text-xs font-normal text-gray-500 ml-2">(Votre adresse email)</span>
+                  </Label>
+                  <Input
+                    id="smtp_username"
+                    type="email"
+                    value={smtpSettings.smtp_username}
+                    onChange={(e) => setSmtpSettings({ ...smtpSettings, smtp_username: e.target.value })}
+                    placeholder="votre-email@gmail.com"
+                    required
+                  />
+                  <p className="text-xs text-gray-500">Adresse email utilisée pour envoyer les emails</p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="smtp_password">
+                    Mot de passe SMTP *
+                    <span className="text-xs font-normal text-gray-500 ml-2">(Mot de passe d'application)</span>
+                  </Label>
+                  <Input
+                    id="smtp_password"
+                    type="password"
+                    value={smtpSettings.smtp_password}
+                    onChange={(e) => setSmtpSettings({ ...smtpSettings, smtp_password: e.target.value })}
+                    placeholder="Votre mot de passe ou mot de passe d'application"
+                    required
+                  />
+                  <p className="text-xs text-gray-500">
+                    Pour Gmail, utilisez un mot de passe d'application (pas votre mot de passe principal)
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="smtp_use_tls"
+                    checked={smtpSettings.smtp_use_tls}
+                    onChange={(e) => {
+                      setSmtpSettings({ ...smtpSettings, smtp_use_tls: e.target.checked, smtp_use_ssl: !e.target.checked });
+                    }}
+                    className="w-4 h-4 text-[#DC2626] border-gray-300 rounded focus:ring-[#DC2626]"
+                  />
+                  <Label htmlFor="smtp_use_tls" className="cursor-pointer">
+                    Utiliser TLS (recommandé pour le port 587)
+                  </Label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="smtp_use_ssl"
+                    checked={smtpSettings.smtp_use_ssl}
+                    onChange={(e) => {
+                      setSmtpSettings({ ...smtpSettings, smtp_use_ssl: e.target.checked, smtp_use_tls: !e.target.checked });
+                    }}
+                    className="w-4 h-4 text-[#DC2626] border-gray-300 rounded focus:ring-[#DC2626]"
+                  />
+                  <Label htmlFor="smtp_use_ssl" className="cursor-pointer">
+                    Utiliser SSL (pour le port 465)
+                  </Label>
+                </div>
+
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <p className="text-sm font-semibold text-blue-900 mb-2">💡 Aide à la configuration</p>
+                  <ul className="text-xs text-blue-800 space-y-1 list-disc list-inside">
+                    <li><strong>Gmail:</strong> smtp.gmail.com, Port 587, TLS activé</li>
+                    <li><strong>Outlook/Hotmail:</strong> smtp-mail.outlook.com, Port 587, TLS activé</li>
+                    <li><strong>Yahoo:</strong> smtp.mail.yahoo.com, Port 587, TLS activé</li>
+                    <li>Pour Gmail, vous devez créer un mot de passe d'application dans les paramètres de sécurité</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t">
+                <Button
+                  type="submit"
+                  className="bg-[#DC2626] hover:bg-[#B91C1C] text-white"
+                  disabled={saveSmtpMutation.isPending}
+                >
+                  <FaSave className="w-4 h-4 mr-2" />
+                  {saveSmtpMutation.isPending ? "Enregistrement..." : "Enregistrer la configuration SMTP"}
                 </Button>
               </div>
             </form>

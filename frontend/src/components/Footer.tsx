@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { FaHome, FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaMapMarkerAlt, FaPhone, FaEnvelope } from "react-icons/fa";
+import { API_URL } from "@/config/api";
 
 const currentYear = new Date().getFullYear();
 
@@ -10,7 +11,7 @@ export default function Footer() {
     queryKey: ["footer_info"],
     queryFn: async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/pages/?key=footer_info&is_active=true");
+        const response = await fetch(`${API_URL}/pages/?key=footer_info&is_active=true`);
         const data = await response.json();
         return data.results?.[0] || null;
       } catch {
@@ -161,7 +162,7 @@ export default function Footer() {
           </li>
           <li className="flex items-start gap-2">
             <FaPhone className="w-4 h-4 mt-0.5 text-[site-primary] flex-shrink-0" />
-            <a href={`tel:${footerInfo.phone.replace(/\s/g, '')}`} className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
+            <a href={`tel:${footerInfo.phone.replace(/\s/g, "")}`} className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
               {footerInfo.phone}
             </a>
           </li>

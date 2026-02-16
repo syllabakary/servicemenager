@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facture {{ invoice.invoice_number }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #DC2626;
+        }
+        .header h1 {
+            color: #DC2626;
+            margin: 0;
+        }
+        .content {
+            margin: 30px 0;
+        }
+        .invoice-info {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .invoice-info h2 {
+            color: #DC2626;
+            margin-top: 0;
+        }
+        .invoice-info p {
+            margin: 5px 0;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #DC2626;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ site_settings.site_name|default:"Services Locaux" }}</h1>
+        <p>{{ site_settings.site_tagline|default:"Votre partenaire de confiance" }}</p>
+    </div>
+    
+    <div class="content">
+        <p>Bonjour {{ quote_request.client_name }},</p>
+        
+        <p>Nous vous remercions pour votre confiance. Veuillez trouver ci-joint la facture concernant votre demande de devis.</p>
+        
+        <div class="invoice-info">
+            <h2>Détails de la facture</h2>
+            <p><strong>Numéro de facture:</strong> {{ invoice.invoice_number }}</p>
+            <p><strong>Date:</strong> {{ invoice.invoice_date|date:"d/m/Y" }}</p>
+            <p><strong>Service:</strong> {% if quote_request.service %}{{ quote_request.service.name }}{% else %}Non spécifié{% endif %}</p>
+            <p><strong>Montant total:</strong> {{ invoice.total|floatformat:2 }} {{ invoice.get_currency_display }}</p>
+            {% if invoice.due_date %}
+            <p><strong>Date d'échéance:</strong> {{ invoice.due_date|date:"d/m/Y" }}</p>
+            {% endif %}
+        </div>
+        
+        <p>La facture en format PDF est jointe à cet email. Vous pouvez également la télécharger en cliquant sur le bouton ci-dessous.</p>
+        
+        {% if invoice.payment_terms %}
+        <p><strong>Conditions de paiement:</strong></p>
+        <p>{{ invoice.payment_terms }}</p>
+        {% endif %}
+        
+        <p>Si vous avez des questions concernant cette facture, n'hésitez pas à nous contacter.</p>
+        
+        <p>Cordialement,<br>
+        L'équipe {{ site_settings.site_name|default:"Services Locaux" }}</p>
+    </div>
+    
+    <div class="footer">
+        <p>{{ site_settings.site_name|default:"Services Locaux" }}</p>
+        <p>Plateau, Abidjan - Côte d'Ivoire</p>
+        <p>Tél: +225 01 23 45 67 89 | Email: contact@serviceslocaux.ci</p>
+    </div>
+</body>
+</html>
+
+
+
+

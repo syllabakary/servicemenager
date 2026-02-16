@@ -14,8 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { FaCheckCircle, FaTimesCircle, FaStar, FaEdit } from "react-icons/fa";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
-
-const API_URL = "http://localhost:8000/api";
+import { API_URL } from "@/config/api";
 
 export default function AdminAvis() {
   const queryClient = useQueryClient();

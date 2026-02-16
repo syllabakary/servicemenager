@@ -64,6 +64,7 @@ import {
 } from "react-icons/fa";
 import { HiSparkles } from "react-icons/hi";
 import { motion } from "framer-motion";
+import { API_URL } from "@/config/api";
 
 // 🧩 Type de service
 interface Service {
@@ -369,7 +370,7 @@ export default function Services() {
   const { data: servicesData, isLoading } = useQuery({
     queryKey: ["services"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:8000/api/services/?active=true");
+      const response = await fetch(`${API_URL}/services/?active=true`);
       const data = await response.json();
       return data.results || [];
     },

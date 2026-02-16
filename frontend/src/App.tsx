@@ -87,12 +87,12 @@ function App() {
         <ScrollToTop />
         {!isAdminPage && !isEmployePage ? (
           <div className="flex flex-col min-h-screen overflow-x-hidden w-full max-w-full">
-          <Navbar />
-            <main className="flex-1 w-full max-w-full overflow-x-hidden">
-            <Router />
-          </main>
-          <Footer />
-        </div>
+            <Navbar />
+            <main className="flex-1 w-full max-w-full overflow-x-hidden pt-16 md:pt-20">
+              <Router />
+            </main>
+            <Footer />
+          </div>
         ) : (
           <Router />
         )}

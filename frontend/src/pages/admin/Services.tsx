@@ -52,7 +52,7 @@ import {
 } from "@/components/ui/tooltip";
 import { FaInfoCircle } from "react-icons/fa";
 
-const API_URL = "http://localhost:8000/api";
+import { API_URL } from "@/config/api";
 
 export default function AdminServices() {
   const queryClient = useQueryClient();

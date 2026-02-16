@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
-const API_URL = "http://localhost:8000/api";
+import { API_URL } from "@/config/api";
 import { 
   FaArrowRight, 
   FaCheckCircle, 
@@ -283,7 +283,7 @@ function LocationSection() {
     queryKey: ["headquarters_location"],
     queryFn: async () => {
       try {
-        const response = await fetch("http://localhost:8000/api/pages/?key=headquarters_location&is_active=true");
+        const response = await fetch(`${API_URL}/pages/?key=headquarters_location&is_active=true`);
         const data = await response.json();
         return data.results?.[0] || null;
       } catch {

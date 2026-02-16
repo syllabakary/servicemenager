@@ -45,7 +45,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const API_URL = "http://localhost:8000/api";
+import { API_URL } from "@/config/api";
 
 export default function AdminEmployes() {
   const [, setLocation] = useLocation();

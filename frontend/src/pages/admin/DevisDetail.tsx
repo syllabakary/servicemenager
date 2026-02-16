@@ -34,7 +34,7 @@ import { useParams, Link } from "wouter";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
-const API_URL = "http://localhost:8000/api";
+import { API_URL } from "@/config/api";
 
 function getStatusBadge(status: string) {
   const statusConfig: Record<string, { label: string; className: string }> = {

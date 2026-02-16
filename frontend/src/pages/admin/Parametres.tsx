@@ -10,7 +10,7 @@ import { FaSave, FaMapMarkerAlt, FaPhone, FaEnvelope, FaFacebook, FaTwitter, FaI
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 
-const API_URL = "http://localhost:8000/api";
+import { API_URL } from "@/config/api";
 
 // Fonction pour normaliser et valider les couleurs hexadécimales
 function normalizeHexColor(color: string): string {

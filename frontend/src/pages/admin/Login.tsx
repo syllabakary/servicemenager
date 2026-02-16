@@ -22,7 +22,7 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:8000/api/token/", {
+      const response = await axios.post(`${API_URL}/token/`, {
         username,
         password,
       });
@@ -34,13 +34,13 @@ export default function AdminLogin() {
       // Récupérer les infos de l'utilisateur
       let user;
       try {
-        const userResponse = await axios.get("http://localhost:8000/api/users/me/", {
+        const userResponse = await axios.get(`${API_URL}/users/me/`, {
           headers: { Authorization: `Bearer ${access}` },
         });
         user = userResponse.data;
       } catch {
         // Si l'endpoint /me/ n'existe pas, utiliser /users/ avec filtre
-        const usersResponse = await axios.get("http://localhost:8000/api/users/", {
+        const usersResponse = await axios.get(`${API_URL}/users/`, {
           headers: { Authorization: `Bearer ${access}` },
         });
         // Trouver l'utilisateur actuel

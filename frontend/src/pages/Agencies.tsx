@@ -45,7 +45,7 @@ interface Agency {
   slug: string;
 }
 
-const API_URL = "http://localhost:8000/api";
+import { API_URL } from "@/config/api";
 
 // Fonction pour mapper les données de l'API vers l'interface du composant
 function mapAgencyFromAPI(apiAgency: AgencyAPI): Agency {

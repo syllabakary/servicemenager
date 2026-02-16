@@ -13,7 +13,7 @@ import {
   FaBuilding, FaMoneyBillWave, FaCreditCard, FaShieldAlt
 } from "react-icons/fa";
 
-const API_URL = "http://localhost:8000/api";
+import { API_URL } from "@/config/api";
 
 export default function EmployeDetail() {
   const [, setLocation] = useLocation();

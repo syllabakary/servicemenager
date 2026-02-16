@@ -54,6 +54,12 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({});
 
+  // Fermer tous les sous-menus quand on ferme le menu principal
+  const handleCloseMenu = () => {
+    setMobileMenuOpen(false);
+    setOpenSubMenus({});
+  };
+
   // Récupérer les services depuis l'API
   const { data: navbarData } = useQuery({
     queryKey: ["navbar"],
@@ -176,20 +182,22 @@ export function Navbar() {
   const isActive = (path: string) => location === path;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 
+    <>
+    <nav className="fixed top-0 left-0 right-0 
       bg-white/95 backdrop-blur-md border-b border-gray-200 
-      shadow-sm w-full max-w-full overflow-x-hidden">
+      shadow-sm w-full max-w-full overflow-x-hidden"
+      style={{ zIndex: 100 }}>
       
-      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 md:h-20">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 w-full">
+        <div className="flex items-center justify-between h-16 md:h-20 w-full gap-2">
           
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group" data-testid="link-home">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-gradient-to-br from-[#DC2626] to-black flex items-center justify-center transition-transform duration-200 group-hover:scale-105 shadow-md">
-              <FaHome className="w-5 h-5 md:w-6 md:h-6 text-white" />
+          <Link href="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink-0 min-w-0" data-testid="link-home">
+            <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg bg-gradient-to-br from-[#DC2626] to-black flex items-center justify-center transition-transform duration-200 group-hover:scale-105 shadow-md flex-shrink-0">
+              <FaHome className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-lg md:text-xl font-bold text-gray-900 tracking-tight">
+            <div className="flex flex-col min-w-0">
+              <span className="text-base sm:text-lg md:text-xl font-bold text-gray-900 tracking-tight truncate">
                 Services <span className="text-[#DC2626]">Locaux</span>
             </span>
               <span className="text-xs text-gray-500 hidden md:block">Votre partenaire de confiance</span>
@@ -286,102 +294,152 @@ export function Navbar() {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden p-2 text-gray-700 hover:text-site-primary transition-colors"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="md:hidden p-2 text-gray-700 hover:text-site-primary transition-colors relative flex-shrink-0 ml-2 z-[102]"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              if (mobileMenuOpen) {
+                handleCloseMenu();
+              } else {
+                setMobileMenuOpen(true);
+              }
+            }}
             aria-label="Toggle menu"
+            type="button"
           >
             {mobileMenuOpen ? <HiX className="w-6 h-6" /> : <HiMenu className="w-6 h-6" />}
           </button>
         </div>
       </div>
-
-      {/* Mobile menu */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
+    </nav>
+    
+    {/* Mobile menu - en dehors de la navbar pour éviter les problèmes de z-index */}
+    <AnimatePresence>
+      {mobileMenuOpen && (
+        <>
+          {/* Overlay pour fermer le menu */}
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-gray-200 bg-white fixed top-16 left-0 right-0 z-50 max-h-[calc(100vh-4rem)] overflow-y-auto shadow-lg"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={(e) => {
-              // Fermer le menu si on clique en dehors
-              if (e.target === e.currentTarget) {
-                setMobileMenuOpen(false);
-              }
+              e.stopPropagation();
+              handleCloseMenu();
             }}
+            className="md:hidden fixed bg-black/50"
+            style={{ 
+              zIndex: 9999, 
+              top: '64px',
+              left: 0,
+              right: 0,
+              bottom: 0,
+              position: 'fixed'
+            }}
+          />
+          {/* Menu */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden bg-white fixed left-0 right-0 bottom-0 shadow-2xl w-full overflow-y-auto"
+            style={{ 
+              top: '64px',
+              zIndex: 10000,
+              position: 'fixed',
+              width: '100%',
+              backgroundColor: 'white'
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+            onMouseDown={(e) => e.stopPropagation()}
           >
-            <div className="px-4 py-4 space-y-2 bg-white">
-              {navItems.map((item) => {
-                if (item.hasDropdown && item.subItems) {
-                  const isSubMenuOpen = openSubMenus[item.path] || false;
-                  return (
-                    <div key={item.path} className="space-y-1 border-b border-gray-100 pb-2 last:border-b-0">
-                      <button
-                        onClick={() => setOpenSubMenus(prev => ({ ...prev, [item.path]: !prev[item.path] }))}
-                        className="flex items-center justify-between w-full px-3 py-3 text-base font-semibold text-gray-900 hover:bg-site-primary/10 rounded-lg transition-colors bg-gray-50"
-                      >
-                        <div className="flex items-center gap-3">
-                          <item.icon className="w-5 h-5 text-site-primary" />
-                          <span>{item.label}</span>
-                        </div>
-                        <FaChevronDown className={`w-4 h-4 transition-transform text-gray-500 ${isSubMenuOpen ? 'rotate-180' : ''}`} />
-                      </button>
-                      {isSubMenuOpen && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          className="pl-4 pr-2 space-y-1 mt-2 bg-white rounded-lg"
+              <div className="px-3 py-4 space-y-2 bg-white w-full">
+                {navItems.map((item) => {
+                  if (item.hasDropdown && item.subItems) {
+                    const isSubMenuOpen = openSubMenus[item.path] || false;
+                    return (
+                      <div key={item.path} className="space-y-1 border-b border-gray-100 pb-1.5 last:border-b-0 w-full">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenSubMenus(prev => ({ ...prev, [item.path]: !prev[item.path] }));
+                          }}
+                          className="flex items-center justify-between w-full px-3 py-2 text-sm font-semibold text-gray-900 hover:bg-site-primary/10 rounded-lg transition-colors bg-gray-50 border border-gray-200"
                         >
+                          <div className="flex items-center gap-2">
+                            <item.icon className="w-4 h-4 text-site-primary" />
+                            <span>{item.label}</span>
+                          </div>
+                          <FaChevronDown className={`w-3.5 h-3.5 transition-transform text-gray-500 ${isSubMenuOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        {isSubMenuOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="pl-2 sm:pl-3 pr-2 space-y-1 mt-1.5 bg-white rounded-lg w-full"
+                          >
                           {item.subItems.map((subItem, idx) => {
                             const subSubMenuKey = `${item.path}-${idx}`;
                             const isSubSubMenuOpen = openSubMenus[subSubMenuKey] || false;
                             return (
-                              <div key={idx} className="space-y-1 border-l-2 border-gray-200 pl-3 ml-2">
-                                <button
-                                  onClick={() => setOpenSubMenus(prev => ({ ...prev, [subSubMenuKey]: !prev[subSubMenuKey] }))}
-                                  className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-gray-700 hover:bg-site-primary/10 rounded-md transition-colors"
-                                >
-                                  <div className="flex items-center gap-2">
+                              <div key={idx} className="space-y-1 border-l-2 border-gray-200 pl-2 sm:pl-3 ml-1 sm:ml-2 w-full">
+                                {subItem.subSubItems && subItem.subSubItems.length > 0 ? (
+                                  <>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenSubMenus(prev => ({ ...prev, [subSubMenuKey]: !prev[subSubMenuKey] }));
+                                      }}
+                                      className="flex items-center justify-between w-full px-2 py-2 text-xs sm:text-sm font-medium text-gray-700 hover:bg-site-primary/10 rounded-md transition-colors"
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <subItem.icon className="w-4 h-4 text-site-primary" />
+                                        <span>{subItem.label}</span>
+                                      </div>
+                                      <FaChevronDown className={`w-3 h-3 transition-transform text-gray-400 ${isSubSubMenuOpen ? 'rotate-180' : ''}`} />
+                                    </button>
+                                    {isSubSubMenuOpen && (
+                                      <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: "auto" }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="pl-2 sm:pl-4 space-y-1 mt-1 w-full"
+                                      >
+                                        {subItem.subSubItems.map((subSubItem, subIdx) => (
+                                          <Link
+                                            key={subIdx}
+                                            href={subSubItem.path}
+                                            onClick={handleCloseMenu}
+                                            className="block"
+                                          >
+                                            <Button
+                                              variant="ghost"
+                                              className="w-full justify-start text-xs text-gray-600 hover:bg-site-primary/10 hover:text-site-primary py-1.5 h-auto"
+                                            >
+                                              {subSubItem.label}
+                                            </Button>
+                                          </Link>
+                                        ))}
+                                      </motion.div>
+                                    )}
+                                  </>
+                                ) : (
+                                  <div className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-gray-700">
                                     <subItem.icon className="w-4 h-4 text-site-primary" />
                                     <span>{subItem.label}</span>
                                   </div>
-                                  {subItem.subSubItems && subItem.subSubItems.length > 0 && (
-                                    <FaChevronDown className={`w-3 h-3 transition-transform text-gray-400 ${isSubSubMenuOpen ? 'rotate-180' : ''}`} />
-                                  )}
-                                </button>
-                                {isSubSubMenuOpen && subItem.subSubItems && subItem.subSubItems.length > 0 && (
-                                  <motion.div
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: "auto" }}
-                                    exit={{ opacity: 0, height: 0 }}
-                                    className="pl-4 space-y-1 mt-1"
-                                  >
-                                    {subItem.subSubItems.map((subSubItem, subIdx) => (
-                                      <Link
-                                        key={subIdx}
-                                        href={subSubItem.path}
-                                        onClick={() => setMobileMenuOpen(false)}
-                                        className="block"
-                                      >
-                                        <Button
-                                          variant="ghost"
-                                          className="w-full justify-start text-xs text-gray-600 hover:bg-site-primary/10 hover:text-site-primary py-1.5 h-auto"
-                                        >
-                                          {subSubItem.label}
-                                        </Button>
-                                      </Link>
-                                    ))}
-                                  </motion.div>
                                 )}
                               </div>
                             );
                           })}
-                          <div className="pt-2 mt-2 border-t border-gray-200">
-                            <Link href={item.path} onClick={() => setMobileMenuOpen(false)}>
+                          <div className="pt-1.5 mt-1.5 border-t border-gray-200">
+                            <Link href={item.path} onClick={handleCloseMenu}>
                               <Button
                                 variant="ghost"
-                                className="w-full justify-start text-sm font-semibold text-site-primary hover:bg-site-primary/10"
+                                className="w-full justify-start text-xs font-semibold text-site-primary hover:bg-site-primary/10 py-1.5"
                               >
                                 Voir tous les {item.label.toLowerCase()}
                               </Button>
@@ -393,41 +451,42 @@ export function Navbar() {
                   );
                 }
                 return (
-                <Link key={item.path} href={item.path} className="block">
+                <Link key={item.path} href={item.path} className="block w-full">
                   <Button
                     variant={isActive(item.path) ? "default" : "ghost"}
-                    className={`w-full justify-start gap-3 px-3 py-3 text-base ${
+                    className={`w-full justify-start gap-2 px-3 py-2 text-sm font-medium ${
                       isActive(item.path)
-                        ? "bg-site-button-primary text-site-button-text"
-                        : "hover:bg-site-primary/10 hover:text-site-primary text-gray-700 bg-gray-50"
+                        ? "bg-site-button-primary text-site-button-text shadow-md"
+                        : "hover:bg-site-primary/10 hover:text-site-primary text-gray-700 bg-gray-50 border border-gray-200"
                     }`}
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={handleCloseMenu}
                     data-testid={`link-mobile-${item.label.toLowerCase()}`}
                   >
-                    <item.icon className="w-5 h-5" />
-                    {item.label}
+                    <item.icon className="w-4 h-4 flex-shrink-0" />
+                    <span>{item.label}</span>
                   </Button>
                 </Link>
                 );
               })}
               
               {/* CTA Buttons Mobile */}
-              <div className="pt-4 mt-4 border-t border-gray-200 space-y-2">
-                <Link href="/admin/login" onClick={() => setMobileMenuOpen(false)} className="block">
-                  <Button variant="outline" className="w-full border-[#DC2626] text-[#DC2626] hover:bg-[#DC2626] hover:text-white py-3 text-base">
+              <div className="pt-4 mt-4 border-t border-gray-300 space-y-2 w-full">
+                <Link href="/admin/login" onClick={handleCloseMenu} className="block w-full">
+                  <Button variant="outline" className="w-full border-2 border-[#DC2626] text-[#DC2626] hover:bg-[#DC2626] hover:text-white py-2 text-sm font-semibold">
                     Connexion
                   </Button>
                 </Link>
-                <Link href="/devis" onClick={() => setMobileMenuOpen(false)} className="block">
-                  <Button className="w-full bg-[#DC2626] hover:bg-[#DC2626] text-white shadow-md py-3 text-base">
+                <Link href="/devis" onClick={handleCloseMenu} className="block w-full">
+                  <Button className="w-full bg-[#DC2626] hover:bg-[#DC2626] text-white shadow-lg py-2 text-sm font-semibold">
                     Demander un devis
                   </Button>
                 </Link>
               </div>
             </div>
           </motion.div>
+          </>
         )}
       </AnimatePresence>
-    </nav>
+    </>
   );
 }

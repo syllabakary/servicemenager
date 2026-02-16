@@ -41,7 +41,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { Link } from "wouter";
 
-const API_URL = "http://localhost:8000/api";
+import { API_URL } from "@/config/api";
 
 export default function AdminDevis() {
   const queryClient = useQueryClient();

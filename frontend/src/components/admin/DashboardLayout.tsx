@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Sidebar } from "./Sidebar";
 import axios from "axios";
+import { API_URL } from "@/config/api";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -27,7 +28,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         setUser(userData);
 
         // Vérifier que le token est toujours valide
-        await axios.get("http://localhost:8000/api/users/me/", {
+        await axios.get(`${API_URL}/users/me/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
       } catch (error) {

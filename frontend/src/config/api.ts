@@ -5,9 +5,17 @@
 
 // Détecter l'URL de l'API automatiquement
 function getApiUrl(): string {
-  // En production, utiliser l'URL de production
+  // Si VITE_API_URL est défini dans les variables d'environnement, l'utiliser en priorité
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL;
+  }
+
+  // En production, utiliser l'hostname actuel (IP publique ou domaine)
   if (import.meta.env.PROD) {
-    return import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+    const hostname = window.location.hostname;
+    const protocol = window.location.protocol.slice(0, -1); // Enlever le ':'
+    // En production, utiliser le même hostname que le frontend
+    return `${protocol}://${hostname}/api`;
   }
 
   // En développement, utiliser l'hostname actuel pour le port frontend

@@ -28,7 +28,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-http://76.13.56.224/api}
+        VITE_API_URL: ${VITE_API_URL:-/api}
     container_name: servicemenager_frontend
     ports:
       - "80:80"

@@ -7,7 +7,14 @@
 function getApiUrl(): string {
   // Si VITE_API_URL est défini dans les variables d'environnement, l'utiliser en priorité
   if (import.meta.env.VITE_API_URL) {
-    return import.meta.env.VITE_API_URL;
+    const viteApiUrl = import.meta.env.VITE_API_URL;
+    // Si c'est un chemin relatif (commence par /), l'utiliser tel quel
+    // Cela permet d'utiliser le proxy nginx en production
+    if (viteApiUrl.startsWith('/')) {
+      return viteApiUrl;
+    }
+    // Sinon, utiliser l'URL complète
+    return viteApiUrl;
   }
 
   // En production, utiliser l'hostname actuel (IP publique ou domaine)

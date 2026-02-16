@@ -103,16 +103,24 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # CORS Configuration
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    # Ajouter votre adresse IP locale ici (exemple: "http://192.168.1.100:5173")
-    # Vous pouvez aussi utiliser CORS_ALLOW_ALL_ORIGINS = True en développement
-]
+CORS_ALLOWED_ORIGINS = config(
+    'CORS_ALLOWED_ORIGINS',
+    default='http://localhost:5173,http://127.0.0.1:5173,http://76.13.56.224,https://ease-dom.fr,https://www.ease-dom.fr',
+    cast=lambda v: [s.strip() for s in v.split(',')]
+)
 # En développement, permettre toutes les origines (à désactiver en production)
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = config('CORS_ALLOW_ALL_ORIGINS', default=True, cast=bool)
 
 CORS_ALLOW_CREDENTIALS = True
+
+# Sécurité HTTPS (activé via variables d'environnement)
+SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=False, cast=bool)
+CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=False, cast=bool)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
 
 # REST Framework
 REST_FRAMEWORK = {

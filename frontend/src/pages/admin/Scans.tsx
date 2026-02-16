@@ -125,61 +125,74 @@ export default function AdminScans() {
     const pairs: Array<{ arrival: any; departure: any | null; patient: any; employe: any; employe_matricule?: string; date: string }> = [];
     const processed = new Set<number>();
 
-    sortedScans.forEach((scan) => {
-      if (processed.has(scan.id)) return;
+    // Séparer les arrivées et départs
+    const arrivals = sortedScans.filter(s => s.status === "ARRIVEE" && !processed.has(s.id));
+    const departures = sortedScans.filter(s => s.status === "DEPART" && !processed.has(s.id));
 
-      if (scan.status === "ARRIVEE") {
-        // Chercher le départ correspondant (même patient, même employé, après l'arrivée)
-        const departure = sortedScans.find(
-          (s) =>
-            s.id !== scan.id &&
-            !processed.has(s.id) &&
-            s.status === "DEPART" &&
-            s.patient === scan.patient &&
-            s.employe === scan.employe &&
-            s.scan_time &&
-            scan.scan_time &&
-            new Date(s.scan_time) >= new Date(scan.scan_time)
-        );
+    // Pour chaque arrivée, trouver le départ le plus proche (même patient, même employé, après l'arrivée)
+    arrivals.forEach((arrival) => {
+      if (processed.has(arrival.id)) return;
 
-        if (departure) {
-          processed.add(scan.id);
-          processed.add(departure.id);
-          const date = scan.scan_time ? format(new Date(scan.scan_time), "dd MMMM yyyy", { locale: fr }) : "";
-          pairs.push({
-            arrival: scan,
-            departure: departure,
-            patient: scan.patient_name || "N/A",
-            employe: scan.employe_username || "N/A",
-            employe_matricule: scan.employe_matricule || "",
-            date,
-          });
-        } else {
-          // Arrivée sans départ
-          processed.add(scan.id);
-          const date = scan.scan_time ? format(new Date(scan.scan_time), "dd MMMM yyyy", { locale: fr }) : "";
-          pairs.push({
-            arrival: scan,
-            departure: null,
-            patient: scan.patient_name || "N/A",
-            employe: scan.employe_username || "N/A",
-            employe_matricule: scan.employe_matricule || "",
-            date,
-          });
-        }
-      } else if (scan.status === "DEPART") {
-        // Départ sans arrivée (cas rare)
-        processed.add(scan.id);
-        const date = scan.scan_time ? format(new Date(scan.scan_time), "dd MMMM yyyy", { locale: fr }) : "";
-        pairs.push({
-          arrival: null,
-          departure: scan,
-          patient: scan.patient_name || "N/A",
-          employe: scan.employe_username || "N/A",
-          employe_matricule: scan.employe_matricule || "",
-          date,
+      // Chercher le départ le plus proche qui n'est pas déjà utilisé
+      const matchingDepartures = departures
+        .filter(d => 
+          !processed.has(d.id) &&
+          d.patient === arrival.patient &&
+          d.employe === arrival.employe &&
+          d.scan_time &&
+          arrival.scan_time &&
+          new Date(d.scan_time) >= new Date(arrival.scan_time)
+        )
+        .sort((a, b) => {
+          // Trier par date croissante pour prendre le départ le plus proche de l'arrivée
+          const dateA = new Date(a.scan_time).getTime();
+          const dateB = new Date(b.scan_time).getTime();
+          return dateA - dateB;
         });
+
+      const departure = matchingDepartures[0] || null;
+
+      if (departure) {
+        processed.add(arrival.id);
+        processed.add(departure.id);
+      } else {
+        processed.add(arrival.id);
       }
+
+      const date = arrival.scan_time ? format(new Date(arrival.scan_time), "dd MMMM yyyy", { locale: fr }) : "";
+      pairs.push({
+        arrival: arrival,
+        departure: departure,
+        patient: arrival.patient_name || "N/A",
+        employe: arrival.employe_username || "N/A",
+        employe_matricule: arrival.employe_matricule || "",
+        date,
+      });
+    });
+
+    // Ajouter les départs sans arrivée (cas rare)
+    departures.forEach((departure) => {
+      if (processed.has(departure.id)) return;
+      
+      processed.add(departure.id);
+      const date = departure.scan_time ? format(new Date(departure.scan_time), "dd MMMM yyyy", { locale: fr }) : "";
+      pairs.push({
+        arrival: null,
+        departure: departure,
+        patient: departure.patient_name || "N/A",
+        employe: departure.employe_username || "N/A",
+        employe_matricule: departure.employe_matricule || "",
+        date,
+      });
+    });
+
+    // Trier les paires par date de l'arrivée (ou départ si pas d'arrivée) - plus récents en haut
+    pairs.sort((a, b) => {
+      const dateA = a.arrival?.scan_time || a.departure?.scan_time;
+      const dateB = b.arrival?.scan_time || b.departure?.scan_time;
+      const timeA = dateA ? new Date(dateA).getTime() : 0;
+      const timeB = dateB ? new Date(dateB).getTime() : 0;
+      return timeB - timeA; // Plus récents en haut
     });
 
     return pairs;
@@ -504,6 +517,12 @@ export default function AdminScans() {
                                       {format(new Date(pair.arrival.scan_time), "dd MMM yyyy à HH:mm", { locale: fr })}
                                     </span>
                                   </div>
+                                  {pair.arrival.notes && (
+                                    <div className="mt-1.5 p-1.5 bg-yellow-100 rounded border border-yellow-300">
+                                      <p className="text-[10px] text-yellow-800 font-medium">Commentaire:</p>
+                                      <p className="text-[10px] text-yellow-900">{pair.arrival.notes}</p>
+                                    </div>
+                                  )}
                                   {(() => {
                                     const lat = pair.arrival?.latitude;
                                     const lng = pair.arrival?.longitude;
@@ -537,12 +556,6 @@ export default function AdminScans() {
                                     }
                                     return null;
                                   })()}
-                                  {pair.arrival.notes && (
-                                    <div className="mt-1.5 p-1.5 bg-yellow-100 rounded border border-yellow-300">
-                                      <p className="text-[10px] text-yellow-800 font-medium">Commentaire:</p>
-                                      <p className="text-[10px] text-yellow-900">{pair.arrival.notes}</p>
-                                    </div>
-                                  )}
                                 </div>
                               </>
                             ) : (
@@ -592,6 +605,12 @@ export default function AdminScans() {
                                       {format(new Date(pair.departure.scan_time), "dd MMM yyyy à HH:mm", { locale: fr })}
                                     </span>
                                   </div>
+                                  {pair.departure.notes && (
+                                    <div className="mt-1.5 p-1.5 bg-yellow-100 rounded border border-yellow-300">
+                                      <p className="text-[10px] text-yellow-800 font-medium">Commentaire:</p>
+                                      <p className="text-[10px] text-yellow-900">{pair.departure.notes}</p>
+                                    </div>
+                                  )}
                                   {(() => {
                                     const lat = pair.departure?.latitude;
                                     const lng = pair.departure?.longitude;
@@ -625,12 +644,6 @@ export default function AdminScans() {
                                     }
                                     return null;
                                   })()}
-                                  {pair.departure.notes && (
-                                    <div className="mt-1.5 p-1.5 bg-yellow-100 rounded border border-yellow-300">
-                                      <p className="text-[10px] text-yellow-800 font-medium">Commentaire:</p>
-                                      <p className="text-[10px] text-yellow-900">{pair.departure.notes}</p>
-                                    </div>
-                                  )}
                                 </div>
                               </>
                             ) : (

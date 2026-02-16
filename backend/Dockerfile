@@ -7,6 +7,9 @@ WORKDIR /app
 # Installer les dépendances système
 RUN apt-get update && apt-get install -y \
     gcc \
+    pkg-config \
+    libcairo2-dev \
+    libgirepository1.0-dev \
     postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 

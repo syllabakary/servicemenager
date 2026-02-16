@@ -28,8 +28,12 @@ frontend/.next/
 
 # Environment
 .env
+.env.local
 .venv
 backend/.env
+
+# Docker
+*.log
 
 # IDE
 .vscode/

@@ -302,64 +302,71 @@ export function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-gray-200 bg-white"
+            className="md:hidden border-t border-gray-200 bg-white fixed top-16 left-0 right-0 z-50 max-h-[calc(100vh-4rem)] overflow-y-auto shadow-lg"
+            onClick={(e) => {
+              // Fermer le menu si on clique en dehors
+              if (e.target === e.currentTarget) {
+                setMobileMenuOpen(false);
+              }
+            }}
           >
-            <div className="px-4 py-4 space-y-2">
+            <div className="px-4 py-4 space-y-2 bg-white">
               {navItems.map((item) => {
                 if (item.hasDropdown && item.subItems) {
                   const isSubMenuOpen = openSubMenus[item.path] || false;
                   return (
-                    <div key={item.path} className="space-y-1">
+                    <div key={item.path} className="space-y-1 border-b border-gray-100 pb-2 last:border-b-0">
                       <button
                         onClick={() => setOpenSubMenus(prev => ({ ...prev, [item.path]: !prev[item.path] }))}
-                        className="flex items-center justify-between w-full px-2 py-2 text-sm font-semibold text-gray-700 hover:bg-site-primary/10 rounded-lg transition-colors"
+                        className="flex items-center justify-between w-full px-3 py-3 text-base font-semibold text-gray-900 hover:bg-site-primary/10 rounded-lg transition-colors bg-gray-50"
                       >
-                        <div className="flex items-center gap-2">
-                          <item.icon className="w-4 h-4" />
-                          {item.label}
+                        <div className="flex items-center gap-3">
+                          <item.icon className="w-5 h-5 text-site-primary" />
+                          <span>{item.label}</span>
                         </div>
-                        <FaChevronDown className={`w-4 h-4 transition-transform ${isSubMenuOpen ? 'rotate-180' : ''}`} />
+                        <FaChevronDown className={`w-4 h-4 transition-transform text-gray-500 ${isSubMenuOpen ? 'rotate-180' : ''}`} />
                       </button>
                       {isSubMenuOpen && (
                         <motion.div
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
                           exit={{ opacity: 0, height: 0 }}
-                          className="pl-6 space-y-1"
+                          className="pl-4 pr-2 space-y-1 mt-2 bg-white rounded-lg"
                         >
                           {item.subItems.map((subItem, idx) => {
                             const subSubMenuKey = `${item.path}-${idx}`;
                             const isSubSubMenuOpen = openSubMenus[subSubMenuKey] || false;
                             return (
-                              <div key={idx} className="space-y-1">
+                              <div key={idx} className="space-y-1 border-l-2 border-gray-200 pl-3 ml-2">
                                 <button
                                   onClick={() => setOpenSubMenus(prev => ({ ...prev, [subSubMenuKey]: !prev[subSubMenuKey] }))}
-                                  className="flex items-center justify-between w-full px-2 py-1 text-sm font-medium text-site-primary hover:bg-site-primary/10 rounded-lg transition-colors"
+                                  className="flex items-center justify-between w-full px-2 py-2 text-sm font-medium text-gray-700 hover:bg-site-primary/10 rounded-md transition-colors"
                                 >
                                   <div className="flex items-center gap-2">
-                                    <subItem.icon className="w-3 h-3" />
-                                    {subItem.label}
+                                    <subItem.icon className="w-4 h-4 text-site-primary" />
+                                    <span>{subItem.label}</span>
                                   </div>
                                   {subItem.subSubItems && subItem.subSubItems.length > 0 && (
-                                    <FaChevronDown className={`w-3 h-3 transition-transform ${isSubSubMenuOpen ? 'rotate-180' : ''}`} />
+                                    <FaChevronDown className={`w-3 h-3 transition-transform text-gray-400 ${isSubSubMenuOpen ? 'rotate-180' : ''}`} />
                                   )}
                                 </button>
-                                {isSubSubMenuOpen && subItem.subSubItems && (
+                                {isSubSubMenuOpen && subItem.subSubItems && subItem.subSubItems.length > 0 && (
                                   <motion.div
                                     initial={{ opacity: 0, height: 0 }}
                                     animate={{ opacity: 1, height: "auto" }}
                                     exit={{ opacity: 0, height: 0 }}
-                                    className="pl-6 space-y-1"
+                                    className="pl-4 space-y-1 mt-1"
                                   >
                                     {subItem.subSubItems.map((subSubItem, subIdx) => (
                                       <Link
                                         key={subIdx}
                                         href={subSubItem.path}
                                         onClick={() => setMobileMenuOpen(false)}
+                                        className="block"
                                       >
                                         <Button
                                           variant="ghost"
-                                          className="w-full justify-start text-xs text-gray-600 hover:bg-site-primary/10 hover:text-site-primary"
+                                          className="w-full justify-start text-xs text-gray-600 hover:bg-site-primary/10 hover:text-site-primary py-1.5 h-auto"
                                         >
                                           {subSubItem.label}
                                         </Button>
@@ -370,47 +377,53 @@ export function Navbar() {
                               </div>
                             );
                           })}
-                          <Link href={item.path} onClick={() => setMobileMenuOpen(false)}>
-                            <Button
-                              variant="ghost"
-                              className="w-full justify-start text-sm font-semibold text-site-primary hover:bg-site-primary/10"
-                            >
-                              Voir tous les {item.label.toLowerCase()}
-                            </Button>
-                          </Link>
+                          <div className="pt-2 mt-2 border-t border-gray-200">
+                            <Link href={item.path} onClick={() => setMobileMenuOpen(false)}>
+                              <Button
+                                variant="ghost"
+                                className="w-full justify-start text-sm font-semibold text-site-primary hover:bg-site-primary/10"
+                              >
+                                Voir tous les {item.label.toLowerCase()}
+                              </Button>
+                            </Link>
+                          </div>
                         </motion.div>
                       )}
                     </div>
                   );
                 }
                 return (
-                <Link key={item.path} href={item.path}>
+                <Link key={item.path} href={item.path} className="block">
                   <Button
                     variant={isActive(item.path) ? "default" : "ghost"}
-                      className={`w-full justify-start gap-2 ${
-                        isActive(item.path)
-                          ? "bg-site-button-primary text-site-button-text"
-                          : "hover:bg-site-primary/10 hover:text-site-primary text-gray-700"
-                      }`}
+                    className={`w-full justify-start gap-3 px-3 py-3 text-base ${
+                      isActive(item.path)
+                        ? "bg-site-button-primary text-site-button-text"
+                        : "hover:bg-site-primary/10 hover:text-site-primary text-gray-700 bg-gray-50"
+                    }`}
                     onClick={() => setMobileMenuOpen(false)}
                     data-testid={`link-mobile-${item.label.toLowerCase()}`}
                   >
-                    <item.icon className="w-4 h-4" />
+                    <item.icon className="w-5 h-5" />
                     {item.label}
                   </Button>
                 </Link>
                 );
               })}
-                          <Link href="/admin/login" onClick={() => setMobileMenuOpen(false)}>
-                            <Button variant="outline" className="w-full border-[#DC2626] text-[#DC2626] hover:bg-[#DC2626] hover:text-white">
-                              Connexion
-                            </Button>
-                          </Link>
-                          <Link href="/devis" onClick={() => setMobileMenuOpen(false)}>
-                            <Button className="w-full bg-[#DC2626] hover:bg-[#DC2626] text-white shadow-md">
-                              Demander un devis
-                            </Button>
-                          </Link>
+              
+              {/* CTA Buttons Mobile */}
+              <div className="pt-4 mt-4 border-t border-gray-200 space-y-2">
+                <Link href="/admin/login" onClick={() => setMobileMenuOpen(false)} className="block">
+                  <Button variant="outline" className="w-full border-[#DC2626] text-[#DC2626] hover:bg-[#DC2626] hover:text-white py-3 text-base">
+                    Connexion
+                  </Button>
+                </Link>
+                <Link href="/devis" onClick={() => setMobileMenuOpen(false)} className="block">
+                  <Button className="w-full bg-[#DC2626] hover:bg-[#DC2626] text-white shadow-md py-3 text-base">
+                    Demander un devis
+                  </Button>
+                </Link>
+              </div>
             </div>
           </motion.div>
         )}

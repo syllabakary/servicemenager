@@ -115,11 +115,11 @@ export default function AdminScans() {
 
   // Grouper les scans par paires (arrivée-départ)
   const groupedPairs = useMemo(() => {
-    // Trier les scans par date
+    // Trier les scans par date (plus récents en haut)
     const sortedScans = [...scans].sort((a, b) => {
       const dateA = a.scan_time ? new Date(a.scan_time).getTime() : 0;
       const dateB = b.scan_time ? new Date(b.scan_time).getTime() : 0;
-      return dateA - dateB;
+      return dateB - dateA; // Inversé pour avoir les plus récents en haut
     });
 
     const pairs: Array<{ arrival: any; departure: any | null; patient: any; employe: any; employe_matricule?: string; date: string }> = [];

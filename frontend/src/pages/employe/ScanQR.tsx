@@ -69,6 +69,27 @@ export default function ScanQR() {
     
     setUser(storedUser);
     
+    // Demander la permission de géolocalisation dès le chargement de la page
+    if (navigator.geolocation) {
+      // Demander la permission de géolocalisation (sans attendre de réponse)
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          console.log("✅ Permission de géolocalisation accordée:", {
+            latitude: position.coords.latitude,
+            longitude: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.warn("⚠️ Permission de géolocalisation refusée ou erreur:", error.message);
+        },
+        {
+          timeout: 5000,
+          enableHighAccuracy: false, // Mode rapide pour la demande de permission
+          maximumAge: 60000 // Accepter une position en cache pour la demande de permission
+        }
+      );
+    }
+    
     // Vérifier si on est sur iOS ou Android sans HTTPS
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const isAndroid = /Android/.test(navigator.userAgent);
@@ -470,11 +491,22 @@ export default function ScanQR() {
         try {
           // Options pour une meilleure précision sur mobile (utilise le GPS)
           const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            // Timeout plus long pour permettre au GPS de se stabiliser
+            const timeoutId = setTimeout(() => {
+              reject(new Error("Timeout: La localisation GPS prend trop de temps"));
+            }, 15000); // 15 secondes de timeout
+            
             navigator.geolocation.getCurrentPosition(
-              resolve, 
-              reject, 
+              (pos) => {
+                clearTimeout(timeoutId);
+                resolve(pos);
+              }, 
+              (err) => {
+                clearTimeout(timeoutId);
+                reject(err);
+              }, 
               { 
-                timeout: 10000, // 10 secondes de timeout (plus long sur mobile)
+                timeout: 15000, // 15 secondes de timeout (plus long sur mobile)
                 enableHighAccuracy: true, // Utiliser GPS si disponible (plus précis sur mobile)
                 maximumAge: 0 // Ne pas utiliser de position en cache, toujours demander une nouvelle position
               }
@@ -482,13 +514,30 @@ export default function ScanQR() {
           });
           latitude = position.coords.latitude;
           longitude = position.coords.longitude;
-          console.log("Localisation GPS capturée au moment du scan:", { latitude, longitude });
-        } catch (error) {
-          // Si la localisation échoue, on continue quand même sans GPS
-          console.warn("Impossible de capturer la localisation GPS:", error);
+          console.log("✅ Localisation GPS capturée au moment du scan:", { latitude, longitude });
+        } catch (error: any) {
+          // Si la localisation échoue, on continue quand même sans GPS mais on log l'erreur
+          const errorMsg = error?.message || String(error);
+          console.warn("⚠️ Impossible de capturer la localisation GPS:", errorMsg);
+          console.warn("Détails de l'erreur:", {
+            code: error?.code,
+            message: errorMsg,
+            name: error?.name
+          });
+          // Afficher un avertissement à l'utilisateur mais continuer quand même
+          toast({
+            title: "⚠️ Localisation GPS non disponible",
+            description: "Le scan sera enregistré sans coordonnées GPS. Assurez-vous d'autoriser l'accès à la localisation dans les paramètres de votre navigateur.",
+            variant: "default",
+          });
         }
       } else {
-        console.warn("La géolocalisation n'est pas disponible sur cet appareil");
+        console.warn("❌ La géolocalisation n'est pas disponible sur cet appareil");
+        toast({
+          title: "⚠️ Géolocalisation non disponible",
+          description: "Votre appareil ne supporte pas la géolocalisation. Le scan sera enregistré sans coordonnées GPS.",
+          variant: "default",
+        });
       }
       
       const payload: any = {

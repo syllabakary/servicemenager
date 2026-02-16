@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { FaHome, FaLock, FaUser } from "react-icons/fa";
 import axios from "axios";
+import { API_URL } from "@/config/api";
 
 export default function AdminLogin() {
   const [, setLocation] = useLocation();

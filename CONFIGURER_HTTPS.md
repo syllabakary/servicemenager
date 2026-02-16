@@ -14,12 +14,17 @@
 Sur votre serveur Rocky Linux :
 
 ```bash
+# Installer EPEL (Extra Packages for Enterprise Linux)
+dnf install -y epel-release
+
 # Installer Certbot
 dnf install -y certbot python3-certbot-nginx
 
 # Vérifier l'installation
 certbot --version
 ```
+
+**Note** : Si `python3-certbot-nginx` n'est pas disponible, vous pouvez utiliser seulement `certbot` et configurer Nginx manuellement.
 
 ### 2. Arrêter temporairement les conteneurs
 

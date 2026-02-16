@@ -144,9 +144,13 @@ export default function ScanQR() {
                     window.location.hostname === 'localhost' || 
                     window.location.hostname === '127.0.0.1' ||
                     window.location.hostname.startsWith('192.168.') ||
-                    window.location.hostname.startsWith('10.');
+                    window.location.hostname.startsWith('10.') ||
+                    window.location.hostname.includes('ease-dom.fr'); // Permettre sur le domaine
     
-    if ((isIOS || isAndroid) && !isHTTPS) {
+    // Sur desktop/web, permettre toujours le scan même sans HTTPS
+    const isDesktop = !isIOS && !isAndroid;
+    
+    if ((isIOS || isAndroid) && !isHTTPS && !isDesktop) {
       toast({
         title: "Caméra non disponible",
         description: `Sur ${isIOS ? 'iPhone/iPad' : 'Android'}, l'accès à la caméra nécessite HTTPS ou une adresse IP locale. Utilisez le mode manuel pour saisir le code QR.`,

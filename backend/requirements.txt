@@ -8,6 +8,7 @@ django-filter>=23.0
 xhtml2pdf>=0.2.15
 gunicorn>=21.2.0
 psycopg2-binary>=2.9.9
+qrcode[pil]>=7.4.2
 
 
 

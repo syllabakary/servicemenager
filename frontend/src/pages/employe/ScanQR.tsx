@@ -72,6 +72,7 @@ export default function ScanQR() {
     // Demander la permission de géolocalisation dès le chargement de la page
     if (navigator.geolocation) {
       // Demander la permission de géolocalisation (sans attendre de réponse)
+      // Utiliser des options plus permissives pour fonctionner en HTTP aussi
       navigator.geolocation.getCurrentPosition(
         (position) => {
           console.log("✅ Permission de géolocalisation accordée:", {
@@ -81,13 +82,16 @@ export default function ScanQR() {
         },
         (error) => {
           console.warn("⚠️ Permission de géolocalisation refusée ou erreur:", error.message);
+          // Ne pas bloquer l'application si la géolocalisation échoue
         },
         {
-          timeout: 5000,
+          timeout: 10000, // Timeout plus long pour permettre au GPS de se stabiliser
           enableHighAccuracy: false, // Mode rapide pour la demande de permission
-          maximumAge: 60000 // Accepter une position en cache pour la demande de permission
+          maximumAge: 300000 // Accepter une position en cache jusqu'à 5 minutes
         }
       );
+    } else {
+      console.warn("⚠️ La géolocalisation n'est pas disponible sur cet appareil");
     }
     
     // Vérifier si on est sur iOS ou Android sans HTTPS
@@ -97,7 +101,8 @@ export default function ScanQR() {
                     window.location.hostname === 'localhost' || 
                     window.location.hostname === '127.0.0.1' ||
                     window.location.hostname.startsWith('192.168.') ||
-                    window.location.hostname.startsWith('10.');
+                    window.location.hostname.startsWith('10.') ||
+                    window.location.hostname.includes('ease-dom.fr');
     
     // Sur iOS et Android, la caméra nécessite HTTPS (sauf localhost/IP locale)
     if ((isIOS || isAndroid) && !isHTTPS) {
@@ -166,7 +171,9 @@ export default function ScanQR() {
                     window.location.hostname === '127.0.0.1' ||
                     window.location.hostname.startsWith('192.168.') ||
                     window.location.hostname.startsWith('10.') ||
-                    window.location.hostname.includes('ease-dom.fr'); // Permettre sur le domaine
+                    window.location.hostname.includes('ease-dom.fr') ||
+                    window.location.hostname === 'ease-dom.fr' ||
+                    window.location.hostname === 'www.ease-dom.fr';
     
     // Sur desktop/web, permettre toujours le scan même sans HTTPS
     const isDesktop = !isIOS && !isAndroid;
@@ -748,7 +755,10 @@ export default function ScanQR() {
 
   // Détecter si on est sur iOS sans HTTPS
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const isHTTPS = window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  const isHTTPS = window.location.protocol === 'https:' || 
+                  window.location.hostname === 'localhost' || 
+                  window.location.hostname === '127.0.0.1' ||
+                  window.location.hostname.includes('ease-dom.fr');
   const isIOSWithoutHTTPS = isIOS && !isHTTPS;
 
   // Afficher le conteneur caméra quand on passe en mode caméra

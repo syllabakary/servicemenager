@@ -132,8 +132,16 @@ EOF
 cp /tmp/nginx_https_config.txt frontend/nginx.conf
 
 # Modifier docker-compose pour activer le port 443 et les volumes SSL
-sed -i 's/# - "443:443"/- "443:443"/' docker-compose.sqlite.yml
-sed -i 's/# - \/etc\/letsencrypt/- \/etc\/letsencrypt/' docker-compose.sqlite.yml
+# Créer une sauvegarde
+cp docker-compose.sqlite.yml docker-compose.sqlite.yml.backup
+
+# Décommenter le port 443
+sed -i 's/^      # - "443:443"/      - "443:443"/' docker-compose.sqlite.yml
+
+# Décommenter le volume SSL
+sed -i 's/^      # - \/etc\/letsencrypt:\/etc\/letsencrypt:ro/      - \/etc\/letsencrypt:\/etc\/letsencrypt:ro/' docker-compose.sqlite.yml
+
+echo "✅ Configuration docker-compose mise à jour"
 
 echo "✅ Configuration Nginx mise à jour pour HTTPS"
 

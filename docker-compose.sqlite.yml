@@ -32,10 +32,12 @@ services:
     container_name: servicemenager_frontend
     ports:
       - "80:80"
-      - "443:443"  # Port HTTPS
+      # Port 443 désactivé temporairement - à réactiver après obtention du certificat SSL
+      # - "443:443"  # Port HTTPS
     volumes:
-      - /etc/letsencrypt:/etc/letsencrypt:ro  # Certificats SSL
-      - /var/www/certbot:/var/www/certbot:ro  # Pour les challenges Let's Encrypt
+      # Volumes SSL désactivés temporairement - à réactiver après obtention du certificat
+      # - /etc/letsencrypt:/etc/letsencrypt:ro  # Certificats SSL
+      - /var/www/certbot:/var/www/certbot:ro  # Pour les challenges Let's Encrypt (gardé pour Certbot)
     depends_on:
       - backend
     networks:

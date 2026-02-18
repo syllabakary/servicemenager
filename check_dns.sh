@@ -5,45 +5,49 @@ echo "🔍 Vérification de la configuration DNS"
 echo "=========================================="
 echo ""
 
-echo "1️⃣ Vérification de ease-dom.fr :"
+DOMAINS=("ease-dom.fr" "www.ease-dom.fr" "ease-dom.net" "ease-dom.com")
+EXPECTED_IP="76.13.56.224"
+
+echo "1️⃣ Vérification de tous les domaines :"
 echo "----------------------------------------"
-dig ease-dom.fr +short
+for domain in "${DOMAINS[@]}"; do
+    IP=$(dig "$domain" +short | head -1)
+    echo "$domain → $IP"
+done
 echo ""
 
-echo "2️⃣ Vérification de www.ease-dom.fr :"
+echo "2️⃣ Vérification avec plus de détails :"
 echo "----------------------------------------"
-dig www.ease-dom.fr +short
-echo ""
+for domain in "${DOMAINS[@]}"; do
+    echo "$domain :"
+    dig "$domain" A +noall +answer
+    echo ""
+done
 
-echo "3️⃣ Vérification avec plus de détails :"
+echo "3️⃣ Vérification de l'IP attendue :"
 echo "----------------------------------------"
-echo "ease-dom.fr :"
-dig ease-dom.fr A +noall +answer
-echo ""
-echo "www.ease-dom.fr :"
-dig www.ease-dom.fr A +noall +answer
-echo ""
-
-echo "4️⃣ Vérification de l'IP attendue :"
-echo "----------------------------------------"
-echo "IP attendue : 76.13.56.224"
+echo "IP attendue : $EXPECTED_IP"
 echo ""
 
 # Vérifier si les DNS pointent vers la bonne IP
-EASE_IP=$(dig ease-dom.fr +short | head -1)
-WWW_IP=$(dig www.ease-dom.fr +short | head -1)
+VALID_DOMAINS=()
+INVALID_DOMAINS=()
 
-if [ "$EASE_IP" = "76.13.56.224" ]; then
-    echo "✅ ease-dom.fr pointe vers la bonne IP (76.13.56.224)"
-else
-    echo "❌ ease-dom.fr pointe vers $EASE_IP (attendu: 76.13.56.224)"
-fi
+for domain in "${DOMAINS[@]}"; do
+    DOMAIN_IP=$(dig "$domain" +short | head -1)
+    if [ "$DOMAIN_IP" = "$EXPECTED_IP" ]; then
+        echo "✅ $domain pointe vers la bonne IP ($EXPECTED_IP)"
+        VALID_DOMAINS+=("$domain")
+    else
+        echo "❌ $domain pointe vers $DOMAIN_IP (attendu: $EXPECTED_IP)"
+        INVALID_DOMAINS+=("$domain")
+    fi
+done
 
-if [ "$WWW_IP" = "76.13.56.224" ]; then
-    echo "✅ www.ease-dom.fr pointe vers la bonne IP (76.13.56.224)"
-else
-    echo "❌ www.ease-dom.fr pointe vers $WWW_IP (attendu: 76.13.56.224)"
-fi
+echo ""
+echo "📊 Résumé :"
+echo "   Domaines valides : ${#VALID_DOMAINS[@]}"
+echo "   Domaines invalides : ${#INVALID_DOMAINS[@]}"
 
 echo ""
 echo "📝 Instructions :"

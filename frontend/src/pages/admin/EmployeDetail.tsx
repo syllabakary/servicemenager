@@ -1,16 +1,24 @@
-import React from "react";
-import { useQuery } from "@tanstack/react-query";
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import {
   FaArrowLeft, FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt,
   FaBriefcase, FaIdCard, FaCalendar, FaFileAlt, FaStar, FaCog,
-  FaBuilding, FaMoneyBillWave, FaCreditCard, FaShieldAlt
+  FaBuilding, FaMoneyBillWave, FaCreditCard, FaShieldAlt, FaLock, FaKey
 } from "react-icons/fa";
 
 import { API_URL } from "@/config/api";
@@ -18,8 +26,11 @@ import { API_URL } from "@/config/api";
 export default function EmployeDetail() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const params = new URLSearchParams(window.location.search);
   const employeId = params.get("id");
+  const [showResetPasswordDialog, setShowResetPasswordDialog] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
 
   const { data: employe, isLoading, error } = useQuery({
     queryKey: ["employe-detail", employeId],
@@ -143,6 +154,44 @@ export default function EmployeDetail() {
     return labels[statut] || statut;
   };
 
+  const resetPasswordMutation = useMutation({
+    mutationFn: async () => {
+      if (!employeId) throw new Error("ID employé manquant");
+      const token = localStorage.getItem("access_token");
+      const response = await axios.post(
+        `${API_URL}/users/${employeId}/reset_password/`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return response.data;
+    },
+    onSuccess: (data) => {
+      setNewPassword(data.new_password);
+      setShowResetPasswordDialog(true);
+      queryClient.invalidateQueries({ queryKey: ["employe-detail", employeId] });
+      toast({
+        title: "✅ Mot de passe réinitialisé",
+        description: `Le nouveau mot de passe a été généré pour ${employe.username}.`,
+      });
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.error || "Une erreur est survenue lors de la réinitialisation du mot de passe.";
+      toast({
+        title: "❌ Erreur",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleResetPassword = () => {
+    if (window.confirm(`Êtes-vous sûr de vouloir réinitialiser le mot de passe de ${employe.first_name} ${employe.last_name} ?`)) {
+      resetPasswordMutation.mutate();
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -167,15 +216,35 @@ export default function EmployeDetail() {
                 </p>
               </div>
             </div>
-            <Button
-              onClick={() => {
-                setLocation(`/admin/employes?edit=${employe.id}`);
-              }}
-              className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white"
-            >
-              <FaUser className="w-4 h-4 mr-2" />
-              Modifier
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleResetPassword}
+                variant="outline"
+                className="border-orange-300 text-orange-600 hover:bg-orange-50"
+                disabled={resetPasswordMutation.isPending}
+              >
+                {resetPasswordMutation.isPending ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-orange-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                    Réinitialisation...
+                  </>
+                ) : (
+                  <>
+                    <FaKey className="w-4 h-4 mr-2" />
+                    Réinitialiser mot de passe
+                  </>
+                )}
+              </Button>
+              <Button
+                onClick={() => {
+                  setLocation(`/admin/employes?edit=${employe.id}`);
+                }}
+                className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white"
+              >
+                <FaUser className="w-4 h-4 mr-2" />
+                Modifier
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -448,6 +517,63 @@ export default function EmployeDetail() {
           </Card>
         </div>
       </div>
+
+      {/* Dialog pour afficher le nouveau mot de passe */}
+      <Dialog open={showResetPasswordDialog} onOpenChange={setShowResetPasswordDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <FaKey className="w-5 h-5 text-orange-600" />
+              Mot de passe réinitialisé
+            </DialogTitle>
+            <DialogDescription>
+              Un nouveau mot de passe a été généré pour {employe.first_name} {employe.last_name}.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
+              <p className="text-sm font-semibold text-orange-900 mb-2">
+                Nouveau mot de passe :
+              </p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 bg-white px-4 py-3 rounded border border-orange-300 text-lg font-mono font-bold text-gray-900 break-all">
+                  {newPassword}
+                </code>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    navigator.clipboard.writeText(newPassword);
+                    toast({
+                      title: "✅ Copié",
+                      description: "Le mot de passe a été copié dans le presse-papiers.",
+                    });
+                  }}
+                >
+                  Copier
+                </Button>
+              </div>
+            </div>
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <p className="text-sm text-blue-800">
+                <strong>Important :</strong> Communiquez ce mot de passe à l'employé de manière sécurisée. 
+                L'employé pourra le modifier depuis son tableau de bord une fois connecté.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                setShowResetPasswordDialog(false);
+                setNewPassword("");
+              }}
+              className="w-full"
+            >
+              Fermer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DashboardLayout>
   );
 }

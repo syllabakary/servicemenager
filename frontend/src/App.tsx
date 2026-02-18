@@ -37,6 +37,7 @@ import EmployeLogin from "@/pages/employe/EmployeLogin";
 import EmployeDashboard from "@/pages/employe/EmployeDashboard";
 import PatientDetail from "@/pages/employe/PatientDetail";
 import MyPatients from "@/pages/employe/MyPatients";
+import ChangePassword from "@/pages/employe/ChangePassword";
 
 function Router() {
   return (
@@ -70,6 +71,7 @@ function Router() {
       <Route path="/employe/scan" component={ScanQR} />
       <Route path="/employe/patients" component={MyPatients} />
       <Route path="/employe/patient/:id" component={PatientDetail} />
+      <Route path="/employe/change-password" component={ChangePassword} />
       <Route component={NotFound} />
     </Switch>
   );

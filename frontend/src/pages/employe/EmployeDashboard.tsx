@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import {
   FaUser, FaUsers, FaCheckCircle, FaClock, FaSignOutAlt, FaQrcode, FaList,
-  FaCalendarAlt, FaSpinner, FaPhone, FaMapMarkerAlt
+  FaCalendarAlt, FaSpinner, FaPhone, FaMapMarkerAlt, FaLock
 } from "react-icons/fa";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -115,6 +115,15 @@ export default function EmployeDashboard() {
               >
                 <FaList className="w-5 h-5 mr-2" />
                 Mes Patients
+              </Button>
+              <Button
+                onClick={() => setLocation("/employe/change-password")}
+                variant="outline"
+                className="text-gray-700 hover:text-gray-900 hover:bg-gray-50 border-gray-300 px-6 py-6 text-base font-semibold"
+                size="lg"
+              >
+                <FaLock className="w-5 h-5 mr-2" />
+                Mot de passe
               </Button>
               <Button
                 onClick={handleLogout}

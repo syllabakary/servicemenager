@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
+from django.core.exceptions import ValidationError
 from math import radians, cos, sin, asin, sqrt
 from decimal import Decimal
 import smtplib
@@ -72,6 +73,90 @@ class UserViewSet(viewsets.ModelViewSet):
         """Endpoint pour récupérer l'utilisateur connecté"""
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
+    
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
+    def change_password(self, request, pk=None):
+        """Endpoint pour changer son propre mot de passe"""
+        user = self.get_object()
+        
+        # Vérifier que l'utilisateur change son propre mot de passe
+        if user.id != request.user.id:
+            return Response(
+                {'error': 'Vous ne pouvez changer que votre propre mot de passe.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        old_password = request.data.get('old_password')
+        new_password = request.data.get('new_password')
+        
+        if not old_password or not new_password:
+            return Response(
+                {'error': 'L\'ancien mot de passe et le nouveau mot de passe sont requis.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Vérifier l'ancien mot de passe
+        if not user.check_password(old_password):
+            return Response(
+                {'error': 'L\'ancien mot de passe est incorrect.'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Valider le nouveau mot de passe
+        from django.contrib.auth.password_validation import validate_password
+        from django.conf import settings
+        try:
+            if not settings.DEBUG:
+                validate_password(new_password, user)
+        except ValidationError as e:
+            return Response(
+                {'error': 'Le nouveau mot de passe ne respecte pas les critères de sécurité.', 'details': list(e.messages)},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Changer le mot de passe
+        user.set_password(new_password)
+        user.save()
+        
+        logger.info(f"Mot de passe changé pour l'utilisateur {user.username} (ID: {user.id})")
+        
+        return Response(
+            {'message': 'Mot de passe changé avec succès.'},
+            status=status.HTTP_200_OK
+        )
+    
+    @action(detail=True, methods=['post'], permission_classes=[IsSuperAdminOrAdmin])
+    def reset_password(self, request, pk=None):
+        """Endpoint pour réinitialiser le mot de passe d'un utilisateur (admin seulement)"""
+        user = self.get_object()
+        
+        # Les admins ne peuvent pas réinitialiser le mot de passe des superadmins
+        if user.is_superadmin and not request.user.is_superadmin:
+            return Response(
+                {'error': 'Vous ne pouvez pas réinitialiser le mot de passe d\'un superadmin.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Générer un mot de passe par défaut
+        import secrets
+        import string
+        default_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
+        
+        # Définir le nouveau mot de passe
+        user.set_password(default_password)
+        user.save()
+        
+        logger.info(f"Mot de passe réinitialisé pour l'utilisateur {user.username} (ID: {user.id}) par {request.user.username}")
+        
+        return Response(
+            {
+                'message': f'Mot de passe réinitialisé avec succès pour {user.username}.',
+                'new_password': default_password,
+                'user_id': user.id,
+                'username': user.username
+            },
+            status=status.HTTP_200_OK
+        )
     
     def perform_create(self, serializer):
         """Création avec restrictions"""

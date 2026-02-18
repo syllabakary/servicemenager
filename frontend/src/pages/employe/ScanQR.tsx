@@ -102,7 +102,9 @@ export default function ScanQR() {
                     window.location.hostname === '127.0.0.1' ||
                     window.location.hostname.startsWith('192.168.') ||
                     window.location.hostname.startsWith('10.') ||
-                    window.location.hostname.includes('ease-dom.fr');
+                    window.location.hostname.includes('ease-dom.fr') ||
+                    window.location.hostname.includes('ease-dom.net') ||
+                    window.location.hostname.includes('ease-dom.com');
     
     // Sur iOS et Android, la caméra nécessite HTTPS (sauf localhost/IP locale)
     if ((isIOS || isAndroid) && !isHTTPS) {
@@ -172,8 +174,12 @@ export default function ScanQR() {
                     window.location.hostname.startsWith('192.168.') ||
                     window.location.hostname.startsWith('10.') ||
                     window.location.hostname.includes('ease-dom.fr') ||
+                    window.location.hostname.includes('ease-dom.net') ||
+                    window.location.hostname.includes('ease-dom.com') ||
                     window.location.hostname === 'ease-dom.fr' ||
-                    window.location.hostname === 'www.ease-dom.fr';
+                    window.location.hostname === 'www.ease-dom.fr' ||
+                    window.location.hostname === 'ease-dom.net' ||
+                    window.location.hostname === 'ease-dom.com';
     
     // Sur desktop/web, permettre toujours le scan même sans HTTPS
     const isDesktop = !isIOS && !isAndroid;
@@ -758,7 +764,9 @@ export default function ScanQR() {
   const isHTTPS = window.location.protocol === 'https:' || 
                   window.location.hostname === 'localhost' || 
                   window.location.hostname === '127.0.0.1' ||
-                  window.location.hostname.includes('ease-dom.fr');
+                  window.location.hostname.includes('ease-dom.fr') ||
+                  window.location.hostname.includes('ease-dom.net') ||
+                  window.location.hostname.includes('ease-dom.com');
   const isIOSWithoutHTTPS = isIOS && !isHTTPS;
 
   // Afficher le conteneur caméra quand on passe en mode caméra

@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-in-production-12345')
 DEBUG = config('DEBUG', default=True, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0,172.20.10.5,10.10.9.42,192.168.0.133,76.13.56.224,ease-dom.fr,www.ease-dom.fr', cast=lambda v: [s.strip() for s in v.split(',')])
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0,172.20.10.5,10.10.9.42,192.168.0.133,76.13.56.224,ease-dom.fr,www.ease-dom.fr,ease-dom.net,ease-dom.com', cast=lambda v: [s.strip() for s in v.split(',')])
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -105,7 +105,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CORS Configuration
 CORS_ALLOWED_ORIGINS = config(
     'CORS_ALLOWED_ORIGINS',
-    default='http://localhost:5173,http://127.0.0.1:5173,http://76.13.56.224,https://ease-dom.fr,https://www.ease-dom.fr',
+    default='http://localhost:5173,http://127.0.0.1:5173,http://76.13.56.224,https://ease-dom.fr,https://www.ease-dom.fr,https://ease-dom.net,https://ease-dom.com',
     cast=lambda v: [s.strip() for s in v.split(',')]
 )
 # En développement, permettre toutes les origines (à désactiver en production)

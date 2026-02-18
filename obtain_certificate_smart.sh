@@ -63,12 +63,21 @@ echo ""
 
 # Construire la commande certbot avec les domaines valides
 CERTBOT_CMD="certbot certonly --standalone --preferred-challenges http"
+
+# Si un certificat existe déjà, utiliser --expand pour l'étendre
+if [ -f "/etc/letsencrypt/live/ease-dom.fr/fullchain.pem" ]; then
+    echo "📝 Un certificat existe déjà, utilisation du flag --expand pour l'étendre..."
+    CERTBOT_CMD="$CERTBOT_CMD --expand"
+fi
+
 for domain in "${VALID_DOMAINS[@]}"; do
     CERTBOT_CMD="$CERTBOT_CMD -d $domain"
 done
 CERTBOT_CMD="$CERTBOT_CMD --email issouf.fof0@gmail.com --agree-tos --non-interactive"
 
 # Exécuter la commande
+echo "🔐 Commande: $CERTBOT_CMD"
+echo ""
 eval $CERTBOT_CMD
 
 # Vérifier si le certificat a été obtenu

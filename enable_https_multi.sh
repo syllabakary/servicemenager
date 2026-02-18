@@ -40,7 +40,8 @@ server {
 
 # Configuration HTTPS pour tous les domaines
 server {
-    listen 443 ssl http2;
+    listen 443 ssl;
+    http2 on;
     server_name ease-dom.fr www.ease-dom.fr ease-dom.net ease-dom.com;
     
     # Certificats SSL (montés depuis /etc/letsencrypt)

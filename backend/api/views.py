@@ -2244,18 +2244,44 @@ class PresenceViewSet(viewsets.ModelViewSet):
             # On cherche la dernière arrivée qui n'a pas encore de départ après elle
             last_arrival = today_presences.filter(status='ARRIVEE').first()
             
+            # Log pour débogage
+            logger.info(f"Scan DEPART - Patient: {patient.id}, Employé: {request.user.id}")
+            logger.info(f"Scans aujourd'hui: {today_presences.count()}")
+            logger.info(f"Arrivées aujourd'hui: {today_presences.filter(status='ARRIVEE').count()}")
+            logger.info(f"Départs aujourd'hui: {today_presences.filter(status='DEPART').count()}")
+            logger.info(f"Dernière arrivée trouvée: {last_arrival}")
+            
             if not last_arrival:
-                # Aucune arrivée aujourd'hui
-                return Response(
-                    {'error': 'Impossible d\'enregistrer un départ sans arrivée. Veuillez d\'abord scanner l\'arrivée.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+                # Aucune arrivée aujourd'hui - vérifier aussi toutes les arrivées (pas seulement aujourd'hui)
+                all_arrivals = Presence.objects.filter(
+                    patient=patient,
+                    employe=request.user,
+                    status='ARRIVEE'
+                ).order_by('-scan_time').first()
+                
+                if all_arrivals:
+                    logger.warning(f"Aucune arrivée aujourd'hui mais arrivée trouvée hier/avant: {all_arrivals.scan_time}")
+                    return Response(
+                        {
+                            'error': 'Aucune arrivée enregistrée aujourd\'hui. Veuillez d\'abord scanner l\'arrivée pour aujourd\'hui.',
+                            'last_arrival_date': all_arrivals.scan_time.isoformat() if all_arrivals.scan_time else None
+                        },
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
+                else:
+                    logger.warning("Aucune arrivée trouvée (ni aujourd'hui ni avant)")
+                    return Response(
+                        {'error': 'Impossible d\'enregistrer un départ sans arrivée. Veuillez d\'abord scanner l\'arrivée.'},
+                        status=status.HTTP_400_BAD_REQUEST
+                    )
             
             # Vérifier s'il y a déjà un départ après cette dernière arrivée
             departure_after_last_arrival = today_presences.filter(
                 status='DEPART',
                 scan_time__gt=last_arrival.scan_time
             ).exists()
+            
+            logger.info(f"Départ après dernière arrivée: {departure_after_last_arrival}")
             
             if departure_after_last_arrival:
                 # Il y a déjà un départ après la dernière arrivée, on ne peut pas créer un nouveau départ

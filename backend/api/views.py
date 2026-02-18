@@ -2240,24 +2240,29 @@ class PresenceViewSet(viewsets.ModelViewSet):
                     )
         
         elif status_scan == 'DEPART':
-            # Pour un départ, vérifier le dernier scan (le plus récent)
-            # Si le dernier scan est une arrivée, on peut créer un départ
-            # Si le dernier scan est un départ (ou aucun scan), on ne peut pas créer un départ
-            last_presence = today_presences.first()
+            # Pour un départ, vérifier s'il y a une arrivée "ouverte" (sans départ correspondant)
+            # On cherche la dernière arrivée qui n'a pas encore de départ après elle
+            last_arrival = today_presences.filter(status='ARRIVEE').first()
             
-            if not last_presence or last_presence.status != 'ARRIVEE':
-                # Pas d'arrivée ou le dernier scan n'est pas une arrivée
-                if not last_presence:
-                    return Response(
-                        {'error': 'Impossible d\'enregistrer un départ sans arrivée. Veuillez d\'abord scanner l\'arrivée.'},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
-                else:
-                    # Le dernier scan est un départ, on ne peut pas créer un nouveau départ
-                    return Response(
-                        {'error': 'Vous devez d\'abord enregistrer une nouvelle arrivée avant de pouvoir enregistrer un départ.'},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+            if not last_arrival:
+                # Aucune arrivée aujourd'hui
+                return Response(
+                    {'error': 'Impossible d\'enregistrer un départ sans arrivée. Veuillez d\'abord scanner l\'arrivée.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Vérifier s'il y a déjà un départ après cette dernière arrivée
+            departure_after_last_arrival = today_presences.filter(
+                status='DEPART',
+                scan_time__gt=last_arrival.scan_time
+            ).exists()
+            
+            if departure_after_last_arrival:
+                # Il y a déjà un départ après la dernière arrivée, on ne peut pas créer un nouveau départ
+                return Response(
+                    {'error': 'Vous devez d\'abord enregistrer une nouvelle arrivée avant de pouvoir enregistrer un départ.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         
         # Créer la présence
         presence_data = {

@@ -70,3 +70,5 @@ docker compose -f docker-compose.sqlite.yml ps
 docker compose -f docker-compose.sqlite.yml logs -f
 ```
 
+
+

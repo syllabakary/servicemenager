@@ -29,3 +29,5 @@ echo "✅ Nettoyage terminé !"
 echo "Vous pouvez maintenant démarrer les conteneurs avec :"
 echo "docker compose -f docker-compose.sqlite.yml up -d"
 
+
+

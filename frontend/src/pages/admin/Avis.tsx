@@ -116,7 +116,7 @@ export default function AdminAvis() {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
-          <div className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </DashboardLayout>
@@ -131,7 +131,7 @@ export default function AdminAvis() {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-[#DC2626] to-[#B91C1C] bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-site-primary to-site-secondary bg-clip-text text-transparent">
             Gestion des Avis Clients
           </h1>
           <p className="text-gray-600 mt-2 text-base sm:text-lg">

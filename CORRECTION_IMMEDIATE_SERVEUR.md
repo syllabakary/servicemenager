@@ -110,3 +110,5 @@ docker compose -f docker-compose.sqlite.yml exec backend python manage.py create
 
 `runserver` est pour le développement. Pour la production, il faudra installer gunicorn correctement plus tard.
 
+
+

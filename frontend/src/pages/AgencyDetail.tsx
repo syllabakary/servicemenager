@@ -96,7 +96,7 @@ export default function AgencyDetail() {
         <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-gray-900">😕 Agence introuvable</h1>
         <p className="text-sm sm:text-base text-gray-600 mb-6 px-4">L'agence que vous recherchez semble ne plus être disponible.</p>
         <Link href="/agences">
-          <Button variant="outline" className="gap-2 border-site-primary text-site-text-link hover:bg-site-button-primary hover:text-site-button-text">
+          <Button variant="outline" className="gap-2 border-2 border-site-button-outline-border text-site-button-outline-text hover:bg-site-button-outline-hover-bg hover:text-white">
             <FaArrowLeft className="w-4 h-4" />
             Retour à la liste
           </Button>

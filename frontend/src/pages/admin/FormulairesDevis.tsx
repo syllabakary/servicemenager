@@ -241,7 +241,7 @@ export default function AdminFormulairesDevis() {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
-          <div className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </DashboardLayout>
@@ -254,14 +254,14 @@ export default function AdminFormulairesDevis() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-[#DC2626]">Formulaires de devis</h1>
+            <h1 className="text-3xl font-bold text-site-primary">Formulaires de devis</h1>
             <p className="text-gray-600 mt-1">
               Configurez les étapes et options des formulaires de devis pour chaque service
             </p>
           </div>
           <Button
             onClick={handleNewStep}
-            className="bg-[#DC2626] hover:bg-[#B91C1C] text-white"
+            className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text text-white"
           >
             <FaPlus className="mr-2" />
             Nouvelle étape
@@ -740,7 +740,7 @@ function StepForm({
         <Button type="button" variant="outline" onClick={onCancel}>
           Annuler
         </Button>
-        <Button type="submit" className="bg-[#DC2626] hover:bg-[#B91C1C]">
+        <Button type="submit" className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text">
           {step?.id ? "Modifier" : "Créer"}
         </Button>
       </div>
@@ -943,7 +943,7 @@ function OptionForm({
         <Button type="button" variant="outline" onClick={onCancel}>
           Annuler
         </Button>
-        <Button type="submit" className="bg-[#DC2626] hover:bg-[#B91C1C]">
+        <Button type="submit" className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text">
           {option?.id ? "Modifier" : "Créer"}
         </Button>
       </div>

@@ -207,7 +207,7 @@ export default function AdminDashboard() {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-[#DC2626] to-[#B91C1C] bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-site-primary to-site-secondary bg-clip-text text-transparent">
             Dashboard
           </h1>
           <p className="text-gray-600 mt-2 text-lg">Vue d'ensemble de votre administration</p>
@@ -253,7 +253,7 @@ export default function AdminDashboard() {
           <Card className="shadow-xl border-0 bg-white">
             <CardHeader className="border-b border-gray-200">
               <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <FaQrcode className="w-6 h-6 text-[#DC2626]" />
+                <FaQrcode className="w-6 h-6 text-site-primary" />
                 Présences en temps réel
               </CardTitle>
             </CardHeader>
@@ -294,12 +294,12 @@ export default function AdminDashboard() {
                   {presencesRealtime.active_employees.map((active: any, index: number) => (
                     <div
                       key={index}
-                      className="p-4 border border-gray-200 rounded-lg hover:border-[#DC2626] transition-colors bg-gradient-to-r from-white to-gray-50"
+                      className="p-4 border border-gray-200 rounded-lg hover:border-site-primary transition-colors bg-gradient-to-r from-white to-gray-50"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <FaUser className="w-5 h-5 text-[#DC2626]" />
+                            <FaUser className="w-5 h-5 text-site-primary" />
                             <h4 className="font-semibold text-gray-900">{active.employe}</h4>
                             <Badge variant="outline" className="font-mono text-xs">
                               {active.employe_matricule}
@@ -552,42 +552,42 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Link
                 href="/admin/services"
-                className="group p-6 rounded-xl border-2 border-gray-200 hover:border-[#DC2626] hover:bg-gradient-to-br hover:from-red-50 hover:to-white transition-all duration-300 block shadow-sm hover:shadow-lg"
+                className="group p-6 rounded-xl border-2 border-gray-200 hover:border-site-primary hover:bg-gradient-to-br hover:from-red-50 hover:to-white transition-all duration-300 block shadow-sm hover:shadow-lg"
               >
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#DC2626] to-[#B91C1C] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-site-primary to-site-secondary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <FaBriefcase className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="font-bold text-gray-900 mb-1 group-hover:text-[#DC2626] transition-colors">Gérer les services</h3>
+                <h3 className="font-bold text-gray-900 mb-1 group-hover:text-site-primary transition-colors">Gérer les services</h3>
                 <p className="text-sm text-gray-600">Ajouter, modifier, activer</p>
               </Link>
               <Link
                 href="/admin/agences"
-                className="group p-6 rounded-xl border-2 border-gray-200 hover:border-[#DC2626] hover:bg-gradient-to-br hover:from-red-50 hover:to-white transition-all duration-300 block shadow-sm hover:shadow-lg"
+                className="group p-6 rounded-xl border-2 border-gray-200 hover:border-site-primary hover:bg-gradient-to-br hover:from-red-50 hover:to-white transition-all duration-300 block shadow-sm hover:shadow-lg"
               >
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#DC2626] to-[#B91C1C] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-site-primary to-site-secondary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <FaBuilding className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="font-bold text-gray-900 mb-1 group-hover:text-[#DC2626] transition-colors">Gérer les agences</h3>
+                <h3 className="font-bold text-gray-900 mb-1 group-hover:text-site-primary transition-colors">Gérer les agences</h3>
                 <p className="text-sm text-gray-600">Ajouter, modifier, activer</p>
               </Link>
               <Link
                 href="/admin/bannieres"
-                className="group p-6 rounded-xl border-2 border-gray-200 hover:border-[#DC2626] hover:bg-gradient-to-br hover:from-red-50 hover:to-white transition-all duration-300 block shadow-sm hover:shadow-lg"
+                className="group p-6 rounded-xl border-2 border-gray-200 hover:border-site-primary hover:bg-gradient-to-br hover:from-red-50 hover:to-white transition-all duration-300 block shadow-sm hover:shadow-lg"
               >
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#DC2626] to-[#B91C1C] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-site-primary to-site-secondary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <FaFileAlt className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="font-bold text-gray-900 mb-1 group-hover:text-[#DC2626] transition-colors">Gérer les bannières</h3>
+                <h3 className="font-bold text-gray-900 mb-1 group-hover:text-site-primary transition-colors">Gérer les bannières</h3>
                 <p className="text-sm text-gray-600">Modifier le contenu</p>
               </Link>
               <Link
                 href="/admin/utilisateurs"
-                className="group p-6 rounded-xl border-2 border-gray-200 hover:border-[#DC2626] hover:bg-gradient-to-br hover:from-red-50 hover:to-white transition-all duration-300 block shadow-sm hover:shadow-lg"
+                className="group p-6 rounded-xl border-2 border-gray-200 hover:border-site-primary hover:bg-gradient-to-br hover:from-red-50 hover:to-white transition-all duration-300 block shadow-sm hover:shadow-lg"
               >
-                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#DC2626] to-[#B91C1C] flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-site-primary to-site-secondary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <FaUsers className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="font-bold text-gray-900 mb-1 group-hover:text-[#DC2626] transition-colors">Gérer les utilisateurs</h3>
+                <h3 className="font-bold text-gray-900 mb-1 group-hover:text-site-primary transition-colors">Gérer les utilisateurs</h3>
                 <p className="text-sm text-gray-600">Créer des admins</p>
               </Link>
             </div>
@@ -599,7 +599,7 @@ export default function AdminDashboard() {
           <Card className="shadow-xl border-0 bg-white">
             <CardHeader className="border-b border-gray-200">
               <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <FaCommentDots className="w-6 h-6 text-[#DC2626]" />
+                <FaCommentDots className="w-6 h-6 text-site-primary" />
                 Avis en attente de modération
               </CardTitle>
             </CardHeader>
@@ -611,7 +611,7 @@ export default function AdminDashboard() {
                   .map((review: any) => (
                     <div
                       key={review.id}
-                      className="p-4 border border-gray-200 rounded-lg hover:border-[#DC2626] transition-colors"
+                      className="p-4 border border-gray-200 rounded-lg hover:border-site-primary transition-colors"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -646,7 +646,7 @@ export default function AdminDashboard() {
                         </div>
                         <Link
                           href="/admin/avis"
-                          className="ml-4 px-4 py-2 bg-[#DC2626] text-white rounded-lg hover:bg-[#B91C1C] transition-colors text-sm font-semibold whitespace-nowrap"
+                          className="ml-4 px-4 py-2 bg-site-button-primary text-site-button-text rounded-lg hover:bg-site-button-primary-hover transition-colors text-sm font-semibold whitespace-nowrap"
                         >
                           Modérer
                         </Link>
@@ -657,7 +657,7 @@ export default function AdminDashboard() {
                   <div className="text-center pt-2">
                     <Link
                       href="/admin/avis"
-                      className="text-[#DC2626] hover:text-[#B91C1C] font-semibold text-sm"
+                      className="text-site-primary hover:text-site-secondary font-semibold text-sm"
                     >
                       Voir tous les avis en attente ({reviews.results.filter((r: any) => !r.approved).length})
                     </Link>
@@ -673,7 +673,7 @@ export default function AdminDashboard() {
           <Card className="shadow-xl border-0 bg-white">
             <CardHeader className="border-b border-gray-200">
               <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <FaCog className="w-6 h-6 text-[#DC2626]" />
+                <FaCog className="w-6 h-6 text-site-primary" />
                 Contrôle d'affichage des avis et FAQ par service
               </CardTitle>
             </CardHeader>
@@ -682,7 +682,7 @@ export default function AdminDashboard() {
                 {services.results.slice(0, 10).map((service: any) => (
                   <div
                     key={service.id}
-                    className="p-4 border border-gray-200 rounded-lg hover:border-[#DC2626] transition-all duration-200 bg-white"
+                    className="p-4 border border-gray-200 rounded-lg hover:border-site-primary transition-all duration-200 bg-white"
                   >
                     <h4 className="font-bold text-lg text-gray-900 mb-4">{service.name}</h4>
                     <div className="flex items-center gap-4">
@@ -761,7 +761,7 @@ export default function AdminDashboard() {
                       {/* Bouton Modifier */}
                       <Link
                         href="/admin/services"
-                        className="px-4 py-2 bg-[#DC2626] text-white rounded-lg hover:bg-[#B91C1C] transition-colors text-sm font-semibold whitespace-nowrap h-fit"
+                        className="px-4 py-2 bg-site-button-primary text-site-button-text rounded-lg hover:bg-site-button-primary-hover transition-colors text-sm font-semibold whitespace-nowrap h-fit"
                       >
                         Modifier
                       </Link>
@@ -772,7 +772,7 @@ export default function AdminDashboard() {
                   <div className="text-center pt-2">
                     <Link
                       href="/admin/services"
-                      className="text-[#DC2626] hover:text-[#B91C1C] font-semibold text-sm"
+                      className="text-site-primary hover:text-site-secondary font-semibold text-sm"
                     >
                       Voir tous les services ({services.results.length})
                     </Link>
@@ -788,7 +788,7 @@ export default function AdminDashboard() {
           <Card className="shadow-xl border-0 bg-white">
             <CardHeader className="border-b border-gray-200">
               <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <FaCalendar className="w-6 h-6 text-[#DC2626]" />
+                <FaCalendar className="w-6 h-6 text-site-primary" />
                 Demandes de devis récentes
               </CardTitle>
             </CardHeader>
@@ -799,7 +799,7 @@ export default function AdminDashboard() {
                   .map((request: any) => (
                     <div
                       key={request.id}
-                      className="p-4 border border-gray-200 rounded-lg hover:border-[#DC2626] transition-colors"
+                      className="p-4 border border-gray-200 rounded-lg hover:border-site-primary transition-colors"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -830,19 +830,19 @@ export default function AdminDashboard() {
                           </div>
                           <div className="space-y-1 text-sm text-gray-600">
                             <div className="flex items-center gap-2">
-                              <FaBriefcase className="w-4 h-4 text-[#DC2626]" />
+                              <FaBriefcase className="w-4 h-4 text-site-primary" />
                               <span>{request.service_name}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <FaMapMarkerAlt className="w-4 h-4 text-[#DC2626]" />
+                              <FaMapMarkerAlt className="w-4 h-4 text-site-primary" />
                               <span>{request.location}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <FaEnvelope className="w-4 h-4 text-[#DC2626]" />
+                              <FaEnvelope className="w-4 h-4 text-site-primary" />
                               <span>{request.client_email}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                              <FaPhone className="w-4 h-4 text-[#DC2626]" />
+                              <FaPhone className="w-4 h-4 text-site-primary" />
                               <span>{request.client_phone}</span>
                             </div>
                           </div>
@@ -859,7 +859,7 @@ export default function AdminDashboard() {
                         <div className="flex flex-col gap-2 ml-4">
                           <a
                             href={`mailto:${request.client_email}?subject=Devis pour ${request.service_name}`}
-                            className="px-4 py-2 bg-[#DC2626] text-white rounded-lg hover:bg-[#B91C1C] transition-colors text-sm font-semibold whitespace-nowrap flex items-center gap-2"
+                            className="px-4 py-2 bg-site-button-primary text-site-button-text rounded-lg hover:bg-site-button-primary-hover transition-colors text-sm font-semibold whitespace-nowrap flex items-center gap-2"
                           >
                             <FaEnvelope className="w-4 h-4" />
                             Email
@@ -879,7 +879,7 @@ export default function AdminDashboard() {
                   <div className="text-center pt-2">
                     <Link
                       href="/admin/quote-requests"
-                      className="text-[#DC2626] hover:text-[#B91C1C] font-semibold text-sm"
+                      className="text-site-primary hover:text-site-secondary font-semibold text-sm"
                     >
                       Voir toutes les demandes ({quoteRequests.results.length})
                     </Link>
@@ -895,7 +895,7 @@ export default function AdminDashboard() {
           <Card className="shadow-xl border-0 bg-white">
             <CardHeader className="border-b border-gray-200">
               <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                <FaFileAlt className="w-6 h-6 text-[#DC2626]" />
+                <FaFileAlt className="w-6 h-6 text-site-primary" />
                 Questions fréquentes récentes
               </CardTitle>
             </CardHeader>
@@ -906,7 +906,7 @@ export default function AdminDashboard() {
                   .map((faq: any) => (
                     <div
                       key={faq.id}
-                      className="p-4 border border-gray-200 rounded-lg hover:border-[#DC2626] transition-colors"
+                      className="p-4 border border-gray-200 rounded-lg hover:border-site-primary transition-colors"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -924,7 +924,7 @@ export default function AdminDashboard() {
                         </div>
                         <Link
                           href="/admin/services"
-                          className="ml-4 px-4 py-2 bg-[#DC2626] text-white rounded-lg hover:bg-[#B91C1C] transition-colors text-sm font-semibold whitespace-nowrap"
+                          className="ml-4 px-4 py-2 bg-site-button-primary text-site-button-text rounded-lg hover:bg-site-button-primary-hover transition-colors text-sm font-semibold whitespace-nowrap"
                         >
                           Gérer
                         </Link>
@@ -935,7 +935,7 @@ export default function AdminDashboard() {
                   <div className="text-center pt-2">
                     <Link
                       href="/admin/services"
-                      className="text-[#DC2626] hover:text-[#B91C1C] font-semibold text-sm"
+                      className="text-site-primary hover:text-site-secondary font-semibold text-sm"
                     >
                       Voir toutes les FAQ ({faqs.results.length})
                     </Link>

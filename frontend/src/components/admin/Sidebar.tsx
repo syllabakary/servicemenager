@@ -219,7 +219,7 @@ export function Sidebar({ userRole }: SidebarProps) {
           {/* Logo */}
           <div className="flex items-center justify-between h-20 px-6 border-b-2 border-gray-200 bg-white">
             <Link href="/admin/dashboard" className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#DC2626] via-[#B91C1C] to-[#991B1B] flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-site-primary via-site-secondary to-site-tertiary flex items-center justify-center shadow-lg">
                 <FaHome className="w-6 h-6 text-white" />
               </div>
               <div className="flex flex-col">
@@ -236,7 +236,7 @@ export function Sidebar({ userRole }: SidebarProps) {
           </div>
 
           {/* Menu */}
-          <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
+          <nav className="flex-1 px-3 pt-6 pb-4 space-y-4 overflow-y-auto">
             {filteredSections.map((section, sectionIndex) => {
               const SectionIcon = section.icon;
               const isExpanded = expandedSections[section.title] || false;
@@ -249,7 +249,7 @@ export function Sidebar({ userRole }: SidebarProps) {
                     className="w-full flex items-center justify-between gap-2 px-4 py-2 hover:bg-gray-50 rounded-lg transition-colors group"
                   >
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#DC2626] to-[#B91C1C] flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-site-primary to-site-secondary flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
                         <SectionIcon className="w-4 h-4 text-white" />
                       </div>
                       <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
@@ -276,8 +276,8 @@ export function Sidebar({ userRole }: SidebarProps) {
                             onClick={() => setMobileOpen(false)}
                             className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ml-2 ${
                               isActive
-                                ? "bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white shadow-lg shadow-red-200/50"
-                                : "text-gray-700 hover:bg-gray-100 hover:text-[#DC2626] hover:shadow-md"
+                                ? "bg-gradient-to-r from-site-primary to-site-secondary text-site-button-text shadow-lg shadow-site-primary/20"
+                                : "text-gray-700 hover:bg-gray-100 hover:text-site-primary hover:shadow-md"
                             }`}
                           >
                             <Icon className={`w-5 h-5 flex-shrink-0 ${isActive ? "text-white" : "text-gray-600"}`} />
@@ -298,7 +298,7 @@ export function Sidebar({ userRole }: SidebarProps) {
           <div className="p-4 border-t-2 border-gray-200 bg-white">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-[#DC2626] hover:bg-red-50 hover:shadow-md transition-all duration-200 font-medium"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-site-primary hover:bg-site-primary/10 hover:shadow-md transition-all duration-200 font-medium"
             >
               <FaSignOutAlt className="w-5 h-5" />
               <span>Déconnexion</span>

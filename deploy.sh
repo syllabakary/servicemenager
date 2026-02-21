@@ -77,3 +77,5 @@ echo -e "   2. Vérifier les logs: ${YELLOW}docker compose logs -f${NC}"
 echo -e "   3. Accéder à l'application: ${YELLOW}http://76.13.56.224${NC}"
 echo ""
 
+
+

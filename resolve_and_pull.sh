@@ -25,3 +25,5 @@ echo ""
 echo "📝 Fichiers disponibles:"
 ls -la *.sh 2>/dev/null | grep -E "(check_dns|obtain_certificate|enable_https)" || echo "Scripts trouvés"
 
+
+

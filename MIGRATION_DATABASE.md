@@ -90,3 +90,5 @@ docker compose exec backend python manage.py createsuperuser
 
 **Attention :** Vérifiez que les données sont compatibles avant d'importer en production.
 
+
+

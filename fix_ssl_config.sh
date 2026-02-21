@@ -61,3 +61,5 @@ echo "   - Le renouvellement est AUTOMATIQUE (configuré par Certbot)"
 echo "   - Pour un certificat valide jusqu'en 2030, il faut un certificat payant"
 echo "   - Les certificats Let's Encrypt sont GRATUITS et renouvelés automatiquement"
 
+
+

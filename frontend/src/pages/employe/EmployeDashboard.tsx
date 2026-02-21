@@ -68,7 +68,7 @@ export default function EmployeDashboard() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <FaSpinner className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <FaSpinner className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Chargement...</p>
         </div>
       </div>
@@ -82,11 +82,11 @@ export default function EmployeDashboard() {
         <div className="bg-gradient-to-r from-white to-gray-50 rounded-2xl shadow-xl p-6 md:p-8 border border-gray-200">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="flex-1">
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#DC2626] via-[#B91C1C] to-[#991B1B] bg-clip-text text-transparent">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-site-section-employe-text">
                 Tableau de bord
               </h1>
               <div className="flex items-center gap-3 mt-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#DC2626] to-[#B91C1C] flex items-center justify-center text-white font-bold">
+                <div className="w-10 h-10 rounded-full bg-site-section-employe-button flex items-center justify-center text-site-button-text font-bold">
                   {user.first_name?.[0]}{user.last_name?.[0]}
                 </div>
                 <div>
@@ -94,7 +94,7 @@ export default function EmployeDashboard() {
                     {user.first_name} {user.last_name}
                   </p>
                   <p className="text-gray-500 text-sm">
-                    Matricule: <span className="font-mono font-semibold text-[#DC2626]">{user.matricule}</span>
+                    Matricule: <span className="font-mono font-semibold text-site-primary">{user.matricule}</span>
                   </p>
                 </div>
               </div>
@@ -102,7 +102,7 @@ export default function EmployeDashboard() {
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
               <Button
                 onClick={() => setLocation("/employe/scan")}
-                className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white shadow-lg hover:shadow-xl transition-all duration-300 px-6 py-6 text-base font-semibold"
+                className="bg-site-section-employe-button hover:opacity-90 text-site-button-text border-2 border-site-section-employe-button-border shadow-lg hover:shadow-xl transition-all duration-300 px-6 py-6 text-base font-semibold"
                 size="lg"
               >
                 <FaQrcode className="w-5 h-5 mr-2" />
@@ -141,7 +141,7 @@ export default function EmployeDashboard() {
         {/* Statistiques */}
         {isLoading ? (
           <div className="text-center py-12">
-            <FaSpinner className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <FaSpinner className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <p className="text-gray-600">Chargement des statistiques...</p>
           </div>
         ) : statsError ? (
@@ -381,7 +381,7 @@ export default function EmployeDashboard() {
             <Card className="shadow-xl border-0 bg-white">
               <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
                 <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-                  <FaList className="w-6 h-6 text-[#DC2626]" />
+                  <FaList className="w-6 h-6 text-site-primary" />
                   Visites d'aujourd'hui
                 </CardTitle>
               </CardHeader>
@@ -472,7 +472,7 @@ export default function EmployeDashboard() {
                     <p className="text-lg">Aucune visite enregistrée aujourd'hui</p>
                     <Button
                       onClick={() => setLocation("/employe/scan")}
-                      className="mt-4 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white"
+                      className="mt-4 bg-site-section-employe-button hover:opacity-90 text-site-button-text border-2 border-site-section-employe-button-border"
                     >
                       <FaQrcode className="w-4 h-4 mr-2" />
                       Commencer à scanner

@@ -93,16 +93,16 @@ export default function EmployeLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-2xl border-0">
+    <div className="min-h-screen bg-site-section-employe-login-bg flex items-center justify-center p-4">
+      <Card className="w-full max-w-md shadow-2xl border-2 border-site-section-employe-login-button-border">
         <CardHeader className="text-center pb-4">
-          <div className="mx-auto mb-4 w-16 h-16 bg-gradient-to-r from-[#DC2626] to-[#B91C1C] rounded-full flex items-center justify-center">
-            <FaIdCard className="w-8 h-8 text-white" />
+          <div className="mx-auto mb-4 w-16 h-16 bg-site-section-employe-login-button rounded-full flex items-center justify-center">
+            <FaIdCard className="w-8 h-8 text-site-button-text" />
           </div>
-          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-[#DC2626] to-[#B91C1C] bg-clip-text text-transparent">
+          <CardTitle className="text-3xl font-bold text-site-section-employe-login-text">
             Connexion Employé
           </CardTitle>
-          <CardDescription className="text-base mt-2">
+          <CardDescription className="text-base mt-2 text-site-section-employe-login-text/90">
             Connectez-vous avec votre matricule et mot de passe
           </CardDescription>
         </CardHeader>
@@ -148,7 +148,7 @@ export default function EmployeLogin() {
 
             <Button
               type="submit"
-              className="w-full bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white"
+              className="w-full bg-site-section-employe-login-button hover:opacity-90 text-site-button-text border-2 border-site-section-employe-login-button-border"
               disabled={loading}
             >
               {loading ? "Connexion..." : "Se connecter"}
@@ -159,7 +159,7 @@ export default function EmployeLogin() {
                 type="button"
                 variant="ghost"
                 onClick={() => setLocation("/")}
-                className="text-sm text-gray-600 hover:text-[#DC2626]"
+                className="text-sm text-gray-600 hover:text-site-primary"
               >
                 <FaHome className="w-4 h-4 mr-2" />
                 Retour à l'accueil

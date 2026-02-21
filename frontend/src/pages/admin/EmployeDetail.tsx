@@ -59,7 +59,7 @@ export default function EmployeDetail() {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
-          <div className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </DashboardLayout>
@@ -208,7 +208,7 @@ export default function EmployeDetail() {
                 Retour
               </Button>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-[#DC2626] to-[#B91C1C] bg-clip-text text-transparent">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-site-primary to-site-secondary bg-clip-text text-transparent">
                   Fiche Employé
                 </h1>
                 <p className="text-gray-600 mt-1">
@@ -239,7 +239,7 @@ export default function EmployeDetail() {
                 onClick={() => {
                   setLocation(`/admin/employes?edit=${employe.id}`);
                 }}
-                className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white"
+                className="bg-gradient-to-r from-site-primary to-site-secondary hover:from-site-secondary hover:to-site-tertiary text-site-button-text"
               >
                 <FaUser className="w-4 h-4 mr-2" />
                 Modifier
@@ -253,7 +253,7 @@ export default function EmployeDetail() {
           <Card className="shadow-xl border-0 bg-white">
             <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
               <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <FaUser className="w-5 h-5 text-[#DC2626]" />
+                <FaUser className="w-5 h-5 text-site-primary" />
                 Informations de base
               </CardTitle>
             </CardHeader>
@@ -329,7 +329,7 @@ export default function EmployeDetail() {
           <Card className="shadow-xl border-0 bg-white">
             <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
               <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <FaEnvelope className="w-5 h-5 text-[#DC2626]" />
+                <FaEnvelope className="w-5 h-5 text-site-primary" />
                 Coordonnées
               </CardTitle>
             </CardHeader>
@@ -389,7 +389,7 @@ export default function EmployeDetail() {
           <Card className="shadow-xl border-0 bg-white">
             <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
               <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <FaBriefcase className="w-5 h-5 text-[#DC2626]" />
+                <FaBriefcase className="w-5 h-5 text-site-primary" />
                 Informations professionnelles
               </CardTitle>
             </CardHeader>
@@ -449,7 +449,7 @@ export default function EmployeDetail() {
           <Card className="shadow-xl border-0 bg-white">
             <CardHeader className="border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
               <CardTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                <FaMoneyBillWave className="w-5 h-5 text-[#DC2626]" />
+                <FaMoneyBillWave className="w-5 h-5 text-site-primary" />
                 Rémunération & Statut
               </CardTitle>
             </CardHeader>

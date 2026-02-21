@@ -63,3 +63,5 @@ Après reconstruction, vérifier dans le navigateur (F12 > Console) :
 
 Le backend retourne parfois `localhost` dans les réponses JSON. C'est normal pour les URLs internes. Le frontend utilisera maintenant toujours l'IP publique pour les requêtes.
 
+
+

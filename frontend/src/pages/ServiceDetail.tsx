@@ -1019,7 +1019,7 @@ export default function ServiceDetail() {
                             <Button
                               variant="outline"
                               size="sm"
-                              className="mt-2 border-site-primary text-site-text-link hover:bg-site-button-primary hover:text-site-button-text"
+                              className="mt-2 border-2 border-site-button-outline-border text-site-button-outline-text hover:bg-site-button-outline-hover-bg hover:text-white"
                               onClick={(e) => {
                                 e.preventDefault();
                                 window.location.href = `/agences/${agency.slug}`;

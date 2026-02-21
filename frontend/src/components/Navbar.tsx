@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { FaHome, FaBriefcase, FaBuilding, FaPhone, FaChevronDown, FaBaby, FaTree, FaPaintBrush, FaShieldAlt, FaTruck, FaMapMarkerAlt, FaUsers, FaInfoCircle } from "react-icons/fa";
 import { HiMenu, HiX } from "react-icons/hi";
 import { HiSparkles } from "react-icons/hi";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { IconType } from "react-icons";
 import { useQuery } from "@tanstack/react-query";
@@ -68,6 +68,30 @@ export function Navbar() {
       return response.json();
     },
   });
+
+  // Récupérer le nom du site et le logo depuis les paramètres (affichés dans la navbar)
+  const { data: siteSettings, refetch: refetchSiteSettings } = useQuery({
+    queryKey: ["site-settings"],
+    queryFn: async () => {
+      const response = await fetch(`${API_URL}/site-settings/`);
+      return response.json();
+    },
+  });
+
+  // Rafraîchir le nom/logo quand on enregistre dans Paramètres (admin)
+  useEffect(() => {
+    const onSettingsUpdated = () => refetchSiteSettings();
+    window.addEventListener("site-settings-updated", onSettingsUpdated);
+    return () => window.removeEventListener("site-settings-updated", onSettingsUpdated);
+  }, [refetchSiteSettings]);
+
+  const siteName = siteSettings?.site_name || "Services Locaux";
+  const siteTagline = siteSettings?.site_tagline || "Votre partenaire de confiance";
+  const logoUrl = siteSettings?.logo_url || null;
+  // Afficher le nom en deux parties si contient un espace (ex. "Services" + "Locaux")
+  const [namePart1, namePart2] = siteName.includes(" ")
+    ? [siteName.split(" ")[0], siteName.split(" ").slice(1).join(" ")]
+    : [siteName, ""];
 
   // Construire les items de navigation pour les services
   const buildServicesSubItems = (): SubItem[] => {
@@ -191,16 +215,31 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 w-full">
         <div className="flex items-center justify-between h-16 md:h-20 w-full gap-2">
           
-          {/* Logo */}
+          {/* Logo (nom et logo depuis les paramètres du site) */}
           <Link href="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink-0 min-w-0" data-testid="link-home">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg bg-gradient-to-br from-[#DC2626] to-black flex items-center justify-center transition-transform duration-200 group-hover:scale-105 shadow-md flex-shrink-0">
-              <FaHome className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
-            </div>
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt={siteName}
+                className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg object-contain transition-transform duration-200 group-hover:scale-105 shadow-md flex-shrink-0 bg-white"
+              />
+            ) : (
+              <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg bg-gradient-to-br from-site-primary to-site-secondary flex items-center justify-center transition-transform duration-200 group-hover:scale-105 shadow-md flex-shrink-0">
+                <FaHome className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
+              </div>
+            )}
             <div className="flex flex-col min-w-0">
-              <span className="text-base sm:text-lg md:text-xl font-bold text-gray-900 tracking-tight truncate">
-                Services <span className="text-[#DC2626]">Locaux</span>
-            </span>
-              <span className="text-xs text-gray-500 hidden md:block">Votre partenaire de confiance</span>
+              <span className="text-base sm:text-lg md:text-xl font-bold tracking-tight truncate">
+                {namePart2 ? (
+                  <>
+                    <span className="text-site-name-part1">{namePart1}</span>{" "}
+                    <span className="text-site-name-part2">{namePart2}</span>
+                  </>
+                ) : (
+                  <span className="text-site-name-part2">{siteName}</span>
+                )}
+              </span>
+              <span className="text-xs text-site-tagline hidden md:block">{siteTagline}</span>
             </div>
           </Link>
 
@@ -225,7 +264,7 @@ export function Navbar() {
                         <FaChevronDown className="w-3 h-3 ml-1 flex-shrink-0" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-56 bg-white border border-gray-200 shadow-lg" sideOffset={5}>
+                    <DropdownMenuContent align="start" side="top" className="w-56 bg-white border border-gray-200 shadow-lg" sideOffset={5}>
                       {item.subItems.map((subItem, idx) => (
                         <DropdownMenuSub key={idx}>
                           <DropdownMenuSubTrigger className="gap-2 hover:bg-site-primary/10 focus:bg-site-primary/10 focus:text-gray-900 data-[state=open]:bg-site-primary/10">
@@ -277,7 +316,7 @@ export function Navbar() {
             <Link href="/admin/login">
               <Button
                 variant="outline"
-                className="border-site-primary text-site-text-link hover:bg-site-button-primary hover:text-site-button-text transition-colors"
+                className="border-2 border-site-button-outline-border text-site-button-outline-text hover:bg-site-button-outline-hover-bg hover:text-white transition-colors"
               >
                 Connexion
               </Button>
@@ -472,12 +511,12 @@ export function Navbar() {
               {/* CTA Buttons Mobile */}
               <div className="pt-4 mt-4 border-t border-gray-300 space-y-2 w-full">
                 <Link href="/admin/login" onClick={handleCloseMenu} className="block w-full">
-                  <Button variant="outline" className="w-full border-2 border-[#DC2626] text-[#DC2626] hover:bg-[#DC2626] hover:text-white py-2 text-sm font-semibold">
+                  <Button variant="outline" className="w-full border-2 border-site-button-outline-border text-site-button-outline-text hover:bg-site-button-outline-hover-bg hover:text-white py-2 text-sm font-semibold">
                     Connexion
                   </Button>
                 </Link>
                 <Link href="/devis" onClick={handleCloseMenu} className="block w-full">
-                  <Button className="w-full bg-[#DC2626] hover:bg-[#DC2626] text-white shadow-lg py-2 text-sm font-semibold">
+                  <Button className="w-full bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text shadow-lg py-2 text-sm font-semibold">
                     Demander un devis
                   </Button>
                 </Link>

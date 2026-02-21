@@ -292,7 +292,7 @@ export default function AdminScans() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
-                <FaFilter className="w-5 h-5 text-[#DC2626]" />
+                <FaFilter className="w-5 h-5 text-site-primary" />
                 Filtres
               </CardTitle>
               {hasActiveFilters && (
@@ -415,7 +415,7 @@ export default function AdminScans() {
           <CardContent>
             {isLoading ? (
               <div className="text-center py-8">
-                <div className="w-12 h-12 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                <div className="w-12 h-12 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                 <p className="text-gray-600">Chargement...</p>
               </div>
             ) : groupedPairs.length === 0 ? (
@@ -442,8 +442,8 @@ export default function AdminScans() {
                       <div className="p-2.5 sm:p-3 border-b border-gray-200 bg-white/50 rounded-t-lg">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
-                            <div className="p-1 bg-[#DC2626]/10 rounded">
-                              <FaUser className="w-3.5 h-3.5 text-[#DC2626]" />
+                            <div className="p-1 bg-site-primary/10 rounded">
+                              <FaUser className="w-3.5 h-3.5 text-site-primary" />
                             </div>
                             <div>
                               <h3 className="font-semibold text-sm text-gray-900">{pair.employe}</h3>

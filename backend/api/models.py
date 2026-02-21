@@ -1041,6 +1041,178 @@ class SiteSettings(models.Model):
         verbose_name="Couleur hover des liens",
         help_text="Couleur au survol des liens - Si vide, utilise la couleur secondaire"
     )
+    # Bannière (bandeau promo en haut du site)
+    banner_bg_color = models.CharField(
+        max_length=7,
+        default="#DC2626",
+        blank=True,
+        null=True,
+        verbose_name="Couleur de fond de la bannière",
+        help_text="Fond du bandeau promotionnel (client, admin, employé)"
+    )
+    banner_text_color = models.CharField(
+        max_length=7,
+        default="#FFFFFF",
+        blank=True,
+        null=True,
+        verbose_name="Couleur du texte de la bannière",
+        help_text="Texte du bandeau promotionnel"
+    )
+    # Footer
+    footer_bg_color = models.CharField(
+        max_length=7,
+        default="#FEF2F2",
+        blank=True,
+        null=True,
+        verbose_name="Couleur de fond du footer",
+        help_text="Fond du pied de page (client, admin, employé)"
+    )
+    footer_text_color = models.CharField(
+        max_length=7,
+        default="#374151",
+        blank=True,
+        null=True,
+        verbose_name="Couleur du texte du footer",
+        help_text="Texte principal du footer"
+    )
+    footer_link_color = models.CharField(
+        max_length=7,
+        default="#DC2626",
+        blank=True,
+        null=True,
+        verbose_name="Couleur des liens du footer",
+        help_text="Liens et icônes du footer"
+    )
+    footer_link_hover_color = models.CharField(
+        max_length=7,
+        default="#B91C1C",
+        blank=True,
+        null=True,
+        verbose_name="Couleur hover des liens du footer",
+        help_text="Au survol des liens du footer"
+    )
+    footer_border_color = models.CharField(
+        max_length=7,
+        default="#FECACA",
+        blank=True,
+        null=True,
+        verbose_name="Couleur des bordures du footer",
+        help_text="Bordures et séparateurs du footer"
+    )
+    # Bordures des boutons (toutes interfaces)
+    button_border_color = models.CharField(
+        max_length=7,
+        default="",
+        blank=True,
+        null=True,
+        verbose_name="Couleur de la bordure des boutons",
+        help_text="Bordure des boutons principaux (vide = pas de bordure)"
+    )
+    button_border_width = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Épaisseur bordure boutons (px)",
+        help_text="0 = pas de bordure"
+    )
+    button_border_radius = models.CharField(
+        max_length=20,
+        default="0.375rem",
+        blank=True,
+        null=True,
+        verbose_name="Rayon des coins des boutons",
+        help_text="Ex: 0.375rem, 0.5rem, 9999px (pilule)"
+    )
+    # Boutons outline (ex. Connexion, liens bouton)
+    button_outline_border_color = models.CharField(
+        max_length=7,
+        default="#DC2626",
+        blank=True,
+        null=True,
+        verbose_name="Couleur bordure boutons outline",
+        help_text="Bordure des boutons type Connexion"
+    )
+    button_outline_text_color = models.CharField(
+        max_length=7,
+        default="#DC2626",
+        blank=True,
+        null=True,
+        verbose_name="Couleur texte boutons outline",
+        help_text="Texte des boutons type Connexion"
+    )
+    button_outline_hover_bg_color = models.CharField(
+        max_length=7,
+        default="#DC2626",
+        blank=True,
+        null=True,
+        verbose_name="Couleur fond hover boutons outline",
+        help_text="Fond au survol des boutons type Connexion"
+    )
+    # Couleurs du nom et slogan (navbar)
+    site_name_part1_color = models.CharField(
+        max_length=7,
+        default="#111827",
+        blank=True,
+        null=True,
+        verbose_name="Couleur 1 du nom (slogan)",
+        help_text="Première partie du nom (ex. Services)"
+    )
+    site_name_part2_color = models.CharField(
+        max_length=7,
+        default="#DC2626",
+        blank=True,
+        null=True,
+        verbose_name="Couleur 2 du nom (slogan)",
+        help_text="Deuxième partie du nom (ex. Locaux)"
+    )
+    site_tagline_color = models.CharField(
+        max_length=7,
+        default="#6B7280",
+        blank=True,
+        null=True,
+        verbose_name="Couleur du slogan (tagline)",
+        help_text="Sous-titre sous le nom (ex. Votre partenaire de confiance)"
+    )
+    # Bannière : bouton et bordure (fond + texte déjà présents)
+    banner_button_color = models.CharField(
+        max_length=7,
+        default="",
+        blank=True,
+        null=True,
+        verbose_name="Couleur bouton bannière",
+        help_text="Fond du bouton dans la bannière (vide = couleur principale)"
+    )
+    banner_button_border_color = models.CharField(
+        max_length=7,
+        default="",
+        blank=True,
+        null=True,
+        verbose_name="Bordure bouton bannière",
+        help_text="Bordure du bouton dans la bannière (vide = pas de bordure)"
+    )
+    # Section Services (page Services)
+    services_bg_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Fond section Services")
+    services_text_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Texte section Services")
+    services_button_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Bouton section Services")
+    services_button_border_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Bordure bouton section Services")
+    # Section Agences (page Agences)
+    agencies_bg_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Fond section Agences")
+    agencies_text_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Texte section Agences")
+    agencies_button_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Bouton section Agences")
+    agencies_button_border_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Bordure bouton section Agences")
+    # Interface employé (dashboard employé)
+    employe_bg_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Fond interface employé")
+    employe_text_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Texte interface employé")
+    employe_button_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Bouton interface employé")
+    employe_button_border_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Bordure bouton interface employé")
+    # Page connexion admin
+    admin_login_bg_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Fond page connexion admin")
+    admin_login_text_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Texte page connexion admin")
+    admin_login_button_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Bouton page connexion admin")
+    admin_login_button_border_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Bordure bouton page connexion admin")
+    # Page connexion employé
+    employe_login_bg_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Fond page connexion employé")
+    employe_login_text_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Texte page connexion employé")
+    employe_login_button_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Bouton page connexion employé")
+    employe_login_button_border_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Bordure bouton page connexion employé")
     # Logo
     logo = models.ImageField(
         upload_to='site/',
@@ -1136,6 +1308,12 @@ class SiteSettings(models.Model):
                     'id', 'primary_color', 'secondary_color', 'tertiary_color',
                     'button_primary_color', 'button_primary_hover_color', 'button_text_color',
                     'text_primary_color', 'text_link_color', 'text_link_hover_color',
+                    'banner_bg_color', 'banner_text_color',
+                    'footer_bg_color', 'footer_text_color', 'footer_link_color',
+                    'footer_link_hover_color', 'footer_border_color',
+                    'button_border_color', 'button_border_width', 'button_border_radius',
+                    'button_outline_border_color', 'button_outline_text_color', 'button_outline_hover_bg_color',
+                    'site_name_part1_color', 'site_name_part2_color', 'site_tagline_color',
                     'logo', 'logo_favicon', 'site_name', 'site_tagline',
                     'created_at', 'updated_at'
                 ).first()

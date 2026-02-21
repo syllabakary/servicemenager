@@ -65,7 +65,7 @@ export default function MyPatients() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <FaSpinner className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <FaSpinner className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Chargement...</p>
         </div>
       </div>
@@ -90,7 +90,7 @@ export default function MyPatients() {
                   Retour
                 </Button>
               </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#DC2626] via-[#B91C1C] to-[#991B1B] bg-clip-text text-transparent">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-site-section-employe-text">
                 Mes Patients Assignés
               </h1>
               <p className="text-gray-600 mt-2">
@@ -111,7 +111,7 @@ export default function MyPatients() {
         {/* Liste des patients */}
         {isLoading ? (
           <div className="text-center py-12">
-            <FaSpinner className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <FaSpinner className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <p className="text-gray-600">Chargement des patients...</p>
           </div>
         ) : patients && patients.length > 0 ? (
@@ -124,7 +124,7 @@ export default function MyPatients() {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-r from-[#DC2626] to-[#B91C1C] flex items-center justify-center text-white font-bold text-lg">
+                      <div className="w-12 h-12 rounded-full bg-site-section-employe-button flex items-center justify-center text-site-button-text font-bold text-lg">
                         {patient.first_name?.[0]}{patient.last_name?.[0]}
                       </div>
                       <div>
@@ -162,7 +162,7 @@ export default function MyPatients() {
                   </div>
                   <Button
                     onClick={() => setLocation(`/employe/patient/${patient.id}`)}
-                    className="w-full bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white mt-4"
+                    className="w-full bg-site-section-employe-button hover:opacity-90 text-site-button-text border-2 border-site-section-employe-button-border mt-4"
                   >
                     <FaEye className="w-4 h-4 mr-2" />
                     Voir les détails

@@ -134,3 +134,5 @@ Quand vous voudrez passer à PostgreSQL :
 
 **Recommandation :** Utilisez SQLite pour tester, puis migrez vers PostgreSQL pour la production.
 
+
+

@@ -67,18 +67,18 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-xl">
+    <div className="min-h-screen bg-site-section-admin-login-bg flex items-center justify-center p-4">
+      <Card className="w-full max-w-md shadow-xl border-2 border-site-section-admin-login-button-border">
         <CardHeader className="space-y-1 text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-[#DC2626] to-black flex items-center justify-center">
-              <FaLock className="w-8 h-8 text-white" />
+            <div className="w-16 h-16 rounded-lg bg-site-section-admin-login-button flex items-center justify-center">
+              <FaLock className="w-8 h-8 text-site-button-text" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold text-gray-900">
+          <CardTitle className="text-2xl font-bold text-site-section-admin-login-text">
             Connexion Admin
           </CardTitle>
-          <CardDescription>
+          <CardDescription className="text-site-section-admin-login-text/90">
             Accédez à votre espace d'administration
           </CardDescription>
         </CardHeader>
@@ -124,7 +124,7 @@ export default function AdminLogin() {
 
             <Button
               type="submit"
-              className="w-full bg-[#DC2626] hover:bg-[#B91C1C] text-white"
+              className="w-full bg-site-section-admin-login-button hover:opacity-90 text-site-button-text border-2 border-site-section-admin-login-button-border"
               disabled={loading}
             >
               {loading ? "Connexion..." : "Se connecter"}
@@ -137,7 +137,7 @@ export default function AdminLogin() {
                 </Button>
               </Link>
               <Link href="/">
-                <Button variant="ghost" className="text-sm text-gray-600 hover:text-[#DC2626]">
+                <Button variant="ghost" className="text-sm text-gray-600 hover:text-site-primary">
                   <FaHome className="w-4 h-4 mr-2" />
                   Retour à l'accueil
                 </Button>

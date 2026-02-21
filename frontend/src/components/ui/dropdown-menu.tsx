@@ -25,7 +25,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
   <DropdownMenuPrimitive.SubTrigger
     ref={ref}
     className={cn(
-      "flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-[#DC2626]/10 focus:text-gray-900 data-[state=open]:bg-[#DC2626]/10 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+      "flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none focus:bg-site-primary/10 focus:text-gray-900 data-[state=open]:bg-site-primary/10 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
       inset && "pl-8",
       className
     )}
@@ -82,7 +82,7 @@ const DropdownMenuItem = React.forwardRef<
   <DropdownMenuPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-[#DC2626]/10 focus:text-gray-900 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+      "relative flex cursor-default select-none items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors focus:bg-site-primary/10 focus:text-gray-900 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
       inset && "pl-8",
       className
     )}

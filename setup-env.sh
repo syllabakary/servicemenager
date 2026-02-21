@@ -28,3 +28,5 @@ echo "   2. Générer SECRET_KEY: python3 -c \"import secrets; print(secrets.tok
 echo "   3. Modifier SECRET_KEY dans .env"
 echo ""
 
+
+

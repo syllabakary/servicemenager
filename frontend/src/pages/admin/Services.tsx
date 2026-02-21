@@ -141,7 +141,7 @@ export default function AdminServices() {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
-          <div className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </DashboardLayout>
@@ -154,14 +154,14 @@ export default function AdminServices() {
         <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-[#DC2626] to-[#B91C1C] bg-clip-text text-transparent">
+              <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-site-primary to-site-secondary bg-clip-text text-transparent">
                 Gestion des Services
               </h1>
               <p className="text-gray-600 mt-2 text-base sm:text-lg">Créez, modifiez et gérez vos services</p>
             </div>
             <Button 
               onClick={handleNew} 
-              className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white shadow-lg hover:shadow-xl transition-all duration-300 px-4 sm:px-6 py-3 sm:py-6 text-sm sm:text-base font-semibold w-full sm:w-auto"
+              className="bg-gradient-to-r from-site-primary to-site-secondary hover:from-site-secondary hover:to-site-tertiary text-white shadow-lg hover:shadow-xl transition-all duration-300 px-4 sm:px-6 py-3 sm:py-6 text-sm sm:text-base font-semibold w-full sm:w-auto"
             >
               <FaPlus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
               Nouveau service
@@ -627,7 +627,7 @@ function ServiceDialog({
                     {cat.name} {cat.show_in_navbar ? "✓ (Navbar)" : "⚠ (Non affichée)"}
                   </SelectItem>
                 ))}
-                <SelectItem value="new" className="text-[#DC2626] font-semibold">
+                <SelectItem value="new" className="text-site-primary font-semibold">
                   + Ajouter une nouvelle catégorie
                 </SelectItem>
               </SelectContent>
@@ -1282,7 +1282,7 @@ function ServiceDialog({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Annuler
             </Button>
-            <Button type="submit" className="bg-[#DC2626] hover:bg-[#B91C1C]">
+            <Button type="submit" className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text">
               {saveMutation.isPending ? "Enregistrement..." : "Enregistrer"}
             </Button>
           </div>
@@ -1330,7 +1330,7 @@ function ServiceDialog({
             <AlertDialogAction
               onClick={handleCreateCategory}
               disabled={!newCategoryName.trim() || createCategoryMutation.isPending}
-              className="bg-[#DC2626] hover:bg-[#B91C1C]"
+              className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text"
             >
               {createCategoryMutation.isPending ? "Création..." : "Créer"}
             </AlertDialogAction>

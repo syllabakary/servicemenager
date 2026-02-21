@@ -115,7 +115,7 @@ export default function ChangePassword() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </div>
@@ -146,7 +146,7 @@ export default function ChangePassword() {
 
         {/* Formulaire */}
         <Card className="shadow-xl border-0 bg-white">
-          <CardHeader className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white rounded-t-lg">
+          <CardHeader className="bg-gradient-to-r from-site-primary to-site-secondary text-white rounded-t-lg">
             <CardTitle className="text-xl flex items-center gap-2">
               <FaLock className="w-6 h-6" />
               Modification du mot de passe
@@ -249,7 +249,7 @@ export default function ChangePassword() {
               {/* Bouton de soumission */}
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white h-14 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                className="w-full bg-gradient-to-r from-site-primary to-site-secondary hover:from-site-secondary hover:to-site-tertiary text-white h-14 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                 disabled={changePasswordMutation.isPending}
               >
                 {changePasswordMutation.isPending ? (

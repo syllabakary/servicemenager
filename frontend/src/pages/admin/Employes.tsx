@@ -594,7 +594,7 @@ export default function AdminEmployes() {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
-          <div className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </DashboardLayout>
@@ -609,7 +609,7 @@ export default function AdminEmployes() {
         <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
-              <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-[#DC2626] to-[#B91C1C] bg-clip-text text-transparent">
+              <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-site-primary to-site-secondary bg-clip-text text-transparent">
                 Gestion des Employés
               </h1>
               <p className="text-gray-600 mt-2 text-base sm:text-lg">
@@ -618,7 +618,7 @@ export default function AdminEmployes() {
             </div>
             <Button
               onClick={handleNew}
-              className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white shadow-lg hover:shadow-xl transition-all duration-300 px-4 sm:px-6 py-3 sm:py-6 text-sm sm:text-base font-semibold w-full sm:w-auto"
+              className="bg-gradient-to-r from-site-primary to-site-secondary hover:from-site-secondary hover:to-site-tertiary text-white shadow-lg hover:shadow-xl transition-all duration-300 px-4 sm:px-6 py-3 sm:py-6 text-sm sm:text-base font-semibold w-full sm:w-auto"
             >
               <FaPlus className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
               Nouvel employé
@@ -719,7 +719,7 @@ export default function AdminEmployes() {
           }
         }}>
           <DialogContent className="max-w-[98vw] w-full max-h-[98vh] h-full overflow-hidden flex flex-col p-0 m-0 rounded-lg">
-            <DialogHeader className="px-6 pt-6 pb-4 border-b bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white flex-shrink-0">
+            <DialogHeader className="px-6 pt-6 pb-4 border-b bg-gradient-to-r from-site-primary to-site-secondary text-white flex-shrink-0">
               <DialogTitle className="text-3xl font-bold">
                 {editingEmploye ? "Modifier l'employé" : "Nouvel employé"}
               </DialogTitle>
@@ -739,7 +739,7 @@ export default function AdminEmployes() {
                       <div
                         className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-all ${
                           currentStep >= step
-                            ? "bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white shadow-lg"
+                            ? "bg-gradient-to-r from-site-primary to-site-secondary text-white shadow-lg"
                             : "bg-gray-300 text-gray-600"
                         }`}
                       >
@@ -751,7 +751,7 @@ export default function AdminEmployes() {
                       </div>
                       <span
                         className={`text-xs mt-2 font-medium ${
-                          currentStep >= step ? "text-[#DC2626]" : "text-gray-500"
+                          currentStep >= step ? "text-site-primary" : "text-gray-500"
                         }`}
                       >
                         {step === 1 && "Identité"}
@@ -764,7 +764,7 @@ export default function AdminEmployes() {
                     {step < 5 && (
                       <div
                         className={`h-1 flex-1 mx-2 transition-all ${
-                          currentStep > step ? "bg-[#DC2626]" : "bg-gray-300"
+                          currentStep > step ? "bg-site-primary" : "bg-gray-300"
                         }`}
                       />
                     )}
@@ -789,7 +789,7 @@ export default function AdminEmployes() {
                       <div className="space-y-6 max-w-6xl mx-auto">
                         <div className="bg-white p-8 rounded-xl border-2 border-blue-200 shadow-lg">
                           <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b border-gray-200">
-                            <FaUser className="w-7 h-7 text-[#DC2626]" />
+                            <FaUser className="w-7 h-7 text-site-primary" />
                             Informations de base
                           </h3>
                           <div className="grid grid-cols-2 gap-4">
@@ -802,7 +802,7 @@ export default function AdminEmployes() {
                                 onChange={(e) => updateField("username", e.target.value)}
                                 required
                                 disabled={!!editingEmploye}
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                             <div className="space-y-2">
@@ -814,7 +814,7 @@ export default function AdminEmployes() {
                                 value={formData.email || ""}
                                 onChange={(e) => updateField("email", e.target.value)}
                                 required
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                           </div>
@@ -827,7 +827,7 @@ export default function AdminEmployes() {
                                 value={formData.first_name || ""}
                                 onChange={(e) => updateField("first_name", e.target.value)}
                                 required
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                             <div className="space-y-2">
@@ -838,7 +838,7 @@ export default function AdminEmployes() {
                                 value={formData.last_name || ""}
                                 onChange={(e) => updateField("last_name", e.target.value)}
                                 required
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                           </div>
@@ -852,7 +852,7 @@ export default function AdminEmployes() {
                                 onChange={(e) => updateField("matricule", e.target.value)}
                                 required
                                 placeholder="Ex: EMP001"
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                               <p className="text-xs text-gray-500">Le matricule doit être unique et sera utilisé pour la connexion</p>
                             </div>
@@ -867,7 +867,7 @@ export default function AdminEmployes() {
                               value={formData.password || ""}
                               onChange={(e) => updateField("password", e.target.value)}
                               required={!editingEmploye}
-                              className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                              className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                             />
                             </div>
                           </div>
@@ -882,7 +882,7 @@ export default function AdminEmployes() {
                         
                         <div className="bg-white p-8 rounded-xl border-2 border-gray-200 shadow-lg">
                           <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b border-gray-200">
-                            <FaUser className="w-7 h-7 text-[#DC2626]" />
+                            <FaUser className="w-7 h-7 text-site-primary" />
                             Informations personnelles
                           </h3>
                           <div className="grid grid-cols-2 gap-4">
@@ -893,7 +893,7 @@ export default function AdminEmployes() {
                                 value={formData.sexe || ""}
                                 onValueChange={(value) => updateField("sexe", value)}
                               >
-                                <SelectTrigger className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]">
+                                <SelectTrigger className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary">
                                   <SelectValue placeholder="Sélectionner" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -911,7 +911,7 @@ export default function AdminEmployes() {
                                 type="date"
                                 value={formData.date_naissance || ""}
                                 onChange={(e) => updateField("date_naissance", e.target.value)}
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                           </div>
@@ -923,7 +923,7 @@ export default function AdminEmployes() {
                               value={formData.nationalite || ""}
                               onChange={(e) => updateField("nationalite", e.target.value)}
                               placeholder="Ex: Française, Ivoirienne..."
-                              className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                              className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                             />
                           </div>
                         </div>
@@ -935,7 +935,7 @@ export default function AdminEmployes() {
                       <div className="space-y-6 max-w-6xl mx-auto">
                         <div className="bg-white p-8 rounded-xl border-2 border-green-200 shadow-lg">
                           <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b border-gray-200">
-                            <FaEnvelope className="w-7 h-7 text-[#DC2626]" />
+                            <FaEnvelope className="w-7 h-7 text-site-primary" />
                             Emails
                           </h3>
                           <div className="grid grid-cols-2 gap-4">
@@ -947,7 +947,7 @@ export default function AdminEmployes() {
                                 type="email"
                                 value={formData.email_professionnel || ""}
                                 onChange={(e) => updateField("email_professionnel", e.target.value)}
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                             <div className="space-y-2">
@@ -958,7 +958,7 @@ export default function AdminEmployes() {
                                 type="email"
                                 value={formData.email_personnel || ""}
                                 onChange={(e) => updateField("email_personnel", e.target.value)}
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                           </div>
@@ -966,7 +966,7 @@ export default function AdminEmployes() {
                         
                         <div className="bg-white p-8 rounded-xl border-2 border-blue-200 shadow-lg">
                           <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b border-gray-200">
-                            <FaPhone className="w-7 h-7 text-[#DC2626]" />
+                            <FaPhone className="w-7 h-7 text-site-primary" />
                             Téléphones
                           </h3>
                           <div className="grid grid-cols-2 gap-4">
@@ -978,7 +978,7 @@ export default function AdminEmployes() {
                                 type="tel"
                                 value={formData.telephone_principal || ""}
                                 onChange={(e) => updateField("telephone_principal", e.target.value)}
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                             <div className="space-y-2">
@@ -989,7 +989,7 @@ export default function AdminEmployes() {
                                 type="tel"
                                 value={formData.telephone_secondaire || ""}
                                 onChange={(e) => updateField("telephone_secondaire", e.target.value)}
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                           </div>
@@ -997,7 +997,7 @@ export default function AdminEmployes() {
                         
                         <div className="bg-white p-8 rounded-xl border-2 border-purple-200 shadow-lg">
                           <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b border-gray-200">
-                            <FaMapMarkerAlt className="w-7 h-7 text-[#DC2626]" />
+                            <FaMapMarkerAlt className="w-7 h-7 text-site-primary" />
                             Adresse
                           </h3>
                           <div className="space-y-2">
@@ -1008,7 +1008,7 @@ export default function AdminEmployes() {
                               value={formData.adresse_numero_rue || ""}
                               onChange={(e) => updateField("adresse_numero_rue", e.target.value)}
                               placeholder="Ex: 123 Rue de la République"
-                              className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                              className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                             />
                           </div>
                           <div className="grid grid-cols-3 gap-4 mt-4">
@@ -1019,7 +1019,7 @@ export default function AdminEmployes() {
                                 name="adresse_code_postal"
                                 value={formData.adresse_code_postal || ""}
                                 onChange={(e) => updateField("adresse_code_postal", e.target.value)}
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                             <div className="space-y-2">
@@ -1029,7 +1029,7 @@ export default function AdminEmployes() {
                                 name="adresse_ville"
                                 value={formData.adresse_ville || ""}
                                 onChange={(e) => updateField("adresse_ville", e.target.value)}
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                             <div className="space-y-2">
@@ -1040,7 +1040,7 @@ export default function AdminEmployes() {
                                 value={formData.adresse_pays || ""}
                                 onChange={(e) => updateField("adresse_pays", e.target.value)}
                                 placeholder="Ex: Côte d'Ivoire"
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                           </div>
@@ -1053,7 +1053,7 @@ export default function AdminEmployes() {
                       <div className="space-y-6 max-w-6xl mx-auto">
                         <div className="bg-white p-8 rounded-xl border-2 border-red-200 shadow-lg">
                           <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b border-gray-200">
-                            <FaCog className="w-7 h-7 text-[#DC2626]" />
+                            <FaCog className="w-7 h-7 text-site-primary" />
                             Statut du compte
                           </h3>
                           <div className="space-y-2">
@@ -1063,7 +1063,7 @@ export default function AdminEmployes() {
                               value={formData.statut_compte || "ACTIF"}
                               onValueChange={(value) => updateField("statut_compte", value)}
                             >
-                              <SelectTrigger className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]">
+                              <SelectTrigger className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -1082,7 +1082,7 @@ export default function AdminEmployes() {
                       <div className="space-y-6 max-w-6xl mx-auto">
                         <div className="bg-white p-8 rounded-xl border-2 border-indigo-200 shadow-lg">
                           <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b border-gray-200">
-                            <FaBriefcase className="w-7 h-7 text-[#DC2626]" />
+                            <FaBriefcase className="w-7 h-7 text-site-primary" />
                             Poste et service
                           </h3>
                           <div className="grid grid-cols-2 gap-4">
@@ -1094,7 +1094,7 @@ export default function AdminEmployes() {
                                 value={formData.poste_fonction || ""}
                                 onChange={(e) => updateField("poste_fonction", e.target.value)}
                                 placeholder="Ex: Aide à domicile, Infirmier..."
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                             <div className="space-y-2">
@@ -1105,7 +1105,7 @@ export default function AdminEmployes() {
                                 value={formData.service_departement || ""}
                                 onChange={(e) => updateField("service_departement", e.target.value)}
                                 placeholder="Ex: Soins à domicile, Ménage..."
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                           </div>
@@ -1113,7 +1113,7 @@ export default function AdminEmployes() {
                         
                         <div className="bg-white p-8 rounded-xl border-2 border-yellow-200 shadow-lg">
                           <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b border-gray-200">
-                            <FaFileAlt className="w-7 h-7 text-[#DC2626]" />
+                            <FaFileAlt className="w-7 h-7 text-site-primary" />
                             Contrat
                           </h3>
                           <div className="grid grid-cols-2 gap-4">
@@ -1124,7 +1124,7 @@ export default function AdminEmployes() {
                                 value={formData.type_contrat || ""}
                                 onValueChange={(value) => updateField("type_contrat", value)}
                               >
-                                <SelectTrigger className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]">
+                                <SelectTrigger className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary">
                                   <SelectValue placeholder="Sélectionner" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -1143,7 +1143,7 @@ export default function AdminEmployes() {
                                 value={formData.temps_travail || ""}
                                 onValueChange={(value) => updateField("temps_travail", value)}
                               >
-                                <SelectTrigger className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]">
+                                <SelectTrigger className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary">
                                   <SelectValue placeholder="Sélectionner" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -1162,7 +1162,7 @@ export default function AdminEmployes() {
                                 type="date"
                                 value={formData.date_debut_contrat || ""}
                                 onChange={(e) => updateField("date_debut_contrat", e.target.value)}
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                             <div className="space-y-2">
@@ -1173,7 +1173,7 @@ export default function AdminEmployes() {
                                 type="date"
                                 value={formData.date_fin_contrat || ""}
                                 onChange={(e) => updateField("date_fin_contrat", e.target.value)}
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                           </div>
@@ -1181,7 +1181,7 @@ export default function AdminEmployes() {
                         
                         <div className="bg-white p-8 rounded-xl border-2 border-green-200 shadow-lg">
                           <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b border-gray-200">
-                            <FaStar className="w-7 h-7 text-[#DC2626]" />
+                            <FaStar className="w-7 h-7 text-site-primary" />
                             Rémunération
                           </h3>
                           <div className="grid grid-cols-2 gap-4">
@@ -1195,7 +1195,7 @@ export default function AdminEmployes() {
                                 value={formData.taux_horaire || ""}
                                 onChange={(e) => updateField("taux_horaire", e.target.value)}
                                 placeholder="Ex: 15.50"
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                             <div className="space-y-2">
@@ -1208,7 +1208,7 @@ export default function AdminEmployes() {
                                 value={formData.salaire || ""}
                                 onChange={(e) => updateField("salaire", e.target.value)}
                                 placeholder="Ex: 2500.00"
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                           </div>
@@ -1220,7 +1220,7 @@ export default function AdminEmployes() {
                                 value={formData.mode_paiement || ""}
                                 onValueChange={(value) => updateField("mode_paiement", value)}
                               >
-                                <SelectTrigger className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]">
+                                <SelectTrigger className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary">
                                   <SelectValue placeholder="Sélectionner" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -1236,7 +1236,7 @@ export default function AdminEmployes() {
                         
                         <div className="bg-white p-8 rounded-xl border-2 border-gray-200 shadow-lg">
                           <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b border-gray-200">
-                            <FaFileAlt className="w-7 h-7 text-[#DC2626]" />
+                            <FaFileAlt className="w-7 h-7 text-site-primary" />
                             Informations administratives
                           </h3>
                           <div className="grid grid-cols-2 gap-4">
@@ -1248,7 +1248,7 @@ export default function AdminEmployes() {
                                 value={formData.numero_securite_sociale || ""}
                                 onChange={(e) => updateField("numero_securite_sociale", e.target.value)}
                                 placeholder="Si légalement autorisé"
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                             <div className="space-y-2">
@@ -1258,7 +1258,7 @@ export default function AdminEmployes() {
                                 name="numero_employe_interne"
                                 value={formData.numero_employe_interne || ""}
                                 onChange={(e) => updateField("numero_employe_interne", e.target.value)}
-                                className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>
                           </div>
@@ -1271,7 +1271,7 @@ export default function AdminEmployes() {
                       <div className="space-y-6 max-w-6xl mx-auto">
                         <div className="bg-white p-8 rounded-xl border-2 border-purple-200 shadow-lg">
                           <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b border-gray-200">
-                            <FaFileAlt className="w-7 h-7 text-[#DC2626]" />
+                            <FaFileAlt className="w-7 h-7 text-site-primary" />
                             Statut des documents
                           </h3>
                           <div className="space-y-2">
@@ -1281,7 +1281,7 @@ export default function AdminEmployes() {
                               value={formData.statut_documents || "EN_ATTENTE"}
                               onValueChange={(value) => updateField("statut_documents", value)}
                             >
-                              <SelectTrigger className="h-11 bg-white border-gray-300 focus:border-[#DC2626] focus:ring-[#DC2626]">
+                              <SelectTrigger className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -1340,7 +1340,7 @@ export default function AdminEmployes() {
                     <Button
                       type="button"
                       onClick={nextStep}
-                      className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white flex items-center gap-2"
+                      className="bg-gradient-to-r from-site-primary to-site-secondary hover:from-site-secondary hover:to-site-tertiary text-white flex items-center gap-2"
                     >
                       Suivant
                       <FaChevronRight className="w-4 h-4" />
@@ -1349,7 +1349,7 @@ export default function AdminEmployes() {
                     <Button
                       type="submit"
                       disabled={saveMutation.isPending}
-                      className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white flex items-center gap-2"
+                      className="bg-gradient-to-r from-site-primary to-site-secondary hover:from-site-secondary hover:to-site-tertiary text-white flex items-center gap-2"
                     >
                       {saveMutation.isPending ? (
                         <>

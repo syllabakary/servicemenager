@@ -102,7 +102,7 @@ export default function AdminDevis() {
     return (
       <DashboardLayout>
         <div className="text-center py-12">
-          <div className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </DashboardLayout>
@@ -815,7 +815,7 @@ export default function AdminDevis() {
                 {/* Informations client */}
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-2">
-                    <FaUser className="w-5 h-5 text-[#DC2626]" />
+                    <FaUser className="w-5 h-5 text-site-primary" />
                     Informations client
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -863,7 +863,7 @@ export default function AdminDevis() {
                 {/* Service et localisation */}
                 <div className="bg-gray-50 rounded-lg p-4">
                   <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-2">
-                    <FaBriefcase className="w-5 h-5 text-[#DC2626]" />
+                    <FaBriefcase className="w-5 h-5 text-site-primary" />
                     Service et localisation
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -885,7 +885,7 @@ export default function AdminDevis() {
                 {selectedRequest.additional_info && (
                   <div className="bg-gray-50 rounded-lg p-4">
                     <h3 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-2">
-                      <FaInfoCircle className="w-5 h-5 text-[#DC2626]" />
+                      <FaInfoCircle className="w-5 h-5 text-site-primary" />
                       Informations supplémentaires
                     </h3>
                     <div className="space-y-4">
@@ -959,7 +959,7 @@ export default function AdminDevis() {
                         </div>
                         <div className="flex items-center justify-between pt-2 border-t border-gray-300">
                           <p className="text-base font-bold text-gray-900">Total après réduction</p>
-                          <p className="text-xl font-bold text-[#DC2626]">
+                          <p className="text-xl font-bold text-site-primary">
                             € {(
                               parseFloat(selectedRequest.calculated_price || 0) * 
                               (1 - parseFloat(selectedRequest.discount_percentage) / 100)
@@ -988,7 +988,7 @@ export default function AdminDevis() {
                         min="0"
                         max="100"
                         defaultValue={selectedRequest.discount_percentage || 0}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#DC2626]"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-site-primary"
                         placeholder="Ex: 10 pour 10%"
                         onChange={async (e) => {
                           const discount = parseFloat(e.target.value) || 0;
@@ -1047,7 +1047,7 @@ export default function AdminDevis() {
                   </Button>
                   <a
                     href={`mailto:${selectedRequest.client_email}?subject=Devis pour ${selectedRequest.service_name}`}
-                    className="px-4 py-2 bg-[#DC2626] text-white rounded-lg hover:bg-[#B91C1C] transition-colors font-semibold flex items-center gap-2"
+                    className="px-4 py-2 bg-site-button-primary text-site-button-text rounded-lg hover:bg-site-button-primary-hover transition-colors font-semibold flex items-center gap-2"
                   >
                     <FaEnvelope className="w-4 h-4" />
                     Envoyer un email

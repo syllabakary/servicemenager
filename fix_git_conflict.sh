@@ -28,3 +28,5 @@ echo ""
 echo "📝 Fichiers disponibles:"
 ls -la *.sh 2>/dev/null || echo "Aucun script trouvé"
 
+
+

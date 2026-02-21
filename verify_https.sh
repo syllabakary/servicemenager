@@ -48,3 +48,5 @@ echo ""
 echo "Certificat accessible:"
 docker compose -f docker-compose.sqlite.yml exec frontend ls -la /etc/letsencrypt/live/ease-dom.fr/ 2>/dev/null | grep -E "(fullchain|privkey)" || echo "   ❌ Certificat non trouvé dans le conteneur"
 
+
+

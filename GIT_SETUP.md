@@ -149,3 +149,5 @@ docker compose exec backend python manage.py migrate
 docker compose exec backend python manage.py collectstatic --noinput
 ```
 
+
+

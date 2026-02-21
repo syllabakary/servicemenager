@@ -41,7 +41,7 @@ export function PromotionalBanner() {
   const bannerText = currentBanner.body || "Réduisez votre facture de moitié avec l'avance immédiate de crédit d'impôt*";
 
   return (
-    <section className="bg-site-button-primary text-site-button-text py-2 sm:py-3 overflow-x-hidden w-full max-w-full relative">
+    <section className="bg-site-banner-bg text-site-banner-text py-2 sm:py-3 overflow-x-hidden w-full max-w-full relative">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         <AnimatePresence mode="wait">
           <motion.div
@@ -58,7 +58,7 @@ export function PromotionalBanner() {
             <Link href="/devis" className="w-full sm:w-auto">
               <Button
                 size="sm"
-                className="w-full sm:w-auto bg-white text-site-button-primary hover:bg-gray-100 hover:text-site-button-primary-hover font-semibold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-200"
+                className="w-full sm:w-auto bg-site-banner-button text-site-button-text border-2 border-site-banner-button-border hover:opacity-90 font-semibold text-xs sm:text-sm shadow-md hover:shadow-lg transition-all duration-200"
               >
                 J'en profite !
               </Button>

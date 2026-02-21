@@ -372,15 +372,24 @@ export default function Services() {
     queryFn: async () => {
       const response = await fetch(`${API_URL}/services/?active=true`);
       const data = await response.json();
-      return data.results || [];
+      // L'API peut retourner { results: [...] } ou une liste directement
+      if (Array.isArray(data)) return data;
+      if (data && Array.isArray(data.results)) return data.results;
+      return [];
     },
   });
 
+  // Liste sûre (toujours un tableau)
+  const servicesList = useMemo(() => {
+    if (!servicesData) return [];
+    if (Array.isArray(servicesData)) return servicesData;
+    if (servicesData && Array.isArray((servicesData as any).results)) return (servicesData as any).results;
+    return [];
+  }, [servicesData]);
+
   // Filtrer les services
   const filteredServices = useMemo(() => {
-    if (!servicesData) return [];
-    
-    let filtered = [...servicesData];
+    let filtered = [...servicesList];
 
     // Filtre par recherche
     if (searchQuery.trim()) {
@@ -400,21 +409,21 @@ export default function Services() {
     }
 
     return filtered;
-  }, [servicesData, searchQuery, minRating]);
+  }, [servicesList, searchQuery, minRating]);
 
   // Statistiques
   const stats = useMemo(() => {
-    if (!servicesData || servicesData.length === 0) {
+    if (!servicesList.length) {
       return { totalServices: 0, avgRating: 0, totalReviews: 0 };
     }
-    const totalServices = servicesData.length;
-    const servicesWithRating = servicesData.filter((s: any) => s.rating);
+    const totalServices = servicesList.length;
+    const servicesWithRating = servicesList.filter((s: any) => s.rating);
     const avgRating = servicesWithRating.length > 0
       ? servicesWithRating.reduce((sum: number, s: any) => sum + parseFloat(s.rating || 0), 0) / servicesWithRating.length
       : 0;
-    const totalReviews = servicesData.reduce((sum: number, s: any) => sum + (s.review_count || 0), 0);
+    const totalReviews = servicesList.reduce((sum: number, s: any) => sum + (s.review_count || 0), 0);
     return { totalServices, avgRating, totalReviews };
-  }, [servicesData]);
+  }, [servicesList]);
 
   return (
     <div className="min-h-screen bg-white pt-20 overflow-x-hidden w-full max-w-full">
@@ -450,7 +459,7 @@ export default function Services() {
           <Link href="/devis" className="block px-2">
             <Button
               size="lg"
-              className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text shadow-xl hover:shadow-2xl px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 text-sm sm:text-base md:text-lg font-semibold transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+              className="bg-site-section-services-button hover:opacity-90 text-site-button-text border-2 border-site-section-services-button-border shadow-xl hover:shadow-2xl px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 text-sm sm:text-base md:text-lg font-semibold transition-all duration-300 hover:scale-105 w-full sm:w-auto"
             >
               <span className="hidden sm:inline">Obtenir un devis gratuit</span>
               <span className="sm:hidden">Devis gratuit</span>
@@ -667,7 +676,7 @@ export default function Services() {
                   setSearchQuery("");
                   setMinRating(null);
                 }}
-                className="border-2 border-site-primary text-site-text-link hover:bg-site-button-primary hover:text-site-button-text"
+                className="border-2 border-site-button-outline-border text-site-button-outline-text hover:bg-site-button-outline-hover-bg hover:text-white"
               >
                 Réinitialiser la recherche
               </Button>
@@ -795,7 +804,7 @@ export default function Services() {
 
 
       {/* 🟪 SECTION 4 — CTA Devis */}
-      <section className="relative py-24 bg-site-primary text-white overflow-hidden">
+      <section className="relative py-24 bg-site-section-services-bg text-site-section-services-text overflow-hidden">
         <div className="relative max-w-4xl mx-auto px-4 md:px-6 lg:px-8 text-center z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -806,7 +815,7 @@ export default function Services() {
             <h2 className="text-4xl md:text-5xl font-bold mb-6 drop-shadow-lg">
               Une question sur nos services ?
             </h2>
-            <p className="text-xl text-white/95 mb-10 leading-relaxed max-w-2xl mx-auto">
+            <p className="text-xl text-site-section-services-text/95 mb-10 leading-relaxed max-w-2xl mx-auto">
               Notre équipe est à votre disposition pour vous accompagner dans votre projet. 
               Obtenez un devis personnalisé gratuit et sans engagement.
             </p>
@@ -814,7 +823,7 @@ export default function Services() {
               <Link href="/devis">
                 <Button
                   size="lg"
-                  className="bg-white text-site-button-primary hover:bg-gray-50 shadow-2xl hover:shadow-3xl transition-all duration-300 px-8 py-6 text-lg font-semibold hover:scale-105"
+                  className="bg-site-section-services-button text-site-button-text border-2 border-site-section-services-button-border hover:opacity-90 shadow-2xl hover:shadow-3xl transition-all duration-300 px-8 py-6 text-lg font-semibold hover:scale-105"
                 >
                   Demander un devis gratuit
                   <FaArrowRight className="ml-2 w-5 h-5" />
@@ -823,13 +832,13 @@ export default function Services() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-2 border-white text-white hover:bg-white hover:text-site-button-primary transition-all duration-300 px-8 py-6 text-lg font-semibold"
+                className="border-2 border-site-section-services-button-border text-site-section-services-text hover:bg-site-section-services-button hover:text-site-button-text transition-all duration-300 px-8 py-6 text-lg font-semibold"
                 onClick={() => setLocation("/contact")}
               >
                 Nous contacter
               </Button>
             </div>
-            <div className="flex items-center justify-center gap-2 text-base text-white/90">
+            <div className="flex items-center justify-center gap-2 text-base text-site-section-services-text/90">
               <FaInfoCircle className="w-5 h-5" />
               <span>Réponse sous 24h • Devis gratuit • Sans engagement</span>
             </div>

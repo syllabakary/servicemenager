@@ -785,7 +785,7 @@ export default function ScanQR() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </div>
@@ -803,7 +803,7 @@ export default function ScanQR() {
                 Scanner QR Code
               </h1>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-[#DC2626] to-[#B91C1C] flex items-center justify-center text-white font-bold">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-site-primary to-site-secondary flex items-center justify-center text-white font-bold">
                   {user.first_name?.[0]}{user.last_name?.[0]}
                 </div>
                 <div>
@@ -811,7 +811,7 @@ export default function ScanQR() {
                     {user.first_name} {user.last_name}
                   </p>
                   <p className="text-gray-500 text-sm">
-                    Matricule: <span className="font-mono font-semibold text-[#DC2626]">{user.matricule}</span>
+                    Matricule: <span className="font-mono font-semibold text-site-primary">{user.matricule}</span>
                   </p>
                 </div>
               </div>
@@ -865,7 +865,7 @@ export default function ScanQR() {
               onClick={toggleScanMode}
               variant={scanMode === "camera" ? "default" : "outline"}
               size="lg"
-              className={scanMode === "camera" ? "bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white shadow-lg" : ""}
+              className={scanMode === "camera" ? "bg-gradient-to-r from-site-primary to-site-secondary text-white shadow-lg" : ""}
             >
               {scanMode === "camera" ? (
                 <>
@@ -885,7 +885,7 @@ export default function ScanQR() {
         {/* Scanner Caméra */}
         {scanMode === "camera" && cameraAvailable && (
           <Card className="shadow-xl border-0 bg-white">
-            <CardHeader className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white rounded-t-lg">
+            <CardHeader className="bg-gradient-to-r from-site-primary to-site-secondary text-white rounded-t-lg">
               <CardTitle className="text-xl flex items-center gap-2">
                 <FaCamera className="w-6 h-6" />
                 Scanner avec la caméra
@@ -896,7 +896,7 @@ export default function ScanQR() {
                 {!isScanning ? (
                   <div className="text-center py-8">
                     <div className="mb-4">
-                      <div className="w-32 h-32 mx-auto bg-gradient-to-br from-[#DC2626] to-[#B91C1C] rounded-2xl flex items-center justify-center shadow-lg">
+                      <div className="w-32 h-32 mx-auto bg-gradient-to-br from-site-primary to-site-secondary rounded-2xl flex items-center justify-center shadow-lg">
                         <FaQrcode className="w-16 h-16 text-white" />
                       </div>
                     </div>
@@ -908,7 +908,7 @@ export default function ScanQR() {
                     </p>
                     <Button
                       onClick={startCameraScan}
-                      className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white shadow-lg hover:shadow-xl px-8 py-6 text-lg font-semibold"
+                      className="bg-gradient-to-r from-site-primary to-site-secondary hover:from-site-secondary hover:to-site-tertiary text-white shadow-lg hover:shadow-xl px-8 py-6 text-lg font-semibold"
                       size="lg"
                     >
                       <FaCamera className="w-5 h-5 mr-2" />
@@ -944,7 +944,7 @@ export default function ScanQR() {
         {/* Formulaire de scan manuel */}
         {scanMode === "manual" && (
           <Card className="shadow-xl border-0 bg-white">
-            <CardHeader className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white rounded-t-lg">
+            <CardHeader className="bg-gradient-to-r from-site-primary to-site-secondary text-white rounded-t-lg">
               <CardTitle className="text-xl flex items-center gap-2">
                 <FaKeyboard className="w-6 h-6" />
                 Saisie manuelle
@@ -960,7 +960,7 @@ export default function ScanQR() {
                     placeholder="Entrez le code QR du patient"
                     value={qrCode}
                     onChange={(e) => setQrCode(e.target.value)}
-                    className="text-lg h-14 border-2 focus:border-[#DC2626] focus:ring-[#DC2626]"
+                    className="text-lg h-14 border-2 focus:border-site-primary focus:ring-site-primary"
                     autoFocus
                   />
                   <p className="text-xs text-gray-500">
@@ -969,7 +969,7 @@ export default function ScanQR() {
                 </div>
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white h-14 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                  className="w-full bg-gradient-to-r from-site-primary to-site-secondary hover:from-site-secondary hover:to-site-tertiary text-white h-14 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
                   disabled={!qrCode.trim() || scanMutation.isPending}
                 >
                   {scanMutation.isPending ? (
@@ -1044,7 +1044,7 @@ export default function ScanQR() {
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <FaQrcode className="w-5 h-5 text-[#DC2626]" />
+                <FaQrcode className="w-5 h-5 text-site-primary" />
                 Type de scan
               </DialogTitle>
               <DialogDescription>
@@ -1171,7 +1171,7 @@ export default function ScanQR() {
               </Button>
               <Button
                 onClick={handleStatusSelected}
-                className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white"
+                className="bg-gradient-to-r from-site-primary to-site-secondary hover:from-site-secondary hover:to-site-tertiary text-white"
                 disabled={!selectedStatus}
               >
                 Continuer
@@ -1185,7 +1185,7 @@ export default function ScanQR() {
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <FaCalendarAlt className="w-5 h-5 text-[#DC2626]" />
+                <FaCalendarAlt className="w-5 h-5 text-site-primary" />
                 Confirmer le scan
               </DialogTitle>
               <DialogDescription>
@@ -1258,7 +1258,7 @@ export default function ScanQR() {
               </Button>
               <Button
                 onClick={handleConfirmScan}
-                className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white"
+                className="bg-gradient-to-r from-site-primary to-site-secondary hover:from-site-secondary hover:to-site-tertiary text-white"
                 disabled={scanMutation.isPending || !selectedStatus}
               >
                 {scanMutation.isPending ? (
@@ -1348,7 +1348,7 @@ export default function ScanQR() {
               </Button>
               <Button
                 onClick={handleFinalConfirmScan}
-                className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] hover:from-[#B91C1C] hover:to-[#991B1B] text-white"
+                className="bg-gradient-to-r from-site-primary to-site-secondary hover:from-site-secondary hover:to-site-tertiary text-white"
                 disabled={scanMutation.isPending || !selectedStatus}
               >
                 {scanMutation.isPending ? (

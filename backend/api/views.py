@@ -1608,6 +1608,12 @@ class SiteSettingsViewSet(viewsets.ModelViewSet):
                 'id', 'primary_color', 'secondary_color', 'tertiary_color',
                 'button_primary_color', 'button_primary_hover_color', 'button_text_color',
                 'text_primary_color', 'text_link_color', 'text_link_hover_color',
+                'banner_bg_color', 'banner_text_color',
+                'footer_bg_color', 'footer_text_color', 'footer_link_color',
+                'footer_link_hover_color', 'footer_border_color',
+                'button_border_color', 'button_border_width', 'button_border_radius',
+                'button_outline_border_color', 'button_outline_text_color', 'button_outline_hover_bg_color',
+                'site_name_part1_color', 'site_name_part2_color', 'site_tagline_color',
                 'logo', 'logo_favicon', 'site_name', 'site_tagline',
                 'created_at', 'updated_at'
             )

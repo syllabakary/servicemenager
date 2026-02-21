@@ -99,7 +99,7 @@ export default function AdminCategories() {
           </div>
           <Button
             onClick={handleNew}
-            className="bg-[#DC2626] hover:bg-[#B91C1C] text-white w-full sm:w-auto"
+            className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text w-full sm:w-auto"
           >
             <FaPlus className="w-4 h-4 mr-2" />
             Nouvelle catégorie
@@ -108,7 +108,7 @@ export default function AdminCategories() {
 
         {isLoading ? (
           <div className="text-center py-16">
-            <div className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-gray-600">Chargement...</p>
           </div>
         ) : (
@@ -344,7 +344,7 @@ function CategoryDialog({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Annuler
             </Button>
-            <Button type="submit" className="bg-[#DC2626] hover:bg-[#B91C1C]">
+            <Button type="submit" className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text">
               {saveMutation.isPending ? "Enregistrement..." : "Enregistrer"}
             </Button>
           </div>

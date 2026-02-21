@@ -114,7 +114,7 @@ export default function PatientDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <FaSpinner className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <FaSpinner className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Chargement...</p>
         </div>
       </div>
@@ -125,7 +125,7 @@ export default function PatientDetail() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
-          <FaSpinner className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <FaSpinner className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-gray-600">Chargement des détails du patient...</p>
         </div>
       </div>
@@ -177,7 +177,7 @@ export default function PatientDetail() {
 
         {/* Informations du patient */}
         <Card className="shadow-lg sm:shadow-xl border-0 bg-white">
-          <CardHeader className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] text-white rounded-t-lg p-3 sm:p-4 md:p-6">
+          <CardHeader className="bg-gradient-to-r from-site-primary to-site-secondary text-white rounded-t-lg p-3 sm:p-4 md:p-6">
             <CardTitle className="text-base sm:text-lg md:text-xl flex items-center gap-2">
               <FaUser className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
               Informations du patient
@@ -253,14 +253,14 @@ export default function PatientDetail() {
         <Card className="shadow-lg sm:shadow-xl border-0 bg-white">
           <CardHeader className="bg-gradient-to-r from-gray-50 to-white border-b border-gray-200 p-3 sm:p-4 md:p-6">
             <CardTitle className="text-base sm:text-lg md:text-xl flex items-center gap-2">
-              <FaCalendarAlt className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-[#DC2626]" />
+              <FaCalendarAlt className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-site-primary" />
               Historique des visites
             </CardTitle>
           </CardHeader>
           <CardContent className="p-3 sm:p-4 md:p-6">
             {isLoadingPresences ? (
               <div className="text-center py-8 sm:py-12">
-                <FaSpinner className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-3 sm:mb-4" />
+                <FaSpinner className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-3 sm:mb-4" />
                 <p className="text-xs sm:text-sm text-gray-600">Chargement des visites...</p>
               </div>
             ) : presences && presences.length > 0 ? (
@@ -371,7 +371,7 @@ export default function PatientDetail() {
                                     size="sm"
                                     onClick={() => handleSaveNotes(presence.id)}
                                     disabled={updateNotesMutation.isPending}
-                                    className="bg-[#DC2626] hover:bg-[#B91C1C] text-white text-xs h-7 sm:h-8 px-2 sm:px-3"
+                                    className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text text-white text-xs h-7 sm:h-8 px-2 sm:px-3"
                                   >
                                     {updateNotesMutation.isPending ? (
                                       <>

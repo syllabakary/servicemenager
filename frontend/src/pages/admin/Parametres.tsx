@@ -6,9 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FaSave, FaMapMarkerAlt, FaPhone, FaEnvelope, FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaPalette, FaImage } from "react-icons/fa";
+import { FaSave, FaMapMarkerAlt, FaPhone, FaEnvelope, FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaPalette, FaImage, FaChevronDown } from "react-icons/fa";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { cn } from "@/lib/utils";
 
 import { API_URL } from "@/config/api";
 
@@ -321,8 +323,46 @@ export default function AdminParametres() {
     text_primary_color: "#DC2626",
     text_link_color: "#DC2626",
     text_link_hover_color: "#B91C1C",
+    banner_bg_color: "#DC2626",
+    banner_text_color: "#FFFFFF",
+    footer_bg_color: "#FEF2F2",
+    footer_text_color: "#374151",
+    footer_link_color: "#DC2626",
+    footer_link_hover_color: "#B91C1C",
+    footer_border_color: "#FECACA",
+    button_border_color: "",
+    button_border_width: 0,
+    button_border_radius: "0.375rem",
+    button_outline_border_color: "#DC2626",
+    button_outline_text_color: "#DC2626",
+    button_outline_hover_bg_color: "#DC2626",
+    site_name_part1_color: "#111827",
+    site_name_part2_color: "#DC2626",
+    site_tagline_color: "#6B7280",
     site_name: "Services Locaux",
     site_tagline: "Votre partenaire de confiance",
+    banner_button_color: "#DC2626",
+    banner_button_border_color: "",
+    services_bg_color: "#DC2626",
+    services_text_color: "#FFFFFF",
+    services_button_color: "#DC2626",
+    services_button_border_color: "",
+    agencies_bg_color: "#DC2626",
+    agencies_text_color: "#FFFFFF",
+    agencies_button_color: "#DC2626",
+    agencies_button_border_color: "",
+    employe_bg_color: "#DC2626",
+    employe_text_color: "#FFFFFF",
+    employe_button_color: "#DC2626",
+    employe_button_border_color: "",
+    admin_login_bg_color: "#DC2626",
+    admin_login_text_color: "#FFFFFF",
+    admin_login_button_color: "#DC2626",
+    admin_login_button_border_color: "",
+    employe_login_bg_color: "#DC2626",
+    employe_login_text_color: "#FFFFFF",
+    employe_login_button_color: "#DC2626",
+    employe_login_button_border_color: "",
     logo: null as File | null,
     logo_favicon: null as File | null,
   });
@@ -338,6 +378,19 @@ export default function AdminParametres() {
 
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [faviconPreview, setFaviconPreview] = useState<string | null>(null);
+  const [themeSectionsOpen, setThemeSectionsOpen] = useState<Record<string, boolean>>({
+    "Informations générales": true,
+    "Couleurs du nom et slogan": false,
+    "Couleurs principales": false,
+    "Couleurs des boutons": false,
+    "Textes et liens": false,
+    "Bannière": false,
+    "Footer": false,
+    "Bordures des boutons": false,
+    "Boutons outline": false,
+    "Couleurs par section": false,
+    "Logo et favicon": false,
+  });
 
   useEffect(() => {
     if (siteSettings) {
@@ -352,8 +405,46 @@ export default function AdminParametres() {
         text_primary_color: normalizeHexColor(siteSettings.text_primary_color || siteSettings.primary_color || "#DC2626"),
         text_link_color: normalizeHexColor(siteSettings.text_link_color || siteSettings.primary_color || "#DC2626"),
         text_link_hover_color: normalizeHexColor(siteSettings.text_link_hover_color || siteSettings.secondary_color || "#B91C1C"),
+        banner_bg_color: normalizeHexColor(siteSettings.banner_bg_color || siteSettings.primary_color || "#DC2626"),
+        banner_text_color: normalizeHexColor(siteSettings.banner_text_color || "#FFFFFF"),
+        footer_bg_color: normalizeHexColor(siteSettings.footer_bg_color || "#FEF2F2"),
+        footer_text_color: normalizeHexColor(siteSettings.footer_text_color || "#374151"),
+        footer_link_color: normalizeHexColor(siteSettings.footer_link_color || siteSettings.primary_color || "#DC2626"),
+        footer_link_hover_color: normalizeHexColor(siteSettings.footer_link_hover_color || siteSettings.secondary_color || "#B91C1C"),
+        footer_border_color: normalizeHexColor(siteSettings.footer_border_color || "#FECACA"),
+        button_border_color: siteSettings.button_border_color ? normalizeHexColor(siteSettings.button_border_color) : "",
+        button_border_width: typeof siteSettings.button_border_width === "number" ? siteSettings.button_border_width : 0,
+        button_border_radius: siteSettings.button_border_radius || "0.375rem",
+        button_outline_border_color: normalizeHexColor(siteSettings.button_outline_border_color || siteSettings.primary_color || "#DC2626"),
+        button_outline_text_color: normalizeHexColor(siteSettings.button_outline_text_color || siteSettings.primary_color || "#DC2626"),
+        button_outline_hover_bg_color: normalizeHexColor(siteSettings.button_outline_hover_bg_color || siteSettings.primary_color || "#DC2626"),
+        site_name_part1_color: normalizeHexColor(siteSettings.site_name_part1_color || "#111827"),
+        site_name_part2_color: normalizeHexColor(siteSettings.site_name_part2_color || siteSettings.primary_color || "#DC2626"),
+        site_tagline_color: normalizeHexColor(siteSettings.site_tagline_color || "#6B7280"),
         site_name: siteSettings.site_name || "Services Locaux",
         site_tagline: siteSettings.site_tagline || "Votre partenaire de confiance",
+        banner_button_color: siteSettings.banner_button_color ? normalizeHexColor(siteSettings.banner_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        banner_button_border_color: siteSettings.banner_button_border_color ? normalizeHexColor(siteSettings.banner_button_border_color) : "",
+        services_bg_color: siteSettings.services_bg_color ? normalizeHexColor(siteSettings.services_bg_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        services_text_color: siteSettings.services_text_color ? normalizeHexColor(siteSettings.services_text_color) : "#FFFFFF",
+        services_button_color: siteSettings.services_button_color ? normalizeHexColor(siteSettings.services_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        services_button_border_color: siteSettings.services_button_border_color ? normalizeHexColor(siteSettings.services_button_border_color) : "",
+        agencies_bg_color: siteSettings.agencies_bg_color ? normalizeHexColor(siteSettings.agencies_bg_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        agencies_text_color: siteSettings.agencies_text_color ? normalizeHexColor(siteSettings.agencies_text_color) : "#FFFFFF",
+        agencies_button_color: siteSettings.agencies_button_color ? normalizeHexColor(siteSettings.agencies_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        agencies_button_border_color: siteSettings.agencies_button_border_color ? normalizeHexColor(siteSettings.agencies_button_border_color) : "",
+        employe_bg_color: siteSettings.employe_bg_color ? normalizeHexColor(siteSettings.employe_bg_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        employe_text_color: siteSettings.employe_text_color ? normalizeHexColor(siteSettings.employe_text_color) : "#FFFFFF",
+        employe_button_color: siteSettings.employe_button_color ? normalizeHexColor(siteSettings.employe_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        employe_button_border_color: siteSettings.employe_button_border_color ? normalizeHexColor(siteSettings.employe_button_border_color) : "",
+        admin_login_bg_color: siteSettings.admin_login_bg_color ? normalizeHexColor(siteSettings.admin_login_bg_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        admin_login_text_color: siteSettings.admin_login_text_color ? normalizeHexColor(siteSettings.admin_login_text_color) : "#FFFFFF",
+        admin_login_button_color: siteSettings.admin_login_button_color ? normalizeHexColor(siteSettings.admin_login_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        admin_login_button_border_color: siteSettings.admin_login_button_border_color ? normalizeHexColor(siteSettings.admin_login_button_border_color) : "",
+        employe_login_bg_color: siteSettings.employe_login_bg_color ? normalizeHexColor(siteSettings.employe_login_bg_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        employe_login_text_color: siteSettings.employe_login_text_color ? normalizeHexColor(siteSettings.employe_login_text_color) : "#FFFFFF",
+        employe_login_button_color: siteSettings.employe_login_button_color ? normalizeHexColor(siteSettings.employe_login_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        employe_login_button_border_color: siteSettings.employe_login_button_border_color ? normalizeHexColor(siteSettings.employe_login_button_border_color) : "",
         logo: null,
         logo_favicon: null,
       });
@@ -427,17 +518,64 @@ export default function AdminParametres() {
         text_primary_color: normalizeHexColor(data.text_primary_color),
         text_link_color: normalizeHexColor(data.text_link_color),
         text_link_hover_color: normalizeHexColor(data.text_link_hover_color),
+        banner_bg_color: normalizeHexColor(data.banner_bg_color),
+        banner_text_color: normalizeHexColor(data.banner_text_color),
+        footer_bg_color: normalizeHexColor(data.footer_bg_color),
+        footer_text_color: normalizeHexColor(data.footer_text_color),
+        footer_link_color: normalizeHexColor(data.footer_link_color),
+        footer_link_hover_color: normalizeHexColor(data.footer_link_hover_color),
+        footer_border_color: normalizeHexColor(data.footer_border_color),
+        button_border_color: data.button_border_color ? normalizeHexColor(data.button_border_color) : "",
+        button_outline_border_color: normalizeHexColor(data.button_outline_border_color),
+        button_outline_text_color: normalizeHexColor(data.button_outline_text_color),
+        button_outline_hover_bg_color: normalizeHexColor(data.button_outline_hover_bg_color),
+        site_name_part1_color: normalizeHexColor(data.site_name_part1_color),
+        site_name_part2_color: normalizeHexColor(data.site_name_part2_color),
+        site_tagline_color: normalizeHexColor(data.site_tagline_color),
+        banner_button_color: data.banner_button_color ? normalizeHexColor(data.banner_button_color) : "",
+        banner_button_border_color: data.banner_button_border_color ? normalizeHexColor(data.banner_button_border_color) : "",
+        services_bg_color: data.services_bg_color ? normalizeHexColor(data.services_bg_color) : "",
+        services_text_color: data.services_text_color ? normalizeHexColor(data.services_text_color) : "",
+        services_button_color: data.services_button_color ? normalizeHexColor(data.services_button_color) : "",
+        services_button_border_color: data.services_button_border_color ? normalizeHexColor(data.services_button_border_color) : "",
+        agencies_bg_color: data.agencies_bg_color ? normalizeHexColor(data.agencies_bg_color) : "",
+        agencies_text_color: data.agencies_text_color ? normalizeHexColor(data.agencies_text_color) : "",
+        agencies_button_color: data.agencies_button_color ? normalizeHexColor(data.agencies_button_color) : "",
+        agencies_button_border_color: data.agencies_button_border_color ? normalizeHexColor(data.agencies_button_border_color) : "",
+        employe_bg_color: data.employe_bg_color ? normalizeHexColor(data.employe_bg_color) : "",
+        employe_text_color: data.employe_text_color ? normalizeHexColor(data.employe_text_color) : "",
+        employe_button_color: data.employe_button_color ? normalizeHexColor(data.employe_button_color) : "",
+        employe_button_border_color: data.employe_button_border_color ? normalizeHexColor(data.employe_button_border_color) : "",
+        admin_login_bg_color: data.admin_login_bg_color ? normalizeHexColor(data.admin_login_bg_color) : "",
+        admin_login_text_color: data.admin_login_text_color ? normalizeHexColor(data.admin_login_text_color) : "",
+        admin_login_button_color: data.admin_login_button_color ? normalizeHexColor(data.admin_login_button_color) : "",
+        admin_login_button_border_color: data.admin_login_button_border_color ? normalizeHexColor(data.admin_login_button_border_color) : "",
+        employe_login_bg_color: data.employe_login_bg_color ? normalizeHexColor(data.employe_login_bg_color) : "",
+        employe_login_text_color: data.employe_login_text_color ? normalizeHexColor(data.employe_login_text_color) : "",
+        employe_login_button_color: data.employe_login_button_color ? normalizeHexColor(data.employe_login_button_color) : "",
+        employe_login_button_border_color: data.employe_login_button_border_color ? normalizeHexColor(data.employe_login_button_border_color) : "",
       };
       
-      // Valider toutes les couleurs
+      // Valider toutes les couleurs (hex) quand elles sont renseignées
       const colorFields = [
         'primary_color', 'secondary_color', 'tertiary_color',
         'button_primary_color', 'button_primary_hover_color', 'button_text_color',
-        'text_primary_color', 'text_link_color', 'text_link_hover_color'
+        'text_primary_color', 'text_link_color', 'text_link_hover_color',
+        'banner_bg_color', 'banner_text_color', 'banner_button_color', 'banner_button_border_color',
+        'footer_bg_color', 'footer_text_color', 'footer_link_color',
+        'footer_link_hover_color', 'footer_border_color',
+        'button_outline_border_color', 'button_outline_text_color', 'button_outline_hover_bg_color',
+        'site_name_part1_color', 'site_name_part2_color', 'site_tagline_color',
+        'services_bg_color', 'services_text_color', 'services_button_color', 'services_button_border_color',
+        'agencies_bg_color', 'agencies_text_color', 'agencies_button_color', 'agencies_button_border_color',
+        'employe_bg_color', 'employe_text_color', 'employe_button_color', 'employe_button_border_color',
+        'admin_login_bg_color', 'admin_login_text_color', 'admin_login_button_color', 'admin_login_button_border_color',
+        'employe_login_bg_color', 'employe_login_text_color', 'employe_login_button_color', 'employe_login_button_border_color',
       ];
       
       for (const field of colorFields) {
-        if (!isValidHexColor(normalizedData[field as keyof typeof normalizedData] as string)) {
+        const val = normalizedData[field as keyof typeof normalizedData];
+        if (val != null && val !== "" && typeof val === "string" && !isValidHexColor(val)) {
           throw new Error(`La couleur ${field} n'est pas au format valide. Format attendu: #rrggbb`);
         }
       }
@@ -452,6 +590,44 @@ export default function AdminParametres() {
       formData.append("text_primary_color", normalizedData.text_primary_color);
       formData.append("text_link_color", normalizedData.text_link_color);
       formData.append("text_link_hover_color", normalizedData.text_link_hover_color);
+      formData.append("banner_bg_color", normalizedData.banner_bg_color);
+      formData.append("banner_text_color", normalizedData.banner_text_color);
+      formData.append("footer_bg_color", normalizedData.footer_bg_color);
+      formData.append("footer_text_color", normalizedData.footer_text_color);
+      formData.append("footer_link_color", normalizedData.footer_link_color);
+      formData.append("footer_link_hover_color", normalizedData.footer_link_hover_color);
+      formData.append("footer_border_color", normalizedData.footer_border_color);
+      formData.append("button_border_color", normalizedData.button_border_color || "");
+      formData.append("button_border_width", String(normalizedData.button_border_width ?? 0));
+      formData.append("button_border_radius", normalizedData.button_border_radius || "0.375rem");
+      formData.append("button_outline_border_color", normalizedData.button_outline_border_color);
+      formData.append("button_outline_text_color", normalizedData.button_outline_text_color);
+      formData.append("button_outline_hover_bg_color", normalizedData.button_outline_hover_bg_color);
+      formData.append("site_name_part1_color", normalizedData.site_name_part1_color);
+      formData.append("site_name_part2_color", normalizedData.site_name_part2_color);
+      formData.append("site_tagline_color", normalizedData.site_tagline_color);
+      formData.append("banner_button_color", normalizedData.banner_button_color ?? "");
+      formData.append("banner_button_border_color", normalizedData.banner_button_border_color ?? "");
+      formData.append("services_bg_color", normalizedData.services_bg_color ?? "");
+      formData.append("services_text_color", normalizedData.services_text_color ?? "");
+      formData.append("services_button_color", normalizedData.services_button_color ?? "");
+      formData.append("services_button_border_color", normalizedData.services_button_border_color ?? "");
+      formData.append("agencies_bg_color", normalizedData.agencies_bg_color ?? "");
+      formData.append("agencies_text_color", normalizedData.agencies_text_color ?? "");
+      formData.append("agencies_button_color", normalizedData.agencies_button_color ?? "");
+      formData.append("agencies_button_border_color", normalizedData.agencies_button_border_color ?? "");
+      formData.append("employe_bg_color", normalizedData.employe_bg_color ?? "");
+      formData.append("employe_text_color", normalizedData.employe_text_color ?? "");
+      formData.append("employe_button_color", normalizedData.employe_button_color ?? "");
+      formData.append("employe_button_border_color", normalizedData.employe_button_border_color ?? "");
+      formData.append("admin_login_bg_color", normalizedData.admin_login_bg_color ?? "");
+      formData.append("admin_login_text_color", normalizedData.admin_login_text_color ?? "");
+      formData.append("admin_login_button_color", normalizedData.admin_login_button_color ?? "");
+      formData.append("admin_login_button_border_color", normalizedData.admin_login_button_border_color ?? "");
+      formData.append("employe_login_bg_color", normalizedData.employe_login_bg_color ?? "");
+      formData.append("employe_login_text_color", normalizedData.employe_login_text_color ?? "");
+      formData.append("employe_login_button_color", normalizedData.employe_login_button_color ?? "");
+      formData.append("employe_login_button_border_color", normalizedData.employe_login_button_border_color ?? "");
       formData.append("site_name", normalizedData.site_name);
       formData.append("site_tagline", normalizedData.site_tagline);
       if (data.logo) {
@@ -708,9 +884,9 @@ export default function AdminParametres() {
 
   if (footerLoading || locationLoading || siteSettingsLoading) {
     return (
-      <DashboardLayout userRole="ADMIN">
+      <DashboardLayout>
         <div className="text-center py-12">
-          <div className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </DashboardLayout>
@@ -718,10 +894,10 @@ export default function AdminParametres() {
   }
 
   return (
-    <DashboardLayout userRole="ADMIN">
+    <DashboardLayout>
       <div className="space-y-6">
         <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-[#DC2626] to-[#B91C1C] bg-clip-text text-transparent">
+          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-site-primary to-site-secondary bg-clip-text text-transparent">
             Paramètres du site
           </h1>
           <p className="text-gray-600 mt-2 text-base sm:text-lg">
@@ -870,7 +1046,7 @@ export default function AdminParametres() {
               <div className="flex justify-end pt-4 border-t">
                 <Button
                   type="submit"
-                  className="bg-[#DC2626] hover:bg-[#B91C1C] text-white"
+                  className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text"
                   disabled={saveFooterMutation.isPending}
                 >
                   <FaSave className="w-4 h-4 mr-2" />
@@ -978,7 +1154,7 @@ export default function AdminParametres() {
               <div className="flex justify-end pt-4 border-t">
                 <Button
                   type="submit"
-                  className="bg-[#DC2626] hover:bg-[#B91C1C] text-white"
+                  className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text"
                   disabled={saveLocationMutation.isPending}
                 >
                   <FaSave className="w-4 h-4 mr-2" />
@@ -993,16 +1169,21 @@ export default function AdminParametres() {
         <Card className="shadow-xl border-0 bg-white">
           <CardHeader className="border-b">
             <CardTitle className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
-              <FaPalette className="w-6 h-6 text-[#DC2626]" />
+              <FaPalette className="w-6 h-6 text-site-primary" />
               Thème et apparence
             </CardTitle>
             <CardDescription>Modifiez les couleurs du site et le logo</CardDescription>
           </CardHeader>
           <CardContent className="p-6">
-            <form onSubmit={handleSaveTheme} className="space-y-6">
+            <form onSubmit={handleSaveTheme} className="space-y-2">
               {/* Informations générales */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">Informations générales</h3>
+              <Collapsible className="group" open={themeSectionsOpen["Informations générales"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Informations générales": o }))}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-800">Informations générales</h3>
+                  <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                <div className="space-y-4 pt-2 pb-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="site-name">Nom du site *</Label>
@@ -1025,11 +1206,57 @@ export default function AdminParametres() {
                     />
                   </div>
                 </div>
-              </div>
+                </div>
+                </CollapsibleContent>
+              </Collapsible>
+
+              {/* Couleurs du nom et slogan (navbar) */}
+              <Collapsible className="group" open={themeSectionsOpen["Couleurs du nom et slogan"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Couleurs du nom et slogan": o }))}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-800">Couleurs du nom et slogan</h3>
+                  <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform", themeSectionsOpen["Couleurs du nom et slogan"] && "rotate-180")} />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                <div className="space-y-4 pt-2 pb-4">
+                <p className="text-sm text-gray-600">Appliqué au nom du site et au slogan dans la barre de navigation (ex. &quot;Services&quot; + &quot;Locaux&quot;, &quot;Votre partenaire de confiance&quot;).</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label>Couleur 1 du nom (1ère partie) *</Label>
+                    <div className="flex items-center gap-3">
+                      <Input type="color" value={normalizeHexColor(themeSettings.site_name_part1_color)} onChange={(e) => updateColor("site_name_part1_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
+                      <Input type="text" value={themeSettings.site_name_part1_color} onChange={(e) => updateColor("site_name_part1_color", e.target.value)} placeholder="#111827" className="flex-1" />
+                    </div>
+                    <p className="text-xs text-gray-500">Ex. &quot;Services&quot;.</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Couleur 2 du nom (2e partie) *</Label>
+                    <div className="flex items-center gap-3">
+                      <Input type="color" value={normalizeHexColor(themeSettings.site_name_part2_color)} onChange={(e) => updateColor("site_name_part2_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
+                      <Input type="text" value={themeSettings.site_name_part2_color} onChange={(e) => updateColor("site_name_part2_color", e.target.value)} placeholder="#DC2626" className="flex-1" />
+                    </div>
+                    <p className="text-xs text-gray-500">Ex. &quot;Locaux&quot;.</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Couleur du slogan (tagline) *</Label>
+                    <div className="flex items-center gap-3">
+                      <Input type="color" value={normalizeHexColor(themeSettings.site_tagline_color)} onChange={(e) => updateColor("site_tagline_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
+                      <Input type="text" value={themeSettings.site_tagline_color} onChange={(e) => updateColor("site_tagline_color", e.target.value)} placeholder="#6B7280" className="flex-1" />
+                    </div>
+                    <p className="text-xs text-gray-500">Ex. &quot;Votre partenaire de confiance&quot;.</p>
+                  </div>
+                </div>
+                </div>
+                </CollapsibleContent>
+              </Collapsible>
 
               {/* Couleurs principales */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">Couleurs principales du site</h3>
+              <Collapsible className="group" open={themeSectionsOpen["Couleurs principales"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Couleurs principales": o }))}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-800">Couleurs principales du site</h3>
+                  <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                <div className="space-y-4 pt-2 pb-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="primary-color" className="flex items-center gap-2">
@@ -1136,14 +1363,21 @@ export default function AdminParametres() {
                     </div>
                   </div>
                 </div>
-              </div>
+                </div>
+                </CollapsibleContent>
+              </Collapsible>
 
               {/* Couleurs des boutons */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 flex items-center gap-2">
-                  <FaPalette className="w-5 h-5 text-site-primary" />
-                  Couleurs des boutons
-                </h3>
+              <Collapsible className="group" open={themeSectionsOpen["Couleurs des boutons"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Couleurs des boutons": o }))}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                    <FaPalette className="w-5 h-5 text-site-primary" />
+                    Couleurs des boutons
+                  </h3>
+                  <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                <div className="space-y-4 pt-2 pb-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="button-primary-color" className="flex items-center gap-2">
@@ -1248,14 +1482,21 @@ export default function AdminParametres() {
                     </div>
                   </div>
                 </div>
-              </div>
+                </div>
+                </CollapsibleContent>
+              </Collapsible>
 
               {/* Couleurs des textes */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 flex items-center gap-2">
-                  <FaPalette className="w-5 h-5 text-site-primary" />
-                  Couleurs des textes et liens
-                </h3>
+              <Collapsible className="group" open={themeSectionsOpen["Textes et liens"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Textes et liens": o }))}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                    <FaPalette className="w-5 h-5 text-site-primary" />
+                    Couleurs des textes et liens
+                  </h3>
+                  <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                <div className="space-y-4 pt-2 pb-4">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="text-primary-color" className="flex items-center gap-2">
@@ -1360,14 +1601,394 @@ export default function AdminParametres() {
                     </div>
                   </div>
                 </div>
+                </div>
+                </CollapsibleContent>
+              </Collapsible>
+
+              {/* Bannière (bandeau promo) */}
+              <Collapsible className="group" open={themeSectionsOpen["Bannière"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Bannière": o }))}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-800">Couleurs de la bannière</h3>
+                  <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                <div className="space-y-4 pt-2 pb-4">
+                <p className="text-sm text-gray-600">Bandeau promotionnel en haut du site (client). Appliqué aussi comme référence sur les 3 interfaces.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label>Couleur de fond de la bannière *</Label>
+                    <div className="flex items-center gap-3">
+                      <Input type="color" value={normalizeHexColor(themeSettings.banner_bg_color)} onChange={(e) => updateColor("banner_bg_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
+                      <Input type="text" value={themeSettings.banner_bg_color} onChange={(e) => updateColor("banner_bg_color", e.target.value)} placeholder="#DC2626" className="flex-1" />
+                    </div>
+                    <p className="text-xs text-gray-500">Fond du bandeau (ex. promo, annonces).</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Couleur du texte de la bannière *</Label>
+                    <div className="flex items-center gap-3">
+                      <Input type="color" value={normalizeHexColor(themeSettings.banner_text_color)} onChange={(e) => updateColor("banner_text_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
+                      <Input type="text" value={themeSettings.banner_text_color} onChange={(e) => updateColor("banner_text_color", e.target.value)} placeholder="#FFFFFF" className="flex-1" />
+                    </div>
+                    <p className="text-xs text-gray-500">Texte du bandeau.</p>
+                  </div>
+                </div>
+                </div>
+                </CollapsibleContent>
+              </Collapsible>
+
+              {/* Footer */}
+              <Collapsible className="group" open={themeSectionsOpen["Footer"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Footer": o }))}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-800">Couleurs du footer</h3>
+                  <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                <div className="space-y-4 pt-2 pb-4">
+                <p className="text-sm text-gray-600">Pied de page du site client (et cohérence sur les 3 interfaces).</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label>Fond du footer *</Label>
+                    <div className="flex items-center gap-3">
+                      <Input type="color" value={normalizeHexColor(themeSettings.footer_bg_color)} onChange={(e) => updateColor("footer_bg_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
+                      <Input type="text" value={themeSettings.footer_bg_color} onChange={(e) => updateColor("footer_bg_color", e.target.value)} placeholder="#FEF2F2" className="flex-1" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Texte du footer *</Label>
+                    <div className="flex items-center gap-3">
+                      <Input type="color" value={normalizeHexColor(themeSettings.footer_text_color)} onChange={(e) => updateColor("footer_text_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
+                      <Input type="text" value={themeSettings.footer_text_color} onChange={(e) => updateColor("footer_text_color", e.target.value)} placeholder="#374151" className="flex-1" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Liens et icônes *</Label>
+                    <div className="flex items-center gap-3">
+                      <Input type="color" value={normalizeHexColor(themeSettings.footer_link_color)} onChange={(e) => updateColor("footer_link_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
+                      <Input type="text" value={themeSettings.footer_link_color} onChange={(e) => updateColor("footer_link_color", e.target.value)} placeholder="#DC2626" className="flex-1" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Liens au survol *</Label>
+                    <div className="flex items-center gap-3">
+                      <Input type="color" value={normalizeHexColor(themeSettings.footer_link_hover_color)} onChange={(e) => updateColor("footer_link_hover_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
+                      <Input type="text" value={themeSettings.footer_link_hover_color} onChange={(e) => updateColor("footer_link_hover_color", e.target.value)} placeholder="#B91C1C" className="flex-1" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Bordures du footer *</Label>
+                    <div className="flex items-center gap-3">
+                      <Input type="color" value={normalizeHexColor(themeSettings.footer_border_color)} onChange={(e) => updateColor("footer_border_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
+                      <Input type="text" value={themeSettings.footer_border_color} onChange={(e) => updateColor("footer_border_color", e.target.value)} placeholder="#FECACA" className="flex-1" />
+                    </div>
+                  </div>
+                </div>
+                </div>
+                </CollapsibleContent>
+              </Collapsible>
+
+              {/* Bordures des boutons */}
+              <Collapsible className="group" open={themeSectionsOpen["Bordures des boutons"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Bordures des boutons": o }))}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-800">Bordures des boutons</h3>
+                  <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                <div className="space-y-4 pt-2 pb-4">
+                <p className="text-sm text-gray-600">Appliqué aux boutons principaux sur les 3 interfaces (client, admin, employé). Laisser vide ou 0 pour aucune bordure.</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label>Couleur de la bordure</Label>
+                    <div className="flex items-center gap-3">
+                      <Input type="color" value={themeSettings.button_border_color || "#DC2626"} onChange={(e) => setThemeSettings({ ...themeSettings, button_border_color: normalizeHexColor(e.target.value) })} className="w-20 h-12 cursor-pointer" />
+                      <Input type="text" value={themeSettings.button_border_color} onChange={(e) => setThemeSettings({ ...themeSettings, button_border_color: e.target.value })} placeholder="Vide = pas de bordure" className="flex-1" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Épaisseur (px)</Label>
+                    <Input type="number" min={0} max={8} value={themeSettings.button_border_width} onChange={(e) => setThemeSettings({ ...themeSettings, button_border_width: parseInt(e.target.value, 10) || 0 })} />
+                    <p className="text-xs text-gray-500">0 = pas de bordure.</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Rayon des coins</Label>
+                    <Input type="text" value={themeSettings.button_border_radius} onChange={(e) => setThemeSettings({ ...themeSettings, button_border_radius: e.target.value })} placeholder="0.375rem" />
+                    <p className="text-xs text-gray-500">Ex: 0.375rem, 0.5rem, 9999px (pilule).</p>
+                  </div>
+                </div>
+                </div>
+                </CollapsibleContent>
+              </Collapsible>
+
+              {/* Boutons outline (ex. Connexion) */}
+              <Collapsible className="group" open={themeSectionsOpen["Boutons outline"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Boutons outline": o }))}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-800">Boutons outline (ex. Connexion)</h3>
+                  <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                <div className="space-y-4 pt-2 pb-4">
+                <p className="text-sm text-gray-600">Couleurs des boutons à bordure (Connexion, liens secondaires). Même bordure et rayon que les boutons principaux si besoin.</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label>Couleur bordure *</Label>
+                    <div className="flex items-center gap-3">
+                      <Input type="color" value={normalizeHexColor(themeSettings.button_outline_border_color)} onChange={(e) => updateColor("button_outline_border_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
+                      <Input type="text" value={themeSettings.button_outline_border_color} onChange={(e) => updateColor("button_outline_border_color", e.target.value)} placeholder="#DC2626" className="flex-1" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Couleur du texte *</Label>
+                    <div className="flex items-center gap-3">
+                      <Input type="color" value={normalizeHexColor(themeSettings.button_outline_text_color)} onChange={(e) => updateColor("button_outline_text_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
+                      <Input type="text" value={themeSettings.button_outline_text_color} onChange={(e) => updateColor("button_outline_text_color", e.target.value)} placeholder="#DC2626" className="flex-1" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Couleur fond au survol *</Label>
+                    <div className="flex items-center gap-3">
+                      <Input type="color" value={normalizeHexColor(themeSettings.button_outline_hover_bg_color)} onChange={(e) => updateColor("button_outline_hover_bg_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
+                      <Input type="text" value={themeSettings.button_outline_hover_bg_color} onChange={(e) => updateColor("button_outline_hover_bg_color", e.target.value)} placeholder="#DC2626" className="flex-1" />
+                    </div>
+                    <p className="text-xs text-gray-500">Le texte devient blanc au survol.</p>
+                  </div>
+                </div>
+                </div>
+                </CollapsibleContent>
+              </Collapsible>
+
+              {/* Couleurs par section (fond, texte, bouton, bordure) */}
+              <Collapsible className="group" open={themeSectionsOpen["Couleurs par section"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Couleurs par section": o }))}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-800">Couleurs par section</h3>
+                  <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+              <div className="space-y-6 pt-2 pb-4">
+                <p className="text-sm text-gray-600">Pour chaque zone : fond, texte, couleur du bouton et bordure du bouton. Vide = utilisation des couleurs principales.</p>
+
+                {/* Bannière */}
+                <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
+                  <h4 className="font-medium text-gray-800">Bannière (bandeau promo)</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Fond</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.banner_bg_color} onChange={(e) => updateColor("banner_bg_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.banner_bg_color} onChange={(e) => updateColor("banner_bg_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Texte</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.banner_text_color} onChange={(e) => updateColor("banner_text_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.banner_text_color} onChange={(e) => updateColor("banner_text_color", e.target.value)} placeholder="#FFFFFF" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Bouton</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.banner_button_color} onChange={(e) => updateColor("banner_button_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.banner_button_color} onChange={(e) => updateColor("banner_button_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Bordure bouton</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.banner_button_border_color || "#DC2626"} onChange={(e) => updateColor("banner_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.banner_button_border_color} onChange={(e) => setThemeSettings({ ...themeSettings, banner_button_border_color: e.target.value })} placeholder="Vide" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section Services */}
+                <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
+                  <h4 className="font-medium text-gray-800">Section Services (page Services)</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Fond</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.services_bg_color} onChange={(e) => updateColor("services_bg_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.services_bg_color} onChange={(e) => updateColor("services_bg_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Texte</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.services_text_color} onChange={(e) => updateColor("services_text_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.services_text_color} onChange={(e) => updateColor("services_text_color", e.target.value)} placeholder="#FFFFFF" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Bouton</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.services_button_color} onChange={(e) => updateColor("services_button_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.services_button_color} onChange={(e) => updateColor("services_button_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Bordure bouton</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.services_button_border_color || "#DC2626"} onChange={(e) => updateColor("services_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.services_button_border_color} onChange={(e) => setThemeSettings({ ...themeSettings, services_button_border_color: e.target.value })} placeholder="Vide" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Section Agences */}
+                <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
+                  <h4 className="font-medium text-gray-800">Section Agences (page Agences)</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Fond</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.agencies_bg_color} onChange={(e) => updateColor("agencies_bg_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.agencies_bg_color} onChange={(e) => updateColor("agencies_bg_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Texte</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.agencies_text_color} onChange={(e) => updateColor("agencies_text_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.agencies_text_color} onChange={(e) => updateColor("agencies_text_color", e.target.value)} placeholder="#FFFFFF" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Bouton</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.agencies_button_color} onChange={(e) => updateColor("agencies_button_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.agencies_button_color} onChange={(e) => updateColor("agencies_button_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Bordure bouton</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.agencies_button_border_color || "#DC2626"} onChange={(e) => updateColor("agencies_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.agencies_button_border_color} onChange={(e) => setThemeSettings({ ...themeSettings, agencies_button_border_color: e.target.value })} placeholder="Vide" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Interface employé */}
+                <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
+                  <h4 className="font-medium text-gray-800">Interface employé (dashboard employé)</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Fond</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.employe_bg_color} onChange={(e) => updateColor("employe_bg_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.employe_bg_color} onChange={(e) => updateColor("employe_bg_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Texte</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.employe_text_color} onChange={(e) => updateColor("employe_text_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.employe_text_color} onChange={(e) => updateColor("employe_text_color", e.target.value)} placeholder="#FFFFFF" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Bouton</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.employe_button_color} onChange={(e) => updateColor("employe_button_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.employe_button_color} onChange={(e) => updateColor("employe_button_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Bordure bouton</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.employe_button_border_color || "#DC2626"} onChange={(e) => updateColor("employe_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.employe_button_border_color} onChange={(e) => setThemeSettings({ ...themeSettings, employe_button_border_color: e.target.value })} placeholder="Vide" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Page connexion admin */}
+                <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
+                  <h4 className="font-medium text-gray-800">Page de connexion admin</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Fond</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.admin_login_bg_color} onChange={(e) => updateColor("admin_login_bg_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.admin_login_bg_color} onChange={(e) => updateColor("admin_login_bg_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Texte</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.admin_login_text_color} onChange={(e) => updateColor("admin_login_text_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.admin_login_text_color} onChange={(e) => updateColor("admin_login_text_color", e.target.value)} placeholder="#FFFFFF" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Bouton</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.admin_login_button_color} onChange={(e) => updateColor("admin_login_button_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.admin_login_button_color} onChange={(e) => updateColor("admin_login_button_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Bordure bouton</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.admin_login_button_border_color || "#DC2626"} onChange={(e) => updateColor("admin_login_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.admin_login_button_border_color} onChange={(e) => setThemeSettings({ ...themeSettings, admin_login_button_border_color: e.target.value })} placeholder="Vide" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Page connexion employé */}
+                <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
+                  <h4 className="font-medium text-gray-800">Page de connexion employé</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="space-y-1">
+                      <Label className="text-xs">Fond</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.employe_login_bg_color} onChange={(e) => updateColor("employe_login_bg_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.employe_login_bg_color} onChange={(e) => updateColor("employe_login_bg_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Texte</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.employe_login_text_color} onChange={(e) => updateColor("employe_login_text_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.employe_login_text_color} onChange={(e) => updateColor("employe_login_text_color", e.target.value)} placeholder="#FFFFFF" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Bouton</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.employe_login_button_color} onChange={(e) => updateColor("employe_login_button_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.employe_login_button_color} onChange={(e) => updateColor("employe_login_button_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs">Bordure bouton</Label>
+                      <div className="flex gap-2">
+                        <Input type="color" value={themeSettings.employe_login_button_border_color || "#DC2626"} onChange={(e) => updateColor("employe_login_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="text" value={themeSettings.employe_login_button_border_color} onChange={(e) => setThemeSettings({ ...themeSettings, employe_login_button_border_color: e.target.value })} placeholder="Vide" className="flex-1 text-sm" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
+                </CollapsibleContent>
+              </Collapsible>
 
               {/* Logo et favicon */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 flex items-center gap-2">
-                  <FaImage className="w-5 h-5 text-[#DC2626]" />
-                  Logo et favicon
-                </h3>
+              <Collapsible className="group" open={themeSectionsOpen["Logo et favicon"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Logo et favicon": o }))}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                    <FaImage className="w-5 h-5 text-site-primary" />
+                    Logo et favicon
+                  </h3>
+                  <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                <div className="space-y-4 pt-2 pb-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="logo">Logo du site</Label>
@@ -1410,12 +2031,14 @@ export default function AdminParametres() {
                     <p className="text-xs text-gray-500">Format recommandé: ICO, PNG (16x16 ou 32x32). Taille max: 1MB</p>
                   </div>
                 </div>
-              </div>
+                </div>
+                </CollapsibleContent>
+              </Collapsible>
 
-              <div className="flex justify-end pt-4 border-t">
+              <div className="flex justify-end pt-4 border-t mt-6">
                 <Button
                   type="submit"
-                  className="bg-[#DC2626] hover:bg-[#B91C1C] text-white"
+                  className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text"
                   disabled={saveThemeMutation.isPending}
                 >
                   <FaSave className="w-4 h-4 mr-2" />
@@ -1430,7 +2053,7 @@ export default function AdminParametres() {
         <Card className="shadow-xl border-0 bg-white">
           <CardHeader className="border-b">
             <CardTitle className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
-              <FaEnvelope className="w-6 h-6 text-[#DC2626]" />
+              <FaEnvelope className="w-6 h-6 text-site-primary" />
               Configuration Email (SMTP)
             </CardTitle>
             <CardDescription>
@@ -1517,7 +2140,7 @@ export default function AdminParametres() {
                     onChange={(e) => {
                       setSmtpSettings({ ...smtpSettings, smtp_use_tls: e.target.checked, smtp_use_ssl: !e.target.checked });
                     }}
-                    className="w-4 h-4 text-[#DC2626] border-gray-300 rounded focus:ring-[#DC2626]"
+                    className="w-4 h-4 text-site-primary border-gray-300 rounded focus:ring-site-primary"
                   />
                   <Label htmlFor="smtp_use_tls" className="cursor-pointer">
                     Utiliser TLS (recommandé pour le port 587)
@@ -1532,7 +2155,7 @@ export default function AdminParametres() {
                     onChange={(e) => {
                       setSmtpSettings({ ...smtpSettings, smtp_use_ssl: e.target.checked, smtp_use_tls: !e.target.checked });
                     }}
-                    className="w-4 h-4 text-[#DC2626] border-gray-300 rounded focus:ring-[#DC2626]"
+                    className="w-4 h-4 text-site-primary border-gray-300 rounded focus:ring-site-primary"
                   />
                   <Label htmlFor="smtp_use_ssl" className="cursor-pointer">
                     Utiliser SSL (pour le port 465)
@@ -1553,7 +2176,7 @@ export default function AdminParametres() {
               <div className="flex justify-end pt-4 border-t">
                 <Button
                   type="submit"
-                  className="bg-[#DC2626] hover:bg-[#B91C1C] text-white"
+                  className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text"
                   disabled={saveSmtpMutation.isPending}
                 >
                   <FaSave className="w-4 h-4 mr-2" />

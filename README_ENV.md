@@ -61,3 +61,5 @@ VITE_API_URL=http://76.13.56.224/api
 - `.env.example` est un template sans secrets et peut être poussé
 - Sur le serveur, copiez `.env.example` vers `.env` et modifiez les valeurs
 
+
+

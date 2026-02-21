@@ -11,9 +11,9 @@ services:
              python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./backend:/app
-      - backend_static:/app/staticfiles
-      - backend_media:/app/media
-      # La base SQLite est déjà persistée via ./backend:/app qui monte le répertoire local
+      # Images et fichiers statiques stockés directement sur le serveur (dossiers du projet)
+      - ./backend/staticfiles:/app/staticfiles
+      - ./backend/media:/app/media
     ports:
       - "8000:8000"
     env_file:
@@ -43,11 +43,6 @@ services:
     networks:
       - servicemenager_network
     restart: unless-stopped
-
-volumes:
-  backend_static:
-  backend_media:
-  backend_db:
 
 networks:
   servicemenager_network:

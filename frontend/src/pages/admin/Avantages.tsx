@@ -192,7 +192,7 @@ export default function AdminAvantages() {
       <DashboardLayout>
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <div className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <div className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
             <p className="text-gray-600">Chargement...</p>
           </div>
         </div>
@@ -214,7 +214,7 @@ export default function AdminAvantages() {
           </div>
           <Button
             onClick={() => setIsCreating(true)}
-            className="bg-[#DC2626] hover:bg-[#B91C1C] text-white"
+            className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text"
           >
             <FaPlus className="w-4 h-4 mr-2" />
             Ajouter un avantage
@@ -223,7 +223,7 @@ export default function AdminAvantages() {
 
         {/* Formulaire de création */}
         {isCreating && (
-          <Card className="border-2 border-[#DC2626]">
+          <Card className="border-2 border-site-primary">
             <CardHeader>
               <CardTitle>Nouvel avantage</CardTitle>
             </CardHeader>
@@ -286,7 +286,7 @@ export default function AdminAvantages() {
                 <Button
                   onClick={handleSubmit}
                   disabled={!formData.title || !formData.description}
-                  className="bg-[#DC2626] hover:bg-[#B91C1C] text-white"
+                  className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text"
                 >
                   <FaSave className="w-4 h-4 mr-2" />
                   Enregistrer
@@ -367,7 +367,7 @@ export default function AdminAvantages() {
                         <Button
                           onClick={handleSubmit}
                           disabled={!formData.title || !formData.description}
-                          className="bg-[#DC2626] hover:bg-[#B91C1C] text-white"
+                          className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text"
                         >
                           <FaSave className="w-4 h-4 mr-2" />
                           Enregistrer
@@ -380,8 +380,8 @@ export default function AdminAvantages() {
                     </div>
                   ) : (
                     <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 bg-[#DC2626]/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <IconComponent className="w-6 h-6 text-[#DC2626]" />
+                      <div className="w-12 h-12 bg-site-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <IconComponent className="w-6 h-6 text-site-primary" />
                       </div>
                       <div className="flex-1">
                         <div className="flex items-start justify-between">

@@ -232,7 +232,7 @@ export default function Agencies() {
                 searchSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
               }
             }}
-            className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text shadow-xl hover:shadow-2xl px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 text-sm sm:text-base md:text-lg font-semibold transition-all duration-300 hover:scale-105 w-full sm:w-auto"
+            className="bg-site-section-agencies-button hover:opacity-90 text-site-button-text border-2 border-site-section-agencies-button-border shadow-xl hover:shadow-2xl px-4 sm:px-6 md:px-8 py-3 sm:py-4 md:py-6 text-sm sm:text-base md:text-lg font-semibold transition-all duration-300 hover:scale-105 w-full sm:w-auto"
           >
             <span className="hidden sm:inline">Trouver une agence</span>
             <span className="sm:hidden">Trouver</span>
@@ -454,7 +454,7 @@ export default function Agencies() {
       </section>
 
       {/* 🟪 SECTION 4 — CTA Devis */}
-      <section className="relative py-20 bg-site-primary text-white overflow-hidden">
+      <section className="relative py-20 bg-site-section-agencies-bg text-site-section-agencies-text overflow-hidden">
         <div className="relative max-w-4xl mx-auto px-4 md:px-6 lg:px-8 text-center z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -465,7 +465,7 @@ export default function Agencies() {
             <h2 className="text-4xl md:text-5xl font-bold mb-6 drop-shadow-lg">
               Besoin d'aide pour choisir une agence ?
             </h2>
-            <p className="text-xl text-white/95 mb-10 leading-relaxed max-w-2xl mx-auto">
+            <p className="text-xl text-site-section-agencies-text/95 mb-10 leading-relaxed max-w-2xl mx-auto">
               Notre équipe est à votre disposition pour vous orienter vers l'agence la plus adaptée à vos besoins. 
               Obtenez un devis personnalisé gratuit et sans engagement.
             </p>
@@ -473,7 +473,7 @@ export default function Agencies() {
               <Link href="/devis">
                 <Button
                   size="lg"
-                  className="bg-white text-site-button-primary hover:bg-gray-50 shadow-2xl hover:shadow-3xl transition-all duration-300 px-8 py-6 text-lg font-semibold hover:scale-105"
+                  className="bg-site-section-agencies-button text-site-button-text border-2 border-site-section-agencies-button-border hover:opacity-90 shadow-2xl hover:shadow-3xl transition-all duration-300 px-8 py-6 text-lg font-semibold hover:scale-105"
                 >
                   Demander un devis gratuit
                   <FaArrowRight className="ml-2 w-5 h-5" />
@@ -482,13 +482,13 @@ export default function Agencies() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-2 border-white text-white hover:bg-white hover:text-site-button-primary transition-all duration-300 px-8 py-6 text-lg font-semibold"
+                className="border-2 border-site-section-agencies-button-border text-site-section-agencies-text hover:bg-site-section-agencies-button hover:text-site-button-text transition-all duration-300 px-8 py-6 text-lg font-semibold"
                 onClick={() => window.location.href = "/contact"}
               >
                 Nous contacter
               </Button>
             </div>
-            <div className="flex items-center justify-center gap-2 text-base text-white/90">
+            <div className="flex items-center justify-center gap-2 text-base text-site-section-agencies-text/90">
               <FaInfoCircle className="w-5 h-5" />
               <span>Réponse sous 24h • Devis gratuit • Sans engagement</span>
             </div>

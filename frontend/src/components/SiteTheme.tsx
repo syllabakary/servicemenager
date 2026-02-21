@@ -108,7 +108,6 @@ export function SiteTheme() {
           root.style.setProperty(`--site-${varName}-hex`, colorValue);
         }
       };
-
       // Appliquer les couleurs principales
       applyColor(settings.primary_color, "primary");
       applyColor(settings.secondary_color, "secondary");
@@ -124,16 +123,127 @@ export function SiteTheme() {
       applyColor(settings.text_link_color || settings.primary_color, "text-link");
       applyColor(settings.text_link_hover_color || settings.secondary_color, "text-link-hover");
 
-      // Mettre à jour le favicon si disponible
+      // Bannière (bandeau promo)
+      applyColor(settings.banner_bg_color || settings.primary_color, "banner-bg");
+      applyColor(settings.banner_text_color || "#FFFFFF", "banner-text");
+      applyColor(settings.banner_button_color || settings.primary_color, "banner-button");
+      applyColor(settings.banner_button_border_color || "", "banner-button-border");
+
+      // Section Services
+      applyColor(settings.services_bg_color || settings.primary_color, "section-services-bg");
+      applyColor(settings.services_text_color || "#FFFFFF", "section-services-text");
+      applyColor(settings.services_button_color || settings.button_primary_color || settings.primary_color, "section-services-button");
+      applyColor(settings.services_button_border_color || "", "section-services-button-border");
+      // Section Agences
+      applyColor(settings.agencies_bg_color || settings.primary_color, "section-agencies-bg");
+      applyColor(settings.agencies_text_color || "#FFFFFF", "section-agencies-text");
+      applyColor(settings.agencies_button_color || settings.button_primary_color || settings.primary_color, "section-agencies-button");
+      applyColor(settings.agencies_button_border_color || "", "section-agencies-button-border");
+      // Interface employé
+      applyColor(settings.employe_bg_color || settings.primary_color, "section-employe-bg");
+      applyColor(settings.employe_text_color || "#FFFFFF", "section-employe-text");
+      applyColor(settings.employe_button_color || settings.button_primary_color || settings.primary_color, "section-employe-button");
+      applyColor(settings.employe_button_border_color || "", "section-employe-button-border");
+      // Page connexion admin
+      applyColor(settings.admin_login_bg_color || settings.primary_color, "section-admin-login-bg");
+      applyColor(settings.admin_login_text_color || "#FFFFFF", "section-admin-login-text");
+      applyColor(settings.admin_login_button_color || settings.button_primary_color || settings.primary_color, "section-admin-login-button");
+      applyColor(settings.admin_login_button_border_color || "", "section-admin-login-button-border");
+      // Page connexion employé
+      applyColor(settings.employe_login_bg_color || settings.primary_color, "section-employe-login-bg");
+      applyColor(settings.employe_login_text_color || "#FFFFFF", "section-employe-login-text");
+      applyColor(settings.employe_login_button_color || settings.button_primary_color || settings.primary_color, "section-employe-login-button");
+      applyColor(settings.employe_login_button_border_color || "", "section-employe-login-button-border");
+
+      // Bordures section (transparent si vide)
+      if (!settings.banner_button_border_color) root.style.setProperty("--site-banner-button-border-hex", "transparent");
+      if (!settings.services_button_border_color) root.style.setProperty("--site-section-services-button-border-hex", "transparent");
+      if (!settings.agencies_button_border_color) root.style.setProperty("--site-section-agencies-button-border-hex", "transparent");
+      if (!settings.employe_button_border_color) root.style.setProperty("--site-section-employe-button-border-hex", "transparent");
+      if (!settings.admin_login_button_border_color) root.style.setProperty("--site-section-admin-login-button-border-hex", "transparent");
+      if (!settings.employe_login_button_border_color) root.style.setProperty("--site-section-employe-login-button-border-hex", "transparent");
+
+      // Footer
+      applyColor(settings.footer_bg_color || "#FEF2F2", "footer-bg");
+      applyColor(settings.footer_text_color || "#374151", "footer-text");
+      applyColor(settings.footer_link_color || settings.primary_color, "footer-link");
+      applyColor(settings.footer_link_hover_color || settings.secondary_color, "footer-link-hover");
+      applyColor(settings.footer_border_color || "#FECACA", "footer-border");
+
+      // Bordures des boutons (toutes interfaces)
+      const btnBorderColor = settings.button_border_color || "";
+      const btnBorderWidth = (settings.button_border_width ?? 0);
+      const btnBorderRadius = settings.button_border_radius || "0.375rem";
+      if (btnBorderColor) {
+        const rgb = hexToRgb(btnBorderColor);
+        if (rgb) {
+          const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
+          root.style.setProperty("--site-button-border", `${hsl.h} ${hsl.s}% ${hsl.l}%`);
+          root.style.setProperty("--site-button-border-hex", btnBorderColor);
+        }
+      } else {
+        root.style.setProperty("--site-button-border-hex", "transparent");
+      }
+      root.style.setProperty("--site-button-border-width", `${btnBorderWidth}px`);
+      root.style.setProperty("--site-button-border-radius", btnBorderRadius);
+
+      // Boutons outline (ex. Connexion)
+      applyColor(settings.button_outline_border_color || settings.primary_color, "button-outline-border");
+      applyColor(settings.button_outline_text_color || settings.primary_color, "button-outline-text");
+      applyColor(settings.button_outline_hover_bg_color || settings.primary_color, "button-outline-hover-bg");
+
+      // Nom et slogan (navbar)
+      applyColor(settings.site_name_part1_color || "#111827", "name-part1");
+      applyColor(settings.site_name_part2_color || settings.primary_color, "name-part2");
+      applyColor(settings.site_tagline_color || "#6B7280", "tagline");
+
+      // Titre de la page (onglet) = nom du site personnalisé
+      const siteName = (settings.site_name || "Services Locaux").trim();
+      const tagline = (settings.site_tagline || "").trim();
+      document.title = tagline ? `${siteName} - ${tagline}` : siteName;
+
+      // Favicon : image personnalisée ou initiales du nom du site
+      const primaryHex = settings.primary_color || "#DC2626";
+      const getOrCreateFaviconLink = () => {
+        let link = document.querySelector("link[rel='icon']") as HTMLLinkElement;
+        if (!link) {
+          link = document.createElement("link");
+          link.rel = "icon";
+          document.head.appendChild(link);
+        }
+        return link;
+      };
       if (settings.logo_favicon_url) {
-        const link = document.querySelector("link[rel='icon']") as HTMLLinkElement;
-        if (link) {
-          link.href = settings.logo_favicon_url;
-        } else {
-          const newLink = document.createElement("link");
-          newLink.rel = "icon";
-          newLink.href = settings.logo_favicon_url;
-          document.head.appendChild(newLink);
+        getOrCreateFaviconLink().href = settings.logo_favicon_url;
+      } else {
+        // Générer un favicon avec les initiales du nom du site (personnalisation par le nom)
+        const nameForFavicon = (settings.site_name || "S").trim();
+        const initials = nameForFavicon
+          .split(/\s+/)
+          .filter(Boolean)
+          .map((w) => w[0])
+          .join("")
+          .toUpperCase()
+          .slice(0, 2) || nameForFavicon[0]?.toUpperCase() || "S";
+        try {
+          const size = 32;
+          const canvas = document.createElement("canvas");
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.fillStyle = primaryHex;
+            ctx.fillRect(0, 0, size, size);
+            ctx.fillStyle = "#FFFFFF";
+            ctx.font = `bold ${initials.length === 1 ? 20 : 14}px system-ui, sans-serif`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText(initials, size / 2, size / 2);
+            const dataUrl = canvas.toDataURL("image/png");
+            getOrCreateFaviconLink().href = dataUrl;
+          }
+        } catch {
+          getOrCreateFaviconLink().href = "/favicon.ico";
         }
       }
     }

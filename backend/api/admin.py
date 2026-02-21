@@ -868,6 +868,21 @@ class SiteSettingsAdmin(admin.ModelAdmin):
             'fields': ('text_primary_color', 'text_link_color', 'text_link_hover_color'),
             'description': 'Couleurs pour les textes importants et les liens cliquables. Si vides, utilisent les couleurs principales.'
         }),
+        ('Bannière (bandeau promo)', {
+            'fields': ('banner_bg_color', 'banner_text_color'),
+        }),
+        ('Footer', {
+            'fields': ('footer_bg_color', 'footer_text_color', 'footer_link_color', 'footer_link_hover_color', 'footer_border_color'),
+        }),
+        ('Bordures des boutons', {
+            'fields': ('button_border_color', 'button_border_width', 'button_border_radius'),
+        }),
+        ('Boutons outline (ex. Connexion)', {
+            'fields': ('button_outline_border_color', 'button_outline_text_color', 'button_outline_hover_bg_color'),
+        }),
+        ('Couleurs du nom et slogan (navbar)', {
+            'fields': ('site_name_part1_color', 'site_name_part2_color', 'site_tagline_color'),
+        }),
         ('Logo et favicon', {
             'fields': ('logo', 'logo_preview', 'logo_favicon', 'logo_favicon_preview')
         }),

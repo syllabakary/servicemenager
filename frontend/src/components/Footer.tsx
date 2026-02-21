@@ -42,17 +42,17 @@ export default function Footer() {
   }
 
   return (
-    <footer className="bg-red-100 border-t border-red-200 overflow-x-hidden w-full max-w-full">
+    <footer className="bg-site-footer-bg border-t border-site-footer-border overflow-x-hidden w-full max-w-full">
   <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-12">
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
       <div>
         <div className="flex items-center gap-2 mb-4">
-          <div className="w-10 h-10 rounded-md bg-[site-primary] flex items-center justify-center">
-            <FaHome className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 rounded-md bg-site-footer-link flex items-center justify-center">
+            <FaHome className="w-5 h-5 text-site-button-text" />
           </div>
-          <span className="text-xl font-semibold text-gray-900">{footerInfo.copyright}</span>
+          <span className="text-xl font-semibold text-site-footer-text">{footerInfo.copyright}</span>
         </div>
-        <p className="text-gray-700 text-sm mb-4">
+        <p className="text-site-footer-text text-sm mb-4">
           {footerInfo.description}
         </p>
         <div className="flex gap-3">
@@ -61,10 +61,10 @@ export default function Footer() {
               href={footerInfo.facebook}
             target="_blank"
             rel="noopener noreferrer"
-              className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-[site-primary] transition-colors border border-red-200"
+              className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-site-footer-link transition-colors border border-site-footer-border"
             aria-label="Facebook"
           >
-              <FaFacebook className="w-4 h-4 text-[site-primary] hover:text-white transition-colors" />
+              <FaFacebook className="w-4 h-4 text-site-footer-link hover:text-white transition-colors" />
           </a>
           )}
           {footerInfo.twitter && (
@@ -72,10 +72,10 @@ export default function Footer() {
               href={footerInfo.twitter}
             target="_blank"
             rel="noopener noreferrer"
-              className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-[site-primary] transition-colors border border-red-200"
+              className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-site-footer-link transition-colors border border-site-footer-border"
             aria-label="Twitter"
           >
-              <FaTwitter className="w-4 h-4 text-[site-primary] hover:text-white transition-colors" />
+              <FaTwitter className="w-4 h-4 text-site-footer-link hover:text-white transition-colors" />
           </a>
           )}
           {footerInfo.instagram && (
@@ -83,10 +83,10 @@ export default function Footer() {
               href={footerInfo.instagram}
             target="_blank"
             rel="noopener noreferrer"
-              className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-[site-primary] transition-colors border border-red-200"
+              className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-site-footer-link transition-colors border border-site-footer-border"
             aria-label="Instagram"
           >
-              <FaInstagram className="w-4 h-4 text-[site-primary] hover:text-white transition-colors" />
+              <FaInstagram className="w-4 h-4 text-site-footer-link hover:text-white transition-colors" />
           </a>
           )}
           {footerInfo.linkedin && (
@@ -94,10 +94,10 @@ export default function Footer() {
               href={footerInfo.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-              className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-[site-primary] transition-colors border border-red-200"
+              className="w-9 h-9 rounded-md bg-white flex items-center justify-center hover:bg-site-footer-link transition-colors border border-site-footer-border"
             aria-label="LinkedIn"
           >
-              <FaLinkedin className="w-4 h-4 text-[site-primary] hover:text-white transition-colors" />
+              <FaLinkedin className="w-4 h-4 text-site-footer-link hover:text-white transition-colors" />
           </a>
           )}
         </div>
@@ -105,25 +105,25 @@ export default function Footer() {
 
       {/* Services */}
       <div>
-        <h3 className="font-semibold text-gray-900 mb-4">Services</h3>
+        <h3 className="font-semibold text-site-footer-text mb-4">Services</h3>
         <ul className="space-y-2">
           <li>
-            <Link href="/services" className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
+            <Link href="/services" className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
               Ménage à domicile
             </Link>
           </li>
           <li>
-            <Link href="/services" className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
+            <Link href="/services" className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
               Garde d'enfants
             </Link>
           </li>
           <li>
-            <Link href="/services" className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
+            <Link href="/services" className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
               Jardinage
             </Link>
           </li>
           <li>
-            <Link href="/services" className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
+            <Link href="/services" className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
               Tous les services
             </Link>
           </li>
@@ -132,20 +132,20 @@ export default function Footer() {
 
       {/* Navigation */}
       <div>
-        <h3 className="font-semibold text-gray-900 mb-4">Navigation</h3>
+        <h3 className="font-semibold text-site-footer-text mb-4">Navigation</h3>
         <ul className="space-y-2">
           <li>
-            <Link href="/" className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
+            <Link href="/" className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
               Accueil
             </Link>
           </li>
           <li>
-            <Link href="/agences" className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
+            <Link href="/agences" className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
               Nos agences
             </Link>
           </li>
           <li>
-            <Link href="/contact" className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
+            <Link href="/contact" className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
               Contact
             </Link>
           </li>
@@ -154,21 +154,21 @@ export default function Footer() {
 
       {/* Contact */}
       <div>
-        <h3 className="font-semibold text-gray-900 mb-4">Contact</h3>
+        <h3 className="font-semibold text-site-footer-text mb-4">Contact</h3>
         <ul className="space-y-3">
           <li className="flex items-start gap-2">
-            <FaMapMarkerAlt className="w-4 h-4 mt-0.5 text-[site-primary] flex-shrink-0" />
-            <span className="text-gray-700 text-sm">{footerInfo.address}</span>
+            <FaMapMarkerAlt className="w-4 h-4 mt-0.5 text-site-footer-link flex-shrink-0" />
+            <span className="text-site-footer-text text-sm">{footerInfo.address}</span>
           </li>
           <li className="flex items-start gap-2">
-            <FaPhone className="w-4 h-4 mt-0.5 text-[site-primary] flex-shrink-0" />
-            <a href={`tel:${footerInfo.phone.replace(/\s/g, "")}`} className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
+            <FaPhone className="w-4 h-4 mt-0.5 text-site-footer-link flex-shrink-0" />
+            <a href={`tel:${footerInfo.phone.replace(/\s/g, "")}`} className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
               {footerInfo.phone}
             </a>
           </li>
           <li className="flex items-start gap-2">
-            <FaEnvelope className="w-4 h-4 mt-0.5 text-[site-primary] flex-shrink-0" />
-            <a href={`mailto:${footerInfo.email}`} className="text-gray-700 hover:text-[site-primary] transition-colors text-sm">
+            <FaEnvelope className="w-4 h-4 mt-0.5 text-site-footer-link flex-shrink-0" />
+            <a href={`mailto:${footerInfo.email}`} className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
               {footerInfo.email}
             </a>
           </li>
@@ -176,15 +176,15 @@ export default function Footer() {
       </div>
     </div>
 
-    <div className="border-t border-red-200 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-      <p className="text-sm text-gray-700">
+    <div className="border-t border-site-footer-border mt-8 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+      <p className="text-sm text-site-footer-text">
         © {currentYear} {footerInfo.copyright}. Tous droits réservés.
       </p>
       <div className="flex gap-6">
-        <a href="#" className="text-sm text-gray-700 hover:text-[site-primary] transition-colors">
+        <a href="#" className="text-sm text-site-footer-text hover:text-site-footer-link-hover transition-colors">
           Mentions légales
         </a>
-        <a href="#" className="text-sm text-gray-700 hover:text-[site-primary] transition-colors">
+        <a href="#" className="text-sm text-site-footer-text hover:text-site-footer-link-hover transition-colors">
           Confidentialité
         </a>
       </div>

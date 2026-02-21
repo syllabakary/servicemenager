@@ -49,7 +49,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#DC2626] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Chargement...</p>
         </div>
       </div>
@@ -63,7 +63,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50 relative">
       <Sidebar userRole={user.role} />
-      <main className="xl:ml-64 min-h-screen pb-8">
+      <main className="xl:ml-64 min-h-screen pb-8 pt-6 sm:pt-8">
         <div className="p-4 sm:p-6 lg:p-8">
           <div className="max-w-7xl mx-auto">
             {children}

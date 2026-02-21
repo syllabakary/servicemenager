@@ -696,6 +696,9 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
         discount_amount = base_price * (discount / 100) if discount > 0 else 0
         final_price = base_price - discount_amount if discount > 0 else base_price
         
+        pdf_primary = '#DC2626'
+        if site_settings:
+            pdf_primary = (getattr(site_settings, 'devis_pdf_primary_color', None) or getattr(site_settings, 'primary_color', None) or '').strip() or '#DC2626'
         context = {
             'quote_request': quote_request,
             'site_settings': site_settings,
@@ -705,6 +708,7 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
             'discount': discount,
             'discount_amount': discount_amount,
             'final_price': final_price,
+            'pdf_primary_color': pdf_primary,
         }
         
         # Rendre le template HTML
@@ -829,7 +833,9 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
             discount = float(quote_request.discount_percentage or 0)
             discount_amount = base_price * (discount / 100) if discount > 0 else 0
             final_price = base_price - discount_amount if discount > 0 else base_price
-            
+
+            pdf_primary = (getattr(site_settings, 'devis_pdf_primary_color', None) or getattr(site_settings, 'primary_color', None) or '').strip() if site_settings else ''
+            pdf_primary = pdf_primary or '#DC2626'
             context = {
                 'quote_request': quote_request,
                 'site_settings': site_settings,
@@ -839,8 +845,9 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
                 'discount': discount,
                 'discount_amount': discount_amount,
                 'final_price': final_price,
+                'pdf_primary_color': pdf_primary,
             }
-            
+
             # Générer le PDF du devis
             result = None
             try:
@@ -1162,15 +1169,18 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                 except Exception as e:
                     logger.error(f'Erreur lors du chargement du logo: {e}')
                     logo_path = None
-            
+
+            pdf_primary = (getattr(site_settings, 'devis_pdf_primary_color', None) or getattr(site_settings, 'primary_color', None) or '').strip() if site_settings else ''
+            pdf_primary = pdf_primary or '#DC2626'
             context = {
                 'invoice': invoice,
                 'quote_request': invoice.quote_request,
                 'site_settings': site_settings,
                 'today': date.today(),
                 'logo_path': logo_path,
+                'pdf_primary_color': pdf_primary,
             }
-            
+
             # Rendre le template HTML
             try:
                 html_string = render_to_string('invoice.html', context)
@@ -1305,15 +1315,18 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                 except Exception as e:
                     logger.error(f'Erreur lors du chargement du logo: {e}')
                     logo_path = None
-            
+
+            pdf_primary = (getattr(site_settings, 'devis_pdf_primary_color', None) or getattr(site_settings, 'primary_color', None) or '').strip() if site_settings else ''
+            pdf_primary = pdf_primary or '#DC2626'
             context = {
                 'invoice': invoice,
                 'quote_request': invoice.quote_request,
                 'site_settings': site_settings,
                 'today': date.today(),
                 'logo_path': logo_path,
+                'pdf_primary_color': pdf_primary,
             }
-            
+
             # Générer le PDF de la facture
             result = None
             try:

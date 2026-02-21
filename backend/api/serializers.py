@@ -576,6 +576,7 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
             'employe_bg_color', 'employe_text_color', 'employe_button_color', 'employe_button_border_color',
             'admin_login_bg_color', 'admin_login_text_color', 'admin_login_button_color', 'admin_login_button_border_color',
             'employe_login_bg_color', 'employe_login_text_color', 'employe_login_button_color', 'employe_login_button_border_color',
+            'logo_area_bg_color', 'logo_area_text_color', 'devis_pdf_primary_color',
             'logo', 'logo_url', 'logo_favicon', 'logo_favicon_url',
             'site_name', 'site_tagline',
             'smtp_host', 'smtp_port', 'smtp_use_tls', 'smtp_use_ssl',

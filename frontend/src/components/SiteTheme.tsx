@@ -197,6 +197,17 @@ export function SiteTheme() {
       applyColor(settings.site_name_part2_color || settings.primary_color, "name-part2");
       applyColor(settings.site_tagline_color || "#6B7280", "tagline");
 
+      // Logo, Devis et PDF
+      if (settings.logo_area_bg_color) {
+        applyColor(settings.logo_area_bg_color, "logo-area-bg");
+      } else {
+        root.style.setProperty("--site-logo-area-bg-hex", "transparent");
+      }
+      if (settings.logo_area_text_color) {
+        applyColor(settings.logo_area_text_color, "logo-area-text");
+      }
+      applyColor(settings.devis_pdf_primary_color || settings.primary_color || "#DC2626", "devis-pdf-primary");
+
       // Titre de la page (onglet) = nom du site personnalisé
       const siteName = (settings.site_name || "Services Locaux").trim();
       const tagline = (settings.site_tagline || "").trim();

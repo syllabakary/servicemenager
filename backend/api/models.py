@@ -1213,6 +1213,11 @@ class SiteSettings(models.Model):
     employe_login_text_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Texte page connexion employé")
     employe_login_button_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Bouton page connexion employé")
     employe_login_button_border_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Bordure bouton page connexion employé")
+    # Zone logo (navbar : fond et texte à côté du logo)
+    logo_area_bg_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Fond zone logo (navbar)")
+    logo_area_text_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Texte zone logo (nom/slogan)")
+    # Devis et PDF (couleur principale des titres et bordures dans le PDF devis/facture)
+    devis_pdf_primary_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Couleur principale devis et PDF (titres, bordures)")
     # Logo
     logo = models.ImageField(
         upload_to='site/',

@@ -363,6 +363,9 @@ export default function AdminParametres() {
     employe_login_text_color: "#FFFFFF",
     employe_login_button_color: "#DC2626",
     employe_login_button_border_color: "",
+    logo_area_bg_color: "",
+    logo_area_text_color: "",
+    devis_pdf_primary_color: "#DC2626",
     logo: null as File | null,
     logo_favicon: null as File | null,
   });
@@ -389,6 +392,7 @@ export default function AdminParametres() {
     "Bordures des boutons": true,
     "Boutons outline": true,
     "Couleurs par section": true,
+    "Logo, Devis et PDF": true,
     "Logo et favicon": true,
   });
 
@@ -445,6 +449,9 @@ export default function AdminParametres() {
         employe_login_text_color: siteSettings.employe_login_text_color ? normalizeHexColor(siteSettings.employe_login_text_color) : "#FFFFFF",
         employe_login_button_color: siteSettings.employe_login_button_color ? normalizeHexColor(siteSettings.employe_login_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
         employe_login_button_border_color: siteSettings.employe_login_button_border_color ? normalizeHexColor(siteSettings.employe_login_button_border_color) : "",
+        logo_area_bg_color: siteSettings.logo_area_bg_color ? normalizeHexColor(siteSettings.logo_area_bg_color) : "",
+        logo_area_text_color: siteSettings.logo_area_text_color ? normalizeHexColor(siteSettings.logo_area_text_color) : "",
+        devis_pdf_primary_color: normalizeHexColor(siteSettings.devis_pdf_primary_color || siteSettings.primary_color || "#DC2626"),
         logo: null,
         logo_favicon: null,
       });
@@ -554,6 +561,9 @@ export default function AdminParametres() {
         employe_login_text_color: data.employe_login_text_color ? normalizeHexColor(data.employe_login_text_color) : "",
         employe_login_button_color: data.employe_login_button_color ? normalizeHexColor(data.employe_login_button_color) : "",
         employe_login_button_border_color: data.employe_login_button_border_color ? normalizeHexColor(data.employe_login_button_border_color) : "",
+        logo_area_bg_color: data.logo_area_bg_color ? normalizeHexColor(data.logo_area_bg_color) : "",
+        logo_area_text_color: data.logo_area_text_color ? normalizeHexColor(data.logo_area_text_color) : "",
+        devis_pdf_primary_color: normalizeHexColor(data.devis_pdf_primary_color || data.primary_color || "#DC2626"),
       };
       
       // Valider toutes les couleurs (hex) quand elles sont renseignées
@@ -571,6 +581,7 @@ export default function AdminParametres() {
         'employe_bg_color', 'employe_text_color', 'employe_button_color', 'employe_button_border_color',
         'admin_login_bg_color', 'admin_login_text_color', 'admin_login_button_color', 'admin_login_button_border_color',
         'employe_login_bg_color', 'employe_login_text_color', 'employe_login_button_color', 'employe_login_button_border_color',
+        'logo_area_bg_color', 'logo_area_text_color', 'devis_pdf_primary_color',
       ];
       
       for (const field of colorFields) {
@@ -630,6 +641,9 @@ export default function AdminParametres() {
       formData.append("employe_login_button_border_color", normalizedData.employe_login_button_border_color ?? "");
       formData.append("site_name", normalizedData.site_name);
       formData.append("site_tagline", normalizedData.site_tagline);
+      formData.append("logo_area_bg_color", normalizedData.logo_area_bg_color ?? "");
+      formData.append("logo_area_text_color", normalizedData.logo_area_text_color ?? "");
+      formData.append("devis_pdf_primary_color", normalizedData.devis_pdf_primary_color ?? "#DC2626");
       if (data.logo) {
         formData.append("logo", data.logo);
       }
@@ -1977,6 +1991,45 @@ export default function AdminParametres() {
                   </div>
                 </div>
               </div>
+                </CollapsibleContent>
+              </Collapsible>
+
+              {/* Logo, Devis et PDF */}
+              <Collapsible className="group" open={themeSectionsOpen["Logo, Devis et PDF"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Logo, Devis et PDF": o }))}>
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3.5 px-4 text-left rounded-xl hover:bg-site-primary/5 transition-colors border border-transparent hover:border-site-primary/10">
+                  <h3 className="text-lg font-semibold text-gray-800">Logo, Devis et PDF</h3>
+                  <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                <div className="space-y-4 pt-2 pb-4">
+                <p className="text-sm text-gray-600">Couleurs pour la zone du logo (navbar) et pour les documents générés (devis et factures PDF).</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="space-y-2">
+                    <Label>Fond zone logo</Label>
+                    <div className="flex items-center gap-3">
+                      <Input type="color" value={themeSettings.logo_area_bg_color ? normalizeHexColor(themeSettings.logo_area_bg_color) : "#ffffff"} onChange={(e) => updateColor("logo_area_bg_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
+                      <Input type="text" value={themeSettings.logo_area_bg_color} onChange={(e) => updateColor("logo_area_bg_color", e.target.value)} placeholder="Vide = transparent" className="flex-1" />
+                    </div>
+                    <p className="text-xs text-gray-500">Arrière-plan de la zone du logo (navbar).</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Texte zone logo</Label>
+                    <div className="flex items-center gap-3">
+                      <Input type="color" value={themeSettings.logo_area_text_color ? normalizeHexColor(themeSettings.logo_area_text_color) : "#111827"} onChange={(e) => updateColor("logo_area_text_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
+                      <Input type="text" value={themeSettings.logo_area_text_color} onChange={(e) => updateColor("logo_area_text_color", e.target.value)} placeholder="Vide = défaut" className="flex-1" />
+                    </div>
+                    <p className="text-xs text-gray-500">Couleur du texte à côté du logo.</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Couleur principale devis / PDF *</Label>
+                    <div className="flex items-center gap-3">
+                      <Input type="color" value={normalizeHexColor(themeSettings.devis_pdf_primary_color)} onChange={(e) => updateColor("devis_pdf_primary_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
+                      <Input type="text" value={themeSettings.devis_pdf_primary_color} onChange={(e) => updateColor("devis_pdf_primary_color", e.target.value)} placeholder="#DC2626" className="flex-1" />
+                    </div>
+                    <p className="text-xs text-gray-500">Titres, bordures et accents dans les PDF devis et factures.</p>
+                  </div>
+                </div>
+                </div>
                 </CollapsibleContent>
               </Collapsible>
 

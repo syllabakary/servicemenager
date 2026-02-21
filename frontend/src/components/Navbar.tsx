@@ -219,7 +219,15 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16 md:h-20 w-full gap-2">
           
           {/* Logo (nom et logo depuis les paramètres du site) */}
-          <Link href="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink-0 min-w-0" data-testid="link-home">
+          <Link
+            href="/"
+            className="flex items-center gap-2 sm:gap-3 group flex-shrink-0 min-w-0 rounded-lg px-1 -mx-1"
+            style={{
+              backgroundColor: "var(--site-logo-area-bg-hex, transparent)",
+              color: "var(--site-logo-area-text-hex, inherit)",
+            }}
+            data-testid="link-home"
+          >
             {showLogoImg ? (
               <img
                 src={logoUrl!}

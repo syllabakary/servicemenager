@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Facture {{ invoice.invoice_number }}</title>
     <style>
+        :root {
+            --pdf-primary: {{ pdf_primary_color|default:"#DC2626" }};
+        }
         * {
             margin: 0;
             padding: 0;
@@ -35,7 +38,7 @@
             align-items: center;
             margin-bottom: 35px;
             padding-bottom: 20px;
-            border-bottom: 3px solid #DC2626;
+            border-bottom: 3px solid var(--pdf-primary);
         }
         .header-left {
             flex: 1;
@@ -96,7 +99,7 @@
             gap: 10px;
         }
         .header-right h1 {
-            color: #DC2626;
+            color: var(--pdf-primary);
             font-size: 48px;
             font-weight: bold;
             margin: 0;
@@ -120,10 +123,10 @@
         .section-title {
             font-size: 14px;
             font-weight: bold;
-            color: #DC2626;
+            color: var(--pdf-primary);
             margin-bottom: 18px;
             text-transform: uppercase;
-            border-bottom: 2px solid #DC2626;
+            border-bottom: 2px solid var(--pdf-primary);
             padding-bottom: 8px;
             letter-spacing: 1px;
         }
@@ -152,7 +155,7 @@
             background-color: #f9f9f9;
             padding: 20px;
             border: 1px solid #e0e0e0;
-            border-left: 5px solid #DC2626;
+            border-left: 5px solid var(--pdf-primary);
             border-radius: 5px;
             margin-bottom: 25px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.08);
@@ -165,7 +168,7 @@
             line-height: 1.6;
         }
         .service-name strong {
-            color: #DC2626;
+            color: var(--pdf-primary);
             font-weight: 700;
         }
         .items-table {
@@ -176,7 +179,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.08);
         }
         .items-table thead {
-            background-color: #DC2626;
+            background-color: var(--pdf-primary);
             color: white;
         }
         .items-table th {
@@ -198,7 +201,7 @@
         }
         .price-section {
             background-color: #fff;
-            border: 2px solid #DC2626;
+            border: 2px solid var(--pdf-primary);
             border-radius: 6px;
             padding: 25px;
             margin-top: 25px;
@@ -216,12 +219,12 @@
             border-bottom: none;
         }
         .price-row.total {
-            border-top: 3px solid #DC2626;
+            border-top: 3px solid var(--pdf-primary);
             font-weight: bold;
             font-size: 16px;
             padding-top: 18px;
             margin-top: 15px;
-            color: #DC2626;
+            color: var(--pdf-primary);
         }
         .price-label {
             font-weight: 600;
@@ -233,7 +236,7 @@
             color: #333;
         }
         .price-row.total .price-value {
-            color: #DC2626;
+            color: var(--pdf-primary);
             font-size: 20px;
             font-weight: bold;
         }

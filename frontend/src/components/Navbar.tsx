@@ -213,7 +213,7 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 
       bg-white/95 backdrop-blur-md border-b border-gray-200 
       shadow-sm w-full max-w-full overflow-x-hidden"
-      style={{ zIndex: 100 }}>
+      style={{ zIndex: 9998 }}>
       
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 w-full">
         <div className="flex items-center justify-between h-16 md:h-20 w-full gap-2">

@@ -9,9 +9,10 @@ urlpatterns = [
     path('api/', include('content.urls')),
 ]
 
-# Servir les fichiers media en développement
+# Servir les fichiers media (logo, images uploadées) en dev ET en production
+# (Nginx proxy /media/ vers le backend ; sans cette route les images ne s'affichent pas)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 

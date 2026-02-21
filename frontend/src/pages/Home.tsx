@@ -7,6 +7,7 @@ import axios from "axios";
 import { API_URL } from "@/config/api";
 import { 
   FaArrowRight, 
+  FaBriefcase,
   FaCheckCircle, 
   FaStar, 
   FaMapMarkerAlt, 
@@ -556,7 +557,7 @@ export default function Home() {
               </Link>
             </motion.div>
 
-            {/* Card 2 */}
+            {/* Card 2 - Chercher des services */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -564,26 +565,28 @@ export default function Home() {
               whileHover={{ y: -4 }}
               className="bg-white rounded-xl shadow-lg hover:shadow-2xl p-4 sm:p-6 md:p-8 border border-gray-100 transition-all duration-300 group"
             >
-              <div className="flex items-start gap-3 sm:gap-4 md:gap-5 mb-4 sm:mb-6">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 border-2 border-teal-300 group-hover:scale-110 transition-transform duration-300">
-                  <FaUsers className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-teal-600" />
+              <Link href="/services" className="block">
+                <div className="flex items-start gap-3 sm:gap-4 md:gap-5 mb-4 sm:mb-6">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-teal-100 rounded-full flex items-center justify-center flex-shrink-0 border-2 border-teal-300 group-hover:scale-110 transition-transform duration-300">
+                    <FaBriefcase className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 text-teal-600" />
+                  </div>
+                  <div className="flex-1 pt-0.5 sm:pt-1">
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-1 sm:mb-2 leading-tight">
+                      Vous cherchez des services ?
+                    </h3>
+                    <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
+                      Découvrez nos services à la personne
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1 pt-0.5 sm:pt-1">
-                  <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 mb-1 sm:mb-2 leading-tight">
-                    Vous cherchez un métier qui a du sens ?
-                  </h3>
-                  <p className="text-xs sm:text-sm text-gray-600 leading-relaxed">
-                    Nous recrutons près de chez vous
-                  </p>
-                </div>
-              </div>
-              <Button
-                variant="outline"
-                className="w-full h-10 sm:h-12 text-xs sm:text-sm md:text-base font-semibold border-2 border-teal-600 text-teal-600 hover:bg-teal-600 hover:text-white transition-all duration-300 group-hover:scale-[1.02]"
-              >
-                Je postule
-                <FaArrowRight className="ml-1.5 sm:ml-2 w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
-              </Button>
+                <Button
+                  variant="outline"
+                  className="w-full h-10 sm:h-12 text-xs sm:text-sm md:text-base font-semibold border-2 border-teal-600 text-teal-600 hover:bg-teal-600 hover:text-white transition-all duration-300 group-hover:scale-[1.02]"
+                >
+                  Voir les services
+                  <FaArrowRight className="ml-1.5 sm:ml-2 w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
             </motion.div>
           </div>
         </div>

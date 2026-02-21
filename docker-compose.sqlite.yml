@@ -32,12 +32,10 @@ services:
     container_name: servicemenager_frontend
     ports:
       - "80:80"
-      # Port 443 désactivé temporairement - à réactiver après obtention du certificat SSL
-      # - "443:443"  # Port HTTPS
+      - "443:443"  # Port HTTPS
     volumes:
-      # Volumes SSL désactivés temporairement - à réactiver après obtention du certificat
-      # - /etc/letsencrypt:/etc/letsencrypt:ro  # Certificats SSL
-      - /var/www/certbot:/var/www/certbot:ro  # Pour les challenges Let's Encrypt (gardé pour Certbot)
+      - /etc/letsencrypt:/etc/letsencrypt:ro  # Certificats SSL (obligatoire pour que Nginx démarre avec nginx.conf HTTPS)
+      - /var/www/certbot:/var/www/certbot:ro  # Pour les challenges Let's Encrypt
     depends_on:
       - backend
     networks:

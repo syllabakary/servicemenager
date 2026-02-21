@@ -380,16 +380,16 @@ export default function AdminParametres() {
   const [faviconPreview, setFaviconPreview] = useState<string | null>(null);
   const [themeSectionsOpen, setThemeSectionsOpen] = useState<Record<string, boolean>>({
     "Informations générales": true,
-    "Couleurs du nom et slogan": false,
-    "Couleurs principales": false,
-    "Couleurs des boutons": false,
-    "Textes et liens": false,
-    "Bannière": false,
-    "Footer": false,
-    "Bordures des boutons": false,
-    "Boutons outline": false,
-    "Couleurs par section": false,
-    "Logo et favicon": false,
+    "Couleurs du nom et slogan": true,
+    "Couleurs principales": true,
+    "Couleurs des boutons": true,
+    "Textes et liens": true,
+    "Bannière": true,
+    "Footer": true,
+    "Bordures des boutons": true,
+    "Boutons outline": true,
+    "Couleurs par section": true,
+    "Logo et favicon": true,
   });
 
   useEffect(() => {
@@ -646,10 +646,11 @@ export default function AdminParametres() {
       formData.append("smtp_password", smtpSettings.smtp_password || "");
 
       try {
+        // Ne pas définir Content-Type : le navigateur doit l'ajouter avec le boundary
+        // pour que le serveur reçoive correctement les fichiers (logo, logo_favicon).
         await axios.patch(`${API_URL}/site-settings/1/`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
           },
         });
       } catch (error: any) {
@@ -804,7 +805,6 @@ export default function AdminParametres() {
         await axios.patch(`${API_URL}/site-settings/1/`, formData, {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
           },
         });
       } catch (error: any) {
@@ -1166,19 +1166,21 @@ export default function AdminParametres() {
         </Card>
 
         {/* Thème et apparence */}
-        <Card className="shadow-xl border-0 bg-white">
-          <CardHeader className="border-b">
-            <CardTitle className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
-              <FaPalette className="w-6 h-6 text-site-primary" />
+        <Card className="shadow-xl border-2 border-site-primary/20 bg-gradient-to-br from-white via-white to-site-primary/5 rounded-2xl overflow-hidden">
+          <CardHeader className="border-b border-site-primary/10 bg-gradient-to-r from-site-primary/10 via-site-secondary/5 to-transparent py-6 px-6">
+            <CardTitle className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              <span className="flex items-center justify-center w-11 h-11 rounded-xl bg-site-primary/15 text-site-primary shadow-sm">
+                <FaPalette className="w-6 h-6" />
+              </span>
               Thème et apparence
             </CardTitle>
-            <CardDescription>Modifiez les couleurs du site et le logo</CardDescription>
+            <CardDescription className="text-gray-600 mt-1.5">Modifiez les couleurs du site, le nom, le slogan et le logo</CardDescription>
           </CardHeader>
-          <CardContent className="p-6">
-            <form onSubmit={handleSaveTheme} className="space-y-2">
+          <CardContent className="p-6 sm:p-8">
+            <form onSubmit={handleSaveTheme} className="space-y-1">
               {/* Informations générales */}
               <Collapsible className="group" open={themeSectionsOpen["Informations générales"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Informations générales": o }))}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3.5 px-4 text-left rounded-xl hover:bg-site-primary/5 transition-colors border border-transparent hover:border-site-primary/10">
                   <h3 className="text-lg font-semibold text-gray-800">Informations générales</h3>
                   <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
                 </CollapsibleTrigger>
@@ -1212,7 +1214,7 @@ export default function AdminParametres() {
 
               {/* Couleurs du nom et slogan (navbar) */}
               <Collapsible className="group" open={themeSectionsOpen["Couleurs du nom et slogan"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Couleurs du nom et slogan": o }))}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3.5 px-4 text-left rounded-xl hover:bg-site-primary/5 transition-colors border border-transparent hover:border-site-primary/10">
                   <h3 className="text-lg font-semibold text-gray-800">Couleurs du nom et slogan</h3>
                   <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform", themeSectionsOpen["Couleurs du nom et slogan"] && "rotate-180")} />
                 </CollapsibleTrigger>
@@ -1251,7 +1253,7 @@ export default function AdminParametres() {
 
               {/* Couleurs principales */}
               <Collapsible className="group" open={themeSectionsOpen["Couleurs principales"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Couleurs principales": o }))}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3.5 px-4 text-left rounded-xl hover:bg-site-primary/5 transition-colors border border-transparent hover:border-site-primary/10">
                   <h3 className="text-lg font-semibold text-gray-800">Couleurs principales du site</h3>
                   <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
                 </CollapsibleTrigger>
@@ -1369,7 +1371,7 @@ export default function AdminParametres() {
 
               {/* Couleurs des boutons */}
               <Collapsible className="group" open={themeSectionsOpen["Couleurs des boutons"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Couleurs des boutons": o }))}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3.5 px-4 text-left rounded-xl hover:bg-site-primary/5 transition-colors border border-transparent hover:border-site-primary/10">
                   <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
                     <FaPalette className="w-5 h-5 text-site-primary" />
                     Couleurs des boutons
@@ -1488,7 +1490,7 @@ export default function AdminParametres() {
 
               {/* Couleurs des textes */}
               <Collapsible className="group" open={themeSectionsOpen["Textes et liens"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Textes et liens": o }))}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3.5 px-4 text-left rounded-xl hover:bg-site-primary/5 transition-colors border border-transparent hover:border-site-primary/10">
                   <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
                     <FaPalette className="w-5 h-5 text-site-primary" />
                     Couleurs des textes et liens
@@ -1607,7 +1609,7 @@ export default function AdminParametres() {
 
               {/* Bannière (bandeau promo) */}
               <Collapsible className="group" open={themeSectionsOpen["Bannière"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Bannière": o }))}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3.5 px-4 text-left rounded-xl hover:bg-site-primary/5 transition-colors border border-transparent hover:border-site-primary/10">
                   <h3 className="text-lg font-semibold text-gray-800">Couleurs de la bannière</h3>
                   <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
                 </CollapsibleTrigger>
@@ -1638,7 +1640,7 @@ export default function AdminParametres() {
 
               {/* Footer */}
               <Collapsible className="group" open={themeSectionsOpen["Footer"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Footer": o }))}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3.5 px-4 text-left rounded-xl hover:bg-site-primary/5 transition-colors border border-transparent hover:border-site-primary/10">
                   <h3 className="text-lg font-semibold text-gray-800">Couleurs du footer</h3>
                   <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
                 </CollapsibleTrigger>
@@ -1688,7 +1690,7 @@ export default function AdminParametres() {
 
               {/* Bordures des boutons */}
               <Collapsible className="group" open={themeSectionsOpen["Bordures des boutons"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Bordures des boutons": o }))}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3.5 px-4 text-left rounded-xl hover:bg-site-primary/5 transition-colors border border-transparent hover:border-site-primary/10">
                   <h3 className="text-lg font-semibold text-gray-800">Bordures des boutons</h3>
                   <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
                 </CollapsibleTrigger>
@@ -1720,7 +1722,7 @@ export default function AdminParametres() {
 
               {/* Boutons outline (ex. Connexion) */}
               <Collapsible className="group" open={themeSectionsOpen["Boutons outline"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Boutons outline": o }))}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3.5 px-4 text-left rounded-xl hover:bg-site-primary/5 transition-colors border border-transparent hover:border-site-primary/10">
                   <h3 className="text-lg font-semibold text-gray-800">Boutons outline (ex. Connexion)</h3>
                   <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
                 </CollapsibleTrigger>
@@ -1757,7 +1759,7 @@ export default function AdminParametres() {
 
               {/* Couleurs par section (fond, texte, bouton, bordure) */}
               <Collapsible className="group" open={themeSectionsOpen["Couleurs par section"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Couleurs par section": o }))}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3.5 px-4 text-left rounded-xl hover:bg-site-primary/5 transition-colors border border-transparent hover:border-site-primary/10">
                   <h3 className="text-lg font-semibold text-gray-800">Couleurs par section</h3>
                   <FaChevronDown className={cn("w-4 h-4 text-gray-500 transition-transform group-data-[state=open]:rotate-180")} />
                 </CollapsibleTrigger>
@@ -1980,7 +1982,7 @@ export default function AdminParametres() {
 
               {/* Logo et favicon */}
               <Collapsible className="group" open={themeSectionsOpen["Logo et favicon"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Logo et favicon": o }))}>
-                <CollapsibleTrigger className="flex items-center justify-between w-full py-3 px-0 text-left rounded-lg hover:bg-gray-50 transition-colors">
+                <CollapsibleTrigger className="flex items-center justify-between w-full py-3.5 px-4 text-left rounded-xl hover:bg-site-primary/5 transition-colors border border-transparent hover:border-site-primary/10">
                   <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
                     <FaImage className="w-5 h-5 text-site-primary" />
                     Logo et favicon
@@ -2005,6 +2007,7 @@ export default function AdminParametres() {
                           src={logoPreview}
                           alt="Aperçu du logo"
                           className="w-full h-32 object-contain rounded-lg border-2 border-gray-200"
+                          onError={() => setLogoPreview(null)}
                         />
                       </div>
                     )}
@@ -2025,6 +2028,7 @@ export default function AdminParametres() {
                           src={faviconPreview}
                           alt="Aperçu du favicon"
                           className="w-16 h-16 object-contain rounded-lg border-2 border-gray-200"
+                          onError={() => setFaviconPreview(null)}
                         />
                       </div>
                     )}
@@ -2035,10 +2039,10 @@ export default function AdminParametres() {
                 </CollapsibleContent>
               </Collapsible>
 
-              <div className="flex justify-end pt-4 border-t mt-6">
+              <div className="flex justify-end pt-6 mt-8 border-t border-site-primary/10">
                 <Button
                   type="submit"
-                  className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text"
+                  className="rounded-xl px-6 py-2.5 bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text font-semibold shadow-md hover:shadow-lg transition-shadow"
                   disabled={saveThemeMutation.isPending}
                 >
                   <FaSave className="w-4 h-4 mr-2" />

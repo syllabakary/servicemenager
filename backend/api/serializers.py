@@ -668,20 +668,30 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
         return instance
     
     def get_logo_url(self, obj):
-        if obj.logo:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.logo.url)
-            return obj.logo.url
-        return None
-    
+        if not obj.logo:
+            return None
+        try:
+            if not obj.logo.storage.exists(obj.logo.name):
+                return None
+        except Exception:
+            return None
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(obj.logo.url)
+        return obj.logo.url
+
     def get_logo_favicon_url(self, obj):
-        if obj.logo_favicon:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.logo_favicon.url)
-            return obj.logo_favicon.url
-        return None
+        if not obj.logo_favicon:
+            return None
+        try:
+            if not obj.logo_favicon.storage.exists(obj.logo_favicon.name):
+                return None
+        except Exception:
+            return None
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(obj.logo_favicon.url)
+        return obj.logo_favicon.url
 
 
 class PatientSerializer(serializers.ModelSerializer):

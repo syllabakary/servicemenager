@@ -57,6 +57,9 @@ export default function AdminPatients() {
     patient: null,
   });
   const [qrCodeImageUrl, setQrCodeImageUrl] = useState<string | null>(null);
+  // État contrôlé pour les champs qui ne sont pas dans FormData (Select/Switch Radix)
+  const [formClientId, setFormClientId] = useState<string>("");
+  const [formIsActive, setFormIsActive] = useState<boolean>(true);
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const isAdmin = storedUser.role === "ADMIN" || storedUser.role === "SUPERADMIN";
 
@@ -148,9 +151,23 @@ export default function AdminPatients() {
       });
     },
     onError: (error: any) => {
+      const status = error?.response?.status;
+      const data = error?.response?.data;
+      let description = data?.detail || (typeof data === "object" && Object.keys(data || {}).length ? JSON.stringify(data) : "Une erreur s'est produite.");
+      if (status === 401) {
+        description = "Session expirée. Veuillez vous reconnecter.";
+      } else if (status === 400 && data) {
+        const msgs: string[] = [];
+        if (typeof data === "object") {
+          Object.entries(data).forEach(([k, v]) => {
+            msgs.push(Array.isArray(v) ? `${k}: ${v.join(" ")}` : `${k}: ${v}`);
+          });
+        }
+        if (msgs.length) description = msgs.join(" · ");
+      }
       toast({
         title: "❌ Erreur",
-        description: error?.response?.data?.detail || "Une erreur s'est produite.",
+        description,
         variant: "destructive",
       });
     },
@@ -242,11 +259,15 @@ export default function AdminPatients() {
 
   const handleEdit = (patient: any) => {
     setEditingPatient(patient);
+    setFormClientId(patient?.client?.toString() ?? "");
+    setFormIsActive(patient?.is_active !== false);
     setIsDialogOpen(true);
   };
 
   const handleNew = () => {
     setEditingPatient(null);
+    setFormClientId("");
+    setFormIsActive(true);
     setIsDialogOpen(true);
   };
 
@@ -357,24 +378,28 @@ export default function AdminPatients() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    
-    // Récupérer tous les employés cochés
     const assignedEmployees: number[] = [];
     const checkboxes = e.currentTarget.querySelectorAll<HTMLInputElement>('input[name="assigned_employees"]:checked');
     checkboxes.forEach((checkbox) => {
       const employeeId = parseInt(checkbox.value);
-      if (!isNaN(employeeId)) {
-        assignedEmployees.push(employeeId);
-      }
+      if (!isNaN(employeeId)) assignedEmployees.push(employeeId);
     });
-    
+    const clientId = editingPatient ? editingPatient.client : parseInt(formClientId, 10);
+    if (!editingPatient && (formClientId === "" || isNaN(clientId))) {
+      toast({
+        title: "❌ Erreur",
+        description: "Veuillez sélectionner un client.",
+        variant: "destructive",
+      });
+      return;
+    }
     const data: any = {
-      client: parseInt(formData.get("client") as string),
-      first_name: formData.get("first_name") as string,
-      last_name: formData.get("last_name") as string,
-      phone: formData.get("phone") as string || null,
-      address: formData.get("address") as string || null,
-      is_active: formData.get("is_active") === "on",
+      client: clientId,
+      first_name: (formData.get("first_name") as string)?.trim() || "",
+      last_name: (formData.get("last_name") as string)?.trim() || "",
+      phone: (formData.get("phone") as string)?.trim() || null,
+      address: (formData.get("address") as string)?.trim() || null,
+      is_active: formIsActive,
       assigned_employees: assignedEmployees,
     };
     saveMutation.mutate(data);
@@ -571,7 +596,8 @@ export default function AdminPatients() {
                 <Label htmlFor="client">Client propriétaire *</Label>
                 <Select
                   name="client"
-                  defaultValue={editingPatient?.client?.toString()}
+                  value={formClientId}
+                  onValueChange={setFormClientId}
                   required
                   disabled={!!editingPatient}
                 >
@@ -664,7 +690,8 @@ export default function AdminPatients() {
                 <Switch
                   id="is_active"
                   name="is_active"
-                  defaultChecked={editingPatient?.is_active !== false}
+                  checked={formIsActive}
+                  onCheckedChange={setFormIsActive}
                 />
                 <Label htmlFor="is_active" className="cursor-pointer">
                   Patient actif (le QR code peut être scanné)

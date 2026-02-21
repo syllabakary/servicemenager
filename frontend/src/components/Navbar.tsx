@@ -88,6 +88,9 @@ export function Navbar() {
   const siteName = siteSettings?.site_name || "Services Locaux";
   const siteTagline = siteSettings?.site_tagline || "Votre partenaire de confiance";
   const logoUrl = siteSettings?.logo_url || null;
+  const [logoLoadError, setLogoLoadError] = useState(false);
+  useEffect(() => setLogoLoadError(false), [logoUrl]);
+  const showLogoImg = logoUrl && !logoLoadError;
   // Afficher le nom en deux parties si contient un espace (ex. "Services" + "Locaux")
   const [namePart1, namePart2] = siteName.includes(" ")
     ? [siteName.split(" ")[0], siteName.split(" ").slice(1).join(" ")]
@@ -217,11 +220,12 @@ export function Navbar() {
           
           {/* Logo (nom et logo depuis les paramètres du site) */}
           <Link href="/" className="flex items-center gap-2 sm:gap-3 group flex-shrink-0 min-w-0" data-testid="link-home">
-            {logoUrl ? (
+            {showLogoImg ? (
               <img
-                src={logoUrl}
+                src={logoUrl!}
                 alt={siteName}
                 className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg object-contain transition-transform duration-200 group-hover:scale-105 shadow-md flex-shrink-0 bg-white"
+                onError={() => setLogoLoadError(true)}
               />
             ) : (
               <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg bg-gradient-to-br from-site-primary to-site-secondary flex items-center justify-center transition-transform duration-200 group-hover:scale-105 shadow-md flex-shrink-0">

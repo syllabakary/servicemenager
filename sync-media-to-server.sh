@@ -6,7 +6,6 @@
 # Usage :
 #   1. Modifier USER, HOST et SERVER_PATH ci-dessous
 #   2. Depuis la racine du projet : ./sync-media-to-server.sh
-#   Ou avec Git Bash / WSL : bash sync-media-to-server.sh
 
 set -e
 

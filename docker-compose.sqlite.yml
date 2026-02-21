@@ -36,6 +36,7 @@ services:
     volumes:
       - /etc/letsencrypt:/etc/letsencrypt:ro  # Certificats SSL (obligatoire pour que Nginx démarre avec nginx.conf HTTPS)
       - /var/www/certbot:/var/www/certbot:ro  # Pour les challenges Let's Encrypt
+      - ./backend/media:/media:ro  # Servir /media/ directement par Nginx (logos, images) sans passer par le backend
     depends_on:
       - backend
     networks:

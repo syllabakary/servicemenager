@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 
 import { API_URL } from "@/config/api";
+import { formatOpeningHoursGrouped } from "@/lib/openingHours";
 import { 
   FaArrowRight, 
   FaBriefcase,
@@ -300,6 +301,7 @@ function LocationSection() {
     location: "Paris, France",
     address: "Paris, France",
     description: "Notre équipe est à votre disposition pour répondre à tous vos besoins en services à la personne",
+    openingHours: null as Record<string, { open?: boolean; start?: string; end?: string }> | string | null,
     mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.9916256937606!2d2.352221915674389!3d48.85661400000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e1f06e2b70f%3A0x40b82c3688c9460!2sParis%2C%20France!5e0!3m2!1sfr!2sfr!4v1234567890123!5m2!1sfr!2sfr",
   };
 
@@ -375,6 +377,27 @@ function LocationSection() {
                     <p className="text-sm text-white/80">
                       {locationInfo.description}
                     </p>
+                    {(locationInfo.openingHours && (typeof locationInfo.openingHours === "string"
+                    ? locationInfo.openingHours.trim()
+                    : Object.keys(locationInfo.openingHours).length > 0)) && (
+                      <div className="mt-3 pt-3 border-t border-white/20">
+                        <p className="text-sm font-semibold text-white/90 flex items-center gap-2 mb-1">
+                          <FaClock className="w-4 h-4 text-site-primary" />
+                          Horaires d&apos;ouverture
+                        </p>
+                        {typeof locationInfo.openingHours === "string" ? (
+                          <p className="text-sm text-white/80 whitespace-pre-line">
+                            {locationInfo.openingHours}
+                          </p>
+                        ) : (
+                          <ul className="text-sm text-white/80 space-y-0.5">
+                            {formatOpeningHoursGrouped(locationInfo.openingHours as Record<string, { open?: boolean; start?: string; end?: string }>).map((row, idx) => (
+                              <li key={idx}>{row.label} : {row.text}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

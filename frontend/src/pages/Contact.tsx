@@ -7,10 +7,56 @@ import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaPaperPlane } from "react-icons/f
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { API_URL } from "@/config/api";
+import { formatOpeningHoursGrouped } from "@/lib/openingHours";
 
 export default function Contact() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+
+  const { data: footerData } = useQuery({
+    queryKey: ["footer_info"],
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/pages/?key=footer_info&is_active=true`);
+      const data = await res.json();
+      return data.results?.[0] || null;
+    },
+  });
+
+  const { data: locationData } = useQuery({
+    queryKey: ["headquarters_location"],
+    queryFn: async () => {
+      const res = await fetch(`${API_URL}/pages/?key=headquarters_location&is_active=true`);
+      const data = await res.json();
+      return data.results?.[0] || null;
+    },
+  });
+
+  let contactInfo = {
+    address: "Plateau, Abidjan\nCôte d'Ivoire",
+    phone: "+225 01 23 45 67 89",
+    email: "contact@serviceslocaux.ci",
+  };
+  if (footerData?.body) {
+    try {
+      const parsed = JSON.parse(footerData.body);
+      if (parsed.address) contactInfo.address = parsed.address;
+      if (parsed.phone) contactInfo.phone = parsed.phone;
+      if (parsed.email) contactInfo.email = parsed.email;
+    } catch {}
+  }
+
+  let openingHours: Record<string, { open?: boolean; start?: string; end?: string }> | null = null;
+  if (locationData?.body) {
+    try {
+      const parsed = JSON.parse(locationData.body);
+      if (parsed.openingHours && typeof parsed.openingHours === "object" && !Array.isArray(parsed.openingHours)) {
+        openingHours = parsed.openingHours;
+      }
+    } catch {}
+  }
+  const hasOpeningHours = openingHours && Object.keys(openingHours).length > 0;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -146,10 +192,8 @@ export default function Contact() {
                         <p className="font-semibold text-sm text-gray-500 mb-1">
                           Adresse
                         </p>
-                        <p className="text-base text-gray-900" data-testid="text-contact-address">
-                          Plateau, Abidjan
-                          <br />
-                          Côte d'Ivoire
+                        <p className="text-base text-gray-900 whitespace-pre-line" data-testid="text-contact-address">
+                          {contactInfo.address}
                         </p>
                       </div>
                     </div>
@@ -163,11 +207,11 @@ export default function Contact() {
                           Téléphone
                         </p>
                         <a
-                          href="tel:+2250123456789"
+                          href={`tel:${contactInfo.phone.replace(/\s/g, "")}`}
                           className="text-base text-gray-900 hover:text-site-text-link transition-colors font-medium"
                           data-testid="link-contact-phone"
                         >
-                          +225 01 23 45 67 89
+                          {contactInfo.phone}
                         </a>
                       </div>
                     </div>
@@ -181,11 +225,11 @@ export default function Contact() {
                           Email
                         </p>
                         <a
-                          href="mailto:contact@serviceslocaux.ci"
+                          href={`mailto:${contactInfo.email}`}
                           className="text-base text-gray-900 hover:text-site-text-link transition-colors font-medium"
                           data-testid="link-contact-email"
                         >
-                          contact@serviceslocaux.ci
+                          {contactInfo.email}
                         </a>
                       </div>
                     </div>
@@ -203,18 +247,33 @@ export default function Contact() {
                     <CardTitle className="text-white" data-testid="heading-hours">Horaires d'ouverture</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2 pt-6">
-                    <div className="flex justify-between py-2 border-b border-gray-100" data-testid="hours-weekday">
-                      <span className="text-gray-600 font-medium">Lundi - Vendredi</span>
-                      <span className="font-semibold text-gray-900">8h00 - 18h00</span>
-                    </div>
-                    <div className="flex justify-between py-2 border-b border-gray-100" data-testid="hours-saturday">
-                      <span className="text-gray-600 font-medium">Samedi</span>
-                      <span className="font-semibold text-gray-900">9h00 - 14h00</span>
-                    </div>
-                    <div className="flex justify-between py-2" data-testid="hours-sunday">
-                      <span className="text-gray-600 font-medium">Dimanche</span>
-                      <span className="font-semibold text-gray-900">Fermé</span>
-                    </div>
+                    {hasOpeningHours ? (
+                      formatOpeningHoursGrouped(openingHours!).map((row, idx) => (
+                        <div
+                          key={idx}
+                          className="flex justify-between py-2 border-b border-gray-100 last:border-b-0"
+                          data-testid={`hours-${row.label.replace(/\s/g, "-")}`}
+                        >
+                          <span className="text-gray-600 font-medium">{row.label}</span>
+                          <span className="font-semibold text-gray-900">{row.text}</span>
+                        </div>
+                      ))
+                    ) : (
+                      <>
+                        <div className="flex justify-between py-2 border-b border-gray-100" data-testid="hours-weekday">
+                          <span className="text-gray-600 font-medium">Lundi - Vendredi</span>
+                          <span className="font-semibold text-gray-900">8h00 - 18h00</span>
+                        </div>
+                        <div className="flex justify-between py-2 border-b border-gray-100" data-testid="hours-saturday">
+                          <span className="text-gray-600 font-medium">Samedi</span>
+                          <span className="font-semibold text-gray-900">9h00 - 14h00</span>
+                        </div>
+                        <div className="flex justify-between py-2" data-testid="hours-sunday">
+                          <span className="text-gray-600 font-medium">Dimanche</span>
+                          <span className="font-semibold text-gray-900">Fermé</span>
+                        </div>
+                      </>
+                    )}
                   </CardContent>
                 </Card>
               </motion.div>

@@ -6,13 +6,58 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FaSave, FaMapMarkerAlt, FaPhone, FaEnvelope, FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaPalette, FaImage, FaChevronDown } from "react-icons/fa";
+import { FaSave, FaMapMarkerAlt, FaClock, FaPhone, FaEnvelope, FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaPalette, FaImage, FaChevronDown } from "react-icons/fa";
 import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 
 import { API_URL } from "@/config/api";
+
+/** Horaires d'ouverture par jour (admin + affichage site) */
+export type OpeningHoursDay = { open: boolean; start: string; end: string };
+export type OpeningHoursRecord = Record<string, OpeningHoursDay>;
+
+const OPENING_HOURS_DAYS: { key: keyof OpeningHoursRecord; label: string }[] = [
+  { key: "lundi", label: "Lundi" },
+  { key: "mardi", label: "Mardi" },
+  { key: "mercredi", label: "Mercredi" },
+  { key: "jeudi", label: "Jeudi" },
+  { key: "vendredi", label: "Vendredi" },
+  { key: "samedi", label: "Samedi" },
+  { key: "dimanche", label: "Dimanche" },
+];
+
+const DEFAULT_OPENING_HOURS: OpeningHoursRecord = {
+  lundi:    { open: true,  start: "09:00", end: "18:00" },
+  mardi:    { open: true,  start: "09:00", end: "18:00" },
+  mercredi: { open: true,  start: "09:00", end: "18:00" },
+  jeudi:    { open: true,  start: "09:00", end: "18:00" },
+  vendredi: { open: true,  start: "09:00", end: "18:00" },
+  samedi:   { open: true,  start: "09:00", end: "12:00" },
+  dimanche: { open: false, start: "",     end: "" },
+};
+
+function normalizeOpeningHours(value: unknown): OpeningHoursRecord {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    const o = value as Record<string, unknown>;
+    const out = { ...DEFAULT_OPENING_HOURS };
+    OPENING_HOURS_DAYS.forEach(({ key }) => {
+      const d = o[key];
+      if (d && typeof d === "object" && !Array.isArray(d) && "open" in d) {
+        const day = d as { open?: boolean; start?: string; end?: string };
+        out[key] = {
+          open: !!day.open,
+          start: typeof day.start === "string" ? day.start : DEFAULT_OPENING_HOURS[key].start,
+          end:   typeof day.end   === "string" ? day.end   : DEFAULT_OPENING_HOURS[key].end,
+        };
+      }
+    });
+    return out;
+  }
+  return { ...DEFAULT_OPENING_HOURS };
+}
 
 // Fonction pour normaliser et valider les couleurs hexadécimales
 function normalizeHexColor(color: string): string {
@@ -114,6 +159,7 @@ export default function AdminParametres() {
     location: "Paris, France",
     address: "Paris, France",
     description: "Notre équipe est à votre disposition pour répondre à tous vos besoins en services à la personne",
+    openingHours: { ...DEFAULT_OPENING_HOURS } as OpeningHoursRecord,
     mapUrl: "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2624.9916256937606!2d2.352221915674389!3d48.85661400000001!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47e66e1f06e2b70f%3A0x40b82c3688c9460!2sParis%2C%20France!5e0!3m2!1sfr!2sfr!4v1234567890123!5m2!1sfr!2sfr",
   });
 
@@ -163,6 +209,20 @@ export default function AdminParametres() {
     setHeadquartersInfo({ ...headquartersInfo, mapUrl: embedUrl });
   };
 
+  const updateOpeningHoursDay = (day: keyof OpeningHoursRecord, upd: Partial<OpeningHoursDay>) => {
+    const current = typeof headquartersInfo.openingHours === "object" && headquartersInfo.openingHours
+      ? headquartersInfo.openingHours
+      : DEFAULT_OPENING_HOURS;
+    const dayData = current[day] ?? DEFAULT_OPENING_HOURS[day];
+    setHeadquartersInfo({
+      ...headquartersInfo,
+      openingHours: {
+        ...current,
+        [day]: { ...dayData, ...upd },
+      },
+    });
+  };
+
   useEffect(() => {
     if (footerData?.body) {
       try {
@@ -178,7 +238,10 @@ export default function AdminParametres() {
     if (locationData?.body) {
       try {
         const parsed = JSON.parse(locationData.body);
-        setHeadquartersInfo(parsed);
+        setHeadquartersInfo({
+          ...parsed,
+          openingHours: normalizeOpeningHours(parsed.openingHours),
+        });
       } catch {
         // Si ce n'est pas du JSON, utiliser les valeurs par défaut
       }
@@ -1137,6 +1200,62 @@ export default function AdminParametres() {
                   rows={3}
                   placeholder="Notre équipe est à votre disposition..."
                 />
+              </div>
+
+              <div className="space-y-3">
+                <Label className="flex items-center gap-2">
+                  <FaClock className="w-4 h-4 text-gray-500" />
+                  Horaires d&apos;ouverture
+                </Label>
+                <p className="text-xs text-gray-500 mb-2">
+                  Cochez &quot;Ouvert&quot; et renseignez les heures pour chaque jour. Affiché dans la section &quot;Notre siège&quot; sur la page d&apos;accueil.
+                </p>
+                <div className="border rounded-lg overflow-hidden">
+                  <div className="grid grid-cols-[1fr_auto_1fr_1fr] gap-3 p-3 bg-gray-50 border-b text-sm font-medium text-gray-700">
+                    <span>Jour</span>
+                    <span className="text-center">Ouvert</span>
+                    <span>Heure début</span>
+                    <span>Heure fin</span>
+                  </div>
+                  {OPENING_HOURS_DAYS.map(({ key, label }) => {
+                    const hours = (typeof headquartersInfo.openingHours === "object" && headquartersInfo.openingHours
+                      ? headquartersInfo.openingHours
+                      : DEFAULT_OPENING_HOURS)[key] ?? DEFAULT_OPENING_HOURS[key];
+                    const isOpen = !!hours?.open;
+                    return (
+                      <div
+                        key={key}
+                        className={cn(
+                          "grid grid-cols-[1fr_auto_1fr_1fr] gap-3 p-3 items-center border-b last:border-b-0 text-sm",
+                          !isOpen && "bg-gray-50/50"
+                        )}
+                      >
+                        <span className="font-medium text-gray-800">{label}</span>
+                        <div className="flex justify-center">
+                          <Checkbox
+                            id={`opening-${key}`}
+                            checked={isOpen}
+                            onCheckedChange={(checked) => updateOpeningHoursDay(key, { open: !!checked })}
+                          />
+                        </div>
+                        <Input
+                          type="time"
+                          value={hours?.start ?? ""}
+                          disabled={!isOpen}
+                          onChange={(e) => updateOpeningHoursDay(key, { start: e.target.value })}
+                          className="w-full"
+                        />
+                        <Input
+                          type="time"
+                          value={hours?.end ?? ""}
+                          disabled={!isOpen}
+                          onChange={(e) => updateOpeningHoursDay(key, { end: e.target.value })}
+                          className="w-full"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
 
               <div className="space-y-2">

@@ -29,6 +29,7 @@ export default function EmployeDetail() {
   const queryClient = useQueryClient();
   const params = new URLSearchParams(window.location.search);
   const employeId = params.get("id");
+  const [showResetPasswordConfirmDialog, setShowResetPasswordConfirmDialog] = useState(false);
   const [showResetPasswordDialog, setShowResetPasswordDialog] = useState(false);
   const [newPassword, setNewPassword] = useState("");
 
@@ -69,6 +70,7 @@ export default function EmployeDetail() {
       return response.data;
     },
     onSuccess: (data) => {
+      setShowResetPasswordConfirmDialog(false);
       setNewPassword(data.new_password);
       setShowResetPasswordDialog(true);
       queryClient.invalidateQueries({ queryKey: ["employe-detail", employeId] });
@@ -187,9 +189,7 @@ export default function EmployeDetail() {
   };
 
   const handleResetPassword = () => {
-    if (window.confirm(`Êtes-vous sûr de vouloir réinitialiser le mot de passe de ${employe.first_name} ${employe.last_name} ?`)) {
-      resetPasswordMutation.mutate();
-    }
+    setShowResetPasswordConfirmDialog(true);
   };
 
   return (
@@ -517,6 +517,70 @@ export default function EmployeDetail() {
           </Card>
         </div>
       </div>
+
+      {/* Dialog de confirmation avant réinitialisation du mot de passe */}
+      <Dialog open={showResetPasswordConfirmDialog} onOpenChange={setShowResetPasswordConfirmDialog}>
+        <DialogContent className="sm:max-w-md rounded-2xl shadow-xl border-2 border-site-primary/20">
+          <DialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center w-12 h-12 rounded-full bg-orange-100 text-orange-600">
+                <FaKey className="w-6 h-6" />
+              </div>
+              <div>
+                <DialogTitle className="text-xl">Réinitialiser le mot de passe</DialogTitle>
+                <DialogDescription className="text-gray-600 mt-1">
+                  Employé : <strong className="text-gray-900">{employe.first_name} {employe.last_name}</strong>
+                  {employe.username && (
+                    <span className="block text-sm mt-0.5">Nom d&apos;utilisateur : {employe.username}</span>
+                  )}
+                </DialogDescription>
+              </div>
+            </div>
+          </DialogHeader>
+          <div className="py-4">
+            {employe.email ? (
+              <p className="text-sm text-gray-700">
+                Un nouveau mot de passe sera généré et envoyé par email à{" "}
+                <strong className="text-gray-900">{employe.email}</strong>. L&apos;employé pourra se connecter et modifier son mot de passe depuis son tableau de bord.
+              </p>
+            ) : (
+              <p className="text-sm text-gray-700">
+                Un nouveau mot de passe sera généré. Aucun email ne pourra être envoyé (adresse non renseignée). Vous devrez communiquer le mot de passe à l&apos;employé manuellement.
+              </p>
+            )}
+          </div>
+          <div className="flex flex-col-reverse sm:flex-row gap-2 justify-end pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowResetPasswordConfirmDialog(false)}
+              className="rounded-lg"
+            >
+              Annuler
+            </Button>
+            <Button
+              type="button"
+              className="bg-orange-600 hover:bg-orange-700 text-white rounded-lg"
+              disabled={resetPasswordMutation.isPending}
+              onClick={() => {
+                resetPasswordMutation.mutate();
+              }}
+            >
+              {resetPasswordMutation.isPending ? (
+                <>
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block mr-2" />
+                  Réinitialisation...
+                </>
+              ) : (
+                <>
+                  <FaKey className="w-4 h-4 mr-2" />
+                  Réinitialiser le mot de passe
+                </>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Dialog pour afficher le nouveau mot de passe */}
       <Dialog open={showResetPasswordDialog} onOpenChange={setShowResetPasswordDialog}>

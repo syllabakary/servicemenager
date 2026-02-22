@@ -84,7 +84,7 @@ export default function AgencyDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-red-50 to-white">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-site-primary/5 to-white">
         <div className="w-20 h-20 border-4 border-site-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -92,7 +92,7 @@ export default function AgencyDetail() {
 
   if (!agency) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-center px-4 sm:px-6 bg-gradient-to-b from-red-50 to-white">
+      <div className="min-h-screen flex flex-col items-center justify-center text-center px-4 sm:px-6 bg-gradient-to-b from-site-primary/5 to-white">
         <h1 className="text-2xl sm:text-3xl font-bold mb-4 text-gray-900">😕 Agence introuvable</h1>
         <p className="text-sm sm:text-base text-gray-600 mb-6 px-4">L'agence que vous recherchez semble ne plus être disponible.</p>
         <Link href="/agences">
@@ -158,7 +158,7 @@ export default function AgencyDetail() {
           <div className="lg:col-span-2 space-y-3 sm:space-y-4 md:space-y-5">
             {/* À propos */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-              <Card className="border-2 border-red-200 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-red-50/30">
+              <Card className="border-2 border-site-primary/20 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-site-primary/5">
                 <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-5 md:px-6">
                   <CardTitle className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold flex flex-col sm:flex-row items-start sm:items-center gap-2 text-gray-900">
                     <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-site-primary/20 to-site-primary/10 flex items-center justify-center border-2 border-site-primary/30">
@@ -175,7 +175,7 @@ export default function AgencyDetail() {
 
             {/* Services */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.1 }}>
-              <Card className="border-2 border-red-200 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-red-50/30">
+              <Card className="border-2 border-site-primary/20 shadow-lg hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-site-primary/5">
                 <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-5 md:px-6">
                   <CardTitle className="text-base sm:text-lg md:text-xl font-bold flex flex-col sm:flex-row items-start sm:items-center gap-2 text-gray-900">
                     <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-site-primary/20 to-site-primary/10 flex items-center justify-center border-2 border-site-primary/30">
@@ -190,7 +190,7 @@ export default function AgencyDetail() {
                       <motion.div
                         key={index}
                         whileHover={{ scale: 1.02, y: -2 }}
-                        className="flex items-center gap-2 p-2 sm:p-2.5 rounded-lg bg-gradient-to-br from-red-50 to-red-100/50 border-2 border-red-200 hover:border-site-primary hover:from-red-100 hover:to-red-200 transition-all duration-300"
+                        className="flex items-center gap-2 p-2 sm:p-2.5 rounded-lg bg-gradient-to-br from-site-primary/5 to-site-primary/5 border-2 border-site-primary/20 hover:border-site-primary hover:from-site-primary/15 hover:to-site-primary/10 transition-all duration-300"
                       >
                         <FaCheckCircle className="w-4 h-4 sm:w-5 sm:h-5 text-site-primary flex-shrink-0" />
                         <span className="text-xs sm:text-sm md:text-base font-semibold text-gray-800">{service}</span>
@@ -204,7 +204,7 @@ export default function AgencyDetail() {
 
           {/* CONTACT */}
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} className="lg:sticky lg:top-6">
-            <Card className="border-2 border-red-200 shadow-xl bg-gradient-to-br from-white to-red-50/30">
+            <Card className="border-2 border-site-primary/20 shadow-xl bg-gradient-to-br from-white to-site-primary/5">
               <CardHeader className="pb-2 sm:pb-3 px-4 sm:px-5 md:px-6">
                 <CardTitle className="text-base sm:text-lg md:text-xl font-bold flex items-center gap-2 text-gray-900">
                   <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-site-primary/20 to-site-primary/10 flex items-center justify-center border-2 border-site-primary/30">
@@ -220,7 +220,7 @@ export default function AgencyDetail() {
                   { Icon: FaEnvelope, label: "Email", value: agency.email, href: agency.email ? `mailto:${agency.email}` : undefined },
                   { Icon: FaClock, label: "Horaires", value: agency.horaires },
                 ].filter(item => item.value).map((item, idx) => (
-                  <div key={idx} className="flex items-start gap-2 p-2 sm:p-2.5 rounded-lg bg-gradient-to-br from-red-50 to-red-100/50 border-2 border-red-200 hover:border-site-primary transition-all">
+                  <div key={idx} className="flex items-start gap-2 p-2 sm:p-2.5 rounded-lg bg-gradient-to-br from-site-primary/5 to-site-primary/5 border-2 border-site-primary/20 hover:border-site-primary transition-all">
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-site-primary/20 to-site-primary/10 flex items-center justify-center flex-shrink-0 border border-site-primary/30">
                       <item.Icon className="w-4 h-4 text-site-primary" />
                     </div>
@@ -239,7 +239,7 @@ export default function AgencyDetail() {
 
                 {/* Bouton Voir itinéraire */}
                 {(agency.latitude && agency.longitude) || agency.address ? (
-                  <div className="pt-2 sm:pt-3 border-t-2 border-red-200">
+                  <div className="pt-2 sm:pt-3 border-t-2 border-site-primary/20">
                     <Button
                       onClick={openGoogleMaps}
                       className="w-full h-10 sm:h-11 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-300 font-semibold text-sm flex items-center justify-center gap-2"
@@ -252,7 +252,7 @@ export default function AgencyDetail() {
                 ) : null}
 
                 {/* Bouton devis */}
-                <div className="pt-2 sm:pt-3 border-t-2 border-red-200">
+                <div className="pt-2 sm:pt-3 border-t-2 border-site-primary/20">
                   <Link href="/devis" className="w-full block">
                     <Button className="w-full h-10 sm:h-11 bg-gradient-to-r from-site-button-primary to-site-button-primary-hover hover:from-site-button-primary-hover hover:to-site-button-primary text-site-button-text shadow-lg hover:shadow-xl transition-all duration-300 font-semibold text-sm" size="lg">
                       <FaAward className="w-4 h-4 sm:w-5 sm:h-5 mr-1.5 sm:mr-2" />

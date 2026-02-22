@@ -13,15 +13,17 @@ import Footer from "@/components/Footer";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { SiteTheme } from "@/components/SiteTheme";
 import Home from "@/pages/Home";
-import Services from "@/pages/Services";
-import ServiceDetail from "@/pages/ServiceDetail";
-import Agencies from "@/pages/Agencies";
-import AgencyDetail from "@/pages/AgencyDetail";
-import Contact from "@/pages/Contact";
-import QuoteRequest from "@/pages/QuoteRequest";
-import NotFound from "@/pages/not-found";
 
-// Lazy load admin & employe pour accélérer le premier chargement du site public
+// Lazy load tout sauf l'accueil pour un premier chargement très rapide
+const Services = React.lazy(() => import("@/pages/Services"));
+const ServiceDetail = React.lazy(() => import("@/pages/ServiceDetail"));
+const Agencies = React.lazy(() => import("@/pages/Agencies"));
+const AgencyDetail = React.lazy(() => import("@/pages/AgencyDetail"));
+const Contact = React.lazy(() => import("@/pages/Contact"));
+const QuoteRequest = React.lazy(() => import("@/pages/QuoteRequest"));
+const NotFound = React.lazy(() => import("@/pages/not-found"));
+
+// Admin & employe
 const AdminLogin = React.lazy(() => import("@/pages/admin/Login"));
 const AdminDashboard = React.lazy(() => import("@/pages/admin/Dashboard"));
 const AdminServices = React.lazy(() => import("@/pages/admin/Services"));

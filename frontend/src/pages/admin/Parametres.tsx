@@ -377,58 +377,58 @@ export default function AdminParametres() {
   });
 
   const [themeSettings, setThemeSettings] = useState({
-    primary_color: "#DC2626",
-    secondary_color: "#B91C1C",
-    tertiary_color: "#991B1B",
-    button_primary_color: "#DC2626",
-    button_primary_hover_color: "#B91C1C",
+    primary_color: "#087A00",
+    secondary_color: "#066300",
+    tertiary_color: "#044000",
+    button_primary_color: "#087A00",
+    button_primary_hover_color: "#066300",
     button_text_color: "#FFFFFF",
-    text_primary_color: "#DC2626",
-    text_link_color: "#DC2626",
-    text_link_hover_color: "#B91C1C",
-    banner_bg_color: "#DC2626",
+    text_primary_color: "#087A00",
+    text_link_color: "#087A00",
+    text_link_hover_color: "#066300",
+    banner_bg_color: "#087A00",
     banner_text_color: "#FFFFFF",
-    footer_bg_color: "#FEF2F2",
+    footer_bg_color: "#F0FDF4",
     footer_text_color: "#374151",
-    footer_link_color: "#DC2626",
-    footer_link_hover_color: "#B91C1C",
-    footer_border_color: "#FECACA",
+    footer_link_color: "#087A00",
+    footer_link_hover_color: "#066300",
+    footer_border_color: "#BBF7D0",
     button_border_color: "",
     button_border_width: 0,
     button_border_radius: "0.375rem",
-    button_outline_border_color: "#DC2626",
-    button_outline_text_color: "#DC2626",
-    button_outline_hover_bg_color: "#DC2626",
+    button_outline_border_color: "#087A00",
+    button_outline_text_color: "#087A00",
+    button_outline_hover_bg_color: "#087A00",
     site_name_part1_color: "#111827",
-    site_name_part2_color: "#DC2626",
+    site_name_part2_color: "#087A00",
     site_tagline_color: "#6B7280",
     site_name: "Services Locaux",
     site_tagline: "Votre partenaire de confiance",
-    banner_button_color: "#DC2626",
+    banner_button_color: "#087A00",
     banner_button_border_color: "",
-    services_bg_color: "#DC2626",
+    services_bg_color: "#087A00",
     services_text_color: "#FFFFFF",
-    services_button_color: "#DC2626",
+    services_button_color: "#087A00",
     services_button_border_color: "",
-    agencies_bg_color: "#DC2626",
+    agencies_bg_color: "#087A00",
     agencies_text_color: "#FFFFFF",
-    agencies_button_color: "#DC2626",
+    agencies_button_color: "#087A00",
     agencies_button_border_color: "",
-    employe_bg_color: "#DC2626",
+    employe_bg_color: "#087A00",
     employe_text_color: "#FFFFFF",
-    employe_button_color: "#DC2626",
+    employe_button_color: "#087A00",
     employe_button_border_color: "",
-    admin_login_bg_color: "#DC2626",
+    admin_login_bg_color: "#087A00",
     admin_login_text_color: "#FFFFFF",
-    admin_login_button_color: "#DC2626",
+    admin_login_button_color: "#087A00",
     admin_login_button_border_color: "",
-    employe_login_bg_color: "#DC2626",
+    employe_login_bg_color: "#087A00",
     employe_login_text_color: "#FFFFFF",
-    employe_login_button_color: "#DC2626",
+    employe_login_button_color: "#087A00",
     employe_login_button_border_color: "",
     logo_area_bg_color: "",
     logo_area_text_color: "",
-    devis_pdf_primary_color: "#DC2626",
+    devis_pdf_primary_color: "#087A00",
     logo: null as File | null,
     logo_favicon: null as File | null,
   });
@@ -463,58 +463,58 @@ export default function AdminParametres() {
     if (siteSettings) {
       // Normaliser toutes les couleurs lors du chargement
       setThemeSettings({
-        primary_color: normalizeHexColor(siteSettings.primary_color || "#DC2626"),
-        secondary_color: normalizeHexColor(siteSettings.secondary_color || "#B91C1C"),
-        tertiary_color: normalizeHexColor(siteSettings.tertiary_color || "#991B1B"),
-        button_primary_color: normalizeHexColor(siteSettings.button_primary_color || siteSettings.primary_color || "#DC2626"),
-        button_primary_hover_color: normalizeHexColor(siteSettings.button_primary_hover_color || siteSettings.secondary_color || "#B91C1C"),
+        primary_color: normalizeHexColor(siteSettings.primary_color || "#087A00"),
+        secondary_color: normalizeHexColor(siteSettings.secondary_color || "#066300"),
+        tertiary_color: normalizeHexColor(siteSettings.tertiary_color || "#044000"),
+        button_primary_color: normalizeHexColor(siteSettings.button_primary_color || siteSettings.primary_color || "#087A00"),
+        button_primary_hover_color: normalizeHexColor(siteSettings.button_primary_hover_color || siteSettings.secondary_color || "#066300"),
         button_text_color: normalizeHexColor(siteSettings.button_text_color || "#FFFFFF"),
-        text_primary_color: normalizeHexColor(siteSettings.text_primary_color || siteSettings.primary_color || "#DC2626"),
-        text_link_color: normalizeHexColor(siteSettings.text_link_color || siteSettings.primary_color || "#DC2626"),
-        text_link_hover_color: normalizeHexColor(siteSettings.text_link_hover_color || siteSettings.secondary_color || "#B91C1C"),
-        banner_bg_color: normalizeHexColor(siteSettings.banner_bg_color || siteSettings.primary_color || "#DC2626"),
+        text_primary_color: normalizeHexColor(siteSettings.text_primary_color || siteSettings.primary_color || "#087A00"),
+        text_link_color: normalizeHexColor(siteSettings.text_link_color || siteSettings.primary_color || "#087A00"),
+        text_link_hover_color: normalizeHexColor(siteSettings.text_link_hover_color || siteSettings.secondary_color || "#066300"),
+        banner_bg_color: normalizeHexColor(siteSettings.banner_bg_color || siteSettings.primary_color || "#087A00"),
         banner_text_color: normalizeHexColor(siteSettings.banner_text_color || "#FFFFFF"),
-        footer_bg_color: normalizeHexColor(siteSettings.footer_bg_color || "#FEF2F2"),
+        footer_bg_color: normalizeHexColor(siteSettings.footer_bg_color || "#F0FDF4"),
         footer_text_color: normalizeHexColor(siteSettings.footer_text_color || "#374151"),
-        footer_link_color: normalizeHexColor(siteSettings.footer_link_color || siteSettings.primary_color || "#DC2626"),
-        footer_link_hover_color: normalizeHexColor(siteSettings.footer_link_hover_color || siteSettings.secondary_color || "#B91C1C"),
-        footer_border_color: normalizeHexColor(siteSettings.footer_border_color || "#FECACA"),
+        footer_link_color: normalizeHexColor(siteSettings.footer_link_color || siteSettings.primary_color || "#087A00"),
+        footer_link_hover_color: normalizeHexColor(siteSettings.footer_link_hover_color || siteSettings.secondary_color || "#066300"),
+        footer_border_color: normalizeHexColor(siteSettings.footer_border_color || "#BBF7D0"),
         button_border_color: siteSettings.button_border_color ? normalizeHexColor(siteSettings.button_border_color) : "",
         button_border_width: typeof siteSettings.button_border_width === "number" ? siteSettings.button_border_width : 0,
         button_border_radius: siteSettings.button_border_radius || "0.375rem",
-        button_outline_border_color: normalizeHexColor(siteSettings.button_outline_border_color || siteSettings.primary_color || "#DC2626"),
-        button_outline_text_color: normalizeHexColor(siteSettings.button_outline_text_color || siteSettings.primary_color || "#DC2626"),
-        button_outline_hover_bg_color: normalizeHexColor(siteSettings.button_outline_hover_bg_color || siteSettings.primary_color || "#DC2626"),
+        button_outline_border_color: normalizeHexColor(siteSettings.button_outline_border_color || siteSettings.primary_color || "#087A00"),
+        button_outline_text_color: normalizeHexColor(siteSettings.button_outline_text_color || siteSettings.primary_color || "#087A00"),
+        button_outline_hover_bg_color: normalizeHexColor(siteSettings.button_outline_hover_bg_color || siteSettings.primary_color || "#087A00"),
         site_name_part1_color: normalizeHexColor(siteSettings.site_name_part1_color || "#111827"),
-        site_name_part2_color: normalizeHexColor(siteSettings.site_name_part2_color || siteSettings.primary_color || "#DC2626"),
+        site_name_part2_color: normalizeHexColor(siteSettings.site_name_part2_color || siteSettings.primary_color || "#087A00"),
         site_tagline_color: normalizeHexColor(siteSettings.site_tagline_color || "#6B7280"),
         site_name: siteSettings.site_name || "Services Locaux",
         site_tagline: siteSettings.site_tagline || "Votre partenaire de confiance",
-        banner_button_color: siteSettings.banner_button_color ? normalizeHexColor(siteSettings.banner_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        banner_button_color: siteSettings.banner_button_color ? normalizeHexColor(siteSettings.banner_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#087A00"),
         banner_button_border_color: siteSettings.banner_button_border_color ? normalizeHexColor(siteSettings.banner_button_border_color) : "",
-        services_bg_color: siteSettings.services_bg_color ? normalizeHexColor(siteSettings.services_bg_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        services_bg_color: siteSettings.services_bg_color ? normalizeHexColor(siteSettings.services_bg_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#087A00"),
         services_text_color: siteSettings.services_text_color ? normalizeHexColor(siteSettings.services_text_color) : "#FFFFFF",
-        services_button_color: siteSettings.services_button_color ? normalizeHexColor(siteSettings.services_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        services_button_color: siteSettings.services_button_color ? normalizeHexColor(siteSettings.services_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#087A00"),
         services_button_border_color: siteSettings.services_button_border_color ? normalizeHexColor(siteSettings.services_button_border_color) : "",
-        agencies_bg_color: siteSettings.agencies_bg_color ? normalizeHexColor(siteSettings.agencies_bg_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        agencies_bg_color: siteSettings.agencies_bg_color ? normalizeHexColor(siteSettings.agencies_bg_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#087A00"),
         agencies_text_color: siteSettings.agencies_text_color ? normalizeHexColor(siteSettings.agencies_text_color) : "#FFFFFF",
-        agencies_button_color: siteSettings.agencies_button_color ? normalizeHexColor(siteSettings.agencies_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        agencies_button_color: siteSettings.agencies_button_color ? normalizeHexColor(siteSettings.agencies_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#087A00"),
         agencies_button_border_color: siteSettings.agencies_button_border_color ? normalizeHexColor(siteSettings.agencies_button_border_color) : "",
-        employe_bg_color: siteSettings.employe_bg_color ? normalizeHexColor(siteSettings.employe_bg_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        employe_bg_color: siteSettings.employe_bg_color ? normalizeHexColor(siteSettings.employe_bg_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#087A00"),
         employe_text_color: siteSettings.employe_text_color ? normalizeHexColor(siteSettings.employe_text_color) : "#FFFFFF",
-        employe_button_color: siteSettings.employe_button_color ? normalizeHexColor(siteSettings.employe_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        employe_button_color: siteSettings.employe_button_color ? normalizeHexColor(siteSettings.employe_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#087A00"),
         employe_button_border_color: siteSettings.employe_button_border_color ? normalizeHexColor(siteSettings.employe_button_border_color) : "",
-        admin_login_bg_color: siteSettings.admin_login_bg_color ? normalizeHexColor(siteSettings.admin_login_bg_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        admin_login_bg_color: siteSettings.admin_login_bg_color ? normalizeHexColor(siteSettings.admin_login_bg_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#087A00"),
         admin_login_text_color: siteSettings.admin_login_text_color ? normalizeHexColor(siteSettings.admin_login_text_color) : "#FFFFFF",
-        admin_login_button_color: siteSettings.admin_login_button_color ? normalizeHexColor(siteSettings.admin_login_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        admin_login_button_color: siteSettings.admin_login_button_color ? normalizeHexColor(siteSettings.admin_login_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#087A00"),
         admin_login_button_border_color: siteSettings.admin_login_button_border_color ? normalizeHexColor(siteSettings.admin_login_button_border_color) : "",
-        employe_login_bg_color: siteSettings.employe_login_bg_color ? normalizeHexColor(siteSettings.employe_login_bg_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        employe_login_bg_color: siteSettings.employe_login_bg_color ? normalizeHexColor(siteSettings.employe_login_bg_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#087A00"),
         employe_login_text_color: siteSettings.employe_login_text_color ? normalizeHexColor(siteSettings.employe_login_text_color) : "#FFFFFF",
-        employe_login_button_color: siteSettings.employe_login_button_color ? normalizeHexColor(siteSettings.employe_login_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#DC2626"),
+        employe_login_button_color: siteSettings.employe_login_button_color ? normalizeHexColor(siteSettings.employe_login_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#087A00"),
         employe_login_button_border_color: siteSettings.employe_login_button_border_color ? normalizeHexColor(siteSettings.employe_login_button_border_color) : "",
         logo_area_bg_color: siteSettings.logo_area_bg_color ? normalizeHexColor(siteSettings.logo_area_bg_color) : "",
         logo_area_text_color: siteSettings.logo_area_text_color ? normalizeHexColor(siteSettings.logo_area_text_color) : "",
-        devis_pdf_primary_color: normalizeHexColor(siteSettings.devis_pdf_primary_color || siteSettings.primary_color || "#DC2626"),
+        devis_pdf_primary_color: normalizeHexColor(siteSettings.devis_pdf_primary_color || siteSettings.primary_color || "#087A00"),
         logo: null,
         logo_favicon: null,
       });
@@ -626,7 +626,7 @@ export default function AdminParametres() {
         employe_login_button_border_color: data.employe_login_button_border_color ? normalizeHexColor(data.employe_login_button_border_color) : "",
         logo_area_bg_color: data.logo_area_bg_color ? normalizeHexColor(data.logo_area_bg_color) : "",
         logo_area_text_color: data.logo_area_text_color ? normalizeHexColor(data.logo_area_text_color) : "",
-        devis_pdf_primary_color: normalizeHexColor(data.devis_pdf_primary_color || data.primary_color || "#DC2626"),
+        devis_pdf_primary_color: normalizeHexColor(data.devis_pdf_primary_color || data.primary_color || "#087A00"),
       };
       
       // Valider toutes les couleurs (hex) quand elles sont renseignées
@@ -706,7 +706,7 @@ export default function AdminParametres() {
       formData.append("site_tagline", normalizedData.site_tagline);
       formData.append("logo_area_bg_color", normalizedData.logo_area_bg_color ?? "");
       formData.append("logo_area_text_color", normalizedData.logo_area_text_color ?? "");
-      formData.append("devis_pdf_primary_color", normalizedData.devis_pdf_primary_color ?? "#DC2626");
+      formData.append("devis_pdf_primary_color", normalizedData.devis_pdf_primary_color ?? "#087A00");
       if (data.logo) {
         formData.append("logo", data.logo);
       }
@@ -1367,7 +1367,7 @@ export default function AdminParametres() {
                     <Label>Couleur 2 du nom (2e partie) *</Label>
                     <div className="flex items-center gap-3">
                       <Input type="color" value={normalizeHexColor(themeSettings.site_name_part2_color)} onChange={(e) => updateColor("site_name_part2_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
-                      <Input type="text" value={themeSettings.site_name_part2_color} onChange={(e) => updateColor("site_name_part2_color", e.target.value)} placeholder="#DC2626" className="flex-1" />
+                      <Input type="text" value={themeSettings.site_name_part2_color} onChange={(e) => updateColor("site_name_part2_color", e.target.value)} placeholder="#087A00" className="flex-1" />
                     </div>
                     <p className="text-xs text-gray-500">Ex. &quot;Locaux&quot;.</p>
                   </div>
@@ -1417,7 +1417,7 @@ export default function AdminParametres() {
                             updateColor("primary_color", normalized);
                           }
                         }}
-                        placeholder="#DC2626"
+                        placeholder="#087A00"
                         className="flex-1"
                         required
                         pattern="^#[0-9A-Fa-f]{6}$"
@@ -1453,7 +1453,7 @@ export default function AdminParametres() {
                             updateColor("secondary_color", normalized);
                           }
                         }}
-                        placeholder="#B91C1C"
+                        placeholder="#066300"
                         className="flex-1"
                         required
                       />
@@ -1487,7 +1487,7 @@ export default function AdminParametres() {
                             updateColor("tertiary_color", normalized);
                           }
                         }}
-                        placeholder="#991B1B"
+                        placeholder="#044000"
                         className="flex-1"
                         required
                       />
@@ -1538,7 +1538,7 @@ export default function AdminParametres() {
                             updateColor("button_primary_color", normalized);
                           }
                         }}
-                        placeholder="#DC2626"
+                        placeholder="#087A00"
                         className="flex-1"
                         required
                       />
@@ -1572,7 +1572,7 @@ export default function AdminParametres() {
                             updateColor("button_primary_hover_color", normalized);
                           }
                         }}
-                        placeholder="#B91C1C"
+                        placeholder="#066300"
                         className="flex-1"
                         required
                       />
@@ -1657,7 +1657,7 @@ export default function AdminParametres() {
                             updateColor("text_primary_color", normalized);
                           }
                         }}
-                        placeholder="#DC2626"
+                        placeholder="#087A00"
                         className="flex-1"
                         required
                       />
@@ -1691,7 +1691,7 @@ export default function AdminParametres() {
                             updateColor("text_link_color", normalized);
                           }
                         }}
-                        placeholder="#DC2626"
+                        placeholder="#087A00"
                         className="flex-1"
                         required
                       />
@@ -1725,7 +1725,7 @@ export default function AdminParametres() {
                             updateColor("text_link_hover_color", normalized);
                           }
                         }}
-                        placeholder="#B91C1C"
+                        placeholder="#066300"
                         className="flex-1"
                         required
                       />
@@ -1754,7 +1754,7 @@ export default function AdminParametres() {
                     <Label>Couleur de fond de la bannière *</Label>
                     <div className="flex items-center gap-3">
                       <Input type="color" value={normalizeHexColor(themeSettings.banner_bg_color)} onChange={(e) => updateColor("banner_bg_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
-                      <Input type="text" value={themeSettings.banner_bg_color} onChange={(e) => updateColor("banner_bg_color", e.target.value)} placeholder="#DC2626" className="flex-1" />
+                      <Input type="text" value={themeSettings.banner_bg_color} onChange={(e) => updateColor("banner_bg_color", e.target.value)} placeholder="#087A00" className="flex-1" />
                     </div>
                     <p className="text-xs text-gray-500">Fond du bandeau (ex. promo, annonces).</p>
                   </div>
@@ -1785,7 +1785,7 @@ export default function AdminParametres() {
                     <Label>Fond du footer *</Label>
                     <div className="flex items-center gap-3">
                       <Input type="color" value={normalizeHexColor(themeSettings.footer_bg_color)} onChange={(e) => updateColor("footer_bg_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
-                      <Input type="text" value={themeSettings.footer_bg_color} onChange={(e) => updateColor("footer_bg_color", e.target.value)} placeholder="#FEF2F2" className="flex-1" />
+                      <Input type="text" value={themeSettings.footer_bg_color} onChange={(e) => updateColor("footer_bg_color", e.target.value)} placeholder="#F0FDF4" className="flex-1" />
                     </div>
                   </div>
                   <div className="space-y-2">
@@ -1799,21 +1799,21 @@ export default function AdminParametres() {
                     <Label>Liens et icônes *</Label>
                     <div className="flex items-center gap-3">
                       <Input type="color" value={normalizeHexColor(themeSettings.footer_link_color)} onChange={(e) => updateColor("footer_link_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
-                      <Input type="text" value={themeSettings.footer_link_color} onChange={(e) => updateColor("footer_link_color", e.target.value)} placeholder="#DC2626" className="flex-1" />
+                      <Input type="text" value={themeSettings.footer_link_color} onChange={(e) => updateColor("footer_link_color", e.target.value)} placeholder="#087A00" className="flex-1" />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label>Liens au survol *</Label>
                     <div className="flex items-center gap-3">
                       <Input type="color" value={normalizeHexColor(themeSettings.footer_link_hover_color)} onChange={(e) => updateColor("footer_link_hover_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
-                      <Input type="text" value={themeSettings.footer_link_hover_color} onChange={(e) => updateColor("footer_link_hover_color", e.target.value)} placeholder="#B91C1C" className="flex-1" />
+                      <Input type="text" value={themeSettings.footer_link_hover_color} onChange={(e) => updateColor("footer_link_hover_color", e.target.value)} placeholder="#066300" className="flex-1" />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label>Bordures du footer *</Label>
                     <div className="flex items-center gap-3">
                       <Input type="color" value={normalizeHexColor(themeSettings.footer_border_color)} onChange={(e) => updateColor("footer_border_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
-                      <Input type="text" value={themeSettings.footer_border_color} onChange={(e) => updateColor("footer_border_color", e.target.value)} placeholder="#FECACA" className="flex-1" />
+                      <Input type="text" value={themeSettings.footer_border_color} onChange={(e) => updateColor("footer_border_color", e.target.value)} placeholder="#BBF7D0" className="flex-1" />
                     </div>
                   </div>
                 </div>
@@ -1834,7 +1834,7 @@ export default function AdminParametres() {
                   <div className="space-y-2">
                     <Label>Couleur de la bordure</Label>
                     <div className="flex items-center gap-3">
-                      <Input type="color" value={themeSettings.button_border_color || "#DC2626"} onChange={(e) => setThemeSettings({ ...themeSettings, button_border_color: normalizeHexColor(e.target.value) })} className="w-20 h-12 cursor-pointer" />
+                      <Input type="color" value={themeSettings.button_border_color || "#087A00"} onChange={(e) => setThemeSettings({ ...themeSettings, button_border_color: normalizeHexColor(e.target.value) })} className="w-20 h-12 cursor-pointer" />
                       <Input type="text" value={themeSettings.button_border_color} onChange={(e) => setThemeSettings({ ...themeSettings, button_border_color: e.target.value })} placeholder="Vide = pas de bordure" className="flex-1" />
                     </div>
                   </div>
@@ -1867,21 +1867,21 @@ export default function AdminParametres() {
                     <Label>Couleur bordure *</Label>
                     <div className="flex items-center gap-3">
                       <Input type="color" value={normalizeHexColor(themeSettings.button_outline_border_color)} onChange={(e) => updateColor("button_outline_border_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
-                      <Input type="text" value={themeSettings.button_outline_border_color} onChange={(e) => updateColor("button_outline_border_color", e.target.value)} placeholder="#DC2626" className="flex-1" />
+                      <Input type="text" value={themeSettings.button_outline_border_color} onChange={(e) => updateColor("button_outline_border_color", e.target.value)} placeholder="#087A00" className="flex-1" />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label>Couleur du texte *</Label>
                     <div className="flex items-center gap-3">
                       <Input type="color" value={normalizeHexColor(themeSettings.button_outline_text_color)} onChange={(e) => updateColor("button_outline_text_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
-                      <Input type="text" value={themeSettings.button_outline_text_color} onChange={(e) => updateColor("button_outline_text_color", e.target.value)} placeholder="#DC2626" className="flex-1" />
+                      <Input type="text" value={themeSettings.button_outline_text_color} onChange={(e) => updateColor("button_outline_text_color", e.target.value)} placeholder="#087A00" className="flex-1" />
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label>Couleur fond au survol *</Label>
                     <div className="flex items-center gap-3">
                       <Input type="color" value={normalizeHexColor(themeSettings.button_outline_hover_bg_color)} onChange={(e) => updateColor("button_outline_hover_bg_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
-                      <Input type="text" value={themeSettings.button_outline_hover_bg_color} onChange={(e) => updateColor("button_outline_hover_bg_color", e.target.value)} placeholder="#DC2626" className="flex-1" />
+                      <Input type="text" value={themeSettings.button_outline_hover_bg_color} onChange={(e) => updateColor("button_outline_hover_bg_color", e.target.value)} placeholder="#087A00" className="flex-1" />
                     </div>
                     <p className="text-xs text-gray-500">Le texte devient blanc au survol.</p>
                   </div>
@@ -1908,7 +1908,7 @@ export default function AdminParametres() {
                       <Label className="text-xs">Fond</Label>
                       <div className="flex gap-2">
                         <Input type="color" value={themeSettings.banner_bg_color} onChange={(e) => updateColor("banner_bg_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
-                        <Input type="text" value={themeSettings.banner_bg_color} onChange={(e) => updateColor("banner_bg_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                        <Input type="text" value={themeSettings.banner_bg_color} onChange={(e) => updateColor("banner_bg_color", e.target.value)} placeholder="#087A00" className="flex-1 text-sm" />
                       </div>
                     </div>
                     <div className="space-y-1">
@@ -1922,13 +1922,13 @@ export default function AdminParametres() {
                       <Label className="text-xs">Bouton</Label>
                       <div className="flex gap-2">
                         <Input type="color" value={themeSettings.banner_button_color} onChange={(e) => updateColor("banner_button_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
-                        <Input type="text" value={themeSettings.banner_button_color} onChange={(e) => updateColor("banner_button_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                        <Input type="text" value={themeSettings.banner_button_color} onChange={(e) => updateColor("banner_button_color", e.target.value)} placeholder="#087A00" className="flex-1 text-sm" />
                       </div>
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs">Bordure bouton</Label>
                       <div className="flex gap-2">
-                        <Input type="color" value={themeSettings.banner_button_border_color || "#DC2626"} onChange={(e) => updateColor("banner_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="color" value={themeSettings.banner_button_border_color || "#087A00"} onChange={(e) => updateColor("banner_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
                         <Input type="text" value={themeSettings.banner_button_border_color} onChange={(e) => setThemeSettings({ ...themeSettings, banner_button_border_color: e.target.value })} placeholder="Vide" className="flex-1 text-sm" />
                       </div>
                     </div>
@@ -1943,7 +1943,7 @@ export default function AdminParametres() {
                       <Label className="text-xs">Fond</Label>
                       <div className="flex gap-2">
                         <Input type="color" value={themeSettings.services_bg_color} onChange={(e) => updateColor("services_bg_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
-                        <Input type="text" value={themeSettings.services_bg_color} onChange={(e) => updateColor("services_bg_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                        <Input type="text" value={themeSettings.services_bg_color} onChange={(e) => updateColor("services_bg_color", e.target.value)} placeholder="#087A00" className="flex-1 text-sm" />
                       </div>
                     </div>
                     <div className="space-y-1">
@@ -1957,13 +1957,13 @@ export default function AdminParametres() {
                       <Label className="text-xs">Bouton</Label>
                       <div className="flex gap-2">
                         <Input type="color" value={themeSettings.services_button_color} onChange={(e) => updateColor("services_button_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
-                        <Input type="text" value={themeSettings.services_button_color} onChange={(e) => updateColor("services_button_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                        <Input type="text" value={themeSettings.services_button_color} onChange={(e) => updateColor("services_button_color", e.target.value)} placeholder="#087A00" className="flex-1 text-sm" />
                       </div>
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs">Bordure bouton</Label>
                       <div className="flex gap-2">
-                        <Input type="color" value={themeSettings.services_button_border_color || "#DC2626"} onChange={(e) => updateColor("services_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="color" value={themeSettings.services_button_border_color || "#087A00"} onChange={(e) => updateColor("services_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
                         <Input type="text" value={themeSettings.services_button_border_color} onChange={(e) => setThemeSettings({ ...themeSettings, services_button_border_color: e.target.value })} placeholder="Vide" className="flex-1 text-sm" />
                       </div>
                     </div>
@@ -1978,7 +1978,7 @@ export default function AdminParametres() {
                       <Label className="text-xs">Fond</Label>
                       <div className="flex gap-2">
                         <Input type="color" value={themeSettings.agencies_bg_color} onChange={(e) => updateColor("agencies_bg_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
-                        <Input type="text" value={themeSettings.agencies_bg_color} onChange={(e) => updateColor("agencies_bg_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                        <Input type="text" value={themeSettings.agencies_bg_color} onChange={(e) => updateColor("agencies_bg_color", e.target.value)} placeholder="#087A00" className="flex-1 text-sm" />
                       </div>
                     </div>
                     <div className="space-y-1">
@@ -1992,13 +1992,13 @@ export default function AdminParametres() {
                       <Label className="text-xs">Bouton</Label>
                       <div className="flex gap-2">
                         <Input type="color" value={themeSettings.agencies_button_color} onChange={(e) => updateColor("agencies_button_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
-                        <Input type="text" value={themeSettings.agencies_button_color} onChange={(e) => updateColor("agencies_button_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                        <Input type="text" value={themeSettings.agencies_button_color} onChange={(e) => updateColor("agencies_button_color", e.target.value)} placeholder="#087A00" className="flex-1 text-sm" />
                       </div>
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs">Bordure bouton</Label>
                       <div className="flex gap-2">
-                        <Input type="color" value={themeSettings.agencies_button_border_color || "#DC2626"} onChange={(e) => updateColor("agencies_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="color" value={themeSettings.agencies_button_border_color || "#087A00"} onChange={(e) => updateColor("agencies_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
                         <Input type="text" value={themeSettings.agencies_button_border_color} onChange={(e) => setThemeSettings({ ...themeSettings, agencies_button_border_color: e.target.value })} placeholder="Vide" className="flex-1 text-sm" />
                       </div>
                     </div>
@@ -2013,7 +2013,7 @@ export default function AdminParametres() {
                       <Label className="text-xs">Fond</Label>
                       <div className="flex gap-2">
                         <Input type="color" value={themeSettings.employe_bg_color} onChange={(e) => updateColor("employe_bg_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
-                        <Input type="text" value={themeSettings.employe_bg_color} onChange={(e) => updateColor("employe_bg_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                        <Input type="text" value={themeSettings.employe_bg_color} onChange={(e) => updateColor("employe_bg_color", e.target.value)} placeholder="#087A00" className="flex-1 text-sm" />
                       </div>
                     </div>
                     <div className="space-y-1">
@@ -2027,13 +2027,13 @@ export default function AdminParametres() {
                       <Label className="text-xs">Bouton</Label>
                       <div className="flex gap-2">
                         <Input type="color" value={themeSettings.employe_button_color} onChange={(e) => updateColor("employe_button_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
-                        <Input type="text" value={themeSettings.employe_button_color} onChange={(e) => updateColor("employe_button_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                        <Input type="text" value={themeSettings.employe_button_color} onChange={(e) => updateColor("employe_button_color", e.target.value)} placeholder="#087A00" className="flex-1 text-sm" />
                       </div>
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs">Bordure bouton</Label>
                       <div className="flex gap-2">
-                        <Input type="color" value={themeSettings.employe_button_border_color || "#DC2626"} onChange={(e) => updateColor("employe_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="color" value={themeSettings.employe_button_border_color || "#087A00"} onChange={(e) => updateColor("employe_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
                         <Input type="text" value={themeSettings.employe_button_border_color} onChange={(e) => setThemeSettings({ ...themeSettings, employe_button_border_color: e.target.value })} placeholder="Vide" className="flex-1 text-sm" />
                       </div>
                     </div>
@@ -2048,7 +2048,7 @@ export default function AdminParametres() {
                       <Label className="text-xs">Fond</Label>
                       <div className="flex gap-2">
                         <Input type="color" value={themeSettings.admin_login_bg_color} onChange={(e) => updateColor("admin_login_bg_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
-                        <Input type="text" value={themeSettings.admin_login_bg_color} onChange={(e) => updateColor("admin_login_bg_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                        <Input type="text" value={themeSettings.admin_login_bg_color} onChange={(e) => updateColor("admin_login_bg_color", e.target.value)} placeholder="#087A00" className="flex-1 text-sm" />
                       </div>
                     </div>
                     <div className="space-y-1">
@@ -2062,13 +2062,13 @@ export default function AdminParametres() {
                       <Label className="text-xs">Bouton</Label>
                       <div className="flex gap-2">
                         <Input type="color" value={themeSettings.admin_login_button_color} onChange={(e) => updateColor("admin_login_button_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
-                        <Input type="text" value={themeSettings.admin_login_button_color} onChange={(e) => updateColor("admin_login_button_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                        <Input type="text" value={themeSettings.admin_login_button_color} onChange={(e) => updateColor("admin_login_button_color", e.target.value)} placeholder="#087A00" className="flex-1 text-sm" />
                       </div>
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs">Bordure bouton</Label>
                       <div className="flex gap-2">
-                        <Input type="color" value={themeSettings.admin_login_button_border_color || "#DC2626"} onChange={(e) => updateColor("admin_login_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="color" value={themeSettings.admin_login_button_border_color || "#087A00"} onChange={(e) => updateColor("admin_login_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
                         <Input type="text" value={themeSettings.admin_login_button_border_color} onChange={(e) => setThemeSettings({ ...themeSettings, admin_login_button_border_color: e.target.value })} placeholder="Vide" className="flex-1 text-sm" />
                       </div>
                     </div>
@@ -2083,7 +2083,7 @@ export default function AdminParametres() {
                       <Label className="text-xs">Fond</Label>
                       <div className="flex gap-2">
                         <Input type="color" value={themeSettings.employe_login_bg_color} onChange={(e) => updateColor("employe_login_bg_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
-                        <Input type="text" value={themeSettings.employe_login_bg_color} onChange={(e) => updateColor("employe_login_bg_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                        <Input type="text" value={themeSettings.employe_login_bg_color} onChange={(e) => updateColor("employe_login_bg_color", e.target.value)} placeholder="#087A00" className="flex-1 text-sm" />
                       </div>
                     </div>
                     <div className="space-y-1">
@@ -2097,13 +2097,13 @@ export default function AdminParametres() {
                       <Label className="text-xs">Bouton</Label>
                       <div className="flex gap-2">
                         <Input type="color" value={themeSettings.employe_login_button_color} onChange={(e) => updateColor("employe_login_button_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
-                        <Input type="text" value={themeSettings.employe_login_button_color} onChange={(e) => updateColor("employe_login_button_color", e.target.value)} placeholder="#DC2626" className="flex-1 text-sm" />
+                        <Input type="text" value={themeSettings.employe_login_button_color} onChange={(e) => updateColor("employe_login_button_color", e.target.value)} placeholder="#087A00" className="flex-1 text-sm" />
                       </div>
                     </div>
                     <div className="space-y-1">
                       <Label className="text-xs">Bordure bouton</Label>
                       <div className="flex gap-2">
-                        <Input type="color" value={themeSettings.employe_login_button_border_color || "#DC2626"} onChange={(e) => updateColor("employe_login_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
+                        <Input type="color" value={themeSettings.employe_login_button_border_color || "#087A00"} onChange={(e) => updateColor("employe_login_button_border_color", e.target.value)} className="w-10 h-10 cursor-pointer p-1" />
                         <Input type="text" value={themeSettings.employe_login_button_border_color} onChange={(e) => setThemeSettings({ ...themeSettings, employe_login_button_border_color: e.target.value })} placeholder="Vide" className="flex-1 text-sm" />
                       </div>
                     </div>
@@ -2143,7 +2143,7 @@ export default function AdminParametres() {
                     <Label>Couleur principale devis / PDF *</Label>
                     <div className="flex items-center gap-3">
                       <Input type="color" value={normalizeHexColor(themeSettings.devis_pdf_primary_color)} onChange={(e) => updateColor("devis_pdf_primary_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
-                      <Input type="text" value={themeSettings.devis_pdf_primary_color} onChange={(e) => updateColor("devis_pdf_primary_color", e.target.value)} placeholder="#DC2626" className="flex-1" />
+                      <Input type="text" value={themeSettings.devis_pdf_primary_color} onChange={(e) => updateColor("devis_pdf_primary_color", e.target.value)} placeholder="#087A00" className="flex-1" />
                     </div>
                     <p className="text-xs text-gray-500">Titres, bordures et accents dans les PDF devis et factures.</p>
                   </div>

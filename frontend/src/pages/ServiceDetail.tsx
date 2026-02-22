@@ -539,7 +539,7 @@ export default function ServiceDetail() {
               
               <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
                 {!service.image_url && (
-                  <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 flex items-center justify-center rounded-2xl bg-red-50 shadow-lg border border-red-200">
+                  <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 flex items-center justify-center rounded-2xl bg-site-primary/10 shadow-lg border border-site-primary/20">
                     <Icon className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-site-primary" />
                 </div>
                 )}
@@ -614,7 +614,7 @@ export default function ServiceDetail() {
                 
                 <CardContent className="p-6 space-y-6">
                   <div className="space-y-4">
-                    <div className="bg-red-50 rounded-xl p-6 border border-red-200">
+                    <div className="bg-site-primary/10 rounded-xl p-6 border border-site-primary/20">
                       <div className="flex items-baseline justify-between mb-2">
                         <span className="text-sm text-gray-600 font-medium">À partir de</span>
                         <Badge className="bg-green-100 text-green-700 border-green-200">
@@ -665,7 +665,7 @@ export default function ServiceDetail() {
                     </div>
                   )}
 
-                  <div className="bg-red-50 border border-red-100 rounded-lg p-4">
+                  <div className="bg-site-primary/10 border border-site-primary/15 rounded-lg p-4">
                     <div className="flex items-start gap-3">
                       <FaInfoCircle className="w-5 h-5 text-site-primary flex-shrink-0 mt-0.5" />
                       <div>
@@ -756,7 +756,7 @@ export default function ServiceDetail() {
                 )}
 
                 {service.process_steps && service.process_steps.length > 0 && (
-                  <Card className="border border-gray-200 shadow-lg bg-red-50">
+                  <Card className="border border-gray-200 shadow-lg bg-site-primary/10">
                   <CardContent className="p-8">
                     <h3 className="text-2xl font-bold text-gray-900 mb-6">
                       Notre processus
@@ -785,7 +785,7 @@ export default function ServiceDetail() {
             {activeTab === "avis" && service.show_reviews !== false && (
               <div className="space-y-8">
                 {/* Formulaire d'avis */}
-                <Card className="border-2 border-red-100 bg-red-50/30">
+                <Card className="border-2 border-site-primary/15 bg-site-primary/10/30">
                   <CardHeader>
                     <CardTitle className="text-xl font-bold text-gray-900">
                       Laissez votre avis
@@ -1041,7 +1041,7 @@ export default function ServiceDetail() {
       )}
 
       {/* SERVICES SIMILAIRES */}
-      <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-white to-red-50/30">
+      <section className="py-12 sm:py-16 md:py-20 bg-gradient-to-b from-white to-site-primary/5">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

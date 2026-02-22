@@ -987,32 +987,32 @@ class SiteSettings(models.Model):
     # Couleurs principales
     primary_color = models.CharField(
         max_length=7,
-        default="#DC2626",
+        default="#087A00",
         verbose_name="Couleur principale",
-        help_text="Couleur principale utilisée pour les titres, liens importants et éléments de navigation (format hex: #DC2626)"
+        help_text="Couleur principale (format hex, ex: #087A00)"
     )
     secondary_color = models.CharField(
         max_length=7,
-        default="#B91C1C",
+        default="#066300",
         verbose_name="Couleur secondaire",
-        help_text="Couleur secondaire utilisée pour les dégradés et effets hover sur les boutons (format hex: #B91C1C)"
+        help_text="Couleur secondaire pour dégradés et hover (format hex, ex: #066300)"
     )
     tertiary_color = models.CharField(
         max_length=7,
-        default="#991B1B",
+        default="#044000",
         verbose_name="Couleur tertiaire",
-        help_text="Couleur tertiaire utilisée pour les effets hover et états actifs (format hex: #991B1B)"
+        help_text="Couleur tertiaire pour hover et états actifs (format hex, ex: #044000)"
     )
     # Couleurs des boutons
     button_primary_color = models.CharField(
         max_length=7,
-        default="#DC2626",
+        default="#087A00",
         verbose_name="Couleur des boutons principaux",
         help_text="Couleur de fond des boutons principaux (CTA, actions importantes) - Si vide, utilise la couleur principale"
     )
     button_primary_hover_color = models.CharField(
         max_length=7,
-        default="#B91C1C",
+        default="#066300",
         verbose_name="Couleur hover des boutons principaux",
         help_text="Couleur au survol des boutons principaux - Si vide, utilise la couleur secondaire"
     )
@@ -1025,26 +1025,26 @@ class SiteSettings(models.Model):
     # Couleurs des textes
     text_primary_color = models.CharField(
         max_length=7,
-        default="#DC2626",
+        default="#087A00",
         verbose_name="Couleur des textes importants",
-        help_text="Couleur utilisée pour les textes importants, titres secondaires et accents (format hex: #DC2626)"
+        help_text="Couleur des textes importants et accents (format hex, ex: #087A00)"
     )
     text_link_color = models.CharField(
         max_length=7,
-        default="#DC2626",
+        default="#087A00",
         verbose_name="Couleur des liens",
         help_text="Couleur des liens cliquables dans le contenu - Si vide, utilise la couleur principale"
     )
     text_link_hover_color = models.CharField(
         max_length=7,
-        default="#B91C1C",
+        default="#066300",
         verbose_name="Couleur hover des liens",
         help_text="Couleur au survol des liens - Si vide, utilise la couleur secondaire"
     )
     # Bannière (bandeau promo en haut du site)
     banner_bg_color = models.CharField(
         max_length=7,
-        default="#DC2626",
+        default="#087A00",
         blank=True,
         null=True,
         verbose_name="Couleur de fond de la bannière",
@@ -1061,7 +1061,7 @@ class SiteSettings(models.Model):
     # Footer
     footer_bg_color = models.CharField(
         max_length=7,
-        default="#FEF2F2",
+        default="#F0FDF4",
         blank=True,
         null=True,
         verbose_name="Couleur de fond du footer",
@@ -1077,7 +1077,7 @@ class SiteSettings(models.Model):
     )
     footer_link_color = models.CharField(
         max_length=7,
-        default="#DC2626",
+        default="#087A00",
         blank=True,
         null=True,
         verbose_name="Couleur des liens du footer",
@@ -1085,7 +1085,7 @@ class SiteSettings(models.Model):
     )
     footer_link_hover_color = models.CharField(
         max_length=7,
-        default="#B91C1C",
+        default="#066300",
         blank=True,
         null=True,
         verbose_name="Couleur hover des liens du footer",
@@ -1093,7 +1093,7 @@ class SiteSettings(models.Model):
     )
     footer_border_color = models.CharField(
         max_length=7,
-        default="#FECACA",
+        default="#BBF7D0",
         blank=True,
         null=True,
         verbose_name="Couleur des bordures du footer",
@@ -1124,7 +1124,7 @@ class SiteSettings(models.Model):
     # Boutons outline (ex. Connexion, liens bouton)
     button_outline_border_color = models.CharField(
         max_length=7,
-        default="#DC2626",
+        default="#087A00",
         blank=True,
         null=True,
         verbose_name="Couleur bordure boutons outline",
@@ -1132,7 +1132,7 @@ class SiteSettings(models.Model):
     )
     button_outline_text_color = models.CharField(
         max_length=7,
-        default="#DC2626",
+        default="#087A00",
         blank=True,
         null=True,
         verbose_name="Couleur texte boutons outline",
@@ -1140,7 +1140,7 @@ class SiteSettings(models.Model):
     )
     button_outline_hover_bg_color = models.CharField(
         max_length=7,
-        default="#DC2626",
+        default="#087A00",
         blank=True,
         null=True,
         verbose_name="Couleur fond hover boutons outline",
@@ -1157,7 +1157,7 @@ class SiteSettings(models.Model):
     )
     site_name_part2_color = models.CharField(
         max_length=7,
-        default="#DC2626",
+        default="#087A00",
         blank=True,
         null=True,
         verbose_name="Couleur 2 du nom (slogan)",

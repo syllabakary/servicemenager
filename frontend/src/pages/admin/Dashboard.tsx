@@ -552,7 +552,7 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Link
                 href="/admin/services"
-                className="group p-6 rounded-xl border-2 border-gray-200 hover:border-site-primary hover:bg-gradient-to-br hover:from-red-50 hover:to-white transition-all duration-300 block shadow-sm hover:shadow-lg"
+                className="group p-6 rounded-xl border-2 border-gray-200 hover:border-site-primary hover:bg-gradient-to-br hover:from-site-primary/10 hover:to-white transition-all duration-300 block shadow-sm hover:shadow-lg"
               >
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-site-primary to-site-secondary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <FaBriefcase className="w-6 h-6 text-white" />
@@ -562,7 +562,7 @@ export default function AdminDashboard() {
               </Link>
               <Link
                 href="/admin/agences"
-                className="group p-6 rounded-xl border-2 border-gray-200 hover:border-site-primary hover:bg-gradient-to-br hover:from-red-50 hover:to-white transition-all duration-300 block shadow-sm hover:shadow-lg"
+                className="group p-6 rounded-xl border-2 border-gray-200 hover:border-site-primary hover:bg-gradient-to-br hover:from-site-primary/10 hover:to-white transition-all duration-300 block shadow-sm hover:shadow-lg"
               >
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-site-primary to-site-secondary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <FaBuilding className="w-6 h-6 text-white" />
@@ -572,7 +572,7 @@ export default function AdminDashboard() {
               </Link>
               <Link
                 href="/admin/bannieres"
-                className="group p-6 rounded-xl border-2 border-gray-200 hover:border-site-primary hover:bg-gradient-to-br hover:from-red-50 hover:to-white transition-all duration-300 block shadow-sm hover:shadow-lg"
+                className="group p-6 rounded-xl border-2 border-gray-200 hover:border-site-primary hover:bg-gradient-to-br hover:from-site-primary/10 hover:to-white transition-all duration-300 block shadow-sm hover:shadow-lg"
               >
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-site-primary to-site-secondary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <FaFileAlt className="w-6 h-6 text-white" />
@@ -582,7 +582,7 @@ export default function AdminDashboard() {
               </Link>
               <Link
                 href="/admin/utilisateurs"
-                className="group p-6 rounded-xl border-2 border-gray-200 hover:border-site-primary hover:bg-gradient-to-br hover:from-red-50 hover:to-white transition-all duration-300 block shadow-sm hover:shadow-lg"
+                className="group p-6 rounded-xl border-2 border-gray-200 hover:border-site-primary hover:bg-gradient-to-br hover:from-site-primary/10 hover:to-white transition-all duration-300 block shadow-sm hover:shadow-lg"
               >
                 <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-site-primary to-site-secondary flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <FaUsers className="w-6 h-6 text-white" />

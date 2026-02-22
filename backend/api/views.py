@@ -742,9 +742,9 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
         discount_amount = base_price * (discount / 100) if discount > 0 else 0
         final_price = base_price - discount_amount if discount > 0 else base_price
         
-        pdf_primary = '#DC2626'
+        pdf_primary = '#087A00'
         if site_settings:
-            pdf_primary = (getattr(site_settings, 'devis_pdf_primary_color', None) or getattr(site_settings, 'primary_color', None) or '').strip() or '#DC2626'
+            pdf_primary = (getattr(site_settings, 'devis_pdf_primary_color', None) or getattr(site_settings, 'primary_color', None) or '').strip() or '#087A00'
         context = {
             'quote_request': quote_request,
             'site_settings': site_settings,
@@ -881,7 +881,7 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
             final_price = base_price - discount_amount if discount > 0 else base_price
 
             pdf_primary = (getattr(site_settings, 'devis_pdf_primary_color', None) or getattr(site_settings, 'primary_color', None) or '').strip() if site_settings else ''
-            pdf_primary = pdf_primary or '#DC2626'
+            pdf_primary = pdf_primary or '#087A00'
             context = {
                 'quote_request': quote_request,
                 'site_settings': site_settings,
@@ -1217,7 +1217,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                     logo_path = None
 
             pdf_primary = (getattr(site_settings, 'devis_pdf_primary_color', None) or getattr(site_settings, 'primary_color', None) or '').strip() if site_settings else ''
-            pdf_primary = pdf_primary or '#DC2626'
+            pdf_primary = pdf_primary or '#087A00'
             context = {
                 'invoice': invoice,
                 'quote_request': invoice.quote_request,
@@ -1363,7 +1363,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                     logo_path = None
 
             pdf_primary = (getattr(site_settings, 'devis_pdf_primary_color', None) or getattr(site_settings, 'primary_color', None) or '').strip() if site_settings else ''
-            pdf_primary = pdf_primary or '#DC2626'
+            pdf_primary = pdf_primary or '#087A00'
             context = {
                 'invoice': invoice,
                 'quote_request': invoice.quote_request,

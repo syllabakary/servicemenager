@@ -736,7 +736,7 @@ export default function Services() {
                             <IconComponent className="w-8 h-8 text-site-primary group-hover:text-site-button-text transition-colors" />
                         </div>
                           {service.rating && (
-                            <div className="flex items-center gap-1 bg-red-50 border border-red-200 px-3 py-1.5 rounded-full self-start sm:self-center">
+                            <div className="flex items-center gap-1 bg-site-primary/10 border border-site-primary/20 px-3 py-1.5 rounded-full self-start sm:self-center">
                               <FaStar className="w-4 h-4 fill-site-primary text-site-primary" />
                               <span className="text-sm font-bold text-gray-900">{service.rating}</span>
                               {service.review_count > 0 && (

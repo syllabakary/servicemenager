@@ -206,7 +206,7 @@ export function SiteTheme() {
       if (settings.logo_area_text_color) {
         applyColor(settings.logo_area_text_color, "logo-area-text");
       }
-      applyColor(settings.devis_pdf_primary_color || settings.primary_color || "#DC2626", "devis-pdf-primary");
+      applyColor(settings.devis_pdf_primary_color || settings.primary_color || "#087A00", "devis-pdf-primary");
 
       // Titre de la page (onglet) = nom du site personnalisé
       const siteName = (settings.site_name || "Services Locaux").trim();
@@ -214,7 +214,7 @@ export function SiteTheme() {
       document.title = tagline ? `${siteName} - ${tagline}` : siteName;
 
       // Favicon : image personnalisée ou initiales du nom du site
-      const primaryHex = settings.primary_color || "#DC2626";
+      const primaryHex = settings.primary_color || "#087A00";
       const getOrCreateFaviconLink = () => {
         let link = document.querySelector("link[rel='icon']") as HTMLLinkElement;
         if (!link) {

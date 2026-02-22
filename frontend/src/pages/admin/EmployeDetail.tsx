@@ -55,6 +55,38 @@ export default function EmployeDetail() {
     enabled: !!employeId,
   });
 
+  const resetPasswordMutation = useMutation({
+    mutationFn: async () => {
+      if (!employeId) throw new Error("ID employé manquant");
+      const token = localStorage.getItem("access_token");
+      const response = await axios.post(
+        `${API_URL}/users/${employeId}/reset_password/`,
+        {},
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      return response.data;
+    },
+    onSuccess: (data) => {
+      setNewPassword(data.new_password);
+      setShowResetPasswordDialog(true);
+      queryClient.invalidateQueries({ queryKey: ["employe-detail", employeId] });
+      toast({
+        title: "✅ Mot de passe réinitialisé",
+        description: `Le nouveau mot de passe a été généré pour ${employe?.username ?? "l'employé"}.`,
+      });
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.response?.data?.error || "Une erreur est survenue lors de la réinitialisation du mot de passe.";
+      toast({
+        title: "❌ Erreur",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    },
+  });
+
   if (isLoading) {
     return (
       <DashboardLayout>
@@ -153,38 +185,6 @@ export default function EmployeDetail() {
     };
     return labels[statut] || statut;
   };
-
-  const resetPasswordMutation = useMutation({
-    mutationFn: async () => {
-      if (!employeId) throw new Error("ID employé manquant");
-      const token = localStorage.getItem("access_token");
-      const response = await axios.post(
-        `${API_URL}/users/${employeId}/reset_password/`,
-        {},
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      return response.data;
-    },
-    onSuccess: (data) => {
-      setNewPassword(data.new_password);
-      setShowResetPasswordDialog(true);
-      queryClient.invalidateQueries({ queryKey: ["employe-detail", employeId] });
-      toast({
-        title: "✅ Mot de passe réinitialisé",
-        description: `Le nouveau mot de passe a été généré pour ${employe.username}.`,
-      });
-    },
-    onError: (error: any) => {
-      const errorMessage = error?.response?.data?.error || "Une erreur est survenue lors de la réinitialisation du mot de passe.";
-      toast({
-        title: "❌ Erreur",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    },
-  });
 
   const handleResetPassword = () => {
     if (window.confirm(`Êtes-vous sûr de vouloir réinitialiser le mot de passe de ${employe.first_name} ${employe.last_name} ?`)) {

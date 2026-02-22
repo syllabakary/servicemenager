@@ -9,7 +9,7 @@ Si vous voulez que `.env` soit présent sur le serveur, utilisez plutôt `.env.e
 ## ✅ Solution Recommandée : Utiliser .env.example
 
 ### Sur le serveur, après git pull :
-
+###de
 ```bash
 cd /opt/servicemenager
 

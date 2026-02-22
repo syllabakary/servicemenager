@@ -123,7 +123,7 @@ export default function EmployeDashboard() {
                 size="lg"
               >
                 <FaLock className="w-5 h-5 mr-2" />
-                Mot de passe
+                Changer mot de passe
               </Button>
               <Button
                 onClick={handleLogout}

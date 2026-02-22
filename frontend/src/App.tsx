@@ -1,3 +1,4 @@
+import React, { Suspense } from "react";
 import { Switch, Route, useLocation } from "wouter";
 import axios from "axios";
 import { setupAxiosAuth } from "@/config/api";
@@ -19,30 +20,40 @@ import AgencyDetail from "@/pages/AgencyDetail";
 import Contact from "@/pages/Contact";
 import QuoteRequest from "@/pages/QuoteRequest";
 import NotFound from "@/pages/not-found";
-import AdminLogin from "@/pages/admin/Login";
-import AdminDashboard from "@/pages/admin/Dashboard";
-import AdminServices from "@/pages/admin/Services";
-import AdminAgences from "@/pages/admin/Agences";
-import AdminBannieres from "@/pages/admin/Bannieres";
-import AdminUtilisateurs from "@/pages/admin/Utilisateurs";
-import AdminCategories from "@/pages/admin/Categories";
-import AdminParametres from "@/pages/admin/Parametres";
-import AdminAvis from "@/pages/admin/Avis";
-import AdminDevis from "@/pages/admin/Devis";
-import DevisDetail from "@/pages/admin/DevisDetail";
-import AdminAvantages from "@/pages/admin/Avantages";
-import AdminFormulairesDevis from "@/pages/admin/FormulairesDevis";
-import AdminEmployes from "@/pages/admin/Employes";
-import EmployeDetail from "@/pages/admin/EmployeDetail";
-import AdminPatients from "@/pages/admin/Patients";
-import AdminScans from "@/pages/admin/Scans";
-import ScanQR from "@/pages/employe/ScanQR";
-import EmployeLogin from "@/pages/employe/EmployeLogin";
-import EmployeDashboard from "@/pages/employe/EmployeDashboard";
-import PatientDetail from "@/pages/employe/PatientDetail";
-import MyPatients from "@/pages/employe/MyPatients";
-import ChangePassword from "@/pages/employe/ChangePassword";
-import AdminChangePassword from "@/pages/admin/AdminChangePassword";
+
+// Lazy load admin & employe pour accélérer le premier chargement du site public
+const AdminLogin = React.lazy(() => import("@/pages/admin/Login"));
+const AdminDashboard = React.lazy(() => import("@/pages/admin/Dashboard"));
+const AdminServices = React.lazy(() => import("@/pages/admin/Services"));
+const AdminAgences = React.lazy(() => import("@/pages/admin/Agences"));
+const AdminBannieres = React.lazy(() => import("@/pages/admin/Bannieres"));
+const AdminUtilisateurs = React.lazy(() => import("@/pages/admin/Utilisateurs"));
+const AdminCategories = React.lazy(() => import("@/pages/admin/Categories"));
+const AdminParametres = React.lazy(() => import("@/pages/admin/Parametres"));
+const AdminAvis = React.lazy(() => import("@/pages/admin/Avis"));
+const AdminDevis = React.lazy(() => import("@/pages/admin/Devis"));
+const DevisDetail = React.lazy(() => import("@/pages/admin/DevisDetail"));
+const AdminAvantages = React.lazy(() => import("@/pages/admin/Avantages"));
+const AdminFormulairesDevis = React.lazy(() => import("@/pages/admin/FormulairesDevis"));
+const AdminEmployes = React.lazy(() => import("@/pages/admin/Employes"));
+const EmployeDetail = React.lazy(() => import("@/pages/admin/EmployeDetail"));
+const AdminPatients = React.lazy(() => import("@/pages/admin/Patients"));
+const AdminScans = React.lazy(() => import("@/pages/admin/Scans"));
+const AdminChangePassword = React.lazy(() => import("@/pages/admin/AdminChangePassword"));
+const ScanQR = React.lazy(() => import("@/pages/employe/ScanQR"));
+const EmployeLogin = React.lazy(() => import("@/pages/employe/EmployeLogin"));
+const EmployeDashboard = React.lazy(() => import("@/pages/employe/EmployeDashboard"));
+const PatientDetail = React.lazy(() => import("@/pages/employe/PatientDetail"));
+const MyPatients = React.lazy(() => import("@/pages/employe/MyPatients"));
+const ChangePassword = React.lazy(() => import("@/pages/employe/ChangePassword"));
+
+function PageLoader() {
+  return (
+    <div className="min-h-[40vh] flex items-center justify-center">
+      <div className="w-10 h-10 border-2 border-site-primary border-t-transparent rounded-full animate-spin" />
+    </div>
+  );
+}
 
 function Router() {
   return (
@@ -97,12 +108,16 @@ function App() {
           <div className="flex flex-col min-h-screen overflow-x-hidden w-full max-w-full">
             <Navbar />
             <main className="flex-1 w-full max-w-full overflow-x-hidden pt-16 md:pt-20">
-              <Router />
+              <Suspense fallback={<PageLoader />}>
+                <Router />
+              </Suspense>
             </main>
             <Footer />
           </div>
         ) : (
-          <Router />
+          <Suspense fallback={<PageLoader />}>
+            <Router />
+          </Suspense>
         )}
         <Toaster />
       </TooltipProvider>

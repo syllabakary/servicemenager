@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaKey } from "react-icons/fa";
 import axios from "axios";
 import {
   Dialog,
@@ -24,6 +24,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { API_URL } from "@/config/api";
+import { useToast } from "@/hooks/use-toast";
 import {
   Select,
   SelectContent,
@@ -34,10 +35,43 @@ import {
 
 export default function AdminUtilisateurs() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [editingUser, setEditingUser] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [userToResetPassword, setUserToResetPassword] = useState<any>(null);
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const isSuperAdmin = storedUser.role === "SUPERADMIN";
+
+  const resetPasswordMutation = useMutation({
+    mutationFn: async (userId: number) => {
+      const token = localStorage.getItem("access_token");
+      const res = await axios.post(
+        `${API_URL}/users/${userId}/reset_password/`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return res.data;
+    },
+    onSuccess: (data: { username: string; email_sent?: boolean; email?: string }) => {
+      if (data.email_sent && data.email) {
+        toast({
+          title: "✅ Mot de passe réinitialisé",
+          description: `Un nouveau mot de passe a été envoyé par email à ${data.email}. L'utilisateur peut se connecter avec son nom d'utilisateur et ce mot de passe.`,
+        });
+      } else {
+        toast({
+          title: "✅ Mot de passe réinitialisé",
+          description: `Un nouveau mot de passe a été généré pour ${data.username}. Communiquez-le à l'utilisateur (email non envoyé : adresse non renseignée ou SMTP non configuré).`,
+        });
+      }
+      setUserToResetPassword(null);
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.error || "Erreur lors de la réinitialisation du mot de passe.";
+      toast({ title: "❌ Erreur", description: msg, variant: "destructive" });
+    },
+  });
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-users"],
@@ -163,26 +197,36 @@ export default function AdminUtilisateurs() {
                             size="sm"
                             onClick={() => handleEdit(user)}
                             className="hover:bg-blue-50 hover:text-blue-600 rounded-lg"
+                            title="Modifier"
                           >
                             <FaEdit className="w-5 h-5" />
                           </Button>
                           {user.role !== "SUPERADMIN" && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => {
-                                if (
-                                  confirm(
-                                    "Êtes-vous sûr de vouloir supprimer cet utilisateur ?"
-                                  )
-                                ) {
-                                  deleteMutation.mutate(user.id);
-                                }
-                              }}
-                              className="hover:bg-red-50 hover:text-red-600 rounded-lg"
-                            >
-                              <FaTrash className="w-5 h-5 text-red-500" />
-                            </Button>
+                            <>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setUserToResetPassword(user)}
+                                className="hover:bg-amber-50 hover:text-amber-600 rounded-lg"
+                                title="Réinitialiser le mot de passe"
+                                disabled={resetPasswordMutation.isPending}
+                              >
+                                <FaKey className="w-5 h-5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                  if (confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
+                                    deleteMutation.mutate(user.id);
+                                  }
+                                }}
+                                className="hover:bg-red-50 hover:text-red-600 rounded-lg"
+                                title="Supprimer"
+                              >
+                                <FaTrash className="w-5 h-5 text-red-500" />
+                              </Button>
+                            </>
                           )}
                         </div>
                       </TableCell>
@@ -203,6 +247,77 @@ export default function AdminUtilisateurs() {
             queryClient.invalidateQueries({ queryKey: ["admin-users"] });
           }}
         />
+
+        <Dialog open={!!userToResetPassword} onOpenChange={(open) => !open && setUserToResetPassword(null)}>
+          <DialogContent className="sm:max-w-md rounded-2xl shadow-xl border-2 border-site-primary/20">
+            <DialogHeader>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-amber-100 text-amber-600">
+                  <FaKey className="w-6 h-6" />
+                </div>
+                <div>
+                  <DialogTitle className="text-xl">Réinitialiser le mot de passe</DialogTitle>
+                  <DialogDescription className="text-gray-600 mt-1">
+                    {userToResetPassword && (
+                      <>
+                        Compte : <strong className="text-gray-900">{userToResetPassword.username}</strong>
+                        {userToResetPassword.role && (
+                          <span className="ml-2">
+                            (<span className="capitalize">{userToResetPassword.role.toLowerCase()}</span>)
+                          </span>
+                        )}
+                      </>
+                    )}
+                  </DialogDescription>
+                </div>
+              </div>
+            </DialogHeader>
+            <div className="py-4">
+              {userToResetPassword?.email ? (
+                <p className="text-sm text-gray-700">
+                  Un nouveau mot de passe sera généré et envoyé par email à{" "}
+                  <strong className="text-gray-900">{userToResetPassword.email}</strong>. L&apos;utilisateur pourra se connecter avec son nom d&apos;utilisateur et ce mot de passe, puis le modifier s&apos;il le souhaite.
+                </p>
+              ) : (
+                <p className="text-sm text-gray-700">
+                  Aucune adresse email renseignée pour cet utilisateur. Un nouveau mot de passe sera généré mais ne pourra pas être envoyé par email. Vous devrez le communiquer manuellement. Pensez à renseigner l&apos;email dans la fiche utilisateur pour les prochaines réinitialisations.
+                </p>
+              )}
+            </div>
+            <div className="flex flex-col-reverse sm:flex-row gap-2 justify-end pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setUserToResetPassword(null)}
+                className="rounded-lg"
+              >
+                Annuler
+              </Button>
+              <Button
+                type="button"
+                className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text rounded-lg"
+                disabled={resetPasswordMutation.isPending}
+                onClick={() => {
+                  if (userToResetPassword) {
+                    resetPasswordMutation.mutate(userToResetPassword.id);
+                  }
+                }}
+              >
+                {resetPasswordMutation.isPending ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block mr-2" />
+                    Envoi en cours...
+                  </>
+                ) : (
+                  <>
+                    <FaKey className="w-4 h-4 mr-2" />
+                    {userToResetPassword?.email ? "Réinitialiser et envoyer l'email" : "Générer un nouveau mot de passe"}
+                  </>
+                )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </DashboardLayout>
   );

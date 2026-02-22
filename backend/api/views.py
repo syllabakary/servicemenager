@@ -127,7 +127,7 @@ class UserViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['post'], permission_classes=[IsSuperAdminOrAdmin])
     def reset_password(self, request, pk=None):
-        """Endpoint pour réinitialiser le mot de passe d'un utilisateur (admin seulement)"""
+        """Endpoint pour réinitialiser le mot de passe d'un utilisateur (admin seulement). Envoie le nouveau mot de passe par email si l'utilisateur a un email."""
         user = self.get_object()
         
         # Les admins ne peuvent pas réinitialiser le mot de passe des superadmins
@@ -137,23 +137,69 @@ class UserViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        # Générer un mot de passe par défaut
         import secrets
         import string
         default_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
         
-        # Définir le nouveau mot de passe
         user.set_password(default_password)
         user.save()
         
         logger.info(f"Mot de passe réinitialisé pour l'utilisateur {user.username} (ID: {user.id}) par {request.user.username}")
+        
+        email_sent = False
+        to_email = (getattr(user, 'email', None) or '').strip()
+        if to_email:
+            try:
+                site_settings = SiteSettings.get_settings()
+                smtp_host = getattr(site_settings, 'smtp_host', None)
+                smtp_username = getattr(site_settings, 'smtp_username', None)
+                smtp_password = getattr(site_settings, 'smtp_password', None)
+                smtp_port = getattr(site_settings, 'smtp_port', 587)
+                smtp_use_tls = getattr(site_settings, 'smtp_use_tls', True)
+                smtp_use_ssl = getattr(site_settings, 'smtp_use_ssl', False)
+                site_name = getattr(site_settings, 'site_name', None) or 'Services Locaux'
+                if smtp_host and smtp_username and smtp_password:
+                    timeout = 30
+                    if smtp_use_ssl:
+                        smtp_server = smtplib.SMTP_SSL(smtp_host, smtp_port, timeout=timeout)
+                    else:
+                        smtp_server = smtplib.SMTP(smtp_host, smtp_port, timeout=timeout)
+                        if smtp_use_tls:
+                            smtp_server.starttls()
+                    smtp_server.login(smtp_username, smtp_password)
+                    subject = f'{site_name} - Réinitialisation de votre mot de passe'
+                    body = f"""Bonjour,
+
+Votre mot de passe a été réinitialisé par un administrateur.
+
+Nom d'utilisateur : {user.username}
+Nouveau mot de passe : {default_password}
+
+Connectez-vous avec ce nom d'utilisateur et ce mot de passe. Vous pourrez modifier votre mot de passe une fois connecté (Paramètres ou Changer mot de passe).
+
+—
+{site_name}
+"""
+                    msg = MIMEMultipart('alternative')
+                    msg['Subject'] = subject
+                    msg['From'] = smtp_username
+                    msg['To'] = to_email
+                    msg.attach(MIMEText(body, 'plain', 'utf-8'))
+                    smtp_server.send_message(msg)
+                    smtp_server.quit()
+                    email_sent = True
+                    logger.info(f"Email avec nouveau mot de passe envoyé à {to_email}")
+            except Exception as e:
+                logger.warning(f"Envoi email réinitialisation mot de passe échoué: {e}")
         
         return Response(
             {
                 'message': f'Mot de passe réinitialisé avec succès pour {user.username}.',
                 'new_password': default_password,
                 'user_id': user.id,
-                'username': user.username
+                'username': user.username,
+                'email_sent': email_sent,
+                'email': to_email or None,
             },
             status=status.HTTP_200_OK
         )

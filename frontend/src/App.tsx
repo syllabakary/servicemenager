@@ -42,6 +42,7 @@ import EmployeDashboard from "@/pages/employe/EmployeDashboard";
 import PatientDetail from "@/pages/employe/PatientDetail";
 import MyPatients from "@/pages/employe/MyPatients";
 import ChangePassword from "@/pages/employe/ChangePassword";
+import AdminChangePassword from "@/pages/admin/AdminChangePassword";
 
 function Router() {
   return (
@@ -70,6 +71,7 @@ function Router() {
       <Route path="/admin/employe-detail" component={EmployeDetail} />
       <Route path="/admin/patients" component={AdminPatients} />
       <Route path="/admin/scans" component={AdminScans} />
+      <Route path="/admin/change-password" component={AdminChangePassword} />
       <Route path="/employe/login" component={EmployeLogin} />
       <Route path="/employe/dashboard" component={EmployeDashboard} />
       <Route path="/employe/scan" component={ScanQR} />

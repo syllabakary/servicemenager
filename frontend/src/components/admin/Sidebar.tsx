@@ -20,6 +20,7 @@ import {
   FaChevronDown,
   FaChevronRight,
   FaQrcode,
+  FaLock,
 } from "react-icons/fa";
 
 interface SidebarProps {
@@ -83,6 +84,12 @@ export function Sidebar({ userRole }: SidebarProps) {
           name: "Paramètres",
           icon: FaCog,
           path: "/admin/parametres",
+          roles: ["ADMIN", "SUPERADMIN"],
+        },
+        {
+          name: "Changer mot de passe",
+          icon: FaLock,
+          path: "/admin/change-password",
           roles: ["ADMIN", "SUPERADMIN"],
         },
       ],

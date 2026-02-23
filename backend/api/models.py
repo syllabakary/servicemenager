@@ -288,6 +288,18 @@ class Agency(models.Model):
     postal_code = models.CharField(max_length=20, blank=True, null=True, verbose_name="Code postal")
     phone = models.CharField(max_length=20, blank=True, null=True, verbose_name="Téléphone")
     email = models.EmailField(blank=True, null=True, verbose_name="Email")
+    horaires = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Horaires d'ouverture",
+        help_text="Ex. : Lun-Ven 9h-18h, Sam 9h-12h. Texte libre.",
+    )
+    opening_hours = models.JSONField(
+        blank=True,
+        null=True,
+        verbose_name="Horaires d'ouverture (structurés)",
+        help_text='Ex. : {"lundi": {"open": true, "start": "09:00", "end": "18:00"}, ...}',
+    )
     latitude = models.DecimalField(
         max_digits=9,
         decimal_places=6,

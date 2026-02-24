@@ -59,7 +59,8 @@ server {
     }
     location / {
         try_files $uri $uri/ /index.html;
-        add_header Cache-Control "no-cache";
+        add_header Cache-Control "no-store, no-cache, must-revalidate, max-age=0";
+        add_header Pragma "no-cache";
     }
     # Fichiers statiques du frontend uniquement (pas /media/ → volume backend)
     location ~* ^/(assets|images|img)/.*\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp)$ {

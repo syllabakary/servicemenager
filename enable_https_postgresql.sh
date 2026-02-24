@@ -50,13 +50,15 @@ server {
     gzip_vary on;
     gzip_min_length 1024;
     gzip_types text/plain text/css text/xml text/javascript application/javascript application/json;
+
+    # /media/ en premier : servir les fichiers du volume (agencies, services, etc.)
+    location ^~ /media/ {
+        alias /media/;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
     location / {
         try_files $uri $uri/ /index.html;
         add_header Cache-Control "no-cache";
-    }
-    location ^~ /media/ {
-        root /;
-        add_header Cache-Control "public, max-age=31536000, immutable";
     }
     # Fichiers statiques du frontend uniquement (pas /media/ → volume backend)
     location ~* ^/(assets|images|img)/.*\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp)$ {

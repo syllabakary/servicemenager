@@ -1,5 +1,7 @@
 from django.db import models
 from django.db.models import Avg
+from django.db.utils import OperationalError
+from django.core.exceptions import FieldDoesNotExist
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.text import slugify
@@ -1342,32 +1344,35 @@ class SiteSettings(models.Model):
     def get_settings(cls):
         """Récupère ou crée les paramètres par défaut"""
         try:
-            # Vérifier si les champs SMTP existent
+            # Vérifier si les champs SMTP existent dans le modèle
             cls._meta.get_field('smtp_host')
             # Si on arrive ici, les champs existent, on peut faire une requête normale
             settings, created = cls.objects.get_or_create(pk=1)
-        except:
-            # Les champs SMTP n'existent pas encore, utiliser only() pour éviter les erreurs SQL
-            try:
-                settings = cls.objects.filter(pk=1).only(
-                    'id', 'primary_color', 'secondary_color', 'tertiary_color',
-                    'button_primary_color', 'button_primary_hover_color', 'button_text_color',
-                    'text_primary_color', 'text_link_color', 'text_link_hover_color',
-                    'banner_bg_color', 'banner_text_color',
-                    'footer_bg_color', 'footer_text_color', 'footer_link_color',
-                    'footer_link_hover_color', 'footer_border_color',
-                    'button_border_color', 'button_border_width', 'button_border_radius',
-                    'button_outline_border_color', 'button_outline_text_color', 'button_outline_hover_bg_color',
-                    'site_name_part1_color', 'site_name_part2_color', 'site_tagline_color',
-                    'logo', 'logo_favicon', 'site_name', 'site_tagline',
-                    'created_at', 'updated_at'
-                ).first()
-                if not settings:
-                    # Créer l'instance si elle n'existe pas
-                    settings = cls.objects.create(pk=1)
-            except Exception as e:
-                # En cas d'erreur, essayer quand même get_or_create
-                settings, created = cls.objects.get_or_create(pk=1)
+            return settings
+        except (FieldDoesNotExist, OperationalError, Exception):
+            # FieldDoesNotExist: champs SMTP pas dans le modèle
+            # OperationalError: colonnes SMTP pas encore en base (migration non appliquée)
+            pass
+        try:
+            settings = cls.objects.filter(pk=1).only(
+                'id', 'primary_color', 'secondary_color', 'tertiary_color',
+                'button_primary_color', 'button_primary_hover_color', 'button_text_color',
+                'text_primary_color', 'text_link_color', 'text_link_hover_color',
+                'banner_bg_color', 'banner_text_color',
+                'footer_bg_color', 'footer_text_color', 'footer_link_color',
+                'footer_link_hover_color', 'footer_border_color',
+                'button_border_color', 'button_border_width', 'button_border_radius',
+                'button_outline_border_color', 'button_outline_text_color', 'button_outline_hover_bg_color',
+                'site_name_part1_color', 'site_name_part2_color', 'site_tagline_color',
+                'logo', 'logo_favicon', 'site_name', 'site_tagline',
+                'created_at', 'updated_at'
+            ).first()
+            if not settings:
+                # Créer l'instance si elle n'existe pas (sans les colonnes SMTP)
+                settings = cls.objects.create(pk=1)
+        except Exception:
+            # Dernier recours: get_or_create (peut échouer si colonnes manquantes)
+            settings, _ = cls.objects.get_or_create(pk=1)
         return settings
 
 

@@ -1687,22 +1687,41 @@ class SiteSettingsViewSet(viewsets.ModelViewSet):
             import logging
             logger = logging.getLogger(__name__)
             logger.error(f'Erreur lors de la récupération des paramètres: {e}')
-            # Si les champs SMTP n'existent pas, créer une réponse avec des valeurs par défaut
-            settings = SiteSettings.get_settings()
-            serializer = self.get_serializer(settings)
-            data = serializer.data
-            # S'assurer que les champs SMTP ont des valeurs par défaut
-            if 'smtp_host' not in data or data.get('smtp_host') is None:
-                data['smtp_host'] = None
+            # Réponse de secours pour éviter 500 (ex: migration SMTP non appliquée)
+            try:
+                settings = SiteSettings.get_settings()
+                serializer = self.get_serializer(settings)
+                data = serializer.data
+            except Exception:
+                data = self._default_site_settings_response()
+            for key in ('smtp_host', 'smtp_port', 'smtp_use_tls', 'smtp_use_ssl', 'smtp_username', 'smtp_password'):
+                if key not in data or data.get(key) is None:
+                    data.setdefault(key, None if key != 'smtp_port' else 587)
+            if data.get('smtp_port') is None:
                 data['smtp_port'] = 587
-                data['smtp_use_tls'] = True
-                data['smtp_use_ssl'] = False
-                data['smtp_username'] = None
-                data['smtp_password'] = None
+            data.setdefault('smtp_use_tls', True)
+            data.setdefault('smtp_use_ssl', False)
             return Response(data)
     
+    def _default_site_settings_response(self):
+        """Réponse minimale quand la base est inaccessible ou migrations manquantes."""
+        return {
+            'id': 1,
+            'site_name': 'Services Locaux',
+            'site_tagline': '',
+            'primary_color': '#087A00',
+            'secondary_color': '#066300',
+            'logo_url': None,
+            'logo_favicon_url': None,
+            'smtp_host': None,
+            'smtp_port': 587,
+            'smtp_use_tls': True,
+            'smtp_use_ssl': False,
+            'smtp_username': None,
+            'smtp_password': None,
+        }
+    
     def retrieve(self, request, *args, **kwargs):
-        # Récupérer ou créer l'instance unique
         try:
             settings = SiteSettings.get_settings()
             serializer = self.get_serializer(settings)
@@ -1711,16 +1730,17 @@ class SiteSettingsViewSet(viewsets.ModelViewSet):
             import logging
             logger = logging.getLogger(__name__)
             logger.error(f'Erreur lors de la récupération des paramètres: {e}')
-            settings = SiteSettings.get_settings()
-            serializer = self.get_serializer(settings)
-            data = serializer.data
-            if 'smtp_host' not in data or data.get('smtp_host') is None:
-                data['smtp_host'] = None
-                data['smtp_port'] = 587
-                data['smtp_use_tls'] = True
-                data['smtp_use_ssl'] = False
-                data['smtp_username'] = None
-                data['smtp_password'] = None
+            try:
+                settings = SiteSettings.get_settings()
+                serializer = self.get_serializer(settings)
+                data = serializer.data
+            except Exception:
+                data = self._default_site_settings_response()
+            for key in ('smtp_host', 'smtp_port', 'smtp_use_tls', 'smtp_use_ssl', 'smtp_username', 'smtp_password'):
+                data.setdefault(key, None if key != 'smtp_port' else 587)
+            data.setdefault('smtp_port', 587)
+            data.setdefault('smtp_use_tls', True)
+            data.setdefault('smtp_use_ssl', False)
             return Response(data)
     
     def update(self, request, *args, **kwargs):

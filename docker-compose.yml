@@ -54,8 +54,11 @@ services:
     container_name: servicemenager_frontend
     ports:
       - "80:80"
+      - "443:443"
     volumes:
-      - ./backend/media:/media:ro  # Servir /media/ (images services/agences) par Nginx
+      - ./backend/media:/media:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
     depends_on:
       - backend
     networks:

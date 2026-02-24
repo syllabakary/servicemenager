@@ -61,11 +61,18 @@ Après un redémarrage du serveur, la stack PostgreSQL (db + backend + frontend)
 
 ## HTTPS avec PostgreSQL
 
-Le script `enable_https_multi.sh` est prévu pour la stack SQLite.  
-Pour avoir le HTTPS avec PostgreSQL, il faut soit :
+Le fichier **docker-compose.yml** expose déjà le port **443** et monte **/etc/letsencrypt** et **/var/www/certbot** dans le frontend. Pour activer HTTPS avec PostgreSQL :
 
-- ajouter le port 443 et les volumes certificats dans `docker-compose.yml` (comme dans `docker-compose.sqlite.yml`), puis adapter la config Nginx du frontend ;  
-- soit faire terminer le HTTPS par un reverse proxy sur l’hôte (Nginx/Apache) qui envoie vers le frontend sur le port 80.
+```bash
+cd /opt/servicemenager
+# Certificat déjà obtenu (obtain_certificate_multi.sh)
+chmod +x enable_https_postgresql.sh
+./enable_https_postgresql.sh
+```
+
+Le script applique la config Nginx HTTPS (redirection 80→443, serveur 443), reconstruit le frontend et redémarre la stack. Vous gardez PostgreSQL.
+
+**Alternative (stack SQLite + HTTPS) :** `./enable_https_multi.sh` utilise **docker-compose.sqlite.yml** (SQLite). Si vous voulez PostgreSQL + HTTPS, utilisez **enable_https_postgresql.sh**.
 
 ---
 

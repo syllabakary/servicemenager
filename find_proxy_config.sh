@@ -30,7 +30,7 @@ echo ""
 echo "=== Fichiers Apache / httpd (recherche ease-dom, ProxyPass, VirtualHost) ==="
 for dir in /etc/httpd/conf.d /etc/httpd/conf /etc/apache2/sites-enabled /etc/apache2/sites-available /etc/apache2/conf.d; do
   [ -d "$dir" ] || continue
-  for f in "$dir"/*.conf "$dir"/* 2>/dev/null; do
+  for f in "$dir"/*; do
     [ -f "$f" ] || continue
     if grep -q -E "ease-dom|ProxyPass|VirtualHost.*443" "$f" 2>/dev/null; then
       echo "  -> $f"
@@ -41,5 +41,11 @@ for dir in /etc/httpd/conf.d /etc/httpd/conf /etc/apache2/sites-enabled /etc/apa
 done
 
 echo ""
-echo "=== Résumé : si c'est Nginx, ajoutez client_max_body_size 200M; dans le bloc server puis: nginx -t && systemctl reload nginx ==="
-echo "=== Si c'est Apache, ajoutez LimitRequestBody 209715200 dans le VirtualHost puis: systemctl reload httpd (ou apache2) ==="
+# Si c'est Docker qui écoute sur 80/443, le proxy est dans un conteneur
+if (ss -tlnp 2>/dev/null || netstat -tlnp 2>/dev/null) | grep -q "docker-proxy.*:443"; then
+  echo ">>> Les ports 80/443 sont utilisés par docker-proxy (pas Nginx/Apache sur l'hôte)."
+  echo ">>> La limite 413 se règle dans le conteneur : frontend/nginx.conf (client_max_body_size 200M)"
+  echo ">>> puis : docker compose build frontend --no-cache && docker compose up -d frontend"
+fi
+echo "=== Si le proxy est Nginx sur l'hôte : client_max_body_size 200M; puis nginx -t && systemctl reload nginx ==="
+echo "=== Si c'est Apache : LimitRequestBody 209715200 puis systemctl reload httpd (ou apache2) ==="

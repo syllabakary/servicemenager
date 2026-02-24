@@ -452,6 +452,34 @@ class PageContent(models.Model):
         db_index=True,
         verbose_name="Ordre d'affichage"
     )
+    BUTTON_LINK_CHOICES = [
+        ('', 'Pas de bouton'),
+        ('devis', 'Devis personnalisé (/devis)'),
+        ('services', 'Services (/services)'),
+        ('agences', 'Agences (/agences)'),
+        ('custom', 'Autre (URL personnalisée)'),
+    ]
+    button_link_type = models.CharField(
+        max_length=20,
+        choices=BUTTON_LINK_CHOICES,
+        blank=True,
+        default='devis',
+        verbose_name='Destination du bouton',
+        help_text="Où mène le bouton « J'en profite »",
+    )
+    button_text = models.CharField(
+        max_length=80,
+        blank=True,
+        default="J'en profite !",
+        verbose_name='Texte du bouton',
+    )
+    button_url = models.CharField(
+        max_length=500,
+        blank=True,
+        null=True,
+        verbose_name='URL personnalisée',
+        help_text="Utilisé uniquement si destination = Autre",
+    )
     created_by = models.ForeignKey(
         CustomUser,
         on_delete=models.SET_NULL,

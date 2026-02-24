@@ -1,5 +1,5 @@
 [Unit]
-Description=ServiceManager (Docker stack HTTPS - SQLite)
+Description=ServiceManager (Docker stack - PostgreSQL)
 After=docker.service network-online.target
 Wants=network-online.target
 
@@ -7,8 +7,8 @@ Wants=network-online.target
 Type=oneshot
 RemainAfterExit=yes
 WorkingDirectory=/opt/servicemenager
-ExecStart=/usr/bin/docker compose -f /opt/servicemenager/docker-compose.sqlite.yml up -d
-ExecStop=/usr/bin/docker compose -f /opt/servicemenager/docker-compose.sqlite.yml down
+ExecStart=/usr/bin/docker compose -f /opt/servicemenager/docker-compose.yml up -d
+ExecStop=/usr/bin/docker compose -f /opt/servicemenager/docker-compose.yml down
 TimeoutStartSec=300
 
 [Install]

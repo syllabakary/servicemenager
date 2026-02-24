@@ -48,6 +48,16 @@ ls -la /opt/servicemenager/backend/media/services/
 ls -la /opt/servicemenager/backend/media/agencies/
 ```
 
+**Si les 404 persistent** : le conteneur frontend doit servir `/media/` depuis le volume (alias dans nginx). Reconstruire le frontend et vérifier le volume dans le compose utilisé :
+
+```bash
+cd /opt/servicemenager
+docker compose build frontend --no-cache
+docker compose up -d frontend
+# Vérifier que le conteneur a bien le volume :
+docker compose exec frontend ls -la /media/services/
+```
+
 ---
 
 ## 2. Erreur 413 (Content Too Large) sur PATCH services / agences / site-settings

@@ -572,7 +572,7 @@ class ServiceReviewViewSet(viewsets.ModelViewSet):
     """ViewSet pour ServiceReview"""
     queryset = ServiceReview.objects.all()
     serializer_class = ServiceReviewSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdminOrPublicReadOnly]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['service', 'approved']
     ordering_fields = ['created_at', 'rating']
@@ -583,23 +583,23 @@ class ServiceReviewViewSet(viewsets.ModelViewSet):
         queryset = ServiceReview.objects.select_related('service', 'user')
         
         # Si pas authentifié ou client, seulement approuvés ET affichables
-        if not self.request.user.is_authenticated or self.request.user.is_client:
+        if not self.request.user.is_authenticated or getattr(self.request.user, 'role', None) == 'CLIENT':
             queryset = queryset.filter(approved=True, display_on_page=True)
         
         return queryset
     
     def get_permissions(self):
-        """Permissions : création publique, modification admin seulement"""
+        """Permissions : création publique, lecture publique, modification admin seulement"""
         if self.action == 'create':
             return [AllowAny()]  # Permettre à tous de créer un avis
-        return [IsAdminOrReadOnly()]
+        return [IsAdminOrPublicReadOnly()]
 
 
 class ServiceFAQViewSet(viewsets.ModelViewSet):
-    """ViewSet pour ServiceFAQ"""
+    """ViewSet pour ServiceFAQ — lecture publique (GET) sans auth pour la page détail service"""
     queryset = ServiceFAQ.objects.all()
     serializer_class = ServiceFAQSerializer
-    permission_classes = [IsAdminOrReadOnly]
+    permission_classes = [IsAdminOrPublicReadOnly]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_fields = ['service', 'active']
     ordering_fields = ['order', 'question']
@@ -610,7 +610,7 @@ class ServiceFAQViewSet(viewsets.ModelViewSet):
         queryset = ServiceFAQ.objects.select_related('service')
         
         # Si pas authentifié ou client, seulement actifs
-        if not self.request.user.is_authenticated or self.request.user.is_client:
+        if not self.request.user.is_authenticated or getattr(self.request.user, 'role', None) == 'CLIENT':
             queryset = queryset.filter(active=True)
         
         return queryset

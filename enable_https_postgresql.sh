@@ -54,6 +54,10 @@ server {
         try_files $uri $uri/ /index.html;
         add_header Cache-Control "no-cache";
     }
+    location ^~ /media/ {
+        root /;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";
@@ -73,10 +77,6 @@ server {
         add_header Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS, PATCH" always;
         add_header Access-Control-Allow-Headers "Authorization, Content-Type" always;
         if ($request_method = OPTIONS) { return 204; }
-    }
-    location /media/ {
-        root /;
-        add_header Cache-Control "public, max-age=31536000, immutable";
     }
     location /static/ {
         proxy_pass http://backend:8000;

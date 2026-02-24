@@ -45,9 +45,17 @@ curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:8000/api/service
 
 ## 2. Corriger le proxy sur l’hôte (Nginx)
 
-Il faut augmenter la limite **dans la config Nginx qui gère HTTPS** sur la machine (pas dans le conteneur), puis recharger Nginx.
+**Option A – Script automatique (sur le serveur) :**
 
-Exemple de configuration à avoir dans le **serveur** (site `ease-dom.fr`) :
+```bash
+cd /opt/servicemenager
+sudo chmod +x fix_413_host_nginx.sh
+sudo ./fix_413_host_nginx.sh
+```
+
+Le script ajoute `client_max_body_size 200M;` dans la config Nginx du bloc server puis recharge Nginx.
+
+**Option B – Modification manuelle :** augmenter la limite dans la config Nginx qui gère HTTPS, puis recharger. Exemple pour le **serveur** (site `ease-dom.fr`) :
 
 ```nginx
 server {

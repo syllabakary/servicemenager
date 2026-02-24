@@ -65,6 +65,7 @@ import {
 import { HiSparkles } from "react-icons/hi";
 import { motion } from "framer-motion";
 import { API_URL } from "@/config/api";
+import { ImageWithFallback } from "@/components/ImageWithFallback";
 
 // 🧩 Type de service
 interface Service {
@@ -717,7 +718,7 @@ export default function Services() {
                       {/* Image du service */}
                       {service.image_url ? (
                         <div className="w-full h-48 overflow-hidden bg-gray-100">
-                          <img
+                          <ImageWithFallback
                             src={service.image_url}
                             alt={service.name}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"

@@ -70,6 +70,7 @@ import { HiSparkles } from "react-icons/hi";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { API_URL } from "@/config/api";
+import { ImageWithFallback } from "@/components/ImageWithFallback";
 
 const iconMap: Record<string, any> = {
   Sparkles: HiSparkles,
@@ -516,7 +517,7 @@ export default function ServiceDetail() {
               className="mb-8 sm:mb-12"
             >
               <div className="w-full h-64 sm:h-80 md:h-96 lg:h-[500px] rounded-2xl overflow-hidden shadow-2xl">
-                <img
+                <ImageWithFallback
                   src={service.image_url}
                   alt={service.name}
                   className="w-full h-full object-cover"
@@ -1089,7 +1090,7 @@ export default function ServiceDetail() {
                           {/* Image du service similaire */}
                           {similarService.image_url ? (
                             <div className="w-full h-40 overflow-hidden bg-gray-100">
-                              <img
+                              <ImageWithFallback
                                 src={similarService.image_url}
                                 alt={similarService.name}
                                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"

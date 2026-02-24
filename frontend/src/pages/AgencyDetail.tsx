@@ -19,6 +19,7 @@ import {
 import { motion } from "framer-motion";
 import axios from "axios";
 import { API_URL } from "@/config/api";
+import { ImageWithFallback } from "@/components/ImageWithFallback";
 
 interface Agency {
   id: number;
@@ -109,14 +110,9 @@ export default function AgencyDetail() {
     <div className="min-h-screen bg-white overflow-x-hidden w-full max-w-full">
       {/* HERO */}
       <div className="relative h-[40vh] sm:h-[45vh] md:h-[50vh] w-full overflow-hidden">
-        <motion.img
-          initial={{ scale: 1.05, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 1 }}
-          src={agency.image}
-          alt={agency.nom}
-          className="w-full h-full object-cover opacity-30"
-        />
+        <motion.div initial={{ scale: 1.05, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 1 }} className="w-full h-full">
+          <ImageWithFallback src={agency.image} alt={agency.nom} className="w-full h-full object-cover opacity-30" />
+        </motion.div>
         <div className="absolute inset-0 bg-gradient-to-br from-site-primary via-site-secondary to-site-tertiary" />
         
         {/* Breadcrumb et bouton retour en haut */}

@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { FaMapMarkerAlt, FaArrowRight, FaStar, FaClock, FaUsers } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
+import { ImageWithFallback } from "@/components/ImageWithFallback";
 
 interface Agency {
   id: number;
@@ -37,7 +38,7 @@ export function AgencyCard({ agency, delay = 0 }: AgencyCardProps) {
       <Card className="h-full flex flex-col group relative overflow-hidden border-2 border-gray-200 shadow-lg hover:shadow-2xl hover:border-site-primary transition-all duration-300 bg-white" data-testid={`card-agency-${agency.id}`}>
         
         <div className="aspect-video w-full overflow-hidden relative">
-          <img
+          <ImageWithFallback
             src={agency.image}
             alt={agency.nom}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"

@@ -42,7 +42,7 @@ done
 
 echo ""
 # Si c'est Docker qui écoute sur 80/443, le proxy est dans un conteneur
-if (ss -tlnp 2>/dev/null || netstat -tlnp 2>/dev/null) | grep -q "docker-proxy.*:443"; then
+if (ss -tlnp 2>/dev/null || netstat -tlnp 2>/dev/null) | grep ":443" | grep -q "docker-proxy"; then
   echo ">>> Les ports 80/443 sont utilisés par docker-proxy (pas Nginx/Apache sur l'hôte)."
   echo ">>> La limite 413 se règle dans le conteneur : frontend/nginx.conf (client_max_body_size 200M)"
   echo ">>> puis : docker compose build frontend --no-cache && docker compose up -d frontend"

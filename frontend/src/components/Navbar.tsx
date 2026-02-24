@@ -39,6 +39,7 @@ interface NavItem {
   subItems?: SubItem[];
 }
 
+// EASE-DOM: nom du site depuis site-settings ou défaut "EASE - DOM"
 // Mapping des icônes par catégorie
 const categoryIconMap: Record<string, IconType> = {
   "Garde d'enfants": FaBaby,

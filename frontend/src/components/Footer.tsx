@@ -30,7 +30,7 @@ export default function Footer() {
     instagram: "https://instagram.com",
     linkedin: "https://linkedin.com",
     description: "Votre partenaire de confiance pour tous vos besoins de services à domicile.",
-    copyright: "EASE - DOM",
+    copyright: "EASE - DOM", // marque par défaut
   };
 
   if (footerData?.body) {

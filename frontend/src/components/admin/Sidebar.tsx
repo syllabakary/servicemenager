@@ -231,6 +231,7 @@ export function Sidebar({ userRole }: SidebarProps) {
               </div>
               <div className="flex flex-col">
                 <span className="font-bold text-lg text-gray-900">Admin Panel</span>
+                {/* Marque par défaut */}
                 <span className="text-xs text-gray-500">EASE - DOM</span>
               </div>
             </Link>

@@ -66,3 +66,32 @@ Pour avoir le HTTPS avec PostgreSQL, il faut soit :
 
 - ajouter le port 443 et les volumes certificats dans `docker-compose.yml` (comme dans `docker-compose.sqlite.yml`), puis adapter la config Nginx du frontend ;  
 - soit faire terminer le HTTPS par un reverse proxy sur l’hôte (Nginx/Apache) qui envoie vers le frontend sur le port 80.
+
+---
+
+## Frontend renvoie 301 (redirect HTTPS) alors que vous êtes en HTTP
+
+Si `curl -I http://localhost/media/...` renvoie **301** vers `https://`, c’est que le conteneur frontend utilise une config Nginx avec redirection HTTPS (souvent après un `enable_https_multi.sh` qui a écrasé `frontend/nginx.conf`).
+
+**À faire sur le serveur :**
+
+```bash
+cd /opt/servicemenager
+git pull origin youssef-dev
+chmod +x force_http_frontend.sh
+./force_http_frontend.sh
+```
+
+Cela remet la config HTTP du dépôt, reconstruit le frontend et le redémarre. Ensuite `curl -I http://localhost/media/services/xxx.png` doit renvoyer **200 OK**.
+
+**Important :** avec **docker-compose.yml**, ne pas lancer `enable_https_multi.sh` sans avoir prévu les certificats et le port 443 dans ce compose, sinon le frontend attend des certificats et peut crasher ou rediriger.
+
+---
+
+## Domaines .net / .com : mauvaise version ou ancien site
+
+Si **ease-dom.net** et **ease-dom.com** n’affichent pas la même version que **ease-dom.fr** :
+
+1. **DNS** : vérifier que les enregistrements A (ou CNAME) de `ease-dom.net` et `ease-dom.com` pointent vers la **même IP** que `ease-dom.fr` (celle du serveur où tourne Docker).
+2. **Cache** : vider le cache du navigateur ou tester en navigation privée pour .net et .com.
+3. **Même application** : la config Nginx du frontend a `server_name ease-dom.fr ease-dom.net ease-dom.com` ; une fois le bon nginx.conf (HTTP) en place et le frontend reconstruit, les trois domaines sont servis par le même conteneur. Si l’IP est la même et le cache vidé, ils doivent afficher la même version.

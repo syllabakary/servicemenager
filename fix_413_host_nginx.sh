@@ -4,22 +4,39 @@
 # Utilisation: sudo ./fix_413_host_nginx.sh
 
 set -e
-CONF_DIRS="/etc/nginx/sites-enabled /etc/nginx/conf.d /etc/nginx"
+CONF_DIRS="/etc/nginx/sites-enabled /etc/nginx/sites-available /etc/nginx/conf.d /etc/nginx"
 TARGET=""
+# 1) Chercher un fichier avec ease-dom ou proxy_pass
 for d in $CONF_DIRS; do
   [ -d "$d" ] || continue
   for f in "$d"/*; do
     [ -f "$f" ] || continue
-    if grep -q -l "ease-dom\|proxy_pass.*80\|listen.*443" "$f" 2>/dev/null; then
+    if grep -q -E "ease-dom|proxy_pass|listen.*443" "$f" 2>/dev/null; then
       TARGET="$f"
       break 2
     fi
   done
 done
+# 2) Si rien, prendre le premier fichier .conf avec proxy_pass (config proxy générique)
+if [ -z "$TARGET" ]; then
+  for d in $CONF_DIRS; do
+    [ -d "$d" ] || continue
+    for f in "$d"/*.conf "$d"/*; do
+      [ -f "$f" ] || continue
+      if grep -q "proxy_pass" "$f" 2>/dev/null; then
+        TARGET="$f"
+        break 2
+      fi
+    done
+  done
+fi
 
 if [ -z "$TARGET" ]; then
-  echo "Aucun fichier Nginx trouvé contenant ease-dom ou proxy_pass. Cherchez à la main:"
-  echo "  grep -r 'ease-dom\\|proxy_pass' /etc/nginx/"
+  echo "Aucun fichier Nginx trouvé contenant ease-dom ou proxy_pass."
+  echo "Lancez le diagnostic pour voir quel service fait le proxy (Nginx ou Apache) :"
+  echo "  sudo ./find_proxy_config.sh"
+  echo "Puis cherchez à la main :"
+  echo "  grep -r -E 'ease-dom|proxy_pass' /etc/nginx/ /etc/httpd/ /etc/apache2/"
   exit 1
 fi
 

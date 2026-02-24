@@ -47,13 +47,24 @@ curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:8000/api/service
 
 **Option A – Script automatique (sur le serveur) :**
 
+Si vous savez que le proxy est **Nginx** :
+
 ```bash
 cd /opt/servicemenager
 sudo chmod +x fix_413_host_nginx.sh
 sudo ./fix_413_host_nginx.sh
 ```
 
-Le script ajoute `client_max_body_size 200M;` dans la config Nginx du bloc server puis recharge Nginx.
+Si le script ne trouve aucune config (« Aucun fichier Nginx trouvé »), lancez d’abord le **diagnostic** pour voir quel service écoute sur 443 et où est la config :
+
+```bash
+sudo chmod +x find_proxy_config.sh
+sudo ./find_proxy_config.sh
+```
+
+- Si le diagnostic montre **Apache** (httpd) :  
+  `sudo ./fix_413_host_apache.sh` (ajoute `LimitRequestBody 209715200` et recharge Apache).
+- Si le diagnostic montre **Nginx** mais dans un chemin non standard : modifier à la main (Option B) le fichier indiqué par le diagnostic.
 
 **Option B – Modification manuelle :** augmenter la limite dans la config Nginx qui gère HTTPS, puis recharger. Exemple pour le **serveur** (site `ease-dom.fr`) :
 

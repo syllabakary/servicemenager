@@ -103,16 +103,22 @@ class AgencySummarySerializer(serializers.ModelSerializer):
 
 
 def _build_media_url(request, image_field, for_service=False):
-    """Construit l'URL absolue d'une image. Corrige les chemins erronés (ex: image agency en services/)."""
+    """
+    Construit l'URL absolue d'une image.
+    - Service : fichier stocké en base sous services/xxx → URL /media/services/xxx
+    - Agency  : fichier stocké en base sous agencies/xxx → URL /media/agencies/xxx
+    Corrige les chemins erronés en base (ex: nom "agency" mais enregistré en services/ → on sert depuis agencies/).
+    """
     if not image_field:
         return None
     name = image_field.name
-    # Si le nom du fichier suggère un mauvais dossier (ex: "agency" dans le nom mais stocké en services/)
     base = os.path.basename(name)
+    # Corriger uniquement si le nom du fichier indique un autre dossier que celui en base
     if for_service and 'agency' in base.lower() and not name.startswith('agencies/'):
         name = f'agencies/{base}'
     elif not for_service and 'service' in base.lower() and not name.startswith('services/'):
         name = f'services/{base}'
+    # Toujours préfixer par MEDIA_URL pour avoir /media/services/... ou /media/agencies/...
     path = (settings.MEDIA_URL.rstrip('/') + '/' + name).replace('//', '/')
     if request:
         return request.build_absolute_uri(path)

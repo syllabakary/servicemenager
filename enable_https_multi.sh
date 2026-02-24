@@ -108,13 +108,10 @@ server {
         }
     }
     
-    # Proxy pour les fichiers media
+    # Servir /media/ depuis le volume monté (backend/media) — pas de proxy vers Django
     location /media/ {
-        proxy_pass http://backend:8000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        alias /media/;
+        add_header Cache-Control "public, max-age=31536000, immutable";
     }
     
     # Proxy pour les fichiers statiques Django

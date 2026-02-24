@@ -54,6 +54,8 @@ services:
     container_name: servicemenager_frontend
     ports:
       - "80:80"
+    volumes:
+      - ./backend/media:/media:ro  # Servir /media/ (images services/agences) par Nginx
     depends_on:
       - backend
     networks:

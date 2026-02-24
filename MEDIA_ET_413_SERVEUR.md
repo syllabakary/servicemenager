@@ -5,20 +5,26 @@
 - **Service** : stockage `backend/media/services/` → URL **`/media/services/xxx.png`**
 - **Agence** : stockage `backend/media/agencies/` → URL **`/media/agencies/xxx.png`**
 
-L’API renvoie toujours l’URL correspondant au bon dossier (services ou agencies). Les 404 viennent du fait que **les fichiers ne sont pas sur le serveur** : `loaddata` ne copie que la base de données, pas les binaires.
+L’API renvoie l’URL (ex. `https://ease-dom.fr/media/services/Gardening_service_photo_0007b568.png`). Les 404 viennent en général de : **(1)** les fichiers ne sont pas sur le serveur dans `backend/media/` ; **(2)** le conteneur frontend n’a pas le volume `backend/media` monté sur `/media` (Nginx sert les images depuis ce chemin).
 
-### Solution : copier le dossier `media` sur le serveur
+### 1. Vérifier que le frontend a bien le volume media
 
-**Sur ta machine (PowerShell ou Git Bash) :**
+Les deux compose doivent monter `./backend/media` dans le frontend pour que Nginx puisse servir `/media/` :
+
+- **docker-compose.sqlite.yml** : `./backend/media:/media:ro` (déjà présent)
+- **docker-compose.yml** : `./backend/media:/media:ro` (ajouté si vous utilisez PostgreSQL)
+
+Sans ce volume, le conteneur n’a pas de répertoire `/media/` → 404 sur toutes les images.
+
+### 2. Copier le dossier `media` sur le serveur
+
+`loaddata` / import de base ne copie pas les fichiers. Il faut copier `backend/media` sur le serveur.
+
+**Depuis ta machine :**
 
 ```bash
-# Depuis la racine du projet
 scp -r backend/media root@76.13.56.224:/opt/servicemenager/backend/
 ```
-
-(Adapte l’IP et le chemin si besoin.)
-
-**Sur le serveur**, le `docker-compose` monte `./backend/media` dans le conteneur. Après la copie, les images seront donc disponibles et les 404 disparaîtront.
 
 Créer le dossier si besoin avant le `scp` :
 
@@ -26,10 +32,20 @@ Créer le dossier si besoin avant le `scp` :
 ssh root@76.13.56.224 "mkdir -p /opt/servicemenager/backend/media"
 ```
 
-Puis relancer le backend pour être sûr que le volume est bien pris en compte :
+**Sur le serveur**, après la copie, redémarrer au moins le frontend (pour que le volume soit bien relu) :
 
 ```bash
-ssh root@76.13.56.224 "cd /opt/servicemenager && docker compose up -d backend"
+cd /opt/servicemenager
+docker compose -f docker-compose.sqlite.yml up -d frontend
+# ou, si vous utilisez le compose PostgreSQL :
+# docker compose up -d frontend
+```
+
+Vérifier que les fichiers sont présents :
+
+```bash
+ls -la /opt/servicemenager/backend/media/services/
+ls -la /opt/servicemenager/backend/media/agencies/
 ```
 
 ---

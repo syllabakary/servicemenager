@@ -150,7 +150,7 @@ export default function AdminParametres() {
     instagram: "https://instagram.com",
     linkedin: "https://linkedin.com",
     description: "Votre partenaire de confiance pour tous vos besoins de services à domicile.",
-    copyright: "Services Locaux",
+    copyright: "EASE - DOM",
   });
 
   const [headquartersInfo, setHeadquartersInfo] = useState({
@@ -374,6 +374,8 @@ export default function AdminParametres() {
       }
     },
     retry: false, // Ne pas réessayer en cas d'erreur 401
+    staleTime: 0, // Toujours considérer les données comme périmées
+    refetchOnMount: "always", // Recharger à chaque ouverture de la page Paramètres
   });
 
   const [themeSettings, setThemeSettings] = useState({
@@ -402,7 +404,7 @@ export default function AdminParametres() {
     site_name_part1_color: "#111827",
     site_name_part2_color: "#087A00",
     site_tagline_color: "#6B7280",
-    site_name: "Services Locaux",
+    site_name: "EASE - DOM",
     site_tagline: "Votre partenaire de confiance",
     banner_button_color: "#087A00",
     banner_button_border_color: "",
@@ -488,7 +490,7 @@ export default function AdminParametres() {
         site_name_part1_color: normalizeHexColor(siteSettings.site_name_part1_color || "#111827"),
         site_name_part2_color: normalizeHexColor(siteSettings.site_name_part2_color || siteSettings.primary_color || "#087A00"),
         site_tagline_color: normalizeHexColor(siteSettings.site_tagline_color || "#6B7280"),
-        site_name: siteSettings.site_name || "Services Locaux",
+        site_name: siteSettings.site_name || "EASE - DOM",
         site_tagline: siteSettings.site_tagline || "Votre partenaire de confiance",
         banner_button_color: siteSettings.banner_button_color ? normalizeHexColor(siteSettings.banner_button_color) : (siteSettings.primary_color ? normalizeHexColor(siteSettings.primary_color) : "#087A00"),
         banner_button_border_color: siteSettings.banner_button_border_color ? normalizeHexColor(siteSettings.banner_button_border_color) : "",
@@ -1327,7 +1329,7 @@ export default function AdminParametres() {
                       value={themeSettings.site_name}
                       onChange={(e) => setThemeSettings({ ...themeSettings, site_name: e.target.value })}
                       required
-                      placeholder="Services Locaux"
+                      placeholder="EASE - DOM"
                     />
                   </div>
                   <div className="space-y-2">

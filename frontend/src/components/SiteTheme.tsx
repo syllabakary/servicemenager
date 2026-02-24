@@ -209,7 +209,7 @@ export function SiteTheme() {
       applyColor(settings.devis_pdf_primary_color || settings.primary_color || "#087A00", "devis-pdf-primary");
 
       // Titre de la page (onglet) = nom du site personnalisé
-      const siteName = (settings.site_name || "Services Locaux").trim();
+      const siteName = (settings.site_name || "EASE - DOM").trim();
       const tagline = (settings.site_tagline || "").trim();
       document.title = tagline ? `${siteName} - ${tagline}` : siteName;
 

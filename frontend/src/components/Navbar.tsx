@@ -85,7 +85,7 @@ export function Navbar() {
     return () => window.removeEventListener("site-settings-updated", onSettingsUpdated);
   }, [refetchSiteSettings]);
 
-  const siteName = siteSettings?.site_name || "Services Locaux";
+  const siteName = siteSettings?.site_name || "EASE - DOM";
   const siteTagline = siteSettings?.site_tagline || "Votre partenaire de confiance";
   const logoUrl = siteSettings?.logo_url || null;
   const [logoLoadError, setLogoLoadError] = useState(false);

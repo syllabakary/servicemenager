@@ -1,0 +1,2 @@
+# Scripts shell : toujours LF (évite "command not found" sur Linux si CRLF)
+*.sh text eol=lf

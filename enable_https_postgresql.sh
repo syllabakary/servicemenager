@@ -52,9 +52,9 @@ server {
     gzip_min_length 1024;
     gzip_types text/plain text/css text/xml text/javascript application/javascript application/json;
 
-    # /media/ : servir les fichiers du volume (agencies, services, etc.) — regex pour priorité claire
-    location ~ ^/media/ {
-        root /;
+    # /media/ : servir les fichiers du volume (agencies, services, etc.)
+    location ~ ^/media/(.*)$ {
+        alias /media/$1;
         add_header Cache-Control "public, max-age=31536000, immutable";
         add_header X-Served-By "media" always;
     }

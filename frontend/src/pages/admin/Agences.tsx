@@ -340,16 +340,20 @@ function AgencyDialog({
       };
       
       if (agency) {
-        await axios.patch(`${API_URL}/agencies/${agency.id}/`, formDataToSend, {
+        const res = await axios.patch(`${API_URL}/agencies/${agency.id}/`, formDataToSend, {
           headers,
         });
+        return res.data;
       } else {
-        await axios.post(`${API_URL}/agencies/`, formDataToSend, {
+        const res = await axios.post(`${API_URL}/agencies/`, formDataToSend, {
           headers,
         });
+        return res.data;
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
+      if (data?.image_url) setImagePreview(data.image_url);
+      else setImagePreview(null);
       onSuccess();
       queryClient.invalidateQueries({ queryKey: ["admin-agencies"] });
       toast({

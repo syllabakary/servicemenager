@@ -56,7 +56,6 @@ server {
     location ~ ^/media/(.*)$ {
         alias /media/$1;
         add_header Cache-Control "public, max-age=31536000, immutable";
-        add_header X-Served-By "media" always;
     }
     location / {
         try_files $uri $uri/ /index.html;

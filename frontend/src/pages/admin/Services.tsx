@@ -377,25 +377,28 @@ function ServiceDialog({
       
       if (service) {
         // Update
-        await axios.patch(`${API_URL}/services/${service.id}/`, formDataToSend, {
+        const res = await axios.patch(`${API_URL}/services/${service.id}/`, formDataToSend, {
           headers: { 
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
           },
         });
+        return res.data;
       } else {
         // Create
-        await axios.post(`${API_URL}/services/`, formDataToSend, {
+        const res = await axios.post(`${API_URL}/services/`, formDataToSend, {
           headers: { 
             Authorization: `Bearer ${token}`,
             'Content-Type': 'multipart/form-data',
           },
         });
+        return res.data;
       }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       setImageFile(null);
-      setImagePreview(null);
+      if (data?.image_url) setImagePreview(data.image_url);
+      else setImagePreview(null);
       onSuccess();
       queryClient.invalidateQueries({ queryKey: ["admin-services"] });
     },

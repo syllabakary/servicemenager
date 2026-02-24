@@ -58,9 +58,12 @@ server {
         root /;
         add_header Cache-Control "public, max-age=31536000, immutable";
     }
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+    # Fichiers statiques du frontend uniquement (pas /media/ → volume backend)
+    location ~* ^/(assets|images|img)/.*\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp)$ {
+        root /usr/share/nginx/html;
         expires 1y;
         add_header Cache-Control "public, immutable";
+        try_files $uri =404;
     }
     location /api/ {
         proxy_pass http://backend:8000/api/;
@@ -96,7 +99,10 @@ EOF
 cp /tmp/nginx_https_config.txt frontend/nginx.conf
 echo "✅ Nginx configuré pour HTTPS (multi-domaines)"
 
-echo "🔄 Reconstruction du frontend..."
+echo "🧹 Nettoyage des caches Docker (build frontend)..."
+docker builder prune -f 2>/dev/null || true
+
+echo "🔄 Reconstruction du frontend (sans cache)..."
 docker compose build frontend --no-cache
 echo "🔄 Redémarrage des conteneurs..."
 docker compose up -d
@@ -105,3 +111,7 @@ echo ""
 echo "✅ HTTPS activé (stack PostgreSQL)."
 echo "   https://ease-dom.fr  https://ease-dom.net  https://ease-dom.com"
 echo "   HTTP redirige vers HTTPS."
+echo ""
+echo "💡 Si les images /media/ ou la page ne se mettent pas à jour :"
+echo "   - Vider le cache du navigateur (Ctrl+Shift+Suppr) ou test en navigation privée."
+echo "   - Tester : curl -k -I https://localhost/media/services/VOTRE_IMAGE.png (attendu: 200)"

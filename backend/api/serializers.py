@@ -1,4 +1,6 @@
+import os
 from rest_framework import serializers
+from django.conf import settings
 from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile
 
 
@@ -84,9 +86,7 @@ class ServiceSummarySerializer(serializers.ModelSerializer):
     
     def get_image_url(self, obj):
         if obj.image:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.image.url)
+            return _build_media_url(self.context.get('request'), obj.image, for_service=True)
         return None
 
 
@@ -100,6 +100,23 @@ class AgencySummarySerializer(serializers.ModelSerializer):
     
     def get_url(self, obj):
         return obj.url
+
+
+def _build_media_url(request, image_field, for_service=False):
+    """Construit l'URL absolue d'une image. Corrige les chemins erronés (ex: image agency en services/)."""
+    if not image_field:
+        return None
+    name = image_field.name
+    # Si le nom du fichier suggère un mauvais dossier (ex: "agency" dans le nom mais stocké en services/)
+    base = os.path.basename(name)
+    if for_service and 'agency' in base.lower() and not name.startswith('agencies/'):
+        name = f'agencies/{base}'
+    elif not for_service and 'service' in base.lower() and not name.startswith('services/'):
+        name = f'services/{base}'
+    path = (settings.MEDIA_URL.rstrip('/') + '/' + name).replace('//', '/')
+    if request:
+        return request.build_absolute_uri(path)
+    return path
 
 
 class ServiceSerializer(serializers.ModelSerializer):
@@ -141,9 +158,7 @@ class ServiceSerializer(serializers.ModelSerializer):
     
     def get_image_url(self, obj):
         if obj.image:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.image.url)
+            return _build_media_url(self.context.get('request'), obj.image, for_service=True)
         return None
 
 
@@ -193,10 +208,7 @@ class AgencySerializer(serializers.ModelSerializer):
     
     def get_image_url(self, obj):
         if obj.image:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.image.url)
-            return obj.image.url
+            return _build_media_url(self.context.get('request'), obj.image, for_service=False)
         return None
     
     def get_url(self, obj):

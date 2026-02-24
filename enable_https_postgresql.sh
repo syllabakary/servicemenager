@@ -29,9 +29,10 @@ server {
     location / { return 301 https://$host$request_uri; }
 }
 server {
-    listen 443 ssl;
+    listen 443 ssl default_server;
+    listen [::]:443 ssl default_server;
     http2 on;
-    server_name ease-dom.fr www.ease-dom.fr ease-dom.net ease-dom.com;
+    server_name ease-dom.fr www.ease-dom.fr ease-dom.net ease-dom.com _;
     ssl_certificate /etc/letsencrypt/live/ease-dom.fr/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/ease-dom.fr/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
@@ -51,10 +52,11 @@ server {
     gzip_min_length 1024;
     gzip_types text/plain text/css text/xml text/javascript application/javascript application/json;
 
-    # /media/ en premier : servir les fichiers du volume (agencies, services, etc.)
-    location ^~ /media/ {
-        alias /media/;
+    # /media/ : servir les fichiers du volume (agencies, services, etc.) — regex pour priorité claire
+    location ~ ^/media/ {
+        root /;
         add_header Cache-Control "public, max-age=31536000, immutable";
+        add_header X-Served-By "media" always;
     }
     location / {
         try_files $uri $uri/ /index.html;

@@ -290,15 +290,38 @@ firewall-cmd --list-all
 
 ## 🐛 Dépannage
 
-### Erreur "Connection refused" sur le port 443
+### Erreur "Connection refused" sur le port 443 (ERR_CONNECTION_REFUSED)
+
+Si le site ne répond qu’après avoir lancé `./enable_https_multi.sh` et plus après un redémarrage du serveur, la stack Docker (frontend HTTPS) ne démarre pas au boot. **Solution : activer le démarrage automatique** (voir section ci‑dessous).
+Vérifications rapides :
 
 ```bash
 # Vérifier que le port 443 est ouvert
 netstat -tlnp | grep 443
+# ou
+ss -tlnp | grep 443
 
 # Vérifier les logs Docker
 docker compose -f docker-compose.sqlite.yml logs frontend
 ```
+
+### Démarrer HTTPS au démarrage du serveur
+
+Pour que https://ease-dom.fr soit accessible **sans relancer** `enable_https_multi.sh` après chaque redémarrage :
+
+1. **Une fois** : avoir exécuté `./enable_https_multi.sh` (certificat présent, nginx.conf HTTPS, docker-compose.sqlite.yml avec 443).
+
+2. **Activer le service systemd** (sur le serveur) :
+
+```bash
+cd /opt/servicemenager
+sudo cp servicemenager.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable servicemenager.service
+sudo systemctl start servicemenager.service
+```
+
+Après un reboot, la stack (frontend + backend avec HTTPS) démarrera automatiquement. Pour vérifier : `sudo systemctl status servicemenager`.
 
 ### Certificat non trouvé dans le conteneur
 

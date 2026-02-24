@@ -1,0 +1,15 @@
+[Unit]
+Description=ServiceManager (Docker stack HTTPS - SQLite)
+After=docker.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+WorkingDirectory=/opt/servicemenager
+ExecStart=/usr/bin/docker compose -f /opt/servicemenager/docker-compose.sqlite.yml up -d
+ExecStop=/usr/bin/docker compose -f /opt/servicemenager/docker-compose.sqlite.yml down
+TimeoutStartSec=300
+
+[Install]
+WantedBy=multi-user.target

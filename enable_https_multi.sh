@@ -64,6 +64,9 @@ server {
     root /usr/share/nginx/html;
     index index.html;
     
+    # Upload (éviter 413 sur création agence / service avec image)
+    client_max_body_size 200M;
+    
     # Compression
     gzip on;
     gzip_vary on;
@@ -89,6 +92,11 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_connect_timeout 300s;
+        proxy_send_timeout 300s;
+        proxy_read_timeout 300s;
+        proxy_request_buffering off;
+        client_max_body_size 200M;
         
         # CORS headers
         add_header Access-Control-Allow-Origin * always;

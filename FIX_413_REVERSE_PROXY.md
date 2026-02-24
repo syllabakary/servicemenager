@@ -43,6 +43,24 @@ curl -s -o /dev/null -w "%{http_code}" -X POST http://localhost:8000/api/service
 - Si tu obtiens **201** (ou **400** pour erreur métier, pas 413) → le **backend + frontend Docker** acceptent les gros body. Le 413 en production vient alors du **proxy sur l’hôte**.
 - Si tu obtiens **413** même ici → il restera à vérifier la config Nginx du conteneur frontend (rebuild, etc.).
 
+## 1b. Si les ports 80/443 sont tenus par Docker (find_proxy_config.sh)
+
+Dans ce cas il n’y a pas de Nginx/Apache sur l’hôte : la limite 413 se règle **dans le conteneur frontend**. Le `frontend/nginx.conf` du dépôt contient déjà `client_max_body_size 200M` ; il faut **reconstruire l’image** pour que ce soit pris en compte :
+
+```bash
+cd /opt/servicemenager
+docker compose build frontend --no-cache
+docker compose up -d frontend
+```
+
+Si le 413 continue, un autre conteneur (Caddy, Traefik, etc.) peut recevoir le HTTPS avant le frontend. Vérifier quel conteneur écoute sur 443 :
+
+```bash
+docker ps --format "table {{.Names}}\t{{.Ports}}"
+```
+
+Augmenter aussi la limite d’upload dans la config de ce conteneur (ex. 200 Mo).
+
 ## 2. Corriger le proxy sur l’hôte (Nginx)
 
 **Option A – Script automatique (sur le serveur) :**

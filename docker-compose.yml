@@ -32,7 +32,7 @@ services:
     volumes:
       - ./backend:/app
       - backend_static:/app/staticfiles
-      - backend_media:/app/media
+      - ./backend/media:/app/media
     ports:
       - "8000:8000"
     env_file:
@@ -63,7 +63,6 @@ services:
 volumes:
   postgres_data:
   backend_static:
-  backend_media:
 
 networks:
   servicemenager_network:

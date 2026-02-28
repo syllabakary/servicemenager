@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose build frontend)",
+      "Bash(docker compose up -d frontend)",
+      "Bash(docker ps --filter \"name=servicemenager\" --format \"table {{.Names}}\\\\t{{.Status}}\")",
+      "Bash(docker start servicemenager_db)",
+      "Bash(docker compose build)",
+      "Bash(docker compose up -d)",
+      "Bash(docker exec servicemenager_db psql -U postgres -d servicemenager -c \"INSERT INTO django_migrations \\(app, name, applied\\) VALUES \\(''api'', ''0037_agency_horaires_agency_opening_hours_and_more'', NOW\\(\\)\\) ON CONFLICT DO NOTHING;\")",
+      "Bash(docker restart servicemenager_backend)",
+      "Bash(docker ps --filter \"name=servicemenager_backend\" --format \"{{.Names}} {{.Status}}\")",
+      "Bash(docker compose build backend)",
+      "Bash(docker restart servicemenager_frontend)",
+      "Bash(docker ps --filter \"name=servicemenager_frontend\" --format \"{{.Names}} {{.Status}}\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8000/api/pages/?is_active=true)",
+      "Bash(curl -s -w \"\\\\n---STATUS:%{http_code}---CONTENT_TYPE:%{content_type}---\" \"http://localhost:8000/api/pages/?is_active=true\")",
+      "Bash(curl -s -w \"\\\\n---STATUS:%{http_code}---CONTENT_TYPE:%{content_type}---\" \"http://localhost:8000/api/pages/?key=footer_info\")",
+      "Bash(curl -s -w \"\\\\n---STATUS:%{http_code}---CONTENT_TYPE:%{content_type}---\" \"http://localhost:8000/api/patients/\")",
+      "Bash(curl -s -w \"\\\\n---STATUS:%{http_code}---CONTENT_TYPE:%{content_type}---\" \"http://localhost:8000/api/presences/\")",
+      "Bash(curl -s -w \"\\\\n---STATUS:%{http_code}---CONTENT_TYPE:%{content_type}---\" \"http://localhost:8000/api/site-settings/\")",
+      "Bash(curl -s -w \"\\\\n---STATUS:%{http_code}---CONTENT_TYPE:%{content_type}---\" \"http://localhost:8000/api/services/\")",
+      "Bash(curl -s -w \"\\\\n---STATUS:%{http_code}---CONTENT_TYPE:%{content_type}---\" \"http://localhost:8000/api/agencies/\")",
+      "Bash(curl -s http://localhost:8000/api/site-settings/)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); keys=list\\(d.keys\\(\\)\\); print\\(''Keys present:'', keys\\); print\\(''smtp_password'' in keys, ''smtp_host'' in keys\\)\")"
+    ]
+  }
+}

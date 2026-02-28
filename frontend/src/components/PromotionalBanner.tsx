@@ -14,8 +14,11 @@ export function PromotionalBanner() {
     queryFn: async () => {
       const response = await fetch(`${API_URL}/pages/?is_active=true`);
       const data = await response.json();
-      // Trier par ordre et retourner toutes les bannières actives
-      return (data.results || []).sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+      // Exclure les clés système (configs Paramètres) et trier par ordre
+      const SYSTEM_KEYS = ["footer_info", "headquarters_location"];
+      return (data.results || [])
+        .filter((item: any) => !SYSTEM_KEYS.includes(item.key))
+        .sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
     },
   });
 

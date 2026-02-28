@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FaPlus, FaEdit, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { FaPlus, FaEdit, FaCheckCircle, FaTimesCircle, FaTrash } from "react-icons/fa";
 import axios from "axios";
 import {
   Dialog,
@@ -21,6 +21,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -33,6 +43,10 @@ export default function AdminBannieres() {
   const { toast } = useToast();
   const [editingPage, setEditingPage] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [deleteKey, setDeleteKey] = useState<string | null>(null);
+
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const isSuperAdmin = storedUser.role === "SUPERADMIN";
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-pages"],
@@ -57,6 +71,25 @@ export default function AdminBannieres() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-pages"] });
       queryClient.invalidateQueries({ queryKey: ["home_banner"] }); // Invalider le cache du banner
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (key: string) => {
+      const token = localStorage.getItem("access_token");
+      await axios.delete(`${API_URL}/pages/${key}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-pages"] });
+      queryClient.invalidateQueries({ queryKey: ["home_banners"] });
+      setDeleteKey(null);
+      toast({ title: "✅ Bannière supprimée", description: "La bannière a été supprimée avec succès." });
+    },
+    onError: () => {
+      setDeleteKey(null);
+      toast({ title: "❌ Erreur", description: "Impossible de supprimer la bannière.", variant: "destructive" });
     },
   });
 
@@ -119,7 +152,7 @@ export default function AdminBannieres() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data?.results?.map((page: any) => (
+                  {data?.results?.filter((page: any) => !["footer_info", "headquarters_location"].includes(page.key)).map((page: any) => (
                     <TableRow key={page.id} className="hover:bg-gray-50 transition-colors">
                       <TableCell className="font-semibold text-gray-900 font-mono">{page.key}</TableCell>
                       <TableCell className="text-gray-700">{page.title || "Sans titre"}</TableCell>
@@ -151,14 +184,24 @@ export default function AdminBannieres() {
                               <FaCheckCircle className="w-5 h-5 text-green-500" />
                             )}
                           </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
+                          <Button
+                            variant="ghost"
+                            size="sm"
                             onClick={() => handleEdit(page)}
                             className="hover:bg-blue-50 hover:text-blue-600 rounded-lg"
                           >
                             <FaEdit className="w-5 h-5" />
                           </Button>
+                          {isSuperAdmin && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setDeleteKey(page.key)}
+                              className="hover:bg-red-50 hover:text-red-600 rounded-lg"
+                            >
+                              <FaTrash className="w-5 h-5 text-red-400" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>
@@ -178,6 +221,26 @@ export default function AdminBannieres() {
             queryClient.invalidateQueries({ queryKey: ["admin-pages"] });
           }}
         />
+
+        <AlertDialog open={!!deleteKey} onOpenChange={(open) => { if (!open) setDeleteKey(null); }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Supprimer la bannière ?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Cette action est irréversible. La bannière sera définitivement supprimée.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-red-600 hover:bg-red-700 text-white"
+                onClick={() => deleteKey && deleteMutation.mutate(deleteKey)}
+              >
+                Supprimer
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </DashboardLayout>
   );

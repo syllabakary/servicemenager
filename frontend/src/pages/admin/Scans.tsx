@@ -44,6 +44,9 @@ import {
   FaEdit,
   FaTrash,
   FaArrowRight,
+  FaChartBar,
+  FaHourglassHalf,
+  FaUserClock,
 } from "react-icons/fa";
 import axios from "axios";
 import { format } from "date-fns";
@@ -275,6 +278,45 @@ export default function AdminScans() {
     return hours;
   };
 
+  // Formater les heures en "Xh YYmin"
+  const formatHours = (hours: number) => {
+    const h = Math.floor(hours);
+    const m = Math.round((hours - h) * 60);
+    if (h === 0) return `${m}min`;
+    if (m === 0) return `${h}h`;
+    return `${h}h${m.toString().padStart(2, "0")}`;
+  };
+
+  // Statistiques agrégées des heures
+  const hoursStats = useMemo(() => {
+    const completedPairs = groupedPairs.filter((p) => p.arrival && p.departure);
+    const inProgressPairs = groupedPairs.filter((p) => p.arrival && !p.departure);
+    const totalHours = completedPairs.reduce((sum, p) => {
+      return sum + (calculateDuration(p.arrival, p.departure) || 0);
+    }, 0);
+
+    const byEmployee: Record<string, { hours: number; missions: number }> = {};
+    const byPatient: Record<string, { hours: number; missions: number }> = {};
+
+    completedPairs.forEach((p) => {
+      const d = calculateDuration(p.arrival, p.departure) || 0;
+      if (!byEmployee[p.employe]) byEmployee[p.employe] = { hours: 0, missions: 0 };
+      byEmployee[p.employe].hours += d;
+      byEmployee[p.employe].missions += 1;
+      if (!byPatient[p.patient]) byPatient[p.patient] = { hours: 0, missions: 0 };
+      byPatient[p.patient].hours += d;
+      byPatient[p.patient].missions += 1;
+    });
+
+    return {
+      totalHours,
+      totalMissions: completedPairs.length,
+      inProgressCount: inProgressPairs.length,
+      byEmployee: Object.entries(byEmployee).sort((a, b) => b[1].hours - a[1].hours),
+      byPatient: Object.entries(byPatient).sort((a, b) => b[1].hours - a[1].hours),
+    };
+  }, [groupedPairs]);
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
@@ -404,6 +446,101 @@ export default function AdminScans() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Panneau statistiques heures */}
+        {groupedPairs.length > 0 && (
+          <div className="space-y-4">
+            {/* 3 cartes de synthèse */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl p-5 text-white shadow-lg flex items-center gap-4">
+                <div className="bg-white/20 rounded-xl p-3">
+                  <FaCheckCircle className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-emerald-100 text-xs font-medium uppercase tracking-wide">Missions terminées</p>
+                  <p className="text-3xl font-bold">{hoursStats.totalMissions}</p>
+                </div>
+              </div>
+              <div className="bg-gradient-to-br from-amber-400 to-orange-500 rounded-2xl p-5 text-white shadow-lg flex items-center gap-4">
+                <div className="bg-white/20 rounded-xl p-3">
+                  <FaHourglassHalf className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-amber-100 text-xs font-medium uppercase tracking-wide">En cours</p>
+                  <p className="text-3xl font-bold">{hoursStats.inProgressCount}</p>
+                </div>
+              </div>
+              <div className="bg-gradient-to-br from-site-primary to-site-secondary rounded-2xl p-5 text-white shadow-lg flex items-center gap-4">
+                <div className="bg-white/20 rounded-xl p-3">
+                  <FaClock className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-white/80 text-xs font-medium uppercase tracking-wide">Total heures</p>
+                  <p className="text-3xl font-bold">{formatHours(hoursStats.totalHours)}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Détail par employé (si filtre patient actif ou plusieurs employés) */}
+            {hoursStats.byEmployee.length > 0 && (
+              <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                <div className="px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-100 flex items-center gap-2">
+                  <FaUserClock className="w-4 h-4 text-site-primary" />
+                  <h3 className="font-bold text-gray-800 text-base">
+                    {filters.patient && filters.patient !== "all"
+                      ? "Heures par employé pour ce patient"
+                      : filters.employe && filters.employe !== "all"
+                      ? "Heures par patient pour cet employé"
+                      : "Heures par employé"}
+                  </h3>
+                </div>
+                <div className="p-4 space-y-3">
+                  {(filters.employe && filters.employe !== "all"
+                    ? hoursStats.byPatient
+                    : hoursStats.byEmployee
+                  ).map(([name, stats], idx) => {
+                    const maxHours = (filters.employe && filters.employe !== "all"
+                      ? hoursStats.byPatient
+                      : hoursStats.byEmployee)[0]?.[1].hours || 1;
+                    const pct = Math.round((stats.hours / maxHours) * 100);
+                    const colors = [
+                      "from-emerald-400 to-emerald-600",
+                      "from-blue-400 to-blue-600",
+                      "from-purple-400 to-purple-600",
+                      "from-orange-400 to-orange-600",
+                      "from-pink-400 to-pink-600",
+                    ];
+                    const color = colors[idx % colors.length];
+                    return (
+                      <div key={name} className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-site-primary to-site-secondary flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                          {name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-sm font-semibold text-gray-800 truncate">{name}</span>
+                            <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                              <span className="text-xs text-gray-500">{stats.missions} mission{stats.missions > 1 ? "s" : ""}</span>
+                              <span className={`text-xs font-bold px-2 py-0.5 rounded-full bg-gradient-to-r ${color} text-white`}>
+                                {formatHours(stats.hours)}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="w-full bg-gray-100 rounded-full h-2">
+                            <div
+                              className={`h-2 rounded-full bg-gradient-to-r ${color} transition-all duration-500`}
+                              style={{ width: `${pct}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Liste des paires (missions) */}
         <Card>

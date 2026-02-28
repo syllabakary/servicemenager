@@ -614,7 +614,7 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         """Gérer la lecture des champs SMTP même s'ils n'existent pas encore"""
         data = super().to_representation(instance)
-        
+
         # Vérifier si les champs SMTP existent et gérer les erreurs
         smtp_fields = {
             'smtp_host': None,
@@ -624,7 +624,7 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
             'smtp_username': None,
             'smtp_password': None,
         }
-        
+
         for field, default_value in smtp_fields.items():
             if field not in data:
                 try:
@@ -632,7 +632,18 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
                     data[field] = value
                 except (AttributeError, Exception):
                     data[field] = default_value
-        
+
+        # Masquer les champs SMTP sensibles pour les utilisateurs non-admin
+        request = self.context.get('request')
+        is_admin = (
+            request is not None
+            and request.user.is_authenticated
+            and getattr(request.user, 'role', None) in ('ADMIN', 'SUPERADMIN')
+        )
+        if not is_admin:
+            for field in ('smtp_host', 'smtp_port', 'smtp_use_tls', 'smtp_use_ssl', 'smtp_username', 'smtp_password'):
+                data.pop(field, None)
+
         return data
     
     def to_internal_value(self, data):

@@ -26,13 +26,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -58,23 +51,9 @@ export default function AdminPatients() {
   });
   const [qrCodeImageUrl, setQrCodeImageUrl] = useState<string | null>(null);
   // État contrôlé pour les champs qui ne sont pas dans FormData (Select/Switch Radix)
-  const [formClientId, setFormClientId] = useState<string>("");
   const [formIsActive, setFormIsActive] = useState<boolean>(true);
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const isAdmin = storedUser.role === "ADMIN" || storedUser.role === "SUPERADMIN";
-
-  // Récupérer les clients pour le select
-  const { data: clientsData } = useQuery({
-    queryKey: ["admin-clients"],
-    queryFn: async () => {
-      const token = localStorage.getItem("access_token");
-      const res = await axios.get(`${API_URL}/users/?role=CLIENT`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      return res.data;
-    },
-    enabled: isAdmin,
-  });
 
   // Récupérer les employés pour l'assignation
   const { data: employeesData } = useQuery({
@@ -259,14 +238,12 @@ export default function AdminPatients() {
 
   const handleEdit = (patient: any) => {
     setEditingPatient(patient);
-    setFormClientId(patient?.client?.toString() ?? "");
     setFormIsActive(patient?.is_active !== false);
     setIsDialogOpen(true);
   };
 
   const handleNew = () => {
     setEditingPatient(null);
-    setFormClientId("");
     setFormIsActive(true);
     setIsDialogOpen(true);
   };
@@ -384,17 +361,7 @@ export default function AdminPatients() {
       const employeeId = parseInt(checkbox.value);
       if (!isNaN(employeeId)) assignedEmployees.push(employeeId);
     });
-    const clientId = editingPatient ? editingPatient.client : parseInt(formClientId, 10);
-    if (!editingPatient && (formClientId === "" || isNaN(clientId))) {
-      toast({
-        title: "❌ Erreur",
-        description: "Veuillez sélectionner un client.",
-        variant: "destructive",
-      });
-      return;
-    }
     const data: any = {
-      client: clientId,
       first_name: (formData.get("first_name") as string)?.trim() || "",
       last_name: (formData.get("last_name") as string)?.trim() || "",
       phone: (formData.get("phone") as string)?.trim() || null,
@@ -431,7 +398,6 @@ export default function AdminPatients() {
   }
 
   const patients = data?.results || [];
-  const clients = clientsData?.results || [];
   const employees = employeesData?.results || [];
 
   return (
@@ -592,27 +558,6 @@ export default function AdminPatients() {
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="client">Client propriétaire *</Label>
-                <Select
-                  name="client"
-                  value={formClientId}
-                  onValueChange={setFormClientId}
-                  required
-                  disabled={!!editingPatient}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un client" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {clients.map((client: any) => (
-                      <SelectItem key={client.id} value={client.id.toString()}>
-                        {client.username} ({client.email})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="first_name">Prénom *</Label>

@@ -4,7 +4,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError as DjangoValidationError
+from rest_framework.exceptions import ValidationError as DRFValidationError
 from math import radians, cos, sin, asin, sqrt
 from decimal import Decimal
 import smtplib
@@ -108,7 +109,7 @@ class UserViewSet(viewsets.ModelViewSet):
         try:
             if not settings.DEBUG:
                 validate_password(new_password, user)
-        except ValidationError as e:
+        except DjangoValidationError as e:
             return Response(
                 {'error': 'Le nouveau mot de passe ne respecte pas les critères de sécurité.', 'details': list(e.messages)},
                 status=status.HTTP_400_BAD_REQUEST
@@ -219,7 +220,10 @@ Connectez-vous avec ce nom d'utilisateur et ce mot de passe. Vous pourrez modifi
             # Superadmin ne peut pas créer un autre superadmin via API
             if role == 'SUPERADMIN':
                 role = 'ADMIN'
-            new_user = serializer.save(role=role, created_by=user)
+            try:
+                new_user = serializer.save(role=role, created_by=user)
+            except DjangoValidationError as e:
+                raise DRFValidationError({'password': e.messages})
             # Créer automatiquement le profil employé si c'est un employé
             if role == 'EMPLOYE':
                 try:
@@ -232,7 +236,10 @@ Connectez-vous avec ce nom d'utilisateur et ce mot de passe. Vous pourrez modifi
             # Admin ne peut créer que des employés ou des clients
             if role not in ['EMPLOYE', 'CLIENT']:
                 role = 'CLIENT'
-            new_user = serializer.save(role=role, created_by=user)
+            try:
+                new_user = serializer.save(role=role, created_by=user)
+            except DjangoValidationError as e:
+                raise DRFValidationError({'password': e.messages})
             # Créer automatiquement le profil employé si c'est un employé
             if role == 'EMPLOYE':
                 try:
@@ -1909,19 +1916,12 @@ class PatientViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND
             )
         
-        # Vérifier que le patient a un client
-        if not patient.client:
-            return Response(
-                {'error': 'Le patient doit avoir un client assigné.'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
         # Vérifier que le patient a un QR code, sinon le générer
         if not patient.qr_code:
-            # Générer le QR code si absent
             import uuid
             import hashlib
-            unique_string = f"{patient.client.id}_{uuid.uuid4()}"
+            client_id = patient.client.id if patient.client else "anonymous"
+            unique_string = f"{client_id}_{uuid.uuid4()}"
             patient.qr_code = hashlib.sha256(unique_string.encode()).hexdigest()[:32].upper()
             patient.save(update_fields=['qr_code'])
         
@@ -2666,7 +2666,7 @@ class PresenceViewSet(viewsets.ModelViewSet):
                 patient_progress[patient_id] = {
                     'patient_id': patient_id,
                     'patient_name': f"{presence.patient.first_name} {presence.patient.last_name}",
-                    'client_name': f"{presence.patient.client.first_name} {presence.patient.client.last_name}",
+                    'client_name': f"{presence.patient.client.first_name} {presence.patient.client.last_name}" if presence.patient.client else "N/A",
                     'has_arrival': False,
                     'has_departure': False,
                     'last_presence': presence,

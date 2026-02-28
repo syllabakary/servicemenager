@@ -1442,8 +1442,10 @@ class Patient(models.Model):
         CustomUser,
         on_delete=models.CASCADE,
         related_name='patients',
+        null=True,
+        blank=True,
         verbose_name="Client",
-        help_text="Client propriétaire du patient"
+        help_text="Client propriétaire du patient (optionnel)"
     )
     first_name = models.CharField(max_length=100, verbose_name="Prénom")
     last_name = models.CharField(max_length=100, verbose_name="Nom")
@@ -1497,15 +1499,17 @@ class Patient(models.Model):
         ]
     
     def __str__(self):
-        return f"{self.first_name} {self.last_name} ({self.client.username})"
-    
+        client_info = self.client.username if self.client else "sans client"
+        return f"{self.first_name} {self.last_name} ({client_info})"
+
     def save(self, *args, **kwargs):
         # Générer automatiquement un QR code unique s'il n'existe pas
         if not self.qr_code:
             import uuid
             import hashlib
-            # Générer un code unique basé sur le client et un UUID
-            unique_string = f"{self.client.id}_{uuid.uuid4()}"
+            # Générer un code unique basé sur le client (optionnel) et un UUID
+            client_id = self.client.id if self.client else "anonymous"
+            unique_string = f"{client_id}_{uuid.uuid4()}"
             self.qr_code = hashlib.sha256(unique_string.encode()).hexdigest()[:32].upper()
         
         # Vérifier si le nom a changé (pour régénérer le QR code avec le nouveau nom)
@@ -1575,9 +1579,11 @@ class Patient(models.Model):
             
             # Créer une nouvelle image blanche
             final_img = Image.new('RGB', (qr_width, total_height), 'white')
-            
-            # Coller le QR code en haut
-            final_img.paste(qr_img, (0, 0))
+
+            # Convertir en RGB avant de coller (évite l'erreur "cannot determine region size")
+            qr_img = qr_img.convert('RGB')
+            # Coller le QR code en haut avec un tuple à 4 valeurs
+            final_img.paste(qr_img, (0, 0, qr_width, qr_height))
             
             # Ajouter le nom du patient en bas
             draw = ImageDraw.Draw(final_img)

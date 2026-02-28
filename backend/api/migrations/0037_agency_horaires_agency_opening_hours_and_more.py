@@ -7,6 +7,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('api', '0036_patient_client_optional'),
+        ('api', '0036_agency_horaires_opening_hours'),
     ]
 
     operations = [

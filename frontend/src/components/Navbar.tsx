@@ -181,26 +181,9 @@ export function Navbar() {
       hasDropdown: true,
       subItems: [
         {
-          label: "Toutes nos agences",
-          icon: FaBuilding,
-          subSubItems: [],
-        },
-        {
           label: "Par ville",
           icon: FaMapMarkerAlt,
           subSubItems: citiesSubItems.length > 0 ? citiesSubItems : [],
-        },
-        {
-          label: "Par service",
-          icon: FaBriefcase,
-          subSubItems: servicesForAgenciesSubItems.length > 0 ? servicesForAgenciesSubItems : [],
-        },
-        {
-          label: "Recherche",
-          icon: FaUsers,
-          subSubItems: [
-            { label: "Trouver une agence", path: "/agences" },
-          ],
         },
       ],
     },

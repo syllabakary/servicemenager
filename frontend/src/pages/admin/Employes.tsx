@@ -55,7 +55,7 @@ export default function AdminEmployes() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = 5;
+  const totalSteps = 4;
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const isAdmin = storedUser.role === "ADMIN" || storedUser.role === "SUPERADMIN";
 
@@ -527,6 +527,25 @@ export default function AdminEmployes() {
       e.preventDefault();
       e.stopPropagation();
     }
+
+    // Validation stricte à l'étape 1
+    if (currentStep === 1) {
+      const missing: string[] = [];
+      if (!formData.first_name?.trim()) missing.push("Prénom");
+      if (!formData.last_name?.trim()) missing.push("Nom");
+      if (!formData.email?.trim()) missing.push("Email");
+      if (!formData.matricule?.trim()) missing.push("Matricule");
+      if (!editingEmploye && !formData.password?.trim()) missing.push("Mot de passe");
+      if (missing.length > 0) {
+        toast({
+          title: "❌ Champs obligatoires manquants",
+          description: `Veuillez renseigner : ${missing.join(", ")}.`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     }
@@ -550,14 +569,14 @@ export default function AdminEmployes() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    // Validation des champs requis uniquement à la soumission finale
-    if (!formData.username || !formData.email || !formData.first_name || !formData.last_name) {
+    // Validation des champs requis à la soumission finale
+    if (!formData.email || !formData.first_name || !formData.last_name || !formData.matricule) {
       toast({
         title: "❌ Champs requis manquants",
-        description: "Veuillez remplir tous les champs obligatoires (Nom d'utilisateur, Email, Prénom, Nom).",
+        description: "Veuillez remplir tous les champs obligatoires (Email, Prénom, Nom, Matricule).",
         variant: "destructive",
       });
-      setCurrentStep(1); // Retourner à l'étape 1 pour voir les erreurs
+      setCurrentStep(1);
       return;
     }
     
@@ -1266,39 +1285,6 @@ export default function AdminEmployes() {
                       </div>
                     )}
                     
-                    {/* Étape 5: Documents */}
-                    {currentStep === 5 && (
-                      <div className="space-y-6 max-w-6xl mx-auto">
-                        <div className="bg-white p-8 rounded-xl border-2 border-purple-200 shadow-lg">
-                          <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3 pb-3 border-b border-gray-200">
-                            <FaFileAlt className="w-7 h-7 text-site-primary" />
-                            Statut des documents
-                          </h3>
-                          <div className="space-y-2">
-                            <Label htmlFor="statut_documents">Statut</Label>
-                            <Select 
-                              name="statut_documents" 
-                              value={formData.statut_documents || "EN_ATTENTE"}
-                              onValueChange={(value) => updateField("statut_documents", value)}
-                            >
-                              <SelectTrigger className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="SIGNE">Signé</SelectItem>
-                                <SelectItem value="EN_ATTENTE">En attente</SelectItem>
-                                <SelectItem value="REJETE">Rejeté</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            <div className="mt-4 p-4 bg-white rounded-lg border border-purple-200">
-                              <p className="text-sm text-gray-600">
-                                <strong>Note:</strong> Les documents (contrat, pièce d'identité, diplômes, etc.) peuvent être ajoutés après la création de l'employé via l'édition de son profil.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
                   </motion.div>
                 </AnimatePresence>
               </div>

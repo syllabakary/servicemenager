@@ -392,7 +392,12 @@ function UserDialog({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    saveMutation.mutate(formData);
+    const payload = { ...formData };
+    if (!payload.username && !user) {
+      const base = `${(payload.first_name || "").toLowerCase()}${(payload.last_name || "").toLowerCase()}`.replace(/\s+/g, "");
+      payload.username = base || `user${Date.now()}`;
+    }
+    saveMutation.mutate(payload);
   };
 
   return (
@@ -409,14 +414,15 @@ function UserDialog({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="username">Nom d'utilisateur *</Label>
+              <Label htmlFor="username">Nom d'utilisateur</Label>
               <Input
                 id="username"
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                required
                 disabled={!!user}
+                placeholder="Laissez vide pour générer automatiquement"
               />
+              {!user && <p className="text-xs text-gray-500">Généré automatiquement si vide (prénom + nom)</p>}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email *</Label>

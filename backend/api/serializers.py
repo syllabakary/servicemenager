@@ -206,7 +206,7 @@ class AgencySerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'slug', 'address', 'city', 'postal_code',
             'phone', 'email', 'latitude', 'longitude', 'active',
-            'details', 'image', 'image_url', 'created_by', 'created_by_username',
+            'details', 'horaires', 'image', 'image_url', 'created_by', 'created_by_username',
             'contacts_count', 'services_count', 'services_summary', 'services_ids',
             'created_at', 'updated_at', 'url'
         ]

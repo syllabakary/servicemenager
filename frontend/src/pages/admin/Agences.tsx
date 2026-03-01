@@ -274,6 +274,7 @@ function AgencyDialog({
     latitude: "",
     longitude: "",
     details: "",
+    horaires: "",
     active: true,
     image: null as File | null,
     services_ids: [] as number[],
@@ -320,6 +321,7 @@ function AgencyDialog({
       if (data.latitude) formDataToSend.append('latitude', data.latitude);
       if (data.longitude) formDataToSend.append('longitude', data.longitude);
       if (data.details) formDataToSend.append('details', data.details);
+      if (data.horaires) formDataToSend.append('horaires', data.horaires);
       formDataToSend.append('active', data.active.toString());
       
       // Ajouter l'image si elle existe
@@ -385,6 +387,7 @@ function AgencyDialog({
         latitude: agency.latitude?.toString() || "",
         longitude: agency.longitude?.toString() || "",
         details: agency.details || "",
+        horaires: agency.horaires || "",
         active: agency.active ?? true,
         image: null,
         services_ids: agency.services_summary ? agency.services_summary.map((s: any) => s.id) : [],
@@ -795,6 +798,18 @@ function AgencyDialog({
                 required
               />
               <p className="text-xs text-gray-500">Description complète de l'agence</p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="horaires">Horaires d'ouverture</Label>
+              <Textarea
+                id="horaires"
+                value={formData.horaires}
+                onChange={(e) => setFormData({ ...formData, horaires: e.target.value })}
+                rows={3}
+                placeholder="Ex : Lun-Ven 9h-18h, Sam 9h-12h"
+              />
+              <p className="text-xs text-gray-500">Horaires affichés sur la fiche de l'agence</p>
             </div>
           </div>
 

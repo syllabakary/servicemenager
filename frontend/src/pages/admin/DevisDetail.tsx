@@ -27,10 +27,11 @@ import {
   FaArrowLeft,
   FaDollarSign,
   FaPercent,
+  FaTrash,
 } from "react-icons/fa";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
-import { useParams, Link } from "wouter";
+import { useParams, Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
@@ -59,9 +60,31 @@ export default function DevisDetail() {
   const quoteId = params.id;
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [, navigate] = useLocation();
   const [discountValue, setDiscountValue] = useState<string>("");
   const [showSendConfirmDialog, setShowSendConfirmDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
+
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const canDelete = storedUser.role === "ADMIN" || storedUser.role === "SUPERADMIN";
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const token = localStorage.getItem("access_token");
+      await axios.delete(`${API_URL}/quote-requests/${quoteId}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-quote-requests"] });
+      toast({ title: "✅ Devis supprimé", description: "Le devis a été supprimé avec succès.", variant: "default" });
+      navigate("/admin/devis");
+    },
+    onError: () => {
+      toast({ title: "❌ Erreur", description: "Impossible de supprimer ce devis.", variant: "destructive" });
+    },
+  });
 
   // Récupérer les détails du devis
   const { data: quoteRequest, isLoading } = useQuery({
@@ -486,7 +509,7 @@ export default function DevisDetail() {
                     try {
                       const response = await axios.get(
                         `${API_URL}/quote-requests/${quoteRequest.id}/pdf/`,
-                        { 
+                        {
                           headers: { Authorization: `Bearer ${token}` },
                           responseType: 'blob'
                         }
@@ -519,6 +542,16 @@ export default function DevisDetail() {
                   <FaFileInvoice className="w-3.5 h-3.5 mr-1.5" />
                   Télécharger PDF
                 </Button>
+                {canDelete && (
+                  <Button
+                    onClick={() => setShowDeleteDialog(true)}
+                    size="sm"
+                    className="w-full bg-red-600 hover:bg-red-700 text-white text-sm"
+                  >
+                    <FaTrash className="w-3.5 h-3.5 mr-1.5" />
+                    Supprimer le devis
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </div>
@@ -623,6 +656,34 @@ export default function DevisDetail() {
                     Confirmer et envoyer
                   </>
                 )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog suppression */}
+        <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+          <DialogContent className="sm:max-w-[420px]">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <FaTrash className="w-5 h-5 text-red-600" />
+                Supprimer le devis
+              </DialogTitle>
+              <DialogDescription className="text-sm text-gray-600 pt-2">
+                Êtes-vous sûr de vouloir supprimer définitivement ce devis ? Cette action est irréversible.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end gap-3 pt-4 border-t">
+              <Button variant="outline" onClick={() => setShowDeleteDialog(false)} className="text-sm">
+                Annuler
+              </Button>
+              <Button
+                onClick={() => { setShowDeleteDialog(false); deleteMutation.mutate(); }}
+                className="bg-red-600 hover:bg-red-700 text-white text-sm"
+                disabled={deleteMutation.isPending}
+              >
+                <FaTrash className="w-3.5 h-3.5 mr-1.5" />
+                Supprimer définitivement
               </Button>
             </div>
           </DialogContent>

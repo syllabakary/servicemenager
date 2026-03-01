@@ -33,6 +33,7 @@ import {
   FaSearch,
   FaFilter,
   FaTimes,
+  FaTrash,
 } from "react-icons/fa";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,6 +49,27 @@ export default function AdminDevis() {
   const { toast } = useToast();
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<any>(null);
+
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const canDelete = storedUser.role === "ADMIN" || storedUser.role === "SUPERADMIN";
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const token = localStorage.getItem("access_token");
+      await axios.delete(`${API_URL}/quote-requests/${id}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-quote-requests"] });
+      setDeleteTarget(null);
+      toast({ title: "✅ Devis supprimé", description: "Le devis a été supprimé avec succès.", variant: "default" });
+    },
+    onError: () => {
+      toast({ title: "❌ Erreur", description: "Impossible de supprimer ce devis.", variant: "destructive" });
+    },
+  });
   
   // États pour les filtres
   const [filters, setFilters] = useState({
@@ -566,6 +588,15 @@ export default function AdminDevis() {
                             >
                               <FaPhone className="w-3 h-3" />
                             </a>
+                            {canDelete && (
+                              <button
+                                onClick={() => setDeleteTarget(request)}
+                                className="h-6 px-1.5 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-xs flex items-center justify-center"
+                                title="Supprimer"
+                              >
+                                <FaTrash className="w-3 h-3" />
+                              </button>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>
@@ -781,6 +812,15 @@ export default function AdminDevis() {
                               >
                                 Devis envoyé
                               </Button>
+                            )}
+                            {canDelete && (
+                              <button
+                                onClick={() => setDeleteTarget(request)}
+                                className="h-6 px-1.5 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-xs flex items-center justify-center"
+                                title="Supprimer"
+                              >
+                                <FaTrash className="w-3 h-3" />
+                              </button>
                             )}
                           </div>
                         </TableCell>
@@ -1062,6 +1102,34 @@ export default function AdminDevis() {
                 </div>
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog confirmation suppression */}
+        <Dialog open={!!deleteTarget} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>
+          <DialogContent className="sm:max-w-[420px]">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                <FaTrash className="w-5 h-5 text-red-600" />
+                Supprimer le devis
+              </DialogTitle>
+              <DialogDescription className="text-sm text-gray-600 pt-2">
+                Êtes-vous sûr de vouloir supprimer le devis de <strong>{deleteTarget?.client_name}</strong> ? Cette action est irréversible.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-end gap-3 pt-4 border-t">
+              <Button variant="outline" onClick={() => setDeleteTarget(null)} className="text-sm">
+                Annuler
+              </Button>
+              <Button
+                onClick={() => deleteMutation.mutate(deleteTarget?.id)}
+                className="bg-red-600 hover:bg-red-700 text-white text-sm"
+                disabled={deleteMutation.isPending}
+              >
+                <FaTrash className="w-3.5 h-3.5 mr-1.5" />
+                Supprimer définitivement
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
 

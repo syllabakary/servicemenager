@@ -61,7 +61,7 @@ export default function AgencyDetail() {
     services: agencyData.details 
       ? agencyData.details.split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 0)
       : ["Services divers"],
-    image: agencyData.image_url || "./Abidjan_agency_storefront_41598fcd.png", // Utiliser l'image de l'API ou par défaut
+    image: agencyData.image_url || null,
     telephone: agencyData.phone,
     email: agencyData.email,
     horaires: agencyData.horaires || undefined,

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaPaperPlane, FaCheckCircle } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { useState } from "react";
@@ -90,7 +90,11 @@ export default function Contact() {
     <div className="min-h-screen pt-16 overflow-x-hidden w-full max-w-full bg-white">
       {/* Popup confirmation personnalisé */}
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <DialogContent className="max-w-md p-0 overflow-hidden rounded-2xl border-0 shadow-2xl">
+        <DialogContent className="max-w-md p-0 overflow-hidden rounded-2xl border-0 shadow-2xl" aria-describedby="confirm-desc">
+          <DialogTitle className="sr-only">Message envoyé</DialogTitle>
+          <DialogDescription id="confirm-desc" className="sr-only">
+            Confirmation d&apos;envoi de votre message de contact
+          </DialogDescription>
           <div className="bg-gradient-to-br from-site-primary to-site-secondary p-8 text-center text-white">
             <motion.div
               initial={{ scale: 0 }}

@@ -71,7 +71,7 @@ function mapAgencyFromAPI(apiAgency: AgencyAPI): Agency {
     image: apiAgency.image_url || defaultImages[apiAgency.city] || "./Abidjan_agency_storefront_41598fcd.png",
     telephone: apiAgency.phone,
     email: apiAgency.email,
-    horaires: "Lun - Ven: 8h - 18h | Sam: 9h - 15h", // Par défaut, peut être personnalisé plus tard
+    horaires: (apiAgency as any).horaires || undefined,
     note: 4.5, // Valeur par défaut
     nombreAvis: 0,
     anneeExperience: 5,
@@ -154,33 +154,35 @@ export default function Agencies() {
   }, [agencies, searchTerm, selectedCity, selectedService]);
 
   // Récupérer les paramètres de l'URL après que les données soient chargées
+  // On écoute aussi window.location.search car wouter ne recharge pas si le path ne change pas
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const ville = params.get("ville");
-    
-    if (ville && cities.length > 0) {
-      // Trouver la ville correspondante (insensible à la casse)
-      // Le paramètre peut être en minuscules, mais on doit trouver la ville avec la bonne casse
-      const cityMatch = cities.find(c => 
-        c.toLowerCase() === ville.toLowerCase() ||
-        ville.toLowerCase() === c.toLowerCase()
-      );
-      if (cityMatch) {
-        setSelectedCity(cityMatch);
-      } else {
-        // Si pas de correspondance exacte, essayer de trouver par similarité
-        const similarCity = cities.find(c => 
-          c.toLowerCase().startsWith(ville.toLowerCase()) ||
-          ville.toLowerCase().startsWith(c.toLowerCase())
-        );
-        if (similarCity) {
-          setSelectedCity(similarCity);
+    const applyVilleFilter = () => {
+      const params = new URLSearchParams(window.location.search);
+      const ville = params.get("ville");
+
+      if (ville && cities.length > 0) {
+        const cityMatch = cities.find(c => c.toLowerCase() === ville.toLowerCase());
+        if (cityMatch) {
+          setSelectedCity(cityMatch);
+          // Scroll vers la liste
+          setTimeout(() => {
+            document.getElementById("agencies-search-section")?.scrollIntoView({ behavior: "smooth" });
+          }, 100);
         }
+      } else if (!ville) {
+        setSelectedCity("all");
       }
-    } else if (!ville) {
-      // Si pas de paramètre ville, réinitialiser le filtre
-      setSelectedCity("all");
-    }
+    };
+
+    applyVilleFilter();
+
+    // Écouter les changements de querystring (navigation depuis le menu Navbar)
+    window.addEventListener("popstate", applyVilleFilter);
+    window.addEventListener("ville-filter-changed", applyVilleFilter);
+    return () => {
+      window.removeEventListener("popstate", applyVilleFilter);
+      window.removeEventListener("ville-filter-changed", applyVilleFilter);
+    };
   }, [location, cities]);
 
   // Statistiques

@@ -3,17 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaPaperPlane } from "react-icons/fa";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { FaMapMarkerAlt, FaPhone, FaEnvelope, FaPaperPlane, FaCheckCircle } from "react-icons/fa";
 import { motion } from "framer-motion";
-import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 import { API_URL } from "@/config/api";
 import { formatOpeningHoursGrouped } from "@/lib/openingHours";
 
 export default function Contact() {
-  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [senderName, setSenderName] = useState("");
 
   const { data: footerData } = useQuery({
     queryKey: ["footer_info"],
@@ -62,19 +64,64 @@ export default function Contact() {
     e.preventDefault();
     setLoading(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const form = e.target as HTMLFormElement;
+    const name = (form.elements.namedItem("nom") as HTMLInputElement).value;
+    const data = {
+      name,
+      email: (form.elements.namedItem("email") as HTMLInputElement).value,
+      subject: (form.elements.namedItem("sujet") as HTMLInputElement).value,
+      message: (form.elements.namedItem("message") as HTMLTextAreaElement).value,
+    };
 
-    toast({
-      title: "Message envoyé !",
-      description: "Nous vous contacterons dans les plus brefs délais.",
-    });
-
-    setLoading(false);
-    (e.target as HTMLFormElement).reset();
+    try {
+      await axios.post(`${API_URL}/contact-messages/`, data);
+      setSenderName(name);
+      setConfirmOpen(true);
+      form.reset();
+    } catch {
+      // Afficher erreur inline
+      alert("Une erreur s'est produite. Veuillez réessayer.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen pt-16 overflow-x-hidden w-full max-w-full bg-white">
+      {/* Popup confirmation personnalisé */}
+      <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <DialogContent className="max-w-md p-0 overflow-hidden rounded-2xl border-0 shadow-2xl">
+          <div className="bg-gradient-to-br from-site-primary to-site-secondary p-8 text-center text-white">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 200, damping: 15 }}
+              className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4"
+            >
+              <FaCheckCircle className="w-10 h-10 text-white" />
+            </motion.div>
+            <h2 className="text-2xl font-bold mb-1">Message envoyé !</h2>
+            <p className="text-white/90 text-sm">Merci pour votre message, {senderName}</p>
+          </div>
+          <div className="p-6 text-center space-y-4 bg-white">
+            <p className="text-gray-700 text-sm leading-relaxed">
+              Votre message a bien été reçu. Notre équipe prendra contact avec vous
+              dans les <strong>plus brefs délais</strong> afin de vous apporter une réponse personnalisée.
+            </p>
+            <div className="flex items-center gap-2 justify-center text-xs text-gray-400">
+              <FaEnvelope className="w-3 h-3" />
+              <span>Un accusé de réception peut vous être envoyé par email</span>
+            </div>
+            <Button
+              onClick={() => setConfirmOpen(false)}
+              className="w-full bg-gradient-to-r from-site-button-primary to-site-button-primary-hover text-site-button-text font-semibold shadow hover:shadow-md transition-all"
+            >
+              Fermer
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <section className="py-12 sm:py-16 md:py-20 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <motion.div
@@ -166,7 +213,7 @@ export default function Contact() {
                       data-testid="button-submit"
                     >
                       <FaPaperPlane className="w-4 h-4" />
-                      Envoyer le message
+                      {loading ? "Envoi en cours..." : "Envoyer le message"}
                     </Button>
                   </form>
                 </CardContent>

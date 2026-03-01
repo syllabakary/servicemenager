@@ -191,7 +191,6 @@ export default function AdminEmployes() {
       setDeleteId(null);
     },
     onError: (error: any) => {
-      console.error("Erreur lors de la suppression:", error);
       toast({
         title: "❌ Erreur",
         description: error?.response?.data?.detail || "Impossible de supprimer l'employé.",
@@ -207,7 +206,6 @@ export default function AdminEmployes() {
       
       // Séparer les données utilisateur et profil employé
       const userData: any = {
-        username: data.username?.trim() || '',
         email: data.email?.trim() || '',
         first_name: data.first_name?.trim() || '',
         last_name: data.last_name?.trim() || '',
@@ -349,7 +347,6 @@ export default function AdminEmployes() {
           newUserId = Number(newUserId);
           
           if (!newUserId || isNaN(newUserId)) {
-            console.error("Réponse de création utilisateur:", userResponse.data);
             throw new Error("Impossible de récupérer l'ID de l'utilisateur créé.");
           }
           
@@ -366,19 +363,14 @@ export default function AdminEmployes() {
           // S'assurer que user est un ID numérique (pas un tableau)
           // Vérifier une dernière fois que ce n'est pas un tableau
           if (Array.isArray(newUserId)) {
-            console.error("ERREUR: newUserId est un tableau!", newUserId);
             newUserId = newUserId[0];
           }
           cleanProfileData.user = Number(newUserId);
           
           // Vérifier que user est bien un nombre
           if (isNaN(cleanProfileData.user)) {
-            console.error("ERREUR: user n'est pas un nombre!", cleanProfileData.user);
             throw new Error("L'ID utilisateur n'est pas valide.");
           }
-          
-          console.log("Données du profil à envoyer:", cleanProfileData);
-          console.log("Type de user:", typeof cleanProfileData.user, "Valeur:", cleanProfileData.user);
           
           // Vérifier si un profil existe déjà pour cet utilisateur
           try {
@@ -409,8 +401,6 @@ export default function AdminEmployes() {
             }
           }
         } catch (error: any) {
-          // Afficher l'erreur détaillée
-          console.error("Erreur détaillée:", error.response?.data);
           throw error;
         }
       }
@@ -432,7 +422,6 @@ export default function AdminEmployes() {
       });
     },
     onError: (error: any) => {
-      console.error("Erreur lors de la sauvegarde:", error);
       const errorData = error?.response?.data;
       let errorMessage = "Une erreur s'est produite.";
       
@@ -812,18 +801,6 @@ export default function AdminEmployes() {
                             Informations de base
                           </h3>
                           <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="username">Nom d'utilisateur *</Label>
-                              <Input
-                                id="username"
-                                name="username"
-                                value={formData.username || ""}
-                                onChange={(e) => updateField("username", e.target.value)}
-                                required
-                                disabled={!!editingEmploye}
-                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
-                              />
-                            </div>
                             <div className="space-y-2">
                               <Label htmlFor="email">Email *</Label>
                               <Input

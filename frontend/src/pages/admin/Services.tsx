@@ -86,7 +86,6 @@ export default function AdminServices() {
       });
     },
     onError: (error: any) => {
-      console.error("Erreur lors de la suppression:", error);
       let errorMessage = "Impossible de supprimer le service.";
       
       if (error?.response?.status === 401) {

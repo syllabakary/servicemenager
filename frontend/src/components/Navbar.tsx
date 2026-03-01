@@ -51,7 +51,7 @@ const categoryIconMap: Record<string, IconType> = {
 };
 
 export function Navbar() {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [openSubMenus, setOpenSubMenus] = useState<Record<string, boolean>>({});
 
@@ -269,21 +269,20 @@ export function Navbar() {
                           </DropdownMenuSubTrigger>
                           <DropdownMenuSubContent className="bg-white border border-gray-200 shadow-lg">
                             {subItem.subSubItems?.map((subSubItem, subIdx) => (
-                              <DropdownMenuItem key={subIdx} asChild>
-                                <Link href={subSubItem.path} className="cursor-pointer hover:bg-site-primary/10 hover:text-gray-900 focus:bg-site-primary/10 focus:text-gray-900">
-                                  {subSubItem.label}
-                                </Link>
+                              <DropdownMenuItem
+                                key={subIdx}
+                                className="cursor-pointer hover:bg-site-primary/10 hover:text-gray-900 focus:bg-site-primary/10 focus:text-gray-900"
+                                onClick={() => {
+                                  navigate(subSubItem.path);
+                                  setTimeout(() => window.dispatchEvent(new Event("ville-filter-changed")), 50);
+                                }}
+                              >
+                                {subSubItem.label}
                               </DropdownMenuItem>
                             ))}
                           </DropdownMenuSubContent>
                         </DropdownMenuSub>
                       ))}
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem asChild>
-                        <Link href={item.path} className="cursor-pointer hover:bg-site-primary/10 hover:text-site-primary focus:bg-site-primary/10 focus:text-site-primary font-semibold text-site-primary">
-                          Voir tous les {item.label.toLowerCase()}
-                        </Link>
-                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 );
@@ -444,19 +443,18 @@ export function Navbar() {
                                         className="pl-2 sm:pl-4 space-y-1 mt-1 w-full"
                                       >
                                         {subItem.subSubItems.map((subSubItem, subIdx) => (
-                                          <Link
+                                          <Button
                                             key={subIdx}
-                                            href={subSubItem.path}
-                                            onClick={handleCloseMenu}
-                                            className="block"
+                                            variant="ghost"
+                                            className="w-full justify-start text-xs text-gray-600 hover:bg-site-primary/10 hover:text-site-primary py-1.5 h-auto"
+                                            onClick={() => {
+                                              handleCloseMenu();
+                                              navigate(subSubItem.path);
+                                              setTimeout(() => window.dispatchEvent(new Event("ville-filter-changed")), 50);
+                                            }}
                                           >
-                                            <Button
-                                              variant="ghost"
-                                              className="w-full justify-start text-xs text-gray-600 hover:bg-site-primary/10 hover:text-site-primary py-1.5 h-auto"
-                                            >
-                                              {subSubItem.label}
-                                            </Button>
-                                          </Link>
+                                            {subSubItem.label}
+                                          </Button>
                                         ))}
                                       </motion.div>
                                     )}

@@ -25,7 +25,7 @@ export function SiteTheme() {
   useEffect(() => {
     const handleSettingsUpdate = () => {
       // Forcer un refetch immédiat
-      refetch().catch(console.error);
+      refetch().catch(() => {});
     };
     
     window.addEventListener("site-settings-updated", handleSettingsUpdate);
@@ -38,7 +38,7 @@ export function SiteTheme() {
   // Écouter aussi les changements de focus pour rafraîchir si nécessaire
   useEffect(() => {
     const handleFocus = () => {
-      refetch().catch(console.error);
+      refetch().catch(() => {});
     };
     
     window.addEventListener("focus", handleFocus);

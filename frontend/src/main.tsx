@@ -14,9 +14,6 @@ const isLocalIP = hostname.match(/^(192\.168\.|10\.|172\.|127\.0\.0\.1|localhost
 if (isLocalIP && protocol === 'https:') {
   // Rediriger vers HTTP - utiliser replace pour éviter d'ajouter à l'historique
   const httpUrl = window.location.href.replace('https://', 'http://');
-  console.warn('⚠️ Redirection HTTPS -> HTTP pour IP locale:', httpUrl);
-  console.warn('Le serveur Django de développement ne supporte que HTTP');
-  // Utiliser location.href au lieu de replace pour forcer le rechargement
   window.location.href = httpUrl;
   // Ne pas continuer l'exécution
   throw new Error('Redirection en cours...');

@@ -89,8 +89,7 @@ function ServiceAdvantagesSection() {
       try {
         const res = await axios.get(`${API_URL}/service-advantages/`);
         return res.data;
-      } catch (err) {
-        console.error("Erreur lors de la récupération des avantages:", err);
+      } catch {
         return null;
       }
     },
@@ -450,6 +449,19 @@ export default function Home() {
     queryFn: async () => {
       try {
         const res = await axios.get(`${API_URL}/agencies/?active=true`);
+        return res.data.results || [];
+      } catch {
+        return [];
+      }
+    },
+  });
+
+  // Récupérer les avis depuis l'API
+  const { data: reviewsData } = useQuery({
+    queryKey: ["home-reviews"],
+    queryFn: async () => {
+      try {
+        const res = await axios.get(`${API_URL}/service-reviews/?approved=true&display_on_page=true&ordering=-created_at`);
         return res.data.results || [];
       } catch {
         return [];
@@ -882,60 +894,58 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-2">
               Nos clients retrouvent le <span className="text-site-primary italic font-serif">sourire</span> avec nous
             </h2>
-            <div className="flex items-center justify-center gap-2 mt-4">
-              <span className="text-sm text-gray-600">Avis authentiques</span>
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map((i) => (
-                      <FaStar key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                ))}
-              </div>
-              <span className="text-sm font-semibold text-gray-900">4.4/5</span>
-            </div>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                name: "Josette M.",
-                rating: 5,
-                date: "06/10/2025",
-                comment: "Cassandra est douce et fait un excellent travail. Je recommande vivement !",
-              },
-              {
-                name: "Philippe P.",
-                rating: 5,
-                date: "26/09/2025",
-                comment: "Service recommandé pour le suivi administratif, la rapidité de mise en place des soins post-hospitalisation et le personnel adapté.",
-              },
-              {
-                name: "Florence C.",
-                rating: 5,
-                date: "23/09/2025",
-                comment: "L'intervenante est compétente, discrète, agréable. Recommandé.",
-              },
-            ].map((testimonial, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="bg-white rounded-lg shadow-md p-6"
-              >
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="flex items-center">
-                    {[1, 2, 3, 4, 5].map((j) => (
-                      <FaStar key={j} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+            {reviewsData && reviewsData.length > 0 && (() => {
+              const avg = reviewsData.reduce((sum: number, r: any) => sum + r.rating, 0) / reviewsData.length;
+              const avgRounded = Math.round(avg * 10) / 10;
+              return (
+                <div className="flex items-center justify-center gap-2 mt-4">
+                  <span className="text-sm text-gray-600">Avis authentiques</span>
+                  <div className="flex items-center gap-1">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <FaStar key={i} className={`w-4 h-4 ${i <= Math.round(avg) ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`} />
                     ))}
                   </div>
-                  <span className="text-sm font-semibold text-gray-900">{testimonial.rating}/5</span>
-                  <span className="text-xs text-gray-500 ml-auto">{testimonial.date}</span>
+                  <span className="text-sm font-semibold text-gray-900">{avgRounded}/5</span>
+                  <span className="text-xs text-gray-400">({reviewsData.length} avis)</span>
                 </div>
-                <p className="text-sm text-gray-700 leading-relaxed mb-3">{testimonial.comment}</p>
-                <p className="text-sm font-semibold text-gray-900">— {testimonial.name}</p>
-              </motion.div>
-            ))}
-          </div>
+              );
+            })()}
+          </motion.div>
+
+          {reviewsData && reviewsData.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {reviewsData.slice(0, 3).map((review: any, i: number) => {
+                const date = new Date(review.created_at).toLocaleDateString("fr-FR");
+                return (
+                  <motion.div
+                    key={review.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.6, delay: i * 0.1 }}
+                    className="bg-white rounded-lg shadow-md p-6"
+                  >
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="flex items-center">
+                        {[1, 2, 3, 4, 5].map((j) => (
+                          <FaStar
+                            key={j}
+                            className={`w-4 h-4 ${j <= review.rating ? "fill-yellow-400 text-yellow-400" : "fill-gray-200 text-gray-200"}`}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-sm font-semibold text-gray-900">{review.rating}/5</span>
+                      <span className="text-xs text-gray-500 ml-auto">{date}</span>
+                    </div>
+                    <p className="text-sm text-gray-700 leading-relaxed mb-3">{review.comment}</p>
+                    <p className="text-sm font-semibold text-gray-900">— {review.client_name || "Anonyme"}</p>
+                  </motion.div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-center text-gray-500 text-sm">Aucun avis disponible pour le moment.</p>
+          )}
         </div>
       </section>
 

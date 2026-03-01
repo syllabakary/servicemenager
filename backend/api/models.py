@@ -2076,3 +2076,32 @@ class EmployeeProfile(models.Model):
     
     def __str__(self):
         return f"Profil de {self.user.username}"
+
+
+class ContactMessage(models.Model):
+    """Messages envoyés via le formulaire de contact public"""
+    STATUS_CHOICES = [
+        ('NEW', 'Nouveau'),
+        ('READ', 'Lu'),
+        ('REPLIED', 'Répondu'),
+    ]
+
+    name = models.CharField(max_length=200, verbose_name="Nom")
+    email = models.EmailField(verbose_name="Email")
+    subject = models.CharField(max_length=300, verbose_name="Sujet")
+    message = models.TextField(verbose_name="Message")
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='NEW',
+        verbose_name="Statut"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Message de contact"
+        verbose_name_plural = "Messages de contact"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.name} — {self.subject} ({self.created_at.strftime('%d/%m/%Y')})"

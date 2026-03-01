@@ -26,14 +26,6 @@ export default function EmployeLogin() {
       // Normaliser le matricule (trim et uppercase)
       const normalizedMatricule = matricule.trim().toUpperCase();
       
-      // Log pour débogage
-      console.log("Tentative de connexion avec:", {
-        matricule: normalizedMatricule,
-        apiUrl: API_URL,
-        endpoint: `${API_URL}/login-matricule/`,
-        hostname: window.location.hostname,
-      });
-      
       const response = await axios.post(`${API_URL}/login-matricule/`, {
         matricule: normalizedMatricule,
         password: password,
@@ -43,8 +35,6 @@ export default function EmployeLogin() {
           'Content-Type': 'application/json',
         },
       });
-
-      console.log("Réponse reçue:", response.data);
 
       if (response.data.tokens && response.data.user) {
         localStorage.setItem("access_token", response.data.tokens.access);
@@ -59,17 +49,6 @@ export default function EmployeLogin() {
         setError("Réponse invalide du serveur");
       }
     } catch (err: any) {
-      console.error("Erreur de connexion complète:", {
-        message: err.message,
-        response: err.response?.data,
-        status: err.response?.status,
-        statusText: err.response?.statusText,
-        config: {
-          url: err.config?.url,
-          method: err.config?.method,
-        },
-      });
-      
       let errorMessage = "Erreur de connexion";
       
       if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {

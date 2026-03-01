@@ -20,6 +20,7 @@ import { motion } from "framer-motion";
 import axios from "axios";
 import { API_URL } from "@/config/api";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
+import { formatHoraires } from "@/lib/formatHoraires";
 
 interface Agency {
   id: number;
@@ -63,7 +64,7 @@ export default function AgencyDetail() {
     image: agencyData.image_url || "./Abidjan_agency_storefront_41598fcd.png", // Utiliser l'image de l'API ou par défaut
     telephone: agencyData.phone,
     email: agencyData.email,
-    horaires: "Lun - Ven: 8h - 18h | Sam: 9h - 15h",
+    horaires: agencyData.horaires || undefined,
     address: agencyData.address,
     latitude: agencyData.latitude,
     longitude: agencyData.longitude,
@@ -211,10 +212,9 @@ export default function AgencyDetail() {
               </CardHeader>
               <CardContent className="space-y-2 sm:space-y-3 px-4 sm:px-5 md:px-6 pt-0">
                 {[
-                  { Icon: FaMapMarkerAlt, label: "Adresse", value: agency.address || `${agency.ville}, Côte d'Ivoire` },
+                  { Icon: FaMapMarkerAlt, label: "Adresse", value: agency.address || `${agency.ville}, Côte d'Ivoire`, href: undefined },
                   { Icon: FaPhone, label: "Téléphone", value: agency.telephone, href: agency.telephone ? `tel:${agency.telephone}` : undefined },
                   { Icon: FaEnvelope, label: "Email", value: agency.email, href: agency.email ? `mailto:${agency.email}` : undefined },
-                  { Icon: FaClock, label: "Horaires", value: agency.horaires },
                 ].filter(item => item.value).map((item, idx) => (
                   <div key={idx} className="flex items-start gap-2 p-2 sm:p-2.5 rounded-lg bg-gradient-to-br from-site-primary/5 to-site-primary/5 border-2 border-site-primary/20 hover:border-site-primary transition-all">
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-site-primary/20 to-site-primary/10 flex items-center justify-center flex-shrink-0 border border-site-primary/30">
@@ -232,6 +232,24 @@ export default function AgencyDetail() {
                     </div>
                   </div>
                 ))}
+
+                {/* Horaires groupés */}
+                {agency.horaires && (() => {
+                  const lignes = formatHoraires(agency.horaires);
+                  return lignes.length > 0 ? (
+                    <div className="flex items-start gap-2 p-2 sm:p-2.5 rounded-lg bg-gradient-to-br from-site-primary/5 to-site-primary/5 border-2 border-site-primary/20 hover:border-site-primary transition-all">
+                      <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-site-primary/20 to-site-primary/10 flex items-center justify-center flex-shrink-0 border border-site-primary/30">
+                        <FaClock className="w-4 h-4 text-site-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-xs sm:text-xs md:text-sm text-gray-600 mb-1 uppercase tracking-wide">Horaires d'ouverture</p>
+                        {lignes.map((ligne, i) => (
+                          <p key={i} className="text-xs sm:text-sm font-medium text-gray-900">{ligne}</p>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
 
                 {/* Bouton Voir itinéraire */}
                 {(agency.latitude && agency.longitude) || agency.address ? (

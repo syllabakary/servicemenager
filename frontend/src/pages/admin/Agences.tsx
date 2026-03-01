@@ -263,6 +263,28 @@ function AgencyDialog({
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 }) {
+  const JOURS = [
+    { key: "lundi", label: "Lundi" },
+    { key: "mardi", label: "Mardi" },
+    { key: "mercredi", label: "Mercredi" },
+    { key: "jeudi", label: "Jeudi" },
+    { key: "vendredi", label: "Vendredi" },
+    { key: "samedi", label: "Samedi" },
+    { key: "dimanche", label: "Dimanche" },
+  ];
+
+  const defaultOpeningHours = () =>
+    Object.fromEntries(
+      JOURS.map((j) => [j.key, { open: false, start: "09:00", end: "18:00" }])
+    );
+
+  const buildHorairesText = (oh: Record<string, any>) =>
+    JOURS.filter((j) => oh[j.key]?.open)
+      .map((j) => `${j.label} ${oh[j.key].start}-${oh[j.key].end}`)
+      .join(", ") || "";
+
+  const [openingHours, setOpeningHours] = useState<Record<string, any>>(defaultOpeningHours());
+
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
@@ -321,7 +343,10 @@ function AgencyDialog({
       if (data.latitude) formDataToSend.append('latitude', data.latitude);
       if (data.longitude) formDataToSend.append('longitude', data.longitude);
       if (data.details) formDataToSend.append('details', data.details);
-      if (data.horaires) formDataToSend.append('horaires', data.horaires);
+      // Générer le texte horaires depuis opening_hours
+      const horairesTxt = buildHorairesText(openingHours);
+      if (horairesTxt) formDataToSend.append('horaires', horairesTxt);
+      formDataToSend.append('opening_hours', JSON.stringify(openingHours));
       formDataToSend.append('active', data.active.toString());
       
       // Ajouter l'image si elle existe
@@ -392,6 +417,12 @@ function AgencyDialog({
         image: null,
         services_ids: agency.services_summary ? agency.services_summary.map((s: any) => s.id) : [],
       });
+      // Pré-remplir les horaires structurés
+      if (agency.opening_hours && typeof agency.opening_hours === 'object') {
+        setOpeningHours({ ...defaultOpeningHours(), ...agency.opening_hours });
+      } else {
+        setOpeningHours(defaultOpeningHours());
+      }
       setImagePreview(agency.image_url || null);
     } else {
       setFormData({
@@ -405,10 +436,12 @@ function AgencyDialog({
         latitude: "",
         longitude: "",
         details: "",
+        horaires: "",
         active: true,
         image: null,
         services_ids: [],
       });
+      setOpeningHours(defaultOpeningHours());
       setImagePreview(null);
     }
   }, [agency, open]);
@@ -800,16 +833,61 @@ function AgencyDialog({
               <p className="text-xs text-gray-500">Description complète de l'agence</p>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="horaires">Horaires d'ouverture</Label>
-              <Textarea
-                id="horaires"
-                value={formData.horaires}
-                onChange={(e) => setFormData({ ...formData, horaires: e.target.value })}
-                rows={3}
-                placeholder="Ex : Lun-Ven 9h-18h, Sam 9h-12h"
-              />
-              <p className="text-xs text-gray-500">Horaires affichés sur la fiche de l'agence</p>
+            <div className="space-y-3">
+              <Label>Horaires d'ouverture</Label>
+              <div className="border rounded-lg p-3 space-y-2">
+                {JOURS.map((jour) => (
+                  <div key={jour.key} className="flex items-center gap-3">
+                    <Checkbox
+                      id={`jour-${jour.key}`}
+                      checked={openingHours[jour.key]?.open ?? false}
+                      onCheckedChange={(checked) =>
+                        setOpeningHours((prev) => ({
+                          ...prev,
+                          [jour.key]: { ...prev[jour.key], open: !!checked },
+                        }))
+                      }
+                    />
+                    <Label
+                      htmlFor={`jour-${jour.key}`}
+                      className="w-24 cursor-pointer text-sm font-medium"
+                    >
+                      {jour.label}
+                    </Label>
+                    {openingHours[jour.key]?.open && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <input
+                          type="time"
+                          value={openingHours[jour.key]?.start ?? "09:00"}
+                          onChange={(e) =>
+                            setOpeningHours((prev) => ({
+                              ...prev,
+                              [jour.key]: { ...prev[jour.key], start: e.target.value },
+                            }))
+                          }
+                          className="border rounded px-2 py-1 text-sm w-28"
+                        />
+                        <span className="text-gray-500">—</span>
+                        <input
+                          type="time"
+                          value={openingHours[jour.key]?.end ?? "18:00"}
+                          onChange={(e) =>
+                            setOpeningHours((prev) => ({
+                              ...prev,
+                              [jour.key]: { ...prev[jour.key], end: e.target.value },
+                            }))
+                          }
+                          className="border rounded px-2 py-1 text-sm w-28"
+                        />
+                      </div>
+                    )}
+                    {!openingHours[jour.key]?.open && (
+                      <span className="text-xs text-gray-400 italic">Fermé</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500">Cochez les jours d'ouverture et définissez les horaires</p>
             </div>
           </div>
 

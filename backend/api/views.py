@@ -18,7 +18,7 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
-from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile, ContactMessage
 from .serializers import (
     UserSerializer, ServiceSerializer, ServiceSummarySerializer,
     AgencySerializer, AgencySummarySerializer, ContactSerializer,
@@ -26,7 +26,7 @@ from .serializers import (
     CategorySerializer, ServiceReviewSerializer, ServiceFAQSerializer, QuoteRequestSerializer,
     ServiceAdvantageSerializer, SiteSettingsSerializer, InvoiceSerializer,
     QuoteFormStepSerializer, QuoteFormOptionSerializer, PatientSerializer, PresenceSerializer,
-    EmployeeProfileSerializer
+    EmployeeProfileSerializer, ContactMessageSerializer
 )
 from .permissions import (
     IsSuperAdmin, IsAdminOrReadOnly, IsOwnerOrAdmin, IsClientOrReadOnly,
@@ -581,18 +581,18 @@ class ServiceReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ServiceReviewSerializer
     permission_classes = [IsAdminOrPublicReadOnly]
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
-    filterset_fields = ['service', 'approved']
+    filterset_fields = ['service', 'approved', 'display_on_page']
     ordering_fields = ['created_at', 'rating']
     ordering = ['-created_at']
-    
+
     def get_queryset(self):
         """Filtrage : seulement approuvés pour API publique"""
         queryset = ServiceReview.objects.select_related('service', 'user')
-        
+
         # Si pas authentifié ou client, seulement approuvés ET affichables
         if not self.request.user.is_authenticated or getattr(self.request.user, 'role', None) == 'CLIENT':
             queryset = queryset.filter(approved=True, display_on_page=True)
-        
+
         return queryset
     
     def get_permissions(self):
@@ -2959,3 +2959,31 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
         except Exception as e:
             from rest_framework.exceptions import ValidationError
             raise ValidationError(f"Erreur lors de la mise à jour du profil: {str(e)}")
+
+
+class ContactMessageViewSet(viewsets.ModelViewSet):
+    """Messages de contact entrants — création publique, lecture admin seulement"""
+    queryset = ContactMessage.objects.all()
+    serializer_class = ContactMessageSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['status']
+    ordering_fields = ['created_at']
+    ordering = ['-created_at']
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
+    def get_queryset(self):
+        user = self.request.user
+        if not user.is_authenticated:
+            return ContactMessage.objects.none()
+        if getattr(user, 'role', None) not in ('ADMIN', 'SUPERADMIN'):
+            return ContactMessage.objects.none()
+        return ContactMessage.objects.all()
+
+    def partial_update(self, request, *args, **kwargs):
+        """Permet de mettre à jour uniquement le statut"""
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)

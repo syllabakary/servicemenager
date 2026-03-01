@@ -283,7 +283,6 @@ export default function AdminParametres() {
       });
     },
     onError: (error: any) => {
-      console.error("Erreur:", error);
       toast({
         title: "❌ Erreur",
         description: error.response?.data?.detail || "Une erreur s'est produite lors de l'enregistrement",
@@ -330,7 +329,6 @@ export default function AdminParametres() {
       });
     },
     onError: (error: any) => {
-      console.error("Erreur:", error);
       toast({
         title: "❌ Erreur",
         description: error.response?.data?.detail || "Une erreur s'est produite lors de l'enregistrement",
@@ -822,8 +820,8 @@ export default function AdminParametres() {
           applyColor(newSettings.text_primary_color || newSettings.primary_color, "text-primary");
           applyColor(newSettings.text_link_color || newSettings.primary_color, "text-link");
           applyColor(newSettings.text_link_hover_color || newSettings.secondary_color, "text-link-hover");
-        } catch (err) {
-          console.error("Erreur lors de la mise à jour des couleurs:", err);
+        } catch {
+          // silence
         }
       }, 200);
       
@@ -919,8 +917,8 @@ export default function AdminParametres() {
               smtp_password: newSettings.smtp_password || "",
             });
           }
-        } catch (err) {
-          console.error("Erreur lors de la mise à jour des paramètres SMTP:", err);
+        } catch {
+          // silence
         }
       }, 200);
       

@@ -74,14 +74,8 @@ export default function ScanQR() {
       // Demander la permission de géolocalisation (sans attendre de réponse)
       // Utiliser des options plus permissives pour fonctionner en HTTP aussi
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          console.log("✅ Permission de géolocalisation accordée:", {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude
-          });
-        },
-        (error) => {
-          console.warn("⚠️ Permission de géolocalisation refusée ou erreur:", error.message);
+        () => {},
+        () => {
           // Ne pas bloquer l'application si la géolocalisation échoue
         },
         {
@@ -90,10 +84,8 @@ export default function ScanQR() {
           maximumAge: 300000 // Accepter une position en cache jusqu'à 5 minutes
         }
       );
-    } else {
-      console.warn("⚠️ La géolocalisation n'est pas disponible sur cet appareil");
     }
-    
+
     // Vérifier si on est sur iOS ou Android sans HTTPS
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const isAndroid = /Android/.test(navigator.userAgent);
@@ -108,7 +100,6 @@ export default function ScanQR() {
     
     // Sur iOS et Android, la caméra nécessite HTTPS (sauf localhost/IP locale)
     if ((isIOS || isAndroid) && !isHTTPS) {
-      console.warn(`${isIOS ? 'iOS' : 'Android'} détecté sans HTTPS - activation automatique du mode manuel`);
       setCameraAvailable(false);
       setScanMode("manual");
     } else {
@@ -134,12 +125,8 @@ export default function ScanQR() {
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
             stream.getTracks().forEach(track => track.stop()); // Arrêter immédiatement
             setCameraAvailable(true);
-            console.log("Caméra disponible et accessible");
           } catch (err: any) {
-            console.warn("Caméra non accessible:", err);
-            // Si c'est une erreur de permission, on peut quand même essayer
             if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-              console.warn("Permission caméra refusée, mais on peut essayer quand même");
               setCameraAvailable(true); // On laisse l'utilisateur essayer
             } else {
               setCameraAvailable(false);
@@ -147,12 +134,10 @@ export default function ScanQR() {
             }
           }
         } else {
-          console.warn("getUserMedia non disponible");
           setCameraAvailable(false);
           setScanMode("manual");
         }
-      }).catch((err) => {
-        console.error("Erreur lors du chargement de html5-qrcode:", err);
+      }).catch(() => {
         setCameraAvailable(false);
         setScanMode("manual");
       });
@@ -284,7 +269,6 @@ export default function ScanQR() {
             }
           );
         } catch (iosError: any) {
-          console.log("Erreur caméra iOS, essai avec contraintes alternatives:", iosError);
           // Essayer avec la caméra avant
           try {
             await scanner.start(
@@ -321,7 +305,6 @@ export default function ScanQR() {
             }
           );
         } catch (androidError: any) {
-          console.log("Erreur caméra Android arrière, essai avec la caméra avant:", androidError);
           // Si la caméra arrière échoue, essayer la caméra avant
           try {
             await scanner.start(
@@ -359,7 +342,6 @@ export default function ScanQR() {
           );
         } catch (envError: any) {
           // Si la caméra arrière échoue, essayer la caméra avant (user)
-          console.log("Caméra arrière non disponible, essai avec la caméra avant");
           try {
             await scanner.start(
               { facingMode: "user" },
@@ -379,7 +361,6 @@ export default function ScanQR() {
       }
     } catch (err: any) {
       setIsScanning(false);
-      console.error("Erreur caméra:", err);
       
       let errorMessage = "Impossible d'accéder à la caméra.";
       let errorTitle = "❌ Erreur caméra";
@@ -463,7 +444,6 @@ export default function ScanQR() {
         setPatientScans([]);
       }
     } catch (error: any) {
-      console.error("Erreur lors de la récupération des scans:", error);
       // Ne pas bloquer le processus si la récupération échoue
       setPatientScans([]);
     }
@@ -527,16 +507,7 @@ export default function ScanQR() {
           });
           latitude = position.coords.latitude;
           longitude = position.coords.longitude;
-          console.log("✅ Localisation GPS capturée au moment du scan:", { latitude, longitude });
         } catch (error: any) {
-          // Si la localisation échoue, on continue quand même sans GPS mais on log l'erreur
-          const errorMsg = error?.message || String(error);
-          console.warn("⚠️ Impossible de capturer la localisation GPS:", errorMsg);
-          console.warn("Détails de l'erreur:", {
-            code: error?.code,
-            message: errorMsg,
-            name: error?.name
-          });
           // Afficher un avertissement à l'utilisateur mais continuer quand même
           toast({
             title: "⚠️ Localisation GPS non disponible",
@@ -545,7 +516,6 @@ export default function ScanQR() {
           });
         }
       } else {
-        console.warn("❌ La géolocalisation n'est pas disponible sur cet appareil");
         toast({
           title: "⚠️ Géolocalisation non disponible",
           description: "Votre appareil ne supporte pas la géolocalisation. Le scan sera enregistré sans coordonnées GPS.",
@@ -603,7 +573,6 @@ export default function ScanQR() {
       });
     },
     onError: (error: any) => {
-      console.error("Erreur lors du scan:", error);
       const errorData = error?.response?.data;
       
       // Si c'est une erreur de limite atteinte, afficher le dialog de confirmation
@@ -624,7 +593,6 @@ export default function ScanQR() {
       // Gérer les erreurs 400 avec message détaillé
       if (error?.response?.status === 400) {
         const errorDetails = error.response.data;
-        console.error("Détails de l'erreur 400:", errorDetails);
         const errorMessage = errorDetails?.error || errorDetails?.message || "Erreur lors de l'enregistrement du scan";
         setShowConfirmDialog(false);
         setShowStatusDialog(false);

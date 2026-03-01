@@ -171,7 +171,6 @@ export default function AdminPatients() {
       });
     },
     onError: (error: any) => {
-      console.error("Erreur génération QR:", error);
       toast({
         title: "❌ Erreur",
         description: error?.response?.data?.error || "Impossible de générer l'image QR code. Vérifiez que la bibliothèque qrcode est installée.",
@@ -266,7 +265,6 @@ export default function AdminPatients() {
       setQrCodeImageUrl(blobUrl);
       setQrCodeModal({ open: true, patient });
     } catch (error: any) {
-      console.error("Erreur chargement QR:", error);
       toast({
         title: "❌ Erreur",
         description: error?.response?.data?.error || "Impossible de charger le QR code.",
@@ -316,8 +314,6 @@ export default function AdminPatients() {
         description: "Le QR code a été téléchargé avec succès.",
       });
     } catch (error: any) {
-      console.error("Erreur téléchargement QR:", error);
-      
       // Essayer d'extraire le message d'erreur de la réponse
       let errorMessage = "Impossible de télécharger le QR code.";
       

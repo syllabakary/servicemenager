@@ -21,6 +21,7 @@ import {
   FaChevronRight,
   FaQrcode,
   FaLock,
+  FaEnvelope,
 } from "react-icons/fa";
 
 interface SidebarProps {
@@ -114,6 +115,12 @@ export function Sidebar({ userRole }: SidebarProps) {
           name: "Avis clients",
           icon: FaStar,
           path: "/admin/avis",
+          roles: ["ADMIN", "SUPERADMIN"],
+        },
+        {
+          name: "Messages contact",
+          icon: FaEnvelope,
+          path: "/admin/contact-messages",
           roles: ["ADMIN", "SUPERADMIN"],
         },
         {

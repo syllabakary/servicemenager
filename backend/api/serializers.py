@@ -1,7 +1,7 @@
 import os
 from rest_framework import serializers
 from django.conf import settings
-from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile, ContactMessage
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -26,14 +26,30 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ['date_joined', 'created_at', 'created_by']
         extra_kwargs = {
             'password': {'write_only': True, 'required': False},
+            'username': {'required': False, 'allow_blank': True},
             'matricule': {'required': False, 'allow_blank': True, 'allow_null': True}
         }
-    
+
     def create(self, validated_data):
         password = validated_data.pop('password', None)
         if not password:
             raise serializers.ValidationError({'password': 'Le mot de passe est requis pour la création.'})
-        
+
+        # Générer le username automatiquement si absent
+        if not validated_data.get('username'):
+            base = (
+                (validated_data.get('first_name') or '') +
+                (validated_data.get('last_name') or '')
+            ).lower().replace(' ', '')
+            if not base:
+                base = 'user'
+            username = base
+            counter = 1
+            while CustomUser.objects.filter(username=username).exists():
+                username = f"{base}{counter}"
+                counter += 1
+            validated_data['username'] = username
+
         user = CustomUser(**validated_data)
         # Validation du mot de passe seulement si pas en DEBUG
         from django.conf import settings
@@ -206,7 +222,7 @@ class AgencySerializer(serializers.ModelSerializer):
         fields = [
             'id', 'name', 'slug', 'address', 'city', 'postal_code',
             'phone', 'email', 'latitude', 'longitude', 'active',
-            'details', 'horaires', 'image', 'image_url', 'created_by', 'created_by_username',
+            'details', 'horaires', 'opening_hours', 'image', 'image_url', 'created_by', 'created_by_username',
             'contacts_count', 'services_count', 'services_summary', 'services_ids',
             'created_at', 'updated_at', 'url'
         ]
@@ -1017,3 +1033,10 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(obj.documents_administratifs.url)
             return obj.documents_administratifs.url
         return None
+
+
+class ContactMessageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContactMessage
+        fields = ['id', 'name', 'email', 'subject', 'message', 'status', 'created_at']
+        read_only_fields = ['id', 'created_at']

@@ -42,6 +42,7 @@ const EmployeDetail = React.lazy(() => import("@/pages/admin/EmployeDetail"));
 const AdminPatients = React.lazy(() => import("@/pages/admin/Patients"));
 const AdminScans = React.lazy(() => import("@/pages/admin/Scans"));
 const AdminChangePassword = React.lazy(() => import("@/pages/admin/AdminChangePassword"));
+const AdminContactMessages = React.lazy(() => import("@/pages/admin/ContactMessages"));
 const ScanQR = React.lazy(() => import("@/pages/employe/ScanQR"));
 const EmployeLogin = React.lazy(() => import("@/pages/employe/EmployeLogin"));
 const EmployeDashboard = React.lazy(() => import("@/pages/employe/EmployeDashboard"));
@@ -85,6 +86,7 @@ function Router() {
       <Route path="/admin/patients" component={AdminPatients} />
       <Route path="/admin/scans" component={AdminScans} />
       <Route path="/admin/change-password" component={AdminChangePassword} />
+      <Route path="/admin/contact-messages" component={AdminContactMessages} />
       <Route path="/employe/login" component={EmployeLogin} />
       <Route path="/employe/dashboard" component={EmployeDashboard} />
       <Route path="/employe/scan" component={ScanQR} />

@@ -289,7 +289,6 @@ function PageDialog({
           return response.data;
         }
       } catch (error: any) {
-        console.error("Erreur lors de l'enregistrement:", error);
         if (error.response) {
           throw new Error(error.response.data?.detail || error.response.data?.message || "Erreur lors de l'enregistrement");
         }
@@ -297,7 +296,6 @@ function PageDialog({
       }
     },
     onSuccess: (data) => {
-      console.log("Enregistrement réussi:", data);
       queryClient.invalidateQueries({ queryKey: ["admin-pages"] });
       // Invalider le cache du banner si c'est le home_banner qui est modifié
       if (page?.key === 'home_banner' || formData.key === 'home_banner') {
@@ -307,7 +305,6 @@ function PageDialog({
       onSuccess();
     },
     onError: (error: any) => {
-      console.error("Erreur de mutation:", error);
       const errorMessage = error.response?.data?.detail || error.response?.data?.message || error.message || "Une erreur s'est produite lors de l'enregistrement";
       toast({
         title: "❌ Erreur",
@@ -358,9 +355,6 @@ function PageDialog({
       });
       return;
     }
-    
-    console.log("Soumission du formulaire:", formData);
-    console.log("Page actuelle:", page);
     
     // Appeler la mutation
     saveMutation.mutate(formData);

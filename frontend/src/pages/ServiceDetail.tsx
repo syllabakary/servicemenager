@@ -369,7 +369,20 @@ export default function ServiceDetail() {
     queryFn: async () => {
       const response = await fetch(`${API_URL}/services/?slug=${serviceSlug}`);
       const data = await response.json();
-      return data.results?.[0] || null;
+      const s = data.results?.[0] || null;
+      if (!s) return null;
+      const parseArr = (v: any) => {
+        if (Array.isArray(v)) return v;
+        if (typeof v === "string") { try { return JSON.parse(v); } catch { return []; } }
+        return [];
+      };
+      return {
+        ...s,
+        features: parseArr(s.features),
+        guarantees: parseArr(s.guarantees),
+        included_services: parseArr(s.included_services),
+        process_steps: parseArr(s.process_steps),
+      };
     },
     enabled: !!serviceSlug,
   });

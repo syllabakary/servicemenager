@@ -261,6 +261,18 @@ export function Navbar() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" side="top" className="w-56 bg-white border border-gray-200 shadow-lg" sideOffset={5}>
+                      {item.path === "/services" && (
+                        <>
+                          <DropdownMenuItem
+                            className="cursor-pointer gap-2 font-semibold hover:bg-site-primary/10 hover:text-gray-900 focus:bg-site-primary/10 focus:text-gray-900"
+                            onClick={() => navigate("/services")}
+                          >
+                            <FaBriefcase className="w-4 h-4 text-site-primary" />
+                            Tous les services
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                        </>
+                      )}
                       {item.subItems.map((subItem, idx) => (
                         <DropdownMenuSub key={idx}>
                           <DropdownMenuSubTrigger className="gap-2 hover:bg-site-primary/10 focus:bg-site-primary/10 focus:text-gray-900 data-[state=open]:bg-site-primary/10">
@@ -415,6 +427,15 @@ export function Navbar() {
                             exit={{ opacity: 0, height: 0 }}
                             className="pl-2 sm:pl-3 pr-2 space-y-1 mt-1.5 bg-white rounded-lg w-full"
                           >
+                          {item.path === "/services" && (
+                            <button
+                              onClick={(e) => { e.stopPropagation(); navigate("/services"); setIsMobileMenuOpen(false); }}
+                              className="flex items-center gap-2 w-full px-2 py-2 text-xs sm:text-sm font-semibold text-site-primary hover:bg-site-primary/10 rounded-md transition-colors border-l-2 border-site-primary pl-2 sm:pl-3 ml-1 sm:ml-2"
+                            >
+                              <FaBriefcase className="w-4 h-4" />
+                              Tous les services
+                            </button>
+                          )}
                           {item.subItems.map((subItem, idx) => {
                             const subSubMenuKey = `${item.path}-${idx}`;
                             const isSubSubMenuOpen = openSubMenus[subSubMenuKey] || false;

@@ -12,6 +12,7 @@ interface ServiceCardProps {
     nom: string;
     description: string;
     icone: string;
+    slug?: string;
   };
   icon: IconType;
   delay?: number;
@@ -86,7 +87,7 @@ export function ServiceCard({ service, icon: Icon, delay = 0 }: ServiceCardProps
               </Button>
             )}
             
-            <Link href="/agences" data-testid={`link-discover-service-${service.id}`}>
+            <Link href={service.slug ? `/services/${service.slug}` : `/services`} data-testid={`link-discover-service-${service.id}`}>
               <Button 
                 variant="ghost" 
                 size="sm"

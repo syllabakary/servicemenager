@@ -43,6 +43,7 @@ interface Service {
   nom: string;
   description: string;
   icone?: string;
+  slug?: string;
 }
 
 interface Agency {
@@ -470,12 +471,13 @@ export default function Home() {
   });
 
   // Mapper les services de l'API vers le format attendu
-  const services: Service[] = servicesData?.length > 0 
+  const services: Service[] = servicesData?.length > 0
     ? servicesData.slice(0, 3).map((s: any) => ({
         id: s.id,
         nom: s.name,
         description: s.short_description || s.detailed_description || "",
         icone: s.icon || "Sparkles",
+        slug: s.slug,
       }))
     : mockServices.slice(0, 3);
 

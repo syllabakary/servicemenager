@@ -233,16 +233,30 @@ const keywordIconMap: Array<{ keywords: string[]; icon: any }> = [
 // 🎯 Fonction pour détecter l'icône appropriée selon les mots-clés
 function getServiceIcon(serviceName: string, serviceDescription: string = ''): any {
   const text = `${serviceName} ${serviceDescription}`.toLowerCase();
-  
+
   // Parcourir les mappings de mots-clés
   for (const mapping of keywordIconMap) {
     if (mapping.keywords.some(keyword => text.includes(keyword))) {
       return mapping.icon;
     }
   }
-  
+
   // Si aucun mot-clé n'est trouvé, retourner l'icône par défaut
   return HiSparkles;
+}
+
+// Mapping nom string (stocké en DB) → composant icône
+const iconComponentsMap: Record<string, any> = {
+  HiSparkles, FaBroom, FaBaby, FaTree, FaPaintBrush, FaShieldAlt, FaTruck,
+  FaWrench, FaHome, FaTools, FaHammer, FaCar, FaHeartbeat, FaGraduationCap,
+  FaDog, FaSnowflake, FaLightbulb, FaUtensils, FaSwimmingPool, FaCut,
+};
+
+function resolveServiceIcon(service: any): any {
+  if (service?.icon && service.icon !== "auto" && iconComponentsMap[service.icon]) {
+    return iconComponentsMap[service.icon];
+  }
+  return getServiceIcon(service?.name || '', `${service?.short_description || ''} ${service?.detailed_description || ''}`);
 }
 
 // Données mockées pour les services
@@ -488,11 +502,8 @@ export default function ServiceDetail() {
     );
   }
 
-  // Déterminer l'icône du service selon les mots-clés
-  const Icon = getServiceIcon(
-    service.name || '',
-    `${service.short_description || ''} ${service.detailed_description || ''}`
-  );
+  // Déterminer l'icône du service (DB en priorité, sinon auto par mots-clés)
+  const Icon = resolveServiceIcon(service);
   const similarServices = (similarServicesData || [])
     .filter((s: any) => s.id !== service.id && s.active)
     .slice(0, 3);
@@ -552,7 +563,7 @@ export default function ServiceDetail() {
               </Badge>
               
               <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-6">
-                {!service.image_url && (
+                {!service.image_url && service.show_icon !== false && (
                   <div className="w-16 h-16 sm:w-18 sm:h-18 md:w-20 md:h-20 flex items-center justify-center rounded-2xl bg-site-primary/10 shadow-lg border border-site-primary/20">
                     <Icon className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 text-site-primary" />
                 </div>
@@ -579,7 +590,7 @@ export default function ServiceDetail() {
 
               {/* Quick info cards */}
               <div className="grid grid-cols-2 gap-4 mb-8">
-                {service.duration && (
+                {service.show_pricing !== false && service.duration && (
                 <div className="bg-white rounded-xl p-4 shadow-md border border-gray-100">
                   <div className="flex items-center gap-2 text-gray-600 mb-1">
                       <FaClock className="w-4 h-4 text-site-primary" />
@@ -588,7 +599,7 @@ export default function ServiceDetail() {
                     <p className="text-lg font-bold text-gray-900">{service.duration}</p>
                 </div>
                 )}
-                {(service.price_label || service.price_per_hour) && (
+                {service.show_pricing !== false && (service.price_label || service.price_per_hour) && (
                 <div className="bg-white rounded-xl p-4 shadow-md border border-gray-100">
                   <div className="flex items-center gap-2 text-gray-600 mb-1">
                       <FaDollarSign className="w-4 h-4 text-site-primary" />
@@ -629,18 +640,27 @@ export default function ServiceDetail() {
                 <CardContent className="p-6 space-y-6">
                   <div className="space-y-4">
                     <div className="bg-site-primary/10 rounded-xl p-6 border border-site-primary/20">
-                      <div className="flex items-baseline justify-between mb-2">
-                        <span className="text-sm text-gray-600 font-medium">À partir de</span>
-                        <Badge className="bg-green-100 text-green-700 border-green-200">
-                          Meilleur prix
-                        </Badge>
-                      </div>
-                      <p className="text-4xl font-bold text-site-text-primary mb-1">
-                        {service.price_label || (service.price_per_hour ? `À partir de ${service.price_per_hour}${service.currency === 'EUR' ? '€' : service.currency === 'USD' ? '$' : ' FCFA'}` : "Sur devis")}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        {service.price_per_hour ? "par heure • " : ""}Devis gratuit
-                      </p>
+                      {service.show_pricing !== false ? (
+                        <>
+                          <div className="flex items-baseline justify-between mb-2">
+                            <span className="text-sm text-gray-600 font-medium">À partir de</span>
+                            <Badge className="bg-green-100 text-green-700 border-green-200">
+                              Meilleur prix
+                            </Badge>
+                          </div>
+                          <p className="text-4xl font-bold text-site-text-primary mb-1">
+                            {service.price_label || (service.price_per_hour ? `À partir de ${service.price_per_hour}${service.currency === 'EUR' ? '€' : service.currency === 'USD' ? '$' : ' FCFA'}` : "Sur devis")}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {service.price_per_hour ? "par heure • " : ""}Devis gratuit
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <p className="text-2xl font-bold text-site-text-primary mb-1">Sur devis</p>
+                          <p className="text-sm text-gray-600">Prix personnalisé selon vos besoins • Devis gratuit</p>
+                        </>
+                      )}
                     </div>
 
                     <div className="space-y-3">

@@ -67,14 +67,6 @@ import { motion } from "framer-motion";
 import { API_URL } from "@/config/api";
 import { ImageWithFallback } from "@/components/ImageWithFallback";
 
-// 🧩 Type de service
-interface Service {
-  id: number;
-  nom: string;
-  description: string;
-  icone: string;
-}
-
 // 🧠 Mapping des icônes disponibles
 const iconMap: Record<string, any> = {
   Sparkles: HiSparkles,
@@ -237,129 +229,32 @@ const keywordIconMap: Array<{ keywords: string[]; icon: any }> = [
 // 🎯 Fonction pour détecter l'icône appropriée selon les mots-clés
 function getServiceIcon(serviceName: string, serviceDescription: string = ''): any {
   const text = `${serviceName} ${serviceDescription}`.toLowerCase();
-  
+
   // Parcourir les mappings de mots-clés
   for (const mapping of keywordIconMap) {
     if (mapping.keywords.some(keyword => text.includes(keyword))) {
       return mapping.icon;
     }
   }
-  
+
   // Si aucun mot-clé n'est trouvé, retourner l'icône par défaut
   return HiSparkles;
 }
 
-// 🌟 Données fictives enrichies
-const mockServices: (Service & {
-  avantages: string[];
-  duree: string;
-  prix: string;
-  note: number;
-  nombreAvis: number;
-})[] = [
-  {
-    id: 1,
-    nom: "Nettoyage résidentiel",
-    description:
-      "Un service complet pour que votre maison brille du sol au plafond. Nos professionnels utilisent des produits écologiques et des techniques éprouvées.",
-    icone: "Sparkles",
-    avantages: [
-      "Aides-ménagères qualifiées et valorisées",
-      "Prestations 100% personnalisables",
-      "Aucune gestion administrative",
-      "Produits écologiques certifiés"
-    ],
-    duree: "2-4 heures",
-    prix: "À partir de 25€/heure",
-    note: 4.8,
-    nombreAvis: 1245,
-  },
-  {
-    id: 2,
-    nom: "Garde d'enfants à domicile",
-    description:
-      "Des nounous qualifiées et bienveillantes pour prendre soin de vos petits trésors. Service flexible adapté à vos horaires.",
-    icone: "Baby",
-    avantages: [
-      "Nounous certifiées et expérimentées",
-      "Flexibilité des horaires",
-      "Activités d'éveil ludiques",
-      "Suivi personnalisé de l'enfant"
-    ],
-    duree: "Sur mesure",
-    prix: "À partir de 20€/heure",
-    note: 4.9,
-    nombreAvis: 892,
-  },
-  {
-    id: 3,
-    nom: "Entretien de jardin",
-    description:
-      "Confiez vos espaces verts à nos experts pour un jardin toujours éclatant. Taille, tonte, plantation et aménagement.",
-    icone: "TreeDeciduous",
-    avantages: [
-      "Paysagistes professionnels",
-      "Entretien régulier ou ponctuel",
-      "Conseils personnalisés",
-      "Matériel professionnel inclus"
-    ],
-    duree: "1-3 heures",
-    prix: "À partir de 30€/heure",
-    note: 4.7,
-    nombreAvis: 567,
-  },
-  {
-    id: 4,
-    nom: "Peinture intérieure",
-    description:
-      "Rafraîchissez votre intérieur avec des finitions modernes et durables. Peintres professionnels pour un résultat impeccable.",
-    icone: "Paintbrush",
-    avantages: [
-      "Peintres certifiés",
-      "Finitions de qualité",
-      "Peintures écologiques disponibles",
-      "Protection des meubles incluse"
-    ],
-    duree: "1-3 jours",
-    prix: "À partir de 35€/m²",
-    note: 4.6,
-    nombreAvis: 423,
-  },
-  {
-    id: 5,
-    nom: "Sécurité & Surveillance",
-    description:
-      "Protégez votre foyer ou votre entreprise avec nos solutions connectées. Installation et maintenance professionnelles.",
-    icone: "Shield",
-    avantages: [
-      "Systèmes connectés modernes",
-      "Installation professionnelle",
-      "Maintenance incluse",
-      "Support 24/7"
-    ],
-    duree: "Installation 2-4h",
-    prix: "À partir de 150€/mois",
-    note: 4.8,
-    nombreAvis: 312,
-  },
-  {
-    id: 6,
-    nom: "Déménagement facile",
-    description:
-      "Nous prenons soin de vos biens du départ à l'arrivée, sans stress. Équipe expérimentée et matériel adapté.",
-    icone: "Truck",
-    avantages: [
-      "Équipe expérimentée",
-      "Matériel professionnel",
-      "Assurance incluse",
-      "Déménagement complet"
-    ],
-    duree: "1 journée",
-    prix: "À partir de 500€",
-    note: 4.9,
-    nombreAvis: 678,
-  },
-];
+// Mapping nom string (stocké en DB) → composant icône
+const iconComponentsMap: Record<string, any> = {
+  HiSparkles, FaBroom, FaBaby, FaTree, FaPaintBrush, FaShieldAlt, FaTruck,
+  FaWrench, FaHome, FaTools, FaHammer, FaCar, FaHeartbeat, FaGraduationCap,
+  FaDog, FaSnowflake, FaLightbulb, FaUtensils, FaSwimmingPool, FaCut,
+};
+
+function resolveServiceIcon(service: any): any {
+  if (service.icon && service.icon !== "auto" && iconComponentsMap[service.icon]) {
+    return iconComponentsMap[service.icon];
+  }
+  return getServiceIcon(service.name || '', `${service.short_description || ''} ${service.detailed_description || ''}`);
+}
+
 
 export default function Services() {
   const [, setLocation] = useLocation();
@@ -699,10 +594,7 @@ export default function Services() {
               }}
             >
               {filteredServices.map((service: any) => {
-              const IconComponent = getServiceIcon(
-                service.name || '',
-                `${service.short_description || ''} ${service.detailed_description || ''}`
-              );
+              const IconComponent = resolveServiceIcon(service);
 
               return (
                 <motion.div
@@ -727,15 +619,17 @@ export default function Services() {
                       ) : (
                         <div className="w-full h-48 bg-gradient-to-br from-site-primary/10 to-site-primary/5 flex items-center justify-center">
                           <div className="w-20 h-20 rounded-xl bg-site-primary/20 flex items-center justify-center">
-                            <IconComponent className="w-10 h-10 text-site-primary" />
+                            {service.show_icon !== false && <IconComponent className="w-10 h-10 text-site-primary" />}
                           </div>
                         </div>
                       )}
                     <CardHeader className="pb-4">
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between mb-4 gap-3 sm:gap-0">
+                          {service.show_icon !== false && (
                           <div className="w-16 h-16 rounded-xl bg-site-primary/10 flex items-center justify-center group-hover:bg-site-button-primary transition-all duration-300 flex-shrink-0 border-2 border-site-primary/20 group-hover:border-site-button-primary">
                             <IconComponent className="w-8 h-8 text-site-primary group-hover:text-site-button-text transition-colors" />
-                        </div>
+                          </div>
+                          )}
                           {service.rating && (
                             <div className="flex items-center gap-1 bg-site-primary/10 border border-site-primary/20 px-3 py-1.5 rounded-full self-start sm:self-center">
                               <FaStar className="w-4 h-4 fill-site-primary text-site-primary" />
@@ -770,13 +664,13 @@ export default function Services() {
 
                       {/* Informations pratiques */}
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 pt-5 border-t-2 border-gray-100 text-sm">
-                          {service.duration && (
+                          {service.show_pricing !== false && service.duration && (
                             <div className="flex items-center gap-2 font-medium text-gray-700">
                               <FaClock className="w-5 h-5 text-site-primary" />
                               <span>{service.duration}</span>
                         </div>
                           )}
-                          {(service.price_label || service.price_per_hour) && (
+                          {service.show_pricing !== false && (service.price_label || service.price_per_hour) && (
                             <div className="flex items-center gap-2 font-bold text-site-text-primary">
                               <FaInfoCircle className="w-5 h-5" />
                               <span>{service.price_label || (service.price_per_hour ? `À partir de ${service.price_per_hour}€/heure` : "")}</span>

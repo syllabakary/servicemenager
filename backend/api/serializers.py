@@ -169,6 +169,7 @@ class ServiceSerializer(serializers.ModelSerializer):
             'image', 'image_url', 'active', 'order', 'category', 'category_name',
             'duration', 'price_per_hour', 'price_label', 'currency', 'contact_phone',
             'rating', 'review_count', 'show_reviews', 'show_faq',
+            'icon', 'show_icon', 'show_pricing',
             'included_services', 'features', 'guarantees', 'process_steps',
             'agencies', 'agencies_ids',
             'created_by', 'created_by_username', 'created_at', 'updated_at', 'url'
@@ -444,7 +445,11 @@ class QuoteRequestSerializer(serializers.ModelSerializer):
         initial_data = getattr(self, 'initial_data', {})
         calculated_price_from_frontend = initial_data.get('calculated_price') or validated_data.get('calculated_price')
         
-        if calculated_price_from_frontend:
+        # Si le service a show_pricing=False, forcer le prix à 0 quoi qu'il arrive
+        service = validated_data.get('service')
+        if service and not service.show_pricing:
+            validated_data['calculated_price'] = Decimal('0.00')
+        elif calculated_price_from_frontend:
             # Utiliser le prix calculé depuis le frontend
             try:
                 # Convertir en Decimal si c'est une chaîne ou un nombre
@@ -454,15 +459,12 @@ class QuoteRequestSerializer(serializers.ModelSerializer):
                     price_decimal = Decimal(str(calculated_price_from_frontend))
                 else:
                     price_decimal = calculated_price_from_frontend
-                
-                # S'assurer que le prix est positif
+
                 if price_decimal > 0:
                     validated_data['calculated_price'] = price_decimal
                 else:
-                    # Si prix = 0, calculer depuis les options
                     validated_data['calculated_price'] = self._calculate_price_from_options(validated_data)
             except (ValueError, TypeError, Exception) as e:
-                # Si erreur de conversion, calculer depuis les options
                 import logging
                 logger = logging.getLogger(__name__)
                 logger.warning(f"Erreur lors de la conversion du prix: {e}")
@@ -482,7 +484,11 @@ class QuoteRequestSerializer(serializers.ModelSerializer):
         
         if validated_data.get('service'):
             service = validated_data['service']
-            
+
+            # Si show_pricing est masqué, ne pas calculer de prix du tout
+            if not service.show_pricing:
+                return Decimal('0.00')
+
             # Ajouter le prix de base du service si défini
             if service.price_per_hour:
                 calculated_price += Decimal(str(service.price_per_hour))

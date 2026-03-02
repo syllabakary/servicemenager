@@ -212,6 +212,23 @@ class Service(models.Model):
         verbose_name="Afficher les FAQ",
         help_text="Si désactivé, la section FAQ ne sera pas affichée sur la page de détail"
     )
+    icon = models.CharField(
+        max_length=50,
+        blank=True,
+        null=True,
+        verbose_name="Icône",
+        help_text="Nom de l'icône (ex: FaBroom, FaBaby). Vide = auto selon le nom du service."
+    )
+    show_icon = models.BooleanField(
+        default=True,
+        verbose_name="Afficher l'icône",
+        help_text="Si désactivé, l'icône ne sera pas affichée sur les pages publiques"
+    )
+    show_pricing = models.BooleanField(
+        default=True,
+        verbose_name="Afficher la tarification",
+        help_text="Si désactivé, le prix et la durée ne seront pas affichés sur les pages publiques"
+    )
     # Relation Many-to-Many avec les agences
     agencies = models.ManyToManyField(
         'Agency',

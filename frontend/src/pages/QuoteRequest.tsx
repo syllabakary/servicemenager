@@ -211,13 +211,18 @@ export default function QuoteRequest() {
   // Calcul du prix total en additionnant les prix des options sélectionnées
   const calculateTotalPrice = (): number => {
     let total = 0;
-    
-    // Prix de base du service (si défini)
+
+    // Si show_pricing est masqué, ne pas calculer de prix du tout
     const selectedService = services.find((s: any) => s.id === formData.serviceId);
+    if (selectedService?.show_pricing === false) {
+      return 0;
+    }
+
+    // Prix de base du service
     if (selectedService?.price_per_hour) {
       total += parseFloat(selectedService.price_per_hour) || 0;
     }
-    
+
     // Additionner les prix des options sélectionnées
     formSteps.forEach((step: any) => {
       const fieldKey = step.field_key;
@@ -445,8 +450,11 @@ export default function QuoteRequest() {
               ))}
             </div>
             <p className="text-sm text-white/80">Étape {currentStep} sur {totalSteps}</p>
-            {/* Affichage du prix calculé */}
-            {totalPrice > 0 && formData.serviceId && (
+            {/* Affichage du prix calculé (seulement si show_pricing actif) */}
+            {totalPrice > 0 && formData.serviceId && (() => {
+              const sel = services.find((s: any) => s.id === formData.serviceId);
+              return sel?.show_pricing !== false;
+            })() && (
               <div className="mt-4 bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3 inline-block">
                 <p className="text-sm text-white/90 mb-1">Prix estimé</p>
                 <p className="text-2xl font-bold text-[#FFD700]">

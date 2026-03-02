@@ -62,6 +62,8 @@ export default function DevisDetail() {
   const { toast } = useToast();
   const [, navigate] = useLocation();
   const [discountValue, setDiscountValue] = useState<string>("");
+  const [manualPriceValue, setManualPriceValue] = useState<string>("");
+  const [editingPrice, setEditingPrice] = useState(false);
   const [showSendConfirmDialog, setShowSendConfirmDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [sendingEmail, setSendingEmail] = useState(false);
@@ -134,6 +136,34 @@ export default function DevisDetail() {
     },
   });
 
+
+  // Mutation pour saisir le prix manuellement
+  const updatePriceMutation = useMutation({
+    mutationFn: async (price: string) => {
+      const token = localStorage.getItem("access_token");
+      await axios.patch(
+        `${API_URL}/quote-requests/${quoteId}/`,
+        { calculated_price: price },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["quote-request", quoteId] });
+      queryClient.invalidateQueries({ queryKey: ["admin-quote-requests"] });
+      toast({
+        title: "✅ Prix enregistré",
+        description: `Prix de ${manualPriceValue} € enregistré avec succès`,
+        variant: "default",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "❌ Erreur",
+        description: error.response?.data?.detail || "Erreur lors de l'enregistrement du prix",
+        variant: "destructive",
+      });
+    },
+  });
 
   // Calculer le prix après réduction
   const calculateFinalPrice = () => {
@@ -368,15 +398,23 @@ export default function DevisDetail() {
                   {(() => {
                     const price = quoteRequest?.calculated_price;
                     const priceValue = price ? parseFloat(String(price)) : 0;
-                    
+
                     if (priceValue > 0) {
                       return (
                         <>
                           <div className="flex items-center justify-between pb-2">
                             <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Prix calculé</p>
-                            <p className="text-lg font-bold text-gray-900">
-                              {priceValue.toFixed(2)} €
-                            </p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-lg font-bold text-gray-900">
+                                {priceValue.toFixed(2)} €
+                              </p>
+                              <button
+                                onClick={() => { setEditingPrice(true); setManualPriceValue(priceValue.toFixed(2)); }}
+                                className="text-xs text-amber-600 hover:text-amber-700 underline font-medium"
+                              >
+                                Modifier
+                              </button>
+                            </div>
                           </div>
                           {parseFloat(discountValue || 0) > 0 && (
                             <>
@@ -413,57 +451,134 @@ export default function DevisDetail() {
               </CardContent>
             </Card>
 
-            {/* Appliquer une réduction */}
-            <Card className="shadow-md border border-blue-200 bg-blue-50/30">
-              <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 py-3">
-                <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                  <FaPercent className="w-4 h-4 text-blue-600" />
-                  Appliquer une réduction
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="space-y-2.5">
-                  <div>
-                    <Label htmlFor="discount" className="text-xs font-medium text-gray-600 mb-1.5 block">
-                      Réduction en pourcentage (%)
-                    </Label>
-                    <Input
-                      id="discount"
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      max="100"
-                      value={discountValue}
-                      onChange={(e) => setDiscountValue(e.target.value)}
-                      placeholder="Ex: 10"
-                      className="h-9 text-sm"
-                    />
-                    <p className="text-xs text-gray-500 mt-1.5">
-                      Entrez un pourcentage (ex: 10 pour 10%)
-                    </p>
+            {/* Saisir / Modifier le prix manuellement */}
+            {(() => {
+              const price = quoteRequest?.calculated_price;
+              const priceValue = price ? parseFloat(String(price)) : 0;
+              if (priceValue > 0 && !editingPrice) return null;
+              return (
+                <Card className="shadow-md border border-amber-200 bg-amber-50/30">
+                  <CardHeader className="bg-gradient-to-r from-amber-50 to-amber-100 py-3">
+                    <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                      <FaDollarSign className="w-4 h-4 text-amber-600" />
+                      {editingPrice ? "Modifier le prix" : "Saisir le prix manuellement"}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <div className="space-y-2.5">
+                      <p className="text-xs text-amber-700 bg-amber-100 rounded p-2">
+                        {editingPrice
+                          ? "Corrigez le prix puis cliquez sur Enregistrer."
+                          : "Ce service est \"sur devis\". Saisissez le prix à proposer au client."}
+                      </p>
+                      <div>
+                        <Label htmlFor="manualPrice" className="text-xs font-medium text-gray-600 mb-1.5 block">
+                          Prix (€)
+                        </Label>
+                        <Input
+                          id="manualPrice"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          value={manualPriceValue}
+                          onChange={(e) => setManualPriceValue(e.target.value)}
+                          placeholder="Ex: 150.00"
+                          className="h-9 text-sm"
+                          autoFocus={editingPrice}
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        {editingPrice && (
+                          <Button
+                            onClick={() => { setEditingPrice(false); setManualPriceValue(""); }}
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 text-sm"
+                          >
+                            Annuler
+                          </Button>
+                        )}
+                        <Button
+                          onClick={() => {
+                            if (manualPriceValue) {
+                              updatePriceMutation.mutate(manualPriceValue, {
+                                onSuccess: () => setEditingPrice(false),
+                              });
+                            }
+                          }}
+                          disabled={updatePriceMutation.isPending || !manualPriceValue}
+                          size="sm"
+                          className={`${editingPrice ? "flex-1" : "w-full"} bg-amber-600 hover:bg-amber-700 text-white text-sm`}
+                        >
+                          {updatePriceMutation.isPending ? (
+                            <>
+                              <FaSpinner className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                              Enregistrement...
+                            </>
+                          ) : (
+                            "Enregistrer le prix"
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })()}
+
+            {/* Appliquer une réduction (seulement si prix > 0) */}
+            {parseFloat(String(quoteRequest?.calculated_price || 0)) > 0 && (
+              <Card className="shadow-md border border-blue-200 bg-blue-50/30">
+                <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 py-3">
+                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                    <FaPercent className="w-4 h-4 text-blue-600" />
+                    Appliquer une réduction
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <div className="space-y-2.5">
+                    <div>
+                      <Label htmlFor="discount" className="text-xs font-medium text-gray-600 mb-1.5 block">
+                        Réduction en pourcentage (%)
+                      </Label>
+                      <Input
+                        id="discount"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="100"
+                        value={discountValue}
+                        onChange={(e) => setDiscountValue(e.target.value)}
+                        placeholder="Ex: 10"
+                        className="h-9 text-sm"
+                      />
+                      <p className="text-xs text-gray-500 mt-1.5">
+                        Entrez un pourcentage (ex: 10 pour 10%)
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => {
+                        if (discountValue !== quoteRequest.discount_percentage) {
+                          updateDiscountMutation.mutate(discountValue);
+                        }
+                      }}
+                      disabled={updateDiscountMutation.isPending || discountValue === quoteRequest.discount_percentage}
+                      size="sm"
+                      className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                    >
+                      {updateDiscountMutation.isPending ? (
+                        <>
+                          <FaSpinner className="w-3.5 h-3.5 animate-spin mr-1.5" />
+                          Application...
+                        </>
+                      ) : (
+                        "Appliquer la réduction"
+                      )}
+                    </Button>
                   </div>
-                  <Button
-                    onClick={() => {
-                      if (discountValue !== quoteRequest.discount_percentage) {
-                        updateDiscountMutation.mutate(discountValue);
-                      }
-                    }}
-                    disabled={updateDiscountMutation.isPending || discountValue === quoteRequest.discount_percentage}
-                    size="sm"
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm"
-                  >
-                    {updateDiscountMutation.isPending ? (
-                      <>
-                        <FaSpinner className="w-3.5 h-3.5 animate-spin mr-1.5" />
-                        Application...
-                      </>
-                    ) : (
-                      "Appliquer la réduction"
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Actions */}
             <Card className="shadow-md border">

@@ -262,6 +262,29 @@ export default function AdminServices() {
   );
 }
 
+const ICON_OPTIONS = [
+  { value: "auto", label: "Auto (selon le nom du service)" },
+  { value: "HiSparkles", label: "✨ Étincelles (défaut)" },
+  { value: "FaBroom", label: "🧹 Balai (ménage/nettoyage)" },
+  { value: "FaBaby", label: "👶 Bébé (garde d'enfants)" },
+  { value: "FaTree", label: "🌳 Arbre (jardinage)" },
+  { value: "FaPaintBrush", label: "🖌️ Pinceau (peinture)" },
+  { value: "FaShieldAlt", label: "🛡️ Bouclier (sécurité)" },
+  { value: "FaTruck", label: "🚚 Camion (déménagement)" },
+  { value: "FaWrench", label: "🔧 Clé (réparation)" },
+  { value: "FaHome", label: "🏠 Maison" },
+  { value: "FaTools", label: "🔨 Outils" },
+  { value: "FaCar", label: "🚗 Voiture" },
+  { value: "FaHeartbeat", label: "❤️ Santé" },
+  { value: "FaGraduationCap", label: "🎓 Éducation" },
+  { value: "FaDog", label: "🐕 Animal de compagnie" },
+  { value: "FaSnowflake", label: "❄️ Climatisation" },
+  { value: "FaLightbulb", label: "💡 Électricité" },
+  { value: "FaUtensils", label: "🍽️ Cuisine" },
+  { value: "FaSwimmingPool", label: "🏊 Piscine" },
+  { value: "FaCut", label: "✂️ Coiffure/Esthétique" },
+];
+
 function ServiceDialog({
   service,
   open,
@@ -291,6 +314,9 @@ function ServiceDialog({
     review_count: 0,
     show_reviews: true,
     show_faq: true,
+    icon: "auto",
+    show_icon: true,
+    show_pricing: true,
     included_services: [] as string[],
     features: [] as string[],
     guarantees: [] as string[],
@@ -364,6 +390,9 @@ function ServiceDialog({
           data[key].forEach((agencyId: number) => {
             formDataToSend.append('agencies_ids', agencyId.toString());
           });
+        } else if (typeof data[key] === 'boolean') {
+          // Les booléens doivent être envoyés comme "true"/"false" explicitement
+          formDataToSend.append(key, data[key] ? 'true' : 'false');
         } else if (data[key] !== null && data[key] !== undefined && data[key] !== '') {
           formDataToSend.append(key, data[key]);
         }
@@ -423,6 +452,9 @@ function ServiceDialog({
         review_count: service.review_count || 0,
         show_reviews: service.show_reviews !== undefined ? service.show_reviews : true,
         show_faq: service.show_faq !== undefined ? service.show_faq : true,
+        icon: service.icon || "auto",
+        show_icon: service.show_icon !== undefined ? service.show_icon : true,
+        show_pricing: service.show_pricing !== undefined ? service.show_pricing : true,
         included_services: service.included_services || [],
         features: service.features || [],
         guarantees: service.guarantees || [],
@@ -455,6 +487,9 @@ function ServiceDialog({
         review_count: 0,
         show_reviews: true,
         show_faq: true,
+        icon: "auto",
+        show_icon: true,
+        show_pricing: true,
         included_services: [],
         features: [],
         guarantees: [],
@@ -556,8 +591,8 @@ function ServiceDialog({
       price_per_hour: formData.price_per_hour ? parseFloat(formData.price_per_hour) : null,
       rating: formData.rating ? parseFloat(formData.rating) : null,
       review_count: formData.review_count || 0,
-      // Les listes sont déjà des tableaux, pas besoin de conversion
-      // Les process_steps sont déjà des objets avec step, title, description
+      // "auto" signifie aucune icône fixée → envoyer null pour laisser l'auto-détection
+      icon: formData.icon === "auto" ? null : formData.icon,
     };
     // Retirer category_name qui n'est pas dans le modèle
     delete (submitData as any).category_name;
@@ -733,8 +768,25 @@ function ServiceDialog({
 
           {/* Tarification et durée */}
           <div className="border-t pt-4">
-            <h3 className="font-semibold text-gray-900 mb-4">Tarification et durée</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold text-gray-900">Tarification et durée</h3>
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="show_pricing"
+                  checked={formData.show_pricing}
+                  onCheckedChange={(checked) => setFormData({ ...formData, show_pricing: checked })}
+                />
+                <Label htmlFor="show_pricing" className="text-sm text-gray-600">
+                  {formData.show_pricing ? "Visible sur la page" : "Masquée"}
+                </Label>
+              </div>
+            </div>
+            {!formData.show_pricing && (
+              <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2 mb-3">
+                ⚠️ La tarification sera masquée sur les pages publiques. L'admin fixera le prix dans le panneau devis.
+              </p>
+            )}
+            {formData.show_pricing && <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <Label htmlFor="duration">Durée</Label>
@@ -847,7 +899,7 @@ function ServiceDialog({
                   placeholder="Ex: +225 01 23 45 67 89"
                 />
               </div>
-            </div>
+            </div>}
           </div>
 
           {/* Note et avis */}
@@ -947,6 +999,46 @@ function ServiceDialog({
                 </Tooltip>
               </Label>
             </div>
+          </div>
+
+          {/* Icône du service */}
+          <div className="border border-gray-200 rounded-lg p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <Label className="font-semibold">Icône du service</Label>
+              <div className="flex items-center gap-2">
+                <Switch
+                  id="show_icon"
+                  checked={formData.show_icon}
+                  onCheckedChange={(checked) => setFormData({ ...formData, show_icon: checked })}
+                />
+                <Label htmlFor="show_icon" className="text-sm text-gray-600">
+                  {formData.show_icon ? "Visible" : "Masquée"}
+                </Label>
+              </div>
+            </div>
+            {formData.show_icon && (
+              <div className="space-y-2">
+                <Label className="text-sm text-gray-600">Choisir une icône</Label>
+                <Select
+                  value={formData.icon}
+                  onValueChange={(v) => setFormData({ ...formData, icon: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Auto (selon le nom du service)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ICON_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-gray-400">
+                  Laissez "Auto" pour détecter automatiquement l'icône selon le nom du service.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Agences disponibles */}

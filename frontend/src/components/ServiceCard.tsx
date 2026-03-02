@@ -9,10 +9,13 @@ import { Link } from "wouter";
 interface ServiceCardProps {
   service: {
     id: number;
-    nom: string;
-    description: string;
-    icone: string;
+    nom?: string;
+    name?: string;
+    description?: string;
+    short_description?: string;
+    icone?: string;
     slug?: string;
+    features?: string[];
   };
   icon: IconType;
   delay?: number;
@@ -20,12 +23,12 @@ interface ServiceCardProps {
 
 export function ServiceCard({ service, icon: Icon, delay = 0 }: ServiceCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  
-  // Vérifier si le contenu dépasse 3 lignes
-  const hasBulletPoints = service.id === 1;
-  const bulletPointsCount = hasBulletPoints ? 3 : 0;
-  const descriptionLength = service.description.length;
-  const shouldTruncate = descriptionLength > 120 || bulletPointsCount > 0;
+
+  const displayName = service.name || service.nom || "";
+  const displayDescription = service.short_description || service.description || "";
+  const features: string[] = Array.isArray(service.features) ? service.features : [];
+  const hasBulletPoints = features.length > 0;
+  const shouldTruncate = displayDescription.length > 120 || hasBulletPoints;
 
   return (
     <motion.div
@@ -38,24 +41,20 @@ export function ServiceCard({ service, icon: Icon, delay = 0 }: ServiceCardProps
       <Card className="h-full group relative overflow-hidden border-0 shadow-md hover:shadow-xl transition-all duration-300 bg-gradient-to-br from-white to-gray-50/50 flex flex-col" data-testid={`card-service-${service.id}`}>
         <CardHeader className="text-left relative z-10 pb-3 pt-5 flex-1 flex flex-col">
           <CardTitle className="text-xl font-bold mb-2 text-gray-900" data-testid={`text-service-name-${service.id}`}>
-            {service.nom}
+            {displayName}
           </CardTitle>
-          
-          <CardDescription 
+
+          <CardDescription
             className={`text-base mb-3 leading-relaxed text-gray-600 ${!isExpanded && shouldTruncate ? 'line-clamp-3' : ''}`}
             data-testid={`text-service-description-${service.id}`}
           >
-            {service.description}
+            {displayDescription}
           </CardDescription>
-          
-          {/* Bullet points for first service */}
+
+          {/* Bullet points dynamiques depuis service.features */}
           {hasBulletPoints && (
             <ul className={`space-y-1.5 mb-3 ${!isExpanded ? 'line-clamp-3' : ''}`}>
-              {[
-                "Aides-ménagères qualifiées et valorisées",
-                "Prestations 100% personnalisables",
-                "Aucune gestion administrative"
-              ].map((point, i) => (
+              {features.slice(0, 3).map((point, i) => (
                 <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
                   <FaCheckCircle className="w-4 h-4 text-site-primary mt-0.5 flex-shrink-0" />
                   <span>{point}</span>

@@ -160,6 +160,12 @@ export function Sidebar({ userRole }: SidebarProps) {
       icon: FaLayerGroup,
       items: [
         {
+          name: "Page d'accueil",
+          icon: FaHome,
+          path: "/admin/hero",
+          roles: ["ADMIN", "SUPERADMIN"],
+        },
+        {
           name: "Bannières",
           icon: FaImages,
           path: "/admin/bannieres",

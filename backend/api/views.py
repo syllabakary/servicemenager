@@ -18,7 +18,7 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
-from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile, ContactMessage
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile, ContactMessage, HeroContent
 from .serializers import (
     UserSerializer, ServiceSerializer, ServiceSummarySerializer,
     AgencySerializer, AgencySummarySerializer, ContactSerializer,
@@ -26,8 +26,10 @@ from .serializers import (
     CategorySerializer, ServiceReviewSerializer, ServiceFAQSerializer, QuoteRequestSerializer,
     ServiceAdvantageSerializer, SiteSettingsSerializer, InvoiceSerializer,
     QuoteFormStepSerializer, QuoteFormOptionSerializer, PatientSerializer, PresenceSerializer,
-    EmployeeProfileSerializer, ContactMessageSerializer
+    EmployeeProfileSerializer, ContactMessageSerializer, HeroContentSerializer
 )
+from rest_framework import generics
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from .permissions import (
     IsSuperAdmin, IsAdminOrReadOnly, IsOwnerOrAdmin, IsClientOrReadOnly,
     IsAdmin, IsEmploye, IsClient, IsSuperAdminOrAdmin, IsSuperAdminOrAdminOrEmploye,
@@ -301,6 +303,7 @@ class ServiceViewSet(viewsets.ModelViewSet):
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
     permission_classes = [IsAdminOrPublicReadOnly]
+    pagination_class = None
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name', 'short_description']
     filterset_fields = ['active', 'slug']
@@ -350,7 +353,8 @@ class AgencyViewSet(viewsets.ModelViewSet):
     queryset = Agency.objects.all()
     serializer_class = AgencySerializer
     permission_classes = [IsAdminOrPublicReadOnly]
-    
+    pagination_class = None
+
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['request'] = self.request
@@ -2987,3 +2991,18 @@ class ContactMessageViewSet(viewsets.ModelViewSet):
         """Permet de mettre à jour uniquement le statut"""
         kwargs['partial'] = True
         return self.update(request, *args, **kwargs)
+
+
+class HeroContentView(generics.RetrieveUpdateAPIView):
+    """Endpoint singleton GET/PATCH pour le contenu hero de la page d'accueil"""
+    serializer_class = HeroContentSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
+    def get_object(self):
+        obj, _ = HeroContent.objects.get_or_create(id=1)
+        return obj

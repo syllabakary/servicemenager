@@ -6,7 +6,7 @@ from .views import (
     ContactViewSet, PageContentViewSet, NavbarViewSet, CategoryViewSet,
     ServiceReviewViewSet, ServiceFAQViewSet, QuoteRequestViewSet, ServiceAdvantageViewSet, InvoiceViewSet,
     SiteSettingsViewSet, QuoteFormStepViewSet, QuoteFormOptionViewSet, PatientViewSet, PresenceViewSet,
-    EmployeeProfileViewSet, ContactMessageViewSet
+    EmployeeProfileViewSet, ContactMessageViewSet, HeroContentView
 )
 from .views_auth import register, login_with_matricule
 
@@ -48,4 +48,7 @@ urlpatterns = [
     # Endpoint navbar direct
     path('navbar/', NavbarViewSet.as_view({'get': 'list'}), name='navbar'),
     path('meta/navbar/', NavbarViewSet.as_view({'get': 'list'}), name='meta-navbar'),
+
+    # Contenu Hero page d'accueil (singleton)
+    path('hero-content/', HeroContentView.as_view(), name='hero-content'),
 ]

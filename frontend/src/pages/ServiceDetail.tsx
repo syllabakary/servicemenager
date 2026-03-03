@@ -383,7 +383,8 @@ export default function ServiceDetail() {
     queryFn: async () => {
       const response = await fetch(`${API_URL}/services/?slug=${serviceSlug}`);
       const data = await response.json();
-      const s = data.results?.[0] || null;
+      const list = Array.isArray(data) ? data : (data.results || []);
+      const s = list[0] || null;
       if (!s) return null;
       const parseArr = (v: any) => {
         if (Array.isArray(v)) return v;
@@ -474,7 +475,7 @@ export default function ServiceDetail() {
     queryFn: async () => {
       const response = await fetch(`${API_URL}/services/?active=true`);
       const data = await response.json();
-      return data.results || [];
+      return Array.isArray(data) ? data : (data.results || []);
     },
   });
 

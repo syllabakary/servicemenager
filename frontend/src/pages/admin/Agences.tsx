@@ -162,7 +162,7 @@ export default function AdminAgences() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data?.results?.map((agency: any) => (
+                  {(Array.isArray(data) ? data : data?.results || []).map((agency: any) => (
                     <TableRow key={agency.id} className="hover:bg-gray-50 transition-colors">
                       <TableCell className="font-semibold text-gray-900">{agency.name}</TableCell>
                       <TableCell className="text-gray-700">{agency.city}</TableCell>
@@ -737,8 +737,8 @@ function AgencyDialog({
                 </TooltipProvider>
               </div>
               <div className="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-3">
-                {servicesData?.results?.length > 0 ? (
-                  servicesData.results.map((service: any) => (
+                {(Array.isArray(servicesData) ? servicesData : servicesData?.results || []).length > 0 ? (
+                  (Array.isArray(servicesData) ? servicesData : servicesData?.results || []).map((service: any) => (
                     <div key={service.id} className="flex items-center space-x-2">
                       <Checkbox
                         id={`service-${service.id}`}

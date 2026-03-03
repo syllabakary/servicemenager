@@ -2122,3 +2122,18 @@ class ContactMessage(models.Model):
 
     def __str__(self):
         return f"{self.name} — {self.subject} ({self.created_at.strftime('%d/%m/%Y')})"
+
+
+class HeroContent(models.Model):
+    """Contenu singleton de la section hero de la page d'accueil"""
+    title = models.CharField(max_length=200, default="Nous aimons vous rendre la vie plus facile !")
+    subtitle = models.TextField(default="Ménage, aide à domicile, jardinage, garde d'enfant : depuis + de 20 ans, nous nous tenons à vos côtés pour rendre votre quotidien plus serein.")
+    description = models.TextField(blank=True, default="Retrouvez du temps pour vous grâce aux services à la personne.")
+    background_image = models.ImageField(upload_to='hero/', null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Contenu Hero"
+
+    def __str__(self):
+        return "Hero Page d'accueil"

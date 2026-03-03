@@ -46,7 +46,7 @@ export default function AgencyDetail() {
     queryFn: async () => {
       if (!agencySlug) return null;
       const res = await axios.get(`${API_URL}/agencies/`);
-      const agencies = res.data.results || [];
+      const agencies = Array.isArray(res.data) ? res.data : (res.data.results || []);
       return agencies.find((a: any) => a.slug === agencySlug);
     },
     enabled: !!agencySlug,

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import React, { useState, useMemo } from "react";
 import { useLocation, Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
@@ -256,11 +256,14 @@ function resolveServiceIcon(service: any): any {
 }
 
 
+const PAGE_SIZE = 12;
+
 export default function Services() {
   const [, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [minRating, setMinRating] = useState<number | null>(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Récupérer les services depuis l'API
   const { data: servicesData, isLoading } = useQuery({
@@ -306,6 +309,15 @@ export default function Services() {
 
     return filtered;
   }, [servicesList, searchQuery, minRating]);
+
+  // Remettre à la page 1 quand les filtres changent
+  const prevFilters = React.useRef({ searchQuery, minRating });
+  React.useEffect(() => {
+    if (prevFilters.current.searchQuery !== searchQuery || prevFilters.current.minRating !== minRating) {
+      setCurrentPage(1);
+      prevFilters.current = { searchQuery, minRating };
+    }
+  }, [searchQuery, minRating]);
 
   // Statistiques
   const stats = useMemo(() => {
@@ -580,29 +592,18 @@ export default function Services() {
           ) : (
             /* Cartes de services enrichies */
             <motion.div
+              key={currentPage}
               className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8"
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={{
-                hidden: { opacity: 0, y: 30 },
-                visible: {
-                  opacity: 1,
-                  y: 0,
-                  transition: { staggerChildren: 0.1 },
-                },
-              }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
             >
-              {filteredServices.map((service: any) => {
+              {filteredServices.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map((service: any) => {
               const IconComponent = resolveServiceIcon(service);
 
               return (
                 <motion.div
                   key={service.id}
-                  variants={{
-                    hidden: { opacity: 0, y: 20 },
-                    visible: { opacity: 1, y: 0 },
-                  }}
                   whileHover={{ y: -4 }}
                   transition={{ type: "spring", stiffness: 150, damping: 12 }}
                 >
@@ -693,6 +694,43 @@ export default function Services() {
               );
             })}
             </motion.div>
+          )}
+
+          {/* Pagination */}
+          {filteredServices.length > PAGE_SIZE && (
+            <div className="flex items-center justify-center gap-2 mt-10">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="border-2 border-gray-200 hover:border-site-primary disabled:opacity-40"
+              >
+                ← Précédent
+              </Button>
+              {Array.from({ length: Math.ceil(filteredServices.length / PAGE_SIZE) }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setCurrentPage(page)}
+                  className={currentPage === page
+                    ? "bg-site-primary text-white border-site-primary w-10"
+                    : "border-2 border-gray-200 hover:border-site-primary w-10"}
+                >
+                  {page}
+                </Button>
+              ))}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.min(Math.ceil(filteredServices.length / PAGE_SIZE), p + 1))}
+                disabled={currentPage === Math.ceil(filteredServices.length / PAGE_SIZE)}
+                className="border-2 border-gray-200 hover:border-site-primary disabled:opacity-40"
+              >
+                Suivant →
+              </Button>
+            </div>
           )}
         </div>
       </section>

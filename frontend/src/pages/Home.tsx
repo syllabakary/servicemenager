@@ -431,15 +431,28 @@ function LocationSection() {
 }
 
 export default function Home() {
+  // Récupérer le contenu hero depuis l'API
+  const { data: heroData } = useQuery({
+    queryKey: ["hero-content"],
+    queryFn: async () => {
+      try {
+        const res = await axios.get(`${API_URL}/hero-content/`);
+        return res.data;
+      } catch {
+        return null;
+      }
+    },
+  });
+
   // Récupérer les services depuis l'API
   const { data: servicesData, isLoading: servicesLoading } = useQuery({
     queryKey: ["home-services"],
     queryFn: async () => {
       try {
         const res = await axios.get(`${API_URL}/services/?active=true`);
-        return res.data.results || [];
+        return Array.isArray(res.data) ? res.data : (res.data.results || []);
       } catch {
-        return mockServices;
+        return [];
       }
     },
   });
@@ -450,7 +463,7 @@ export default function Home() {
     queryFn: async () => {
       try {
         const res = await axios.get(`${API_URL}/agencies/?active=true`);
-        return res.data.results || [];
+        return Array.isArray(res.data) ? res.data : (res.data.results || []);
       } catch {
         return [];
       }
@@ -471,15 +484,16 @@ export default function Home() {
   });
 
   // Mapper les services de l'API vers le format attendu
-  const services: Service[] = servicesData?.length > 0
+  const services: any[] = servicesData?.length > 0
     ? servicesData.slice(0, 3).map((s: any) => ({
         id: s.id,
-        nom: s.name,
-        description: s.short_description || s.detailed_description || "",
+        name: s.name,
+        short_description: s.short_description || s.detailed_description || "",
+        features: s.features || [],
         icone: s.icon || "Sparkles",
         slug: s.slug,
       }))
-    : mockServices.slice(0, 3);
+    : [];
 
   // Mapper les agences de l'API vers le format attendu
   const agencies: Agency[] = agenciesData?.length > 0
@@ -508,10 +522,10 @@ export default function Home() {
 
       {/* === HERO SECTION === */}
       <section className="relative min-h-[500px] sm:min-h-[600px] md:min-h-[700px] flex items-center overflow-hidden">
-        {/* Background Image */}
+        {/* Background Image — dynamique si définie, sinon image par défaut */}
         <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroImage})` }}
+          style={{ backgroundImage: `url(${heroData?.background_image_url || heroImage})` }}
         >
           <div className="absolute inset-0 bg-black/60" />
         </div>
@@ -525,18 +539,23 @@ export default function Home() {
             className="max-w-3xl text-white"
           >
             <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold mb-4 sm:mb-6 leading-tight drop-shadow-lg">
-              Nous aimons vous rendre la vie plus <span className="text-yellow-400 relative">
-                <span className="relative z-10">facile</span>
-                <span className="absolute bottom-0 left-0 right-0 h-2 sm:h-3 bg-yellow-400/20 -z-0"></span>
-              </span> !
+              {(() => {
+                const title = heroData?.title || "Nous aimons vous rendre la vie plus facile !";
+                const match = title.match(/^(.*\s)(\S+?)(\s*!?\s*)$/);
+                if (match) {
+                  return <>{match[1]}<span className="text-yellow-400 underline underline-offset-4 decoration-yellow-400/60">{match[2]}</span>{match[3]}</>;
+                }
+                return title;
+              })()}
             </h1>
             <p className="text-sm sm:text-base md:text-lg lg:text-xl mb-3 sm:mb-4 leading-relaxed text-white/95 drop-shadow-md">
-              Ménage, aide à domicile, jardinage, garde d'enfant : depuis <span className="font-bold text-white">+ de 20 ans</span>, 
-              nous nous tenons à vos côtés pour <span className="font-semibold text-white">rendre votre quotidien plus serein</span>.
+              {heroData?.subtitle || "Ménage, aide à domicile, jardinage, garde d'enfant : depuis + de 20 ans, nous nous tenons à vos côtés pour rendre votre quotidien plus serein."}
             </p>
+            {(heroData?.description || !heroData) && (
             <p className="text-xs sm:text-sm md:text-base lg:text-lg mb-6 sm:mb-8 text-white/90 drop-shadow-sm">
-              Retrouvez du temps pour vous grâce aux <strong className="text-white">services à la personne</strong>.
+              {heroData?.description || "Retrouvez du temps pour vous grâce aux services à la personne."}
             </p>
+            )}
             
             {/* Rating */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 md:gap-6 mb-8 sm:mb-10 bg-white/10 backdrop-blur-sm rounded-lg px-4 sm:px-6 py-3 sm:py-4 w-full sm:w-fit border border-white/20">

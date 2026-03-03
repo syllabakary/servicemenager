@@ -168,15 +168,15 @@ export default function AdminDashboard() {
   const stats = [
     {
       title: "Services",
-      value: services?.count || 0,
-      active: services?.results?.filter((s: any) => s.active).length || 0,
+      value: Array.isArray(services) ? services.length : (services?.count || 0),
+      active: (Array.isArray(services) ? services : services?.results || []).filter((s: any) => s.active).length || 0,
       icon: FaBriefcase,
       color: "from-blue-500 to-blue-600",
     },
     {
       title: "Agences",
-      value: agencies?.count || 0,
-      active: agencies?.results?.filter((a: any) => a.active).length || 0,
+      value: Array.isArray(agencies) ? agencies.length : (agencies?.count || 0),
+      active: (Array.isArray(agencies) ? agencies : agencies?.results || []).filter((a: any) => a.active).length || 0,
       icon: FaBuilding,
       color: "from-green-500 to-green-600",
     },

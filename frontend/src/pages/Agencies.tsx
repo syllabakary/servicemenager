@@ -80,11 +80,14 @@ function mapAgencyFromAPI(apiAgency: AgencyAPI): Agency {
   };
 }
 
+const PAGE_SIZE = 10;
+
 export default function Agencies() {
   const [location] = useLocation();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCity, setSelectedCity] = useState("all");
   const [selectedService, setSelectedService] = useState("all");
+  const [currentPage, setCurrentPage] = useState(1);
 
   const { data: apiData, isLoading } = useQuery({
     queryKey: ["agencies"],
@@ -105,8 +108,9 @@ export default function Agencies() {
 
   // Mapper les données de l'API
   const agencies: Agency[] = useMemo(() => {
-    if (!apiData?.results) return [];
-    return apiData.results.map(mapAgencyFromAPI);
+    const list = Array.isArray(apiData) ? apiData : (apiData?.results || []);
+    if (!list.length) return [];
+    return list.map(mapAgencyFromAPI);
   }, [apiData]);
 
   const cities = useMemo(() => {
@@ -122,11 +126,8 @@ export default function Agencies() {
     agencies.forEach((a) => a.services.forEach((x) => s.add(x)));
     
     // Services depuis l'API
-    if (servicesData?.results) {
-      servicesData.results.forEach((service: any) => {
-        s.add(service.name);
-      });
-    }
+    const servicesList = Array.isArray(servicesData) ? servicesData : (servicesData?.results || []);
+    servicesList.forEach((service: any) => { s.add(service.name); });
     
     return Array.from(s).sort();
   }, [agencies, servicesData]);
@@ -152,6 +153,9 @@ export default function Agencies() {
       return matchesSearch && matchesCity && matchesService;
     });
   }, [agencies, searchTerm, selectedCity, selectedService]);
+
+  // Reset page quand filtres changent
+  useEffect(() => { setCurrentPage(1); }, [searchTerm, selectedCity, selectedService]);
 
   // Récupérer les paramètres de l'URL après que les données soient chargées
   // On écoute aussi window.location.search car wouter ne recharge pas si le path ne change pas
@@ -362,10 +366,46 @@ export default function Agencies() {
                   }}
                   className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8"
                 >
-                  {filteredAgencies.map((agency, i) => (
+                  {filteredAgencies.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map((agency, i) => (
                     <AgencyCard key={agency.id} agency={agency} delay={i * 0.1} />
                   ))}
                 </motion.div>
+                {/* Pagination */}
+                {filteredAgencies.length > PAGE_SIZE && (
+                  <div className="flex items-center justify-center gap-2 mt-10">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="border-2 border-gray-200 hover:border-site-primary disabled:opacity-40"
+                    >
+                      ← Précédent
+                    </Button>
+                    {Array.from({ length: Math.ceil(filteredAgencies.length / PAGE_SIZE) }, (_, i) => i + 1).map((page) => (
+                      <Button
+                        key={page}
+                        variant={currentPage === page ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setCurrentPage(page)}
+                        className={currentPage === page
+                          ? "bg-site-primary text-white border-site-primary w-10"
+                          : "border-2 border-gray-200 hover:border-site-primary w-10"}
+                      >
+                        {page}
+                      </Button>
+                    ))}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.min(Math.ceil(filteredAgencies.length / PAGE_SIZE), p + 1))}
+                      disabled={currentPage === Math.ceil(filteredAgencies.length / PAGE_SIZE)}
+                      className="border-2 border-gray-200 hover:border-site-primary disabled:opacity-40"
+                    >
+                      Suivant →
+                    </Button>
+                  </div>
+                )}
               </>
             ) : (
               <motion.div

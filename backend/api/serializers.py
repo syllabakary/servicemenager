@@ -1,7 +1,7 @@
 import os
 from rest_framework import serializers
 from django.conf import settings
-from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile, ContactMessage
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile, ContactMessage, HeroContent
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -1046,3 +1046,19 @@ class ContactMessageSerializer(serializers.ModelSerializer):
         model = ContactMessage
         fields = ['id', 'name', 'email', 'subject', 'message', 'status', 'created_at']
         read_only_fields = ['id', 'created_at']
+
+
+class HeroContentSerializer(serializers.ModelSerializer):
+    background_image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = HeroContent
+        fields = ['id', 'title', 'subtitle', 'description', 'background_image', 'background_image_url', 'updated_at']
+
+    def get_background_image_url(self, obj):
+        if obj.background_image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.background_image.url)
+            return obj.background_image.url
+        return None

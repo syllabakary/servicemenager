@@ -185,7 +185,7 @@ export default function AdminServices() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data?.results?.map((service: any) => (
+                  {(Array.isArray(data) ? data : data?.results || []).map((service: any) => (
                     <TableRow key={service.id} className="hover:bg-gray-50 transition-colors">
                       <TableCell className="font-semibold text-gray-900">{service.name}</TableCell>
                       <TableCell className="text-gray-600 font-mono text-sm">{service.slug}</TableCell>
@@ -296,6 +296,7 @@ function ServiceDialog({
   onOpenChange: (open: boolean) => void;
   onSuccess: () => void;
 }) {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
@@ -429,6 +430,21 @@ function ServiceDialog({
       else setImagePreview(null);
       onSuccess();
       queryClient.invalidateQueries({ queryKey: ["admin-services"] });
+    },
+    onError: (error: any) => {
+      const data = error?.response?.data;
+      if (data && typeof data === "object") {
+        const messages = Object.entries(data)
+          .map(([field, errs]) => {
+            const label = field === "slug" ? "Slug" : field === "name" ? "Nom" : field === "category" ? "Catégorie" : field;
+            const errText = Array.isArray(errs) ? errs.join(", ") : String(errs);
+            return `${label} : ${errText}`;
+          })
+          .join("\n");
+        toast({ title: "Erreur de validation", description: messages, variant: "destructive" });
+      } else {
+        toast({ title: "Erreur", description: "Impossible d'enregistrer le service.", variant: "destructive" });
+      }
     },
   });
 
@@ -617,9 +633,16 @@ function ServiceDialog({
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) =>
-                  setFormData({ ...formData, name: e.target.value })
-                }
+                onChange={(e) => {
+                  const name = e.target.value;
+                  const autoSlug = name
+                    .toLowerCase()
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/[^a-z0-9]+/g, "-")
+                    .replace(/^-+|-+$/g, "");
+                  setFormData({ ...formData, name, slug: autoSlug });
+                }}
                 required
               />
             </div>
@@ -659,7 +682,7 @@ function ServiceDialog({
                 <SelectValue placeholder="Sélectionner une catégorie" />
               </SelectTrigger>
               <SelectContent>
-                {categoriesData?.results?.map((cat: any) => (
+                {(Array.isArray(categoriesData) ? categoriesData : categoriesData?.results || []).map((cat: any) => (
                   <SelectItem key={cat.id} value={cat.id.toString()}>
                     {cat.name} {cat.show_in_navbar ? "✓ (Navbar)" : "⚠ (Non affichée)"}
                   </SelectItem>
@@ -1057,8 +1080,8 @@ function ServiceDialog({
               </Tooltip>
             </div>
             <div className="space-y-2 max-h-48 overflow-y-auto border rounded-lg p-3">
-              {agenciesData?.results?.length > 0 ? (
-                agenciesData.results.map((agency: any) => (
+              {(Array.isArray(agenciesData) ? agenciesData : agenciesData?.results || []).length > 0 ? (
+                (Array.isArray(agenciesData) ? agenciesData : agenciesData?.results || []).map((agency: any) => (
                   <div key={agency.id} className="flex items-center space-x-2">
                     <Checkbox
                       id={`agency-${agency.id}`}

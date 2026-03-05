@@ -1009,8 +1009,8 @@ export default function ScanQR() {
 
         {/* Dialog pour choisir le type de scan (Arrivée/Départ) */}
         <Dialog open={showStatusDialog} onOpenChange={setShowStatusDialog}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
+          <DialogContent className="sm:max-w-md flex flex-col max-h-[90vh]">
+            <DialogHeader className="flex-shrink-0">
               <DialogTitle className="flex items-center gap-2">
                 <FaQrcode className="w-5 h-5 text-site-primary" />
                 Type de scan
@@ -1019,7 +1019,7 @@ export default function ScanQR() {
                 Choisissez le type de scan pour ce patient.
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4 py-4">
+            <div className="space-y-4 py-4 overflow-y-auto flex-1 min-h-0">
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <p className="text-sm text-blue-800 font-medium">
                   <strong>QR Code:</strong> {scanData?.qrCode}
@@ -1032,7 +1032,7 @@ export default function ScanQR() {
                   <p className="text-sm font-semibold text-yellow-800 mb-2">
                     Scans enregistrés aujourd'hui:
                   </p>
-                  <div className="space-y-2">
+                  <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
                     {patientScans.map((scan: any) => (
                       <div key={scan.id} className="flex items-center justify-between bg-white p-2 rounded border border-yellow-300">
                         <div className="flex items-center gap-2">
@@ -1127,7 +1127,7 @@ export default function ScanQR() {
                 })()}
               </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="flex-shrink-0 border-t pt-4">
               <Button
                 variant="outline"
                 onClick={() => {

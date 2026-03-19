@@ -801,7 +801,8 @@ class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
         fields = [
-            'id', 'client', 'client_username', 'first_name', 'last_name',
+            'id', 'client', 'client_username',
+            'civility', 'first_name', 'last_name', 'birth_date', 'email',
             'phone', 'address', 'qr_code', 'qr_code_image', 'qr_code_image_url',
             'is_active', 'created_by', 'created_by_username',
             'assigned_employees', 'assigned_employees_info',

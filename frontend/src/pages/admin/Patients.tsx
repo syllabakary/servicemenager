@@ -26,6 +26,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -52,6 +59,7 @@ export default function AdminPatients() {
   const [qrCodeImageUrl, setQrCodeImageUrl] = useState<string | null>(null);
   // État contrôlé pour les champs qui ne sont pas dans FormData (Select/Switch Radix)
   const [formIsActive, setFormIsActive] = useState<boolean>(true);
+  const [formCivility, setFormCivility] = useState<string>("none");
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const isAdmin = storedUser.role === "ADMIN" || storedUser.role === "SUPERADMIN";
 
@@ -238,12 +246,14 @@ export default function AdminPatients() {
   const handleEdit = (patient: any) => {
     setEditingPatient(patient);
     setFormIsActive(patient?.is_active !== false);
+    setFormCivility(patient?.civility || "none");
     setIsDialogOpen(true);
   };
 
   const handleNew = () => {
     setEditingPatient(null);
     setFormIsActive(true);
+    setFormCivility("none");
     setIsDialogOpen(true);
   };
 
@@ -358,8 +368,11 @@ export default function AdminPatients() {
       if (!isNaN(employeeId)) assignedEmployees.push(employeeId);
     });
     const data: any = {
+      civility: formCivility === "none" ? "" : formCivility,
       first_name: (formData.get("first_name") as string)?.trim() || "",
       last_name: (formData.get("last_name") as string)?.trim() || "",
+      birth_date: (formData.get("birth_date") as string) || null,
+      email: (formData.get("email") as string)?.trim() || null,
       phone: (formData.get("phone") as string)?.trim() || null,
       address: (formData.get("address") as string)?.trim() || null,
       is_active: formIsActive,
@@ -556,6 +569,26 @@ export default function AdminPatients() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
+                  <Label>Civilité</Label>
+                  <Select value={formCivility} onValueChange={setFormCivility}>
+                    <SelectTrigger><SelectValue placeholder="Civilité" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Non précisé</SelectItem>
+                      <SelectItem value="M.">Monsieur</SelectItem>
+                      <SelectItem value="Mme">Madame</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="birth_date">Date de naissance</Label>
+                  <Input
+                    id="birth_date"
+                    name="birth_date"
+                    type="date"
+                    defaultValue={editingPatient?.birth_date}
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="first_name">Prénom *</Label>
                   <Input
                     id="first_name"
@@ -574,14 +607,26 @@ export default function AdminPatients() {
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Téléphone</Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  type="tel"
-                  defaultValue={editingPatient?.phone}
-                />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    defaultValue={editingPatient?.email}
+                    placeholder="email@exemple.fr"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Téléphone</Label>
+                  <Input
+                    id="phone"
+                    name="phone"
+                    type="tel"
+                    defaultValue={editingPatient?.phone}
+                  />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="address">Adresse</Label>

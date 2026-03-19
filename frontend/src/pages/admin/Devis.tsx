@@ -261,10 +261,10 @@ function CreateDevisDialog({ open, onClose }: { open: boolean; onClose: () => vo
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Civilité</Label>
-              <Select value={form.civility} onValueChange={(v) => setForm({ ...form, civility: v })}>
+              <Select value={form.civility || "none"} onValueChange={(v) => setForm({ ...form, civility: v === "none" ? "" : v })}>
                 <SelectTrigger><SelectValue placeholder="Civilité" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Non précisé</SelectItem>
+                  <SelectItem value="none">Non précisé</SelectItem>
                   <SelectItem value="M.">Monsieur</SelectItem>
                   <SelectItem value="Mme">Madame</SelectItem>
                 </SelectContent>
@@ -292,10 +292,10 @@ function CreateDevisDialog({ open, onClose }: { open: boolean; onClose: () => vo
             </div>
             <div className="col-span-2">
               <Label>Service (optionnel)</Label>
-              <Select value={form.service} onValueChange={(v) => setForm({ ...form, service: v })}>
+              <Select value={form.service || "none"} onValueChange={(v) => setForm({ ...form, service: v === "none" ? "" : v })}>
                 <SelectTrigger><SelectValue placeholder="Sélectionner un service" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Aucun service spécifique</SelectItem>
+                  <SelectItem value="none">Aucun service spécifique</SelectItem>
                   {(servicesData || []).map((s: any) => (
                     <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
                   ))}

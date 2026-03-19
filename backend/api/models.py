@@ -1598,8 +1598,22 @@ class Patient(models.Model):
         verbose_name="Client",
         help_text="Client propriétaire du patient (optionnel)"
     )
+    CIVILITY_CHOICES = [
+        ('M.', 'Monsieur'),
+        ('Mme', 'Madame'),
+        ('', 'Non précisé'),
+    ]
+    civility = models.CharField(
+        max_length=10,
+        choices=CIVILITY_CHOICES,
+        default='',
+        blank=True,
+        verbose_name="Civilité"
+    )
     first_name = models.CharField(max_length=100, verbose_name="Prénom")
     last_name = models.CharField(max_length=100, verbose_name="Nom")
+    birth_date = models.DateField(blank=True, null=True, verbose_name="Date de naissance")
+    email = models.EmailField(blank=True, null=True, verbose_name="Email")
     phone = models.CharField(max_length=20, blank=True, null=True, verbose_name="Téléphone")
     address = models.TextField(blank=True, null=True, verbose_name="Adresse")
     qr_code = models.CharField(

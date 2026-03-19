@@ -174,17 +174,17 @@ export default function DevisDetail() {
     },
   });
 
-  // Initialiser les lignes depuis le devis chargé
+  // Initialiser les lignes depuis le devis chargé (ou quand on annule l'édition)
   useEffect(() => {
-    if (quoteRequest?.lines && !linesLoaded) {
+    if (quoteRequest?.lines !== undefined && !linesLoaded) {
       setLines(quoteRequest.lines.map((l: any) => ({
         ...l,
-        hourly_rate: l.hourly_rate ?? "",
-        total: l.total ?? "",
+        hourly_rate: l.hourly_rate !== null && l.hourly_rate !== undefined ? String(l.hourly_rate) : "",
+        total: l.total !== null && l.total !== undefined ? String(l.total) : "",
       })));
       setLinesLoaded(true);
     }
-  }, [quoteRequest, linesLoaded]);
+  }, [quoteRequest?.lines, linesLoaded]);
 
   const saveLinesMutation = useMutation({
     mutationFn: async () => {

@@ -4,7 +4,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import (
     UserViewSet, ServiceViewSet, AgencyViewSet,
     ContactViewSet, PageContentViewSet, NavbarViewSet, CategoryViewSet,
-    ServiceReviewViewSet, ServiceFAQViewSet, QuoteRequestViewSet, ServiceAdvantageViewSet, InvoiceViewSet,
+    ServiceReviewViewSet, ServiceFAQViewSet, QuoteRequestViewSet, QuoteLineViewSet, ServiceAdvantageViewSet, InvoiceViewSet,
     SiteSettingsViewSet, QuoteFormStepViewSet, QuoteFormOptionViewSet, PatientViewSet, PresenceViewSet,
     EmployeeProfileViewSet, ContactMessageViewSet, HeroContentView
 )
@@ -22,6 +22,7 @@ router.register(r'service-faqs', ServiceFAQViewSet, basename='service-faq')
 router.register(r'service-advantages', ServiceAdvantageViewSet, basename='service-advantage')
 router.register(r'quote-requests', QuoteRequestViewSet, basename='quote-request')
 router.register(r'invoices', InvoiceViewSet, basename='invoice')
+router.register(r'quote-lines', QuoteLineViewSet, basename='quote-line')
 router.register(r'quote-form-steps', QuoteFormStepViewSet, basename='quote-form-step')
 router.register(r'quote-form-options', QuoteFormOptionViewSet, basename='quote-form-option')
 router.register(r'site-settings', SiteSettingsViewSet, basename='site-settings')

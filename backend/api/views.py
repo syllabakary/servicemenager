@@ -18,13 +18,13 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
-from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile, ContactMessage, HeroContent
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, QuoteLine, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile, ContactMessage, HeroContent
 from .serializers import (
     UserSerializer, ServiceSerializer, ServiceSummarySerializer,
     AgencySerializer, AgencySummarySerializer, ContactSerializer,
     PageContentSerializer, PageContentSummarySerializer, NavbarSerializer,
     CategorySerializer, ServiceReviewSerializer, ServiceFAQSerializer, QuoteRequestSerializer,
-    ServiceAdvantageSerializer, SiteSettingsSerializer, InvoiceSerializer,
+    QuoteLineSerializer, ServiceAdvantageSerializer, SiteSettingsSerializer, InvoiceSerializer,
     QuoteFormStepSerializer, QuoteFormOptionSerializer, PatientSerializer, PresenceSerializer,
     EmployeeProfileSerializer, ContactMessageSerializer, HeroContentSerializer
 )
@@ -747,12 +747,29 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
                 logger.error(f'Erreur lors du chargement du logo: {e}')
                 logo_path = None
         
+        # Logo secondaire (partenaire)
+        logo_secondary_path = None
+        if site_settings:
+            try:
+                if hasattr(site_settings, 'logo_secondary') and site_settings.logo_secondary:
+                    import os
+                    import base64
+                    sec_path = site_settings.logo_secondary.path
+                    if os.path.exists(sec_path):
+                        with open(sec_path, 'rb') as f:
+                            sec_data = base64.b64encode(f.read()).decode('utf-8')
+                            sec_ext = os.path.splitext(sec_path)[1].lower()
+                            mime = 'image/png' if sec_ext == '.png' else 'image/jpeg'
+                            logo_secondary_path = f'data:{mime};base64,{sec_data}'
+            except Exception as e:
+                logger.error(f'Erreur lors du chargement du logo secondaire: {e}')
+
         # Calculer le prix final avec réduction
         base_price = float(quote_request.calculated_price or 0)
         discount = float(quote_request.discount_percentage or 0)
         discount_amount = base_price * (discount / 100) if discount > 0 else 0
         final_price = base_price - discount_amount if discount > 0 else base_price
-        
+
         pdf_primary = '#087A00'
         if site_settings:
             pdf_primary = (getattr(site_settings, 'devis_pdf_primary_color', None) or getattr(site_settings, 'primary_color', None) or '').strip() or '#087A00'
@@ -761,6 +778,7 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
             'site_settings': site_settings,
             'today': date.today(),
             'logo_path': logo_path,
+            'logo_secondary_path': logo_secondary_path,
             'base_price': base_price,
             'discount': discount,
             'discount_amount': discount_amount,
@@ -885,6 +903,21 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
                     logger.error(f'Erreur lors du chargement du logo: {e}')
                     logo_path = None
             
+            # Logo secondaire
+            logo_secondary_path = None
+            if site_settings:
+                try:
+                    if hasattr(site_settings, 'logo_secondary') and site_settings.logo_secondary:
+                        sec_path = site_settings.logo_secondary.path
+                        if os.path.exists(sec_path):
+                            with open(sec_path, 'rb') as f:
+                                sec_data = base64.b64encode(f.read()).decode('utf-8')
+                                sec_ext = os.path.splitext(sec_path)[1].lower()
+                                mime = 'image/png' if sec_ext == '.png' else 'image/jpeg'
+                                logo_secondary_path = f'data:{mime};base64,{sec_data}'
+                except Exception as e:
+                    logger.error(f'Erreur logo secondaire: {e}')
+
             # Calculer le prix final avec réduction
             base_price = float(quote_request.calculated_price or 0)
             discount = float(quote_request.discount_percentage or 0)
@@ -898,6 +931,7 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
                 'site_settings': site_settings,
                 'today': date.today(),
                 'logo_path': logo_path,
+                'logo_secondary_path': logo_secondary_path,
                 'base_price': base_price,
                 'discount': discount,
                 'discount_amount': discount_amount,
@@ -1650,6 +1684,40 @@ class QuoteFormOptionViewSet(viewsets.ModelViewSet):
             else:
                 queryset = queryset.filter(parent_id=parent)
         return queryset
+
+
+class QuoteLineViewSet(viewsets.ModelViewSet):
+    """ViewSet pour les lignes de tableau d'un devis"""
+    queryset = QuoteLine.objects.all()
+    serializer_class = QuoteLineSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_fields = ['quote_request', 'category']
+    ordering_fields = ['order']
+    ordering = ['order']
+
+    def get_queryset(self):
+        queryset = QuoteLine.objects.all()
+        quote_request = self.request.query_params.get('quote_request')
+        if quote_request:
+            queryset = queryset.filter(quote_request_id=quote_request)
+        return queryset
+
+    def perform_create(self, serializer):
+        serializer.save()
+
+    def bulk_create(self, request, *args, **kwargs):
+        """Créer plusieurs lignes en une seule requête"""
+        lines_data = request.data.get('lines', [])
+        quote_request_id = request.data.get('quote_request')
+        created = []
+        for line_data in lines_data:
+            line_data['quote_request'] = quote_request_id
+            serializer = self.get_serializer(data=line_data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            created.append(serializer.data)
+        return Response(created, status=status.HTTP_201_CREATED)
 
 
 class SiteSettingsViewSet(viewsets.ModelViewSet):

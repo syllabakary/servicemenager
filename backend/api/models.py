@@ -533,6 +533,12 @@ class QuoteRequest(models.Model):
         ('COMPLETED', 'Terminé'),
     ]
     
+    CIVILITY_CHOICES = [
+        ('M.', 'Monsieur'),
+        ('Mme', 'Madame'),
+        ('', 'Non précisé'),
+    ]
+
     service = models.ForeignKey(
         Service,
         on_delete=models.CASCADE,
@@ -541,6 +547,15 @@ class QuoteRequest(models.Model):
         null=True,
         blank=True,
         help_text="Service demandé (optionnel)"
+    )
+    patient = models.ForeignKey(
+        'Patient',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='quote_requests',
+        verbose_name="Patient / Client enregistré",
+        help_text="Lier ce devis à un patient existant (optionnel)"
     )
     # Informations de localisation
     location = models.CharField(
@@ -563,9 +578,23 @@ class QuoteRequest(models.Model):
         verbose_name="Longitude"
     )
     # Informations client
+    civility = models.CharField(
+        max_length=10,
+        choices=CIVILITY_CHOICES,
+        default='',
+        blank=True,
+        verbose_name="Civilité",
+        help_text="Civilité du client (Monsieur, Madame)"
+    )
     client_name = models.CharField(
         max_length=200,
         verbose_name="Nom complet"
+    )
+    birth_date = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name="Date de naissance",
+        help_text="Date de naissance du bénéficiaire"
     )
     client_email = models.EmailField(
         verbose_name="Email"
@@ -648,6 +677,84 @@ class QuoteRequest(models.Model):
     
     def __str__(self):
         return f"Devis #{self.id} - {self.client_name} - {self.service.name}"
+
+
+class QuoteLine(models.Model):
+    """Lignes du tableau tarifaire d'un devis (sections A et B)"""
+    CATEGORY_CHOICES = [
+        ('A', 'A) Sans prise en charge'),
+        ('B', 'B) Avec prise en charge'),
+        ('TOTAL', 'Total'),
+        ('FOOTER', 'Pied de tableau'),
+    ]
+
+    quote_request = models.ForeignKey(
+        QuoteRequest,
+        on_delete=models.CASCADE,
+        related_name='lines',
+        verbose_name="Devis"
+    )
+    category = models.CharField(
+        max_length=10,
+        choices=CATEGORY_CHOICES,
+        default='A',
+        verbose_name="Catégorie"
+    )
+    label = models.CharField(
+        max_length=300,
+        verbose_name="Libellé de la prestation"
+    )
+    notes = models.CharField(
+        max_length=300,
+        blank=True,
+        default='',
+        verbose_name="Notes / précisions",
+        help_text="Ex: tous les jours sauf Dimanche, bonification 25%..."
+    )
+    hours = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        verbose_name="Nombre d'heures",
+        help_text="Ex: 52 heures/mois, Soit (2 heures / J), /"
+    )
+    hourly_rate = models.DecimalField(
+        max_digits=8,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="Tarif horaire (€)"
+    )
+    total = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name="Total (€)"
+    )
+    total_display = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        verbose_name="Affichage total personnalisé",
+        help_text="Si rempli, remplace le total calculé dans l'affichage (ex: /, 00,00€)"
+    )
+    is_bold = models.BooleanField(
+        default=False,
+        verbose_name="Ligne en gras"
+    )
+    order = models.PositiveIntegerField(
+        default=0,
+        verbose_name="Ordre d'affichage"
+    )
+
+    class Meta:
+        verbose_name = "Ligne de devis"
+        verbose_name_plural = "Lignes de devis"
+        ordering = ['order']
+
+    def __str__(self):
+        return f"[{self.category}] {self.label}"
 
 
 class QuoteFormStep(models.Model):
@@ -1277,6 +1384,33 @@ class SiteSettings(models.Model):
     logo_area_text_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Texte zone logo (nom/slogan)")
     # Devis et PDF (couleur principale des titres et bordures dans le PDF devis/facture)
     devis_pdf_primary_color = models.CharField(max_length=7, default="", blank=True, null=True, verbose_name="Couleur principale devis et PDF (titres, bordures)")
+    # Informations légales (pour les PDFs devis et factures)
+    siret = models.CharField(max_length=50, blank=True, null=True, verbose_name="SIRET", help_text="Numéro SIRET de l'entreprise")
+    code_ape = models.CharField(max_length=10, blank=True, null=True, verbose_name="Code APE", help_text="Code APE/NAF de l'entreprise")
+    num_tva = models.CharField(max_length=30, blank=True, null=True, verbose_name="N° TVA intracommunautaire")
+    forme_juridique = models.CharField(max_length=50, blank=True, null=True, verbose_name="Forme juridique", help_text="Ex: S.A.S., SARL, Auto-entrepreneur...")
+    rcs_ville = models.CharField(max_length=100, blank=True, null=True, verbose_name="RCS / Ville", help_text="Ex: R.C.S. Nanterre")
+    mention_tva = models.TextField(
+        blank=True,
+        null=True,
+        default="TVA non applicable selon l'article 293 B du Code Général des Impôts",
+        verbose_name="Mention TVA",
+        help_text="Mention légale TVA à afficher en bas du devis"
+    )
+    mention_bon_pour_accord = models.TextField(
+        blank=True,
+        null=True,
+        default="Si accord, le devis suivant devra être retourné signer avec la mention « Bon pour accord » et constituera une annexe au contrat signé ultérieurement.",
+        verbose_name="Mention Bon pour accord",
+        help_text="Texte de la mention 'Bon pour accord' en bas du devis"
+    )
+    logo_secondary = models.ImageField(
+        upload_to='site/',
+        blank=True,
+        null=True,
+        verbose_name="Logo secondaire (partenaire)",
+        help_text="Logo partenaire affiché en haut à droite du devis (ex: SI Services à la Personne)"
+    )
     # Logo
     logo = models.ImageField(
         upload_to='site/',

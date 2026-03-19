@@ -1,7 +1,7 @@
 import os
 from rest_framework import serializers
 from django.conf import settings
-from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile, ContactMessage, HeroContent
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, QuoteLine, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile, ContactMessage, HeroContent
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -401,34 +401,62 @@ class QuoteFormStepSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'updated_at']
 
 
+class QuoteLineSerializer(serializers.ModelSerializer):
+    """Serializer pour les lignes de tableau d'un devis"""
+    class Meta:
+        model = QuoteLine
+        fields = [
+            'id', 'quote_request', 'category', 'label', 'notes',
+            'hours', 'hourly_rate', 'total', 'total_display',
+            'is_bold', 'order'
+        ]
+        extra_kwargs = {
+            'quote_request': {'required': False},
+        }
+
+
 class QuoteRequestSerializer(serializers.ModelSerializer):
     """Serializer pour QuoteRequest"""
     service_name = serializers.SerializerMethodField()
     service_slug = serializers.SerializerMethodField()
-    
+    patient_name = serializers.SerializerMethodField()
+    lines = QuoteLineSerializer(many=True, read_only=True)
+
     def get_service_name(self, obj):
         return obj.service.name if obj.service else None
-    
+
     def get_service_slug(self, obj):
         return obj.service.slug if obj.service else None
+
+    def get_patient_name(self, obj):
+        if obj.patient:
+            return f"{obj.patient.first_name} {obj.patient.last_name}"
+        return None
+
     status_display = serializers.CharField(
         source='get_status_display',
         read_only=True
     )
-    
+
     class Meta:
         model = QuoteRequest
         fields = [
             'id', 'service', 'service_name', 'service_slug',
+            'patient', 'patient_name',
+            'civility', 'client_name', 'birth_date',
+            'client_email', 'client_phone',
             'location', 'location_lat', 'location_lng',
-            'client_name', 'client_email', 'client_phone',
             'additional_info', 'calculated_price', 'discount_percentage', 'status', 'status_display',
             'admin_notes', 'contacted_at', 'quoted_at',
-            'created_at', 'updated_at', 'created_by_user'
+            'created_at', 'updated_at', 'created_by_user',
+            'lines',
         ]
         read_only_fields = ['created_at', 'updated_at', 'contacted_at', 'quoted_at']
         extra_kwargs = {
             'service': {'required': False, 'allow_null': True},
+            'patient': {'required': False, 'allow_null': True},
+            'location': {'required': False, 'allow_blank': True, 'default': ''},
+            'client_phone': {'required': False, 'allow_blank': True, 'default': ''},
         }
     
     def create(self, validated_data):
@@ -598,7 +626,16 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
     """Serializer pour SiteSettings"""
     logo_url = serializers.SerializerMethodField()
     logo_favicon_url = serializers.SerializerMethodField()
-    
+    logo_secondary_url = serializers.SerializerMethodField()
+
+    def get_logo_secondary_url(self, obj):
+        request = self.context.get('request')
+        if obj.logo_secondary and hasattr(obj.logo_secondary, 'url'):
+            if request:
+                return request.build_absolute_uri(obj.logo_secondary.url)
+            return obj.logo_secondary.url
+        return None
+
     class Meta:
         model = SiteSettings
         fields = [
@@ -618,6 +655,9 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
             'employe_login_bg_color', 'employe_login_text_color', 'employe_login_button_color', 'employe_login_button_border_color',
             'logo_area_bg_color', 'logo_area_text_color', 'devis_pdf_primary_color',
             'logo', 'logo_url', 'logo_favicon', 'logo_favicon_url',
+            'logo_secondary', 'logo_secondary_url',
+            'siret', 'code_ape', 'num_tva', 'forme_juridique', 'rcs_ville',
+            'mention_tva', 'mention_bon_pour_accord',
             'site_name', 'site_tagline',
             'smtp_host', 'smtp_port', 'smtp_use_tls', 'smtp_use_ssl',
             'smtp_username', 'smtp_password',

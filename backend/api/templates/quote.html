@@ -2,352 +2,310 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Devis #{{ quote_request.id }}</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body {
-            height: 100%;
-            font-family: 'Arial', 'Helvetica', sans-serif;
-            font-size: 11px;
-            color: #333;
-            line-height: 1.5;
-            background-color: #fff;
-        }
-        .container {
-            max-width: 210mm;
-            min-height: 100%;
-            margin: 0 auto;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-        }
-        .content {
-            flex: 1;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 35px;
-            padding-bottom: 20px;
-            border-bottom: 3px solid {{ pdf_primary_color|default:"#DC2626" }};
-        }
-        .header-left {
-            flex: 1;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            gap: 15px;
-        }
-        .quote-logo {
-            display: block;
-            width: 35px;
-            height: 35px;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-        .quote-logo img {
-            width: 35px !important;
-            height: 35px !important;
-            max-width: 35px !important;
-            max-height: 35px !important;
-            min-width: 35px !important;
-            min-height: 35px !important;
-            display: block;
-            object-fit: contain;
-            object-position: center;
-        }
-        .header-left .quote-info {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 4px;
-        }
-        .header-right {
-            flex: 1;
-            text-align: right;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            justify-content: flex-start;
-            gap: 10px;
-        }
-        .header-right h1 {
-            color: {{ pdf_primary_color|default:"#DC2626" }};
-            font-size: 48px;
-            font-weight: bold;
-            margin: 0;
-            letter-spacing: 4px;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-            line-height: 1;
-            white-space: nowrap;
-        }
-        .quote-number {
-            font-size: 11px;
-            margin-bottom: 8px;
-            color: #555;
-        }
-        .quote-number strong {
-            color: #333;
-            font-weight: 600;
-        }
-        .company-info {
+            font-family: Arial, Helvetica, sans-serif;
             font-size: 10px;
-            color: #333;
-            line-height: 1.8;
-            margin-top: 15px;
+            color: #222;
+            background: #fff;
         }
-        .company-info p {
-            margin: 3px 0;
+        .page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 18mm 15mm 15mm 15mm;
         }
-        .section {
-            margin-bottom: 30px;
-        }
-        .section-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: {{ pdf_primary_color|default:"#DC2626" }};
+
+        /* ─── EN-TÊTE ─── */
+        .header {
+            display: table;
+            width: 100%;
             margin-bottom: 18px;
-            text-transform: uppercase;
-            border-bottom: 2px solid {{ pdf_primary_color|default:"#DC2626" }};
-            padding-bottom: 8px;
-            letter-spacing: 1px;
         }
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 25px;
-            margin-bottom: 20px;
+        .header-left, .header-center, .header-right {
+            display: table-cell;
+            vertical-align: middle;
         }
-        .info-item {
-            margin-bottom: 10px;
-            font-size: 11px;
-            line-height: 1.8;
-        }
-        .info-label {
-            font-weight: 600;
-            color: #555;
-            display: inline-block;
-            min-width: 140px;
-        }
-        .info-value {
-            color: #333;
-            font-weight: 400;
-        }
-        .service-section {
-            background-color: #f9f9f9;
-            padding: 20px;
-            border: 1px solid #e0e0e0;
-            border-left: 5px solid #DC2626;
-            border-radius: 5px;
-            margin-bottom: 25px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-        }
-        .service-name {
+        .header-left { width: 30%; }
+        .header-center { width: 40%; text-align: center; }
+        .header-right { width: 30%; text-align: right; }
+        .logo-main img { max-width: 100px; max-height: 80px; }
+        .logo-secondary img { max-width: 90px; max-height: 70px; }
+        .company-center { line-height: 1.8; }
+        .company-center .company-name {
             font-size: 13px;
             font-weight: bold;
-            color: #333;
-            margin-bottom: 15px;
-            line-height: 1.6;
+            color: #222;
         }
-        .service-name strong {
-            color: #DC2626;
-            font-weight: 700;
-        }
-        .service-location {
-            font-size: 11px;
-            color: #666;
-            line-height: 1.6;
-        }
-        .service-location strong {
-            color: #333;
-            font-weight: 600;
-        }
-        .price-section {
-            background-color: #fff;
-            border: 2px solid #DC2626;
-            border-radius: 6px;
-            padding: 25px;
-            margin-top: 25px;
-            box-shadow: 0 3px 8px rgba(220, 38, 38, 0.15);
-        }
-        .price-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 14px 0;
-            font-size: 12px;
-            border-bottom: 1px solid #eee;
-        }
-        .price-row:last-child {
-            border-bottom: none;
-        }
-        .price-row.total {
-            border-top: 3px solid #DC2626;
-            font-weight: bold;
-            font-size: 16px;
-            padding-top: 18px;
-            margin-top: 15px;
-            color: #DC2626;
-        }
-        .price-label {
-            font-weight: 600;
-            color: #555;
-        }
-        .price-value {
-            text-align: right;
-            font-weight: 600;
-            color: #333;
-        }
-        .price-row.total .price-value {
-            color: #DC2626;
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .discount {
-            color: #dc2626;
-        }
-        .footer {
-            margin-top: 50px;
-            padding-top: 25px;
-            border-top: 2px solid #ddd;
+        .company-center .company-addr { font-size: 9px; color: #444; }
+
+        /* ─── BÉNÉFICIAIRE ─── */
+        .beneficiary { margin: 18px 0 10px 0; }
+        .beneficiary p { font-size: 11px; margin-bottom: 4px; }
+        .beneficiary .attn { font-weight: bold; font-size: 12px; }
+        .beneficiary .birth { font-size: 11px; }
+
+        /* ─── TITRE DEVIS ─── */
+        .devis-title {
             text-align: center;
-            font-size: 10px;
-            color: #777;
+            font-size: 14px;
+            font-weight: bold;
+            font-style: italic;
+            text-decoration: underline;
+            color: {{ pdf_primary_color|default:"#087A00" }};
+            margin: 16px 0 14px 0;
+        }
+
+        /* ─── TABLEAU TARIFAIRE ─── */
+        .tarif-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+            font-size: 9.5px;
+        }
+        .tarif-table th, .tarif-table td {
+            border: 1px solid #555;
+            padding: 5px 6px;
+            vertical-align: top;
+        }
+        .tarif-table thead th {
+            background-color: #f0f0f0;
+            text-align: center;
+            font-weight: bold;
+            font-size: 9.5px;
+        }
+        .tarif-table .cat-header td {
+            background-color: #e8e8e8;
+            font-weight: bold;
+            font-size: 9.5px;
+            padding: 5px 6px;
+        }
+        .tarif-table .row-bold td {
+            font-weight: bold;
+            background-color: #f5f5f5;
+        }
+        .tarif-table .col-label { width: 28%; }
+        .tarif-table .col-hours { width: 27%; text-align: center; }
+        .tarif-table .col-rate  { width: 20%; text-align: center; }
+        .tarif-table .col-total { width: 25%; text-align: right; font-weight: bold; }
+
+        /* ─── LIGNE RESTE MENSUEL ─── */
+        .reste-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 6px;
+            font-size: 9.5px;
+        }
+        .reste-table td {
+            border: 1px solid #555;
+            padding: 6px 8px;
+            font-weight: bold;
+        }
+        .reste-table .reste-label { width: 75%; }
+        .reste-table .reste-value { width: 25%; text-align: right; }
+
+        /* ─── PAGE 2 : LÉGAL ─── */
+        .page-break { page-break-before: always; }
+        .legal-page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 0 auto;
+            padding: 20mm 18mm 20mm 18mm;
+        }
+        .legal-mention {
+            margin-bottom: 20px;
             line-height: 1.8;
         }
-        .footer p {
-            margin: 6px 0;
+        .legal-mention p { font-size: 10px; margin-bottom: 6px; }
+        .legal-mention p strong { font-weight: bold; }
+        .legal-mention .accord {
+            font-size: 10px;
+            font-weight: bold;
         }
-        .footer strong {
-            color: #333;
-            font-weight: 600;
+        .legal-infos {
+            margin: 30px 0 30px 80px;
+            line-height: 2.2;
+            font-size: 10px;
+            color: #222;
         }
-        @media print {
-            body {
-                margin: 0;
-                padding: 0;
-            }
-            .container {
-                padding: 20px;
-                min-height: auto;
-            }
-            .footer {
-                margin-top: 40px;
-            }
+        .legal-infos p { margin-bottom: 4px; }
+        .legal-stamp {
+            display: table;
+            margin: 30px auto 0 auto;
+        }
+        .legal-stamp-logo {
+            display: table-cell;
+            vertical-align: middle;
+            padding-right: 12px;
+        }
+        .legal-stamp-logo img { width: 70px; height: 70px; }
+        .legal-stamp-text {
+            display: table-cell;
+            vertical-align: middle;
+            font-size: 8.5px;
+            line-height: 1.8;
+            color: #222;
+        }
+        .legal-stamp-text .stamp-name {
+            font-size: 11px;
+            font-weight: bold;
+            color: {{ pdf_primary_color|default:"#087A00" }};
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="content">
-            <!-- Header -->
-            <div class="header">
-                <div class="header-left">
-                    {% if site_settings and site_settings.logo and logo_path %}
-                    <div class="quote-logo">
-                        <img src="{{ logo_path }}" alt="{{ site_settings.site_name|default:'Logo' }}" />
-                    </div>
-                    {% endif %}
-                    <div class="quote-info">
-                        <div class="quote-number">
-                            <strong>Numéro:</strong> DE-{{ quote_request.id }}
-                        </div>
-                        <div class="quote-number">
-                            <strong>Date d'émission:</strong> {{ today|date:"d/m/Y" }}
-                        </div>
-                    </div>
-                </div>
-                <div class="header-right">
-                    <h1>DEVIS</h1>
-                    <div class="company-info">
-                        <p>Plateau, Abidjan - Côte d'Ivoire</p>
-                        <p>Tél: +225 01 23 45 67 89</p>
-                        <p>Email: contact@serviceslocaux.ci</p>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Informations client -->
-            <div class="section">
-                <div class="section-title">Informations client</div>
-                <div class="info-grid">
-                    <div>
-                        <div class="info-item">
-                            <span class="info-label">Nom complet:</span>
-                            <span class="info-value">{{ quote_request.client_name }}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Email:</span>
-                            <span class="info-value">{{ quote_request.client_email }}</span>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="info-item">
-                            <span class="info-label">Téléphone:</span>
-                            <span class="info-value">{{ quote_request.client_phone }}</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Date de demande:</span>
-                            <span class="info-value">{{ quote_request.created_at|date:"d/m/Y" }}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!-- ═══════════════════ PAGE 1 ═══════════════════ -->
+<div class="page">
 
-            <!-- Service et localisation -->
-            <div class="section">
-                <div class="section-title">Service et localisation</div>
-                <div class="service-section">
-                    <div class="service-name">
-                        <strong>Service demandé:</strong> {% if quote_request.service %}{{ quote_request.service.name }}{% else %}Non spécifié{% endif %}
-                    </div>
-                    <div class="service-location">
-                        <strong>Localisation:</strong> {{ quote_request.location }}
-                    </div>
-                </div>
+    <!-- EN-TÊTE -->
+    <div class="header">
+        <div class="header-left">
+            {% if logo_path %}
+            <div class="logo-main">
+                <img src="{{ logo_path }}" alt="{{ site_settings.site_name|default:'Logo' }}" />
             </div>
-
-            <!-- Total après réduction -->
-            <div class="section">
-                <div class="section-title">Détails du prix</div>
-                <div class="price-section">
-                    {% if base_price > 0 %}
-                    <div class="price-row">
-                        <span class="price-label">Prix calculé:</span>
-                        <span class="price-value">{{ base_price|floatformat:2 }} €</span>
-                    </div>
-                    {% if discount > 0 %}
-                    <div class="price-row discount">
-                        <span class="price-label">Réduction ({{ discount|floatformat:2 }}%):</span>
-                        <span class="price-value">-{{ discount_amount|floatformat:2 }} €</span>
-                    </div>
-                    {% endif %}
-                    <div class="price-row total">
-                        <span class="price-label">Total après réduction:</span>
-                        <span class="price-value">{{ final_price|floatformat:2 }} €</span>
-                    </div>
-                    {% else %}
-                    <div class="price-row total">
-                        <span class="price-label">Prix:</span>
-                        <span class="price-value">Sur devis</span>
-                    </div>
-                    {% endif %}
+            {% endif %}
+        </div>
+        <div class="header-center">
+            <div class="company-center">
+                <div class="company-name">{{ site_settings.site_name|default:"" }}</div>
+                <div class="company-addr">{{ site_settings.site_tagline|default:"" }}</div>
+                {% if site_settings.siret or site_settings.code_ape %}
+                <div class="company-addr">
+                    {% if site_settings.siret %}SIRET : {{ site_settings.siret }}{% endif %}
                 </div>
+                {% endif %}
             </div>
         </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            <p>Ce devis est valable 30 jours à compter de sa date d'émission.</p>
-            <p><strong>{{ site_settings.site_name|default:"Services Locaux" }}</strong> - {{ site_settings.site_tagline|default:"Votre partenaire de confiance" }}</p>
-            <p>Plateau, Abidjan - Côte d'Ivoire | Tél: +225 01 23 45 67 89 | Email: contact@serviceslocaux.ci</p>
+        <div class="header-right">
+            {% if logo_secondary_path %}
+            <div class="logo-secondary">
+                <img src="{{ logo_secondary_path }}" alt="Partenaire" />
+            </div>
+            {% endif %}
         </div>
     </div>
+
+    <!-- BÉNÉFICIAIRE -->
+    <div class="beneficiary">
+        <p class="attn">ATTN DE : {{ quote_request.civility }} {{ quote_request.client_name }}</p>
+        {% if quote_request.birth_date %}
+        <p class="birth">Né(e) le : {{ quote_request.birth_date|date:"d/m/Y" }}</p>
+        {% endif %}
+    </div>
+
+    <!-- TITRE -->
+    <div class="devis-title">
+        DEVIS : {% if quote_request.service %}{{ quote_request.service.name }}{% else %}Services d'aide et d'accompagnement à domicile{% endif %}
+    </div>
+
+    <!-- TABLEAU TARIFAIRE -->
+    {% if quote_request.lines.all %}
+    <table class="tarif-table">
+        <thead>
+            <tr>
+                <th colspan="4" style="background-color:#ddd; font-size:10px;">TARIF MENSUEL</th>
+            </tr>
+            <tr>
+                <th class="col-label"></th>
+                <th class="col-hours">NOMBRE D'HEURES</th>
+                <th class="col-rate">TARIF HORAIRE</th>
+                <th class="col-total">TOTAL</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for line in quote_request.lines.all %}
+                {% if line.category == 'A' or line.category == 'B' or line.category == 'TOTAL' %}
+                    {% if forloop.first or line.category != prev_category %}
+                    <tr class="cat-header">
+                        <td colspan="4">
+                            {% if line.category == 'A' %}A) SANS PRISE EN CHARGE
+                            {% elif line.category == 'B' %}B) PRISE EN CHARGE (dès réception de la Notification de prise en charge)
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endif %}
+                {% endif %}
+                <tr class="{% if line.is_bold %}row-bold{% endif %}">
+                    <td class="col-label">
+                        {{ line.label }}
+                        {% if line.notes %}<br/><em style="font-size:8.5px;">{{ line.notes }}</em>{% endif %}
+                    </td>
+                    <td class="col-hours">{{ line.hours|default:"/" }}</td>
+                    <td class="col-rate">
+                        {% if line.hourly_rate %}{{ line.hourly_rate|floatformat:2 }} €{% else %}/{% endif %}
+                    </td>
+                    <td class="col-total">
+                        {% if line.total_display %}{{ line.total_display }}
+                        {% elif line.total %}{{ line.total|floatformat:2 }} €
+                        {% else %}/{% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- RESTE MENSUEL -->
+    {% if final_price > 0 %}
+    <table class="reste-table">
+        <tr>
+            <td class="reste-label">Reste mensuel à charge du client *(pour des prestations réalisées tous les jours Y COMPRIS dimanche et férié)</td>
+            <td class="reste-value">{{ final_price|floatformat:2 }} €</td>
+        </tr>
+    </table>
+    {% endif %}
+
+    {% else %}
+    <!-- Affichage simplifié si pas de lignes -->
+    {% if base_price > 0 %}
+    <table class="reste-table">
+        <tr>
+            <td class="reste-label">Montant estimé</td>
+            <td class="reste-value">{{ final_price|floatformat:2 }} €</td>
+        </tr>
+    </table>
+    {% else %}
+    <p style="text-align:center; margin-top:20px; font-style:italic;">Prix sur devis — nous vous contacterons pour finaliser l'offre.</p>
+    {% endif %}
+    {% endif %}
+
+</div>
+<!-- ═══════════════════ FIN PAGE 1 ═══════════════════ -->
+
+<!-- ═══════════════════ PAGE 2 ═══════════════════ -->
+<div class="page-break"></div>
+<div class="legal-page">
+
+    <div class="legal-mention">
+        <p><strong>{{ site_settings.mention_tva|default:"TVA non applicable selon l'article 293 B du Code Général des Impôts" }}</strong></p>
+        <br/>
+        <p class="accord"><strong>{{ site_settings.mention_bon_pour_accord|default:"Si accord, le devis suivant devra être retourné signer avec la mention « Bon pour accord » et constituera une annexe au contrat signé ultérieurement." }}</strong></p>
+    </div>
+
+    <div class="legal-infos">
+        {% if site_settings.siret %}<p>SIRET : {{ site_settings.siret }}</p>{% endif %}
+        {% if site_settings.code_ape %}<p>CODE APE : {{ site_settings.code_ape }}</p>{% endif %}
+        {% if site_settings.num_tva %}<p>N° TVA : {{ site_settings.num_tva }}</p>{% endif %}
+    </div>
+
+    {% if logo_path %}
+    <div class="legal-stamp">
+        <div class="legal-stamp-logo">
+            <img src="{{ logo_path }}" alt="{{ site_settings.site_name|default:'Logo' }}" />
+        </div>
+        <div class="legal-stamp-text">
+            <div class="stamp-name">{{ site_settings.site_name|default:"" }}</div>
+            {% if site_settings.siret %}<div>{{ site_settings.siret }} R.C.S. {% if site_settings.rcs_ville %}{{ site_settings.rcs_ville }}{% endif %}</div>{% endif %}
+            {% if site_settings.num_tva %}<div>N°TVA : {{ site_settings.num_tva }}{% if site_settings.forme_juridique %} - Forme Juridique : {{ site_settings.forme_juridique }}{% endif %}</div>{% endif %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+<!-- ═══════════════════ FIN PAGE 2 ═══════════════════ -->
+
 </body>
 </html>

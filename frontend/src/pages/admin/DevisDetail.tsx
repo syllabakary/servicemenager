@@ -28,6 +28,10 @@ import {
   FaDollarSign,
   FaPercent,
   FaTrash,
+  FaPlus,
+  FaTimes,
+  FaSave,
+  FaTable,
 } from "react-icons/fa";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
@@ -70,6 +74,11 @@ export default function DevisDetail() {
 
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const canDelete = storedUser.role === "ADMIN" || storedUser.role === "SUPERADMIN";
+
+  // État pour les lignes du tableau tarifaire
+  const [editingLines, setEditingLines] = useState(false);
+  const [lines, setLines] = useState<any[]>([]);
+  const [linesLoaded, setLinesLoaded] = useState(false);
 
   const deleteMutation = useMutation({
     mutationFn: async () => {
@@ -165,11 +174,73 @@ export default function DevisDetail() {
     },
   });
 
+  // Initialiser les lignes depuis le devis chargé
+  useEffect(() => {
+    if (quoteRequest?.lines && !linesLoaded) {
+      setLines(quoteRequest.lines.map((l: any) => ({
+        ...l,
+        hourly_rate: l.hourly_rate ?? "",
+        total: l.total ?? "",
+      })));
+      setLinesLoaded(true);
+    }
+  }, [quoteRequest, linesLoaded]);
+
+  const saveLinesMutation = useMutation({
+    mutationFn: async () => {
+      const token = localStorage.getItem("access_token");
+      // Supprimer toutes les lignes existantes, puis recréer
+      const existing = quoteRequest?.lines || [];
+      for (const l of existing) {
+        await axios.delete(`${API_URL}/quote-lines/${l.id}/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (!line.label) continue;
+        await axios.post(`${API_URL}/quote-lines/`, {
+          quote_request: quoteId,
+          category: line.category,
+          label: line.label,
+          notes: line.notes || "",
+          hours: line.hours || "",
+          hourly_rate: line.hourly_rate ? Number(line.hourly_rate) : null,
+          total: line.total ? Number(line.total) : null,
+          total_display: line.total_display || "",
+          is_bold: line.is_bold || false,
+          order: i,
+        }, { headers: { Authorization: `Bearer ${token}` } });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["quote-request", quoteId] });
+      setEditingLines(false);
+      setLinesLoaded(false);
+      toast({ title: "Tableau sauvegardé", description: "Les lignes ont été mises à jour." });
+    },
+    onError: () => {
+      toast({ title: "Erreur", description: "Impossible de sauvegarder les lignes.", variant: "destructive" });
+    },
+  });
+
+  const updateLine = (index: number, field: string, value: any) => {
+    setLines((prev) => prev.map((l, i) => i === index ? { ...l, [field]: value } : l));
+  };
+
+  const addLine = (category: string) => {
+    setLines((prev) => [...prev, { category, label: "", notes: "", hours: "", hourly_rate: "", total: "", total_display: "", is_bold: false, order: prev.length }]);
+  };
+
+  const removeLine = (index: number) => {
+    setLines((prev) => prev.filter((_, i) => i !== index));
+  };
+
   // Calculer le prix après réduction
   const calculateFinalPrice = () => {
     const price = quoteRequest?.calculated_price;
     const basePrice = price ? parseFloat(String(price)) : 0;
-    const discount = parseFloat(discountValue || 0);
+    const discount = parseFloat(discountValue || "0");
     if (discount > 0 && basePrice > 0) {
       return basePrice * (1 - discount / 100);
     }
@@ -261,8 +332,18 @@ export default function DevisDetail() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="space-y-0.5">
                     <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Nom complet</p>
-                    <p className="text-sm text-gray-900 font-medium">{quoteRequest.client_name}</p>
+                    <p className="text-sm text-gray-900 font-medium">
+                      {quoteRequest.civility ? `${quoteRequest.civility} ` : ""}{quoteRequest.client_name}
+                    </p>
                   </div>
+                  {quoteRequest.birth_date && (
+                    <div className="space-y-0.5">
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Date de naissance</p>
+                      <p className="text-sm text-gray-900 font-medium">
+                        {new Date(quoteRequest.birth_date).toLocaleDateString("fr-FR")}
+                      </p>
+                    </div>
+                  )}
                   <div className="space-y-0.5">
                     <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Email</p>
                     <a
@@ -330,6 +411,162 @@ export default function DevisDetail() {
                     <p className="text-sm text-gray-900 font-medium">{quoteRequest.location}</p>
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Tableau tarifaire */}
+            <Card className="shadow-md border">
+              <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 py-3">
+                <CardTitle className="flex items-center justify-between text-base font-semibold">
+                  <span className="flex items-center gap-2">
+                    <FaTable className="w-4 h-4 text-site-primary" />
+                    Tableau tarifaire
+                  </span>
+                  {!editingLines ? (
+                    <button
+                      onClick={() => setEditingLines(true)}
+                      className="text-xs text-blue-600 hover:text-blue-800 underline font-normal"
+                    >
+                      Modifier
+                    </button>
+                  ) : (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => { setEditingLines(false); setLinesLoaded(false); }}
+                        className="text-xs text-gray-500 hover:text-gray-700 underline font-normal"
+                      >
+                        Annuler
+                      </button>
+                      <button
+                        onClick={() => saveLinesMutation.mutate()}
+                        disabled={saveLinesMutation.isPending}
+                        className="text-xs text-green-600 hover:text-green-800 underline font-normal flex items-center gap-1"
+                      >
+                        {saveLinesMutation.isPending ? <FaSpinner className="animate-spin w-3 h-3" /> : <FaSave className="w-3 h-3" />}
+                        Sauvegarder
+                      </button>
+                    </div>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-3">
+                {!editingLines ? (
+                  /* Affichage lecture seule */
+                  lines.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs border-collapse">
+                        <thead>
+                          <tr className="bg-gray-100">
+                            <th className="border border-gray-300 px-2 py-1.5 text-left">Libellé</th>
+                            <th className="border border-gray-300 px-2 py-1.5 text-center">Heures</th>
+                            <th className="border border-gray-300 px-2 py-1.5 text-center">Tarif/h</th>
+                            <th className="border border-gray-300 px-2 py-1.5 text-right">Total</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {["A", "B"].map((cat) => {
+                            const catLines = lines.filter((l) => l.category === cat);
+                            if (catLines.length === 0) return null;
+                            return [
+                              <tr key={`cat-${cat}`} className="bg-gray-50">
+                                <td colSpan={4} className="border border-gray-300 px-2 py-1 font-bold text-xs">
+                                  {cat === "A" ? "A) Sans prise en charge" : "B) Avec prise en charge (dès réception de la Notification de prise en charge)"}
+                                </td>
+                              </tr>,
+                              ...catLines.map((line: any, i: number) => (
+                                <tr key={`${cat}-${i}`} className={line.is_bold ? "font-bold bg-gray-50" : ""}>
+                                  <td className="border border-gray-300 px-2 py-1">
+                                    {line.label}
+                                    {line.notes && <div className="text-gray-500 font-normal italic">{line.notes}</div>}
+                                  </td>
+                                  <td className="border border-gray-300 px-2 py-1 text-center">{line.hours || "/"}</td>
+                                  <td className="border border-gray-300 px-2 py-1 text-center">
+                                    {line.hourly_rate ? `${Number(line.hourly_rate).toFixed(2)} €` : "/"}
+                                  </td>
+                                  <td className="border border-gray-300 px-2 py-1 text-right">
+                                    {line.total_display || (line.total ? `${Number(line.total).toFixed(2)} €` : "/")}
+                                  </td>
+                                </tr>
+                              )),
+                            ];
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-gray-500 text-center py-4">Aucune ligne — cliquez sur "Modifier" pour ajouter des lignes tarifaires.</p>
+                  )
+                ) : (
+                  /* Mode édition */
+                  <div className="space-y-4">
+                    {["A", "B"].map((cat) => (
+                      <div key={cat}>
+                        <div className="text-xs font-bold bg-gray-100 px-3 py-2 rounded-t border border-gray-300">
+                          {cat === "A" ? "A) Sans prise en charge" : "B) Avec prise en charge"}
+                        </div>
+                        <div className="border border-t-0 border-gray-300 rounded-b overflow-hidden">
+                          <table className="w-full text-xs">
+                            <thead className="bg-gray-50">
+                              <tr>
+                                <th className="text-left px-2 py-1.5 w-[22%]">Libellé</th>
+                                <th className="text-left px-2 py-1.5 w-[18%]">Notes</th>
+                                <th className="text-left px-2 py-1.5 w-[15%]">Heures</th>
+                                <th className="text-left px-2 py-1.5 w-[12%]">Tarif/h</th>
+                                <th className="text-left px-2 py-1.5 w-[12%]">Total (€)</th>
+                                <th className="text-left px-2 py-1.5 w-[15%]">Affichage</th>
+                                <th className="text-left px-2 py-1.5 w-[4%]">G</th>
+                                <th className="px-2 py-1.5 w-[2%]"></th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {lines.filter((l) => l.category === cat).map((line) => {
+                                const absIdx = lines.indexOf(line);
+                                return (
+                                  <tr key={absIdx} className="border-t border-gray-200">
+                                    <td className="px-1 py-1">
+                                      <Input className="h-7 text-xs" value={line.label} onChange={(e) => updateLine(absIdx, "label", e.target.value)} />
+                                    </td>
+                                    <td className="px-1 py-1">
+                                      <Input className="h-7 text-xs" value={line.notes} onChange={(e) => updateLine(absIdx, "notes", e.target.value)} />
+                                    </td>
+                                    <td className="px-1 py-1">
+                                      <Input className="h-7 text-xs" value={line.hours} onChange={(e) => updateLine(absIdx, "hours", e.target.value)} placeholder="/" />
+                                    </td>
+                                    <td className="px-1 py-1">
+                                      <Input className="h-7 text-xs" type="number" value={line.hourly_rate} onChange={(e) => updateLine(absIdx, "hourly_rate", e.target.value)} />
+                                    </td>
+                                    <td className="px-1 py-1">
+                                      <Input className="h-7 text-xs" type="number" value={line.total} onChange={(e) => updateLine(absIdx, "total", e.target.value)} />
+                                    </td>
+                                    <td className="px-1 py-1">
+                                      <Input className="h-7 text-xs" value={line.total_display} onChange={(e) => updateLine(absIdx, "total_display", e.target.value)} placeholder="/" />
+                                    </td>
+                                    <td className="px-1 py-1 text-center">
+                                      <input type="checkbox" checked={line.is_bold} onChange={(e) => updateLine(absIdx, "is_bold", e.target.checked)} className="w-3.5 h-3.5" title="Gras" />
+                                    </td>
+                                    <td className="px-1 py-1">
+                                      <button onClick={() => removeLine(absIdx)} className="text-red-400 hover:text-red-600">
+                                        <FaTimes className="w-3 h-3" />
+                                      </button>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                          <div className="px-2 py-1.5 bg-gray-50 border-t border-gray-200">
+                            <button
+                              onClick={() => addLine(cat)}
+                              className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                            >
+                              <FaPlus className="w-2.5 h-2.5" /> Ajouter une ligne
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -416,7 +653,7 @@ export default function DevisDetail() {
                               </button>
                             </div>
                           </div>
-                          {parseFloat(discountValue || 0) > 0 && (
+                          {parseFloat(discountValue || "0") > 0 && (
                             <>
                               <div className="flex items-center justify-between pt-2 border-t border-gray-200 pb-2">
                                 <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Réduction</p>

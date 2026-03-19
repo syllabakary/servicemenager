@@ -15,9 +15,18 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import {
   FaEnvelope,
   FaPhone,
@@ -34,15 +43,356 @@ import {
   FaFilter,
   FaTimes,
   FaTrash,
+  FaPlus,
 } from "react-icons/fa";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
-import { Link } from "wouter";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "wouter";
 
 import { API_URL } from "@/config/api";
+
+// ─── Composant de création de devis ───────────────────────────────────────────
+const EMPTY_LINE = { category: "A", label: "", notes: "", hours: "", hourly_rate: "", total: "", total_display: "", is_bold: false, order: 0 };
+
+function CreateDevisDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
+
+  const [clientType, setClientType] = useState<"registered" | "new">("new");
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
+  const [patientSearch, setPatientSearch] = useState("");
+
+  const [form, setForm] = useState({
+    civility: "",
+    client_name: "",
+    birth_date: "",
+    client_email: "",
+    client_phone: "",
+    location: "",
+    service: "",
+    admin_notes: "",
+  });
+
+  const [lines, setLines] = useState<any[]>([
+    { ...EMPTY_LINE, category: "A", label: "Prestation mensuelle", order: 0 },
+    { ...EMPTY_LINE, category: "A", label: "Dimanche et jour Férié", notes: "bonification de 25%", order: 1 },
+    { ...EMPTY_LINE, category: "A", label: "Total sans prise en charge", is_bold: true, order: 2 },
+    { ...EMPTY_LINE, category: "B", label: "Prestation mensuelle (en semaine)", order: 3 },
+    { ...EMPTY_LINE, category: "B", label: "Dimanche et jour Férié", order: 4 },
+    { ...EMPTY_LINE, category: "B", label: "Participation du département", order: 5 },
+  ]);
+
+  // Chercher patients
+  const { data: patientsData } = useQuery({
+    queryKey: ["patients-search", patientSearch],
+    queryFn: async () => {
+      const token = localStorage.getItem("access_token");
+      const res = await axios.get(`${API_URL}/patients/?search=${patientSearch}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return Array.isArray(res.data) ? res.data : (res.data?.results || []);
+    },
+    enabled: clientType === "registered",
+  });
+
+  const { data: servicesData } = useQuery({
+    queryKey: ["services-list"],
+    queryFn: async () => {
+      const token = localStorage.getItem("access_token");
+      const res = await axios.get(`${API_URL}/services/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return Array.isArray(res.data) ? res.data : (res.data?.results || []);
+    },
+  });
+
+  // Quand on sélectionne un patient, auto-remplir les champs
+  const handleSelectPatient = (patient: any) => {
+    setSelectedPatient(patient);
+    setForm((f) => ({
+      ...f,
+      civility: patient.civility || "",
+      client_name: `${patient.first_name || ""} ${patient.last_name || ""}`.trim(),
+      birth_date: patient.birth_date || "",
+      client_email: patient.email || "",
+      client_phone: patient.phone || "",
+      location: patient.address || "",
+    }));
+    setPatientSearch(`${patient.first_name} ${patient.last_name}`);
+  };
+
+  const updateLine = (index: number, field: string, value: any) => {
+    setLines((prev) => prev.map((l, i) => i === index ? { ...l, [field]: value } : l));
+  };
+
+  const addLine = (category: string) => {
+    setLines((prev) => [...prev, { ...EMPTY_LINE, category, order: prev.length }]);
+  };
+
+  const removeLine = (index: number) => {
+    setLines((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      const token = localStorage.getItem("access_token");
+      // Créer le devis
+      const payload: any = {
+        ...form,
+        status: "PENDING",
+        calculated_price: 0,
+      };
+      if (clientType === "registered" && selectedPatient) {
+        payload.patient = selectedPatient.id;
+      }
+      if (form.service) payload.service = Number(form.service);
+      else delete payload.service;
+
+      const res = await axios.post(`${API_URL}/quote-requests/`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const quoteId = res.data.id;
+
+      // Créer les lignes
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (!line.label) continue;
+        await axios.post(`${API_URL}/quote-lines/`, {
+          quote_request: quoteId,
+          category: line.category,
+          label: line.label,
+          notes: line.notes || "",
+          hours: line.hours || "",
+          hourly_rate: line.hourly_rate ? Number(line.hourly_rate) : null,
+          total: line.total ? Number(line.total) : null,
+          total_display: line.total_display || "",
+          is_bold: line.is_bold,
+          order: i,
+        }, { headers: { Authorization: `Bearer ${token}` } });
+      }
+      return quoteId;
+    },
+    onSuccess: (quoteId) => {
+      queryClient.invalidateQueries({ queryKey: ["admin-quote-requests"] });
+      toast({ title: "Devis créé", description: "Le devis a été créé avec succès." });
+      onClose();
+      navigate(`/admin/devis/${quoteId}`);
+    },
+    onError: (err: any) => {
+      const data = err?.response?.data;
+      if (data && typeof data === "object") {
+        const msg = Object.entries(data).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`).join("\n");
+        toast({ title: "Erreur", description: msg, variant: "destructive" });
+      } else {
+        toast({ title: "Erreur", description: "Impossible de créer le devis.", variant: "destructive" });
+      }
+    },
+  });
+
+  const catLabel = (cat: string) => cat === "A" ? "A) Sans prise en charge" : "B) Avec prise en charge";
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl flex flex-col max-h-[90vh]">
+        <DialogHeader className="flex-shrink-0">
+          <DialogTitle>Nouveau devis</DialogTitle>
+          <DialogDescription>Créer un devis pour un client enregistré ou non</DialogDescription>
+        </DialogHeader>
+
+        <div className="overflow-y-auto flex-1 min-h-0 space-y-5 pr-1 py-2">
+          {/* Type de client */}
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant={clientType === "new" ? "default" : "outline"}
+              onClick={() => { setClientType("new"); setSelectedPatient(null); }}
+              className="flex-1"
+            >
+              Client non enregistré
+            </Button>
+            <Button
+              type="button"
+              variant={clientType === "registered" ? "default" : "outline"}
+              onClick={() => setClientType("registered")}
+              className="flex-1"
+            >
+              Client enregistré
+            </Button>
+          </div>
+
+          {/* Sélecteur patient */}
+          {clientType === "registered" && (
+            <div className="space-y-2">
+              <Label>Rechercher un patient</Label>
+              <Input
+                placeholder="Nom du patient..."
+                value={patientSearch}
+                onChange={(e) => setPatientSearch(e.target.value)}
+              />
+              {patientsData && patientsData.length > 0 && !selectedPatient && (
+                <div className="border rounded-md max-h-40 overflow-y-auto">
+                  {patientsData.map((p: any) => (
+                    <div
+                      key={p.id}
+                      className="px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm border-b last:border-b-0"
+                      onClick={() => handleSelectPatient(p)}
+                    >
+                      {p.first_name} {p.last_name} — {p.email || p.phone || ""}
+                    </div>
+                  ))}
+                </div>
+              )}
+              {selectedPatient && (
+                <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 rounded px-3 py-2">
+                  <FaCheckCircle /> Patient sélectionné : {selectedPatient.first_name} {selectedPatient.last_name}
+                  <button className="ml-auto text-gray-500 hover:text-red-500" onClick={() => { setSelectedPatient(null); setPatientSearch(""); }}>
+                    <FaTimes />
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Infos client */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Civilité</Label>
+              <Select value={form.civility} onValueChange={(v) => setForm({ ...form, civility: v })}>
+                <SelectTrigger><SelectValue placeholder="Civilité" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Non précisé</SelectItem>
+                  <SelectItem value="M.">Monsieur</SelectItem>
+                  <SelectItem value="Mme">Madame</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Nom complet *</Label>
+              <Input value={form.client_name} onChange={(e) => setForm({ ...form, client_name: e.target.value })} placeholder="Nom et prénom" />
+            </div>
+            <div>
+              <Label>Date de naissance</Label>
+              <Input type="date" value={form.birth_date} onChange={(e) => setForm({ ...form, birth_date: e.target.value })} />
+            </div>
+            <div>
+              <Label>Email</Label>
+              <Input type="email" value={form.client_email} onChange={(e) => setForm({ ...form, client_email: e.target.value })} placeholder="email@exemple.fr" />
+            </div>
+            <div>
+              <Label>Téléphone</Label>
+              <Input value={form.client_phone} onChange={(e) => setForm({ ...form, client_phone: e.target.value })} placeholder="06 00 00 00 00" />
+            </div>
+            <div>
+              <Label>Adresse</Label>
+              <Input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Adresse du client" />
+            </div>
+            <div className="col-span-2">
+              <Label>Service (optionnel)</Label>
+              <Select value={form.service} onValueChange={(v) => setForm({ ...form, service: v })}>
+                <SelectTrigger><SelectValue placeholder="Sélectionner un service" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">Aucun service spécifique</SelectItem>
+                  {(servicesData || []).map((s: any) => (
+                    <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Tableau tarifaire */}
+          <div>
+            <h3 className="font-semibold text-sm mb-3">Tableau tarifaire</h3>
+            {["A", "B"].map((cat) => (
+              <div key={cat} className="mb-4">
+                <div className="text-xs font-bold bg-gray-100 px-3 py-2 rounded-t border border-gray-300">
+                  {catLabel(cat)}
+                </div>
+                <div className="border border-t-0 border-gray-300 rounded-b overflow-hidden">
+                  <table className="w-full text-xs">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="text-left px-2 py-1.5 w-[25%]">Libellé</th>
+                        <th className="text-left px-2 py-1.5 w-[20%]">Notes</th>
+                        <th className="text-left px-2 py-1.5 w-[15%]">Heures</th>
+                        <th className="text-left px-2 py-1.5 w-[12%]">Tarif/h (€)</th>
+                        <th className="text-left px-2 py-1.5 w-[12%]">Total (€)</th>
+                        <th className="text-left px-2 py-1.5 w-[12%]">Affichage</th>
+                        <th className="px-2 py-1.5 w-[4%]"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {lines.filter((l) => l.category === cat).map((line, relIdx) => {
+                        const absIdx = lines.indexOf(line);
+                        return (
+                          <tr key={absIdx} className="border-t border-gray-200">
+                            <td className="px-1 py-1">
+                              <Input className="h-7 text-xs" value={line.label} onChange={(e) => updateLine(absIdx, "label", e.target.value)} placeholder="Libellé" />
+                            </td>
+                            <td className="px-1 py-1">
+                              <Input className="h-7 text-xs" value={line.notes} onChange={(e) => updateLine(absIdx, "notes", e.target.value)} placeholder="Notes" />
+                            </td>
+                            <td className="px-1 py-1">
+                              <Input className="h-7 text-xs" value={line.hours} onChange={(e) => updateLine(absIdx, "hours", e.target.value)} placeholder="52h/mois" />
+                            </td>
+                            <td className="px-1 py-1">
+                              <Input className="h-7 text-xs" type="number" value={line.hourly_rate} onChange={(e) => updateLine(absIdx, "hourly_rate", e.target.value)} placeholder="25.66" />
+                            </td>
+                            <td className="px-1 py-1">
+                              <Input className="h-7 text-xs" type="number" value={line.total} onChange={(e) => updateLine(absIdx, "total", e.target.value)} placeholder="1334.32" />
+                            </td>
+                            <td className="px-1 py-1">
+                              <Input className="h-7 text-xs" value={line.total_display} onChange={(e) => updateLine(absIdx, "total_display", e.target.value)} placeholder="/" />
+                            </td>
+                            <td className="px-1 py-1">
+                              <button onClick={() => removeLine(absIdx)} className="text-red-400 hover:text-red-600">
+                                <FaTimes className="w-3 h-3" />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  <div className="px-2 py-1.5 bg-gray-50 border-t border-gray-200">
+                    <button
+                      onClick={() => addLine(cat)}
+                      className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                    >
+                      <FaPlus className="w-2.5 h-2.5" /> Ajouter une ligne {catLabel(cat).split(")")[0]})
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Notes admin */}
+          <div>
+            <Label>Notes internes</Label>
+            <Textarea value={form.admin_notes} onChange={(e) => setForm({ ...form, admin_notes: e.target.value })} placeholder="Notes visibles uniquement par l'administration..." rows={2} />
+          </div>
+        </div>
+
+        <DialogFooter className="flex-shrink-0 border-t pt-4">
+          <Button variant="outline" onClick={onClose}>Annuler</Button>
+          <Button
+            onClick={() => createMutation.mutate()}
+            disabled={createMutation.isPending || !form.client_name}
+          >
+            {createMutation.isPending ? <FaSpinner className="animate-spin mr-2" /> : <FaPlus className="mr-2" />}
+            Créer le devis
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+// ──────────────────────────────────────────────────────────────────────────────
 
 export default function AdminDevis() {
   const queryClient = useQueryClient();
@@ -80,6 +430,7 @@ export default function AdminDevis() {
     dateTo: "",
   });
   const [showFilters, setShowFilters] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-quote-requests"],
@@ -250,19 +601,28 @@ export default function AdminDevis() {
                 Gérez et suivez toutes les demandes de devis des clients
               </p>
             </div>
-            <Button
-              onClick={() => setShowFilters(!showFilters)}
-              variant="outline"
-              className="flex items-center gap-2"
-            >
-              <FaFilter className="w-4 h-4" />
-              Filtres
-              {hasActiveFilters && (
-                <span className="bg-site-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
-                  {[filters.name, filters.email, filters.location, filters.dateFrom, filters.dateTo].filter(Boolean).length}
-                </span>
-              )}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setShowCreateDialog(true)}
+                className="flex items-center gap-2 bg-site-primary hover:bg-site-primary/90 text-white"
+              >
+                <FaPlus className="w-4 h-4" />
+                Nouveau devis
+              </Button>
+              <Button
+                onClick={() => setShowFilters(!showFilters)}
+                variant="outline"
+                className="flex items-center gap-2"
+              >
+                <FaFilter className="w-4 h-4" />
+                Filtres
+                {hasActiveFilters && (
+                  <span className="bg-site-primary text-white rounded-full w-5 h-5 flex items-center justify-center text-xs">
+                    {[filters.name, filters.email, filters.location, filters.dateFrom, filters.dateTo].filter(Boolean).length}
+                  </span>
+                )}
+              </Button>
+            </div>
           </div>
           
           {/* Section de filtres */}
@@ -1134,6 +1494,10 @@ export default function AdminDevis() {
         </Dialog>
 
       </div>
+
+      {/* Dialog de création de devis */}
+      <CreateDevisDialog open={showCreateDialog} onClose={() => setShowCreateDialog(false)} />
+
     </DashboardLayout>
   );
 }

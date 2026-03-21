@@ -32,7 +32,16 @@ import {
   FaTimes,
   FaSave,
   FaTable,
+  FaEdit,
 } from "react-icons/fa";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
 import { useParams, Link, useLocation } from "wouter";
@@ -75,6 +84,10 @@ export default function DevisDetail() {
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const canDelete = storedUser.role === "ADMIN" || storedUser.role === "SUPERADMIN";
 
+  // État pour l'édition des infos client
+  const [editingClient, setEditingClient] = useState(false);
+  const [clientForm, setClientForm] = useState<any>({});
+
   // État pour les lignes du tableau tarifaire
   const [editingLines, setEditingLines] = useState(false);
   const [lines, setLines] = useState<any[]>([]);
@@ -108,6 +121,17 @@ export default function DevisDetail() {
       return response.data;
     },
     enabled: !!quoteId,
+  });
+
+  const { data: siteSettings } = useQuery({
+    queryKey: ["site-settings"],
+    queryFn: async () => {
+      const token = localStorage.getItem("access_token");
+      const response = await axios.get(`${API_URL}/site-settings/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    },
   });
 
   // Initialiser la valeur de réduction
@@ -174,11 +198,46 @@ export default function DevisDetail() {
     },
   });
 
+  // Initialiser le formulaire client
+  useEffect(() => {
+    if (quoteRequest && !editingClient) {
+      setClientForm({
+        civility: quoteRequest.civility || "",
+        client_name: quoteRequest.client_name || "",
+        birth_date: quoteRequest.birth_date || "",
+        client_email: quoteRequest.client_email || "",
+        client_phone: quoteRequest.client_phone || "",
+        location: quoteRequest.location || "",
+        hours_per_month: quoteRequest.hours_per_month || "",
+        hourly_rate_client: quoteRequest.hourly_rate_client || "",
+        admin_notes: quoteRequest.admin_notes || "",
+      });
+    }
+  }, [quoteRequest]);
+
+  const updateClientMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const token = localStorage.getItem("access_token");
+      await axios.patch(`${API_URL}/quote-requests/${quoteId}/`, data, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["quote-request", quoteId] });
+      setEditingClient(false);
+      toast({ title: "✅ Devis mis à jour", description: "Les informations ont été enregistrées." });
+    },
+    onError: () => {
+      toast({ title: "❌ Erreur", description: "Impossible de mettre à jour le devis.", variant: "destructive" });
+    },
+  });
+
   // Initialiser les lignes depuis le devis chargé (ou quand on annule l'édition)
   useEffect(() => {
     if (quoteRequest?.lines !== undefined && !linesLoaded) {
       setLines(quoteRequest.lines.map((l: any) => ({
         ...l,
+        hours: l.hours !== null && l.hours !== undefined ? String(l.hours).replace(/[^\d.]/g, "") : "",
         hourly_rate: l.hourly_rate !== null && l.hourly_rate !== undefined ? String(l.hourly_rate) : "",
         total: l.total !== null && l.total !== undefined ? String(l.total) : "",
       })));
@@ -213,10 +272,10 @@ export default function DevisDetail() {
         }, { headers: { Authorization: `Bearer ${token}` } });
       }
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["quote-request", quoteId] });
-      setEditingLines(false);
+    onSuccess: async () => {
+      await queryClient.refetchQueries({ queryKey: ["quote-request", quoteId] });
       setLinesLoaded(false);
+      setEditingLines(false);
       toast({ title: "Tableau sauvegardé", description: "Les lignes ont été mises à jour." });
     },
     onError: () => {
@@ -225,7 +284,17 @@ export default function DevisDetail() {
   });
 
   const updateLine = (index: number, field: string, value: any) => {
-    setLines((prev) => prev.map((l, i) => i === index ? { ...l, [field]: value } : l));
+    setLines((prev) => prev.map((l, i) => {
+      if (i !== index) return l;
+      const updated = { ...l, [field]: value };
+      if (field === "hours" || field === "hourly_rate") {
+        const rawH = field === "hours" ? value : updated.hours;
+        const h = parseFloat(String(rawH).replace(/[^\d.]/g, "")) || 0;
+        const r = parseFloat(field === "hourly_rate" ? value : updated.hourly_rate) || 0;
+        if (h > 0 && r > 0) updated.total = (h * r).toFixed(2);
+      }
+      return updated;
+    }));
   };
 
   const addLine = (category: string) => {
@@ -323,96 +392,139 @@ export default function DevisDetail() {
             {/* Informations client */}
             <Card className="shadow-md border">
               <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 py-3">
-                <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                  <FaUser className="w-4 h-4 text-site-primary" />
-                  Informations client
+                <CardTitle className="flex items-center justify-between text-base font-semibold">
+                  <span className="flex items-center gap-2">
+                    <FaUser className="w-4 h-4 text-site-primary" />
+                    Informations client
+                  </span>
+                  {!editingClient ? (
+                    <button onClick={() => setEditingClient(true)} className="text-xs text-blue-600 hover:text-blue-800 underline font-normal flex items-center gap-1">
+                      <FaEdit className="w-3 h-3" /> Modifier
+                    </button>
+                  ) : (
+                    <div className="flex gap-2">
+                      <button onClick={() => setEditingClient(false)} className="text-xs text-gray-500 hover:text-gray-700 underline font-normal">Annuler</button>
+                      <button
+                        onClick={() => updateClientMutation.mutate(clientForm)}
+                        disabled={updateClientMutation.isPending}
+                        className="text-xs text-green-600 hover:text-green-800 underline font-normal flex items-center gap-1"
+                      >
+                        {updateClientMutation.isPending ? <FaSpinner className="animate-spin w-3 h-3" /> : <FaSave className="w-3 h-3" />}
+                        Sauvegarder
+                      </button>
+                    </div>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-0.5">
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Nom complet</p>
-                    <p className="text-sm text-gray-900 font-medium">
-                      {quoteRequest.civility ? `${quoteRequest.civility} ` : ""}{quoteRequest.client_name}
-                    </p>
-                  </div>
-                  {quoteRequest.birth_date && (
+                {!editingClient ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="space-y-0.5">
-                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Date de naissance</p>
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Nom complet</p>
                       <p className="text-sm text-gray-900 font-medium">
-                        {new Date(quoteRequest.birth_date).toLocaleDateString("fr-FR")}
+                        {quoteRequest.civility ? `${quoteRequest.civility} ` : ""}{quoteRequest.client_name}
                       </p>
                     </div>
-                  )}
-                  <div className="space-y-0.5">
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Email</p>
-                    <a
-                      href={`mailto:${quoteRequest.client_email}`}
-                      className="text-sm text-site-primary hover:underline font-medium"
-                    >
-                      {quoteRequest.client_email}
-                    </a>
+                    {quoteRequest.birth_date && (
+                      <div className="space-y-0.5">
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Date de naissance</p>
+                        <p className="text-sm text-gray-900 font-medium">{new Date(quoteRequest.birth_date).toLocaleDateString("fr-FR")}</p>
+                      </div>
+                    )}
+                    <div className="space-y-0.5">
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Email</p>
+                      <a href={`mailto:${quoteRequest.client_email}`} className="text-sm text-site-primary hover:underline font-medium">{quoteRequest.client_email}</a>
+                    </div>
+                    <div className="space-y-0.5">
+                      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Téléphone</p>
+                      <a href={`tel:${quoteRequest.client_phone}`} className="text-sm text-site-primary hover:underline font-medium">{quoteRequest.client_phone}</a>
+                    </div>
+                    {quoteRequest.location && (
+                      <div className="space-y-0.5 md:col-span-2">
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Adresse</p>
+                        <p className="text-sm text-gray-900 font-medium">{quoteRequest.location}</p>
+                      </div>
+                    )}
+                    {quoteRequest.hours_per_month && (
+                      <div className="space-y-0.5">
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Heures / mois</p>
+                        <p className="text-sm text-gray-900 font-medium">{quoteRequest.hours_per_month} h</p>
+                      </div>
+                    )}
+                    {quoteRequest.hourly_rate_client && (
+                      <div className="space-y-0.5">
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Tarif horaire</p>
+                        <p className="text-sm text-gray-900 font-medium">{Number(quoteRequest.hourly_rate_client).toFixed(2)} €/h</p>
+                      </div>
+                    )}
+                    {quoteRequest.admin_notes && (
+                      <div className="space-y-0.5 md:col-span-2">
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Notes internes</p>
+                        <p className="text-sm text-gray-700 bg-yellow-50 border border-yellow-200 rounded p-2">{quoteRequest.admin_notes}</p>
+                      </div>
+                    )}
                   </div>
-                  <div className="space-y-0.5">
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Téléphone</p>
-                    <a
-                      href={`tel:${quoteRequest.client_phone}`}
-                      className="text-sm text-site-primary hover:underline font-medium"
-                    >
-                      {quoteRequest.client_phone}
-                    </a>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className="text-xs text-gray-600">Civilité</Label>
+                      <Select value={clientForm.civility || "none"} onValueChange={(v) => setClientForm({ ...clientForm, civility: v === "none" ? "" : v })}>
+                        <SelectTrigger className="h-8 mt-1 text-xs"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Non précisé</SelectItem>
+                          <SelectItem value="M.">Monsieur</SelectItem>
+                          <SelectItem value="Mme">Madame</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-600">Nom complet *</Label>
+                      <Input className="h-8 mt-1 text-xs" value={clientForm.client_name} onChange={(e) => setClientForm({ ...clientForm, client_name: e.target.value })} />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-600">Date de naissance</Label>
+                      <Input type="date" className="h-8 mt-1 text-xs" value={clientForm.birth_date} onChange={(e) => setClientForm({ ...clientForm, birth_date: e.target.value })} />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-600">Email</Label>
+                      <Input type="email" className="h-8 mt-1 text-xs" value={clientForm.client_email} onChange={(e) => setClientForm({ ...clientForm, client_email: e.target.value })} />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-600">Téléphone</Label>
+                      <Input className="h-8 mt-1 text-xs" value={clientForm.client_phone} onChange={(e) => setClientForm({ ...clientForm, client_phone: e.target.value })} />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-600">Heures / mois</Label>
+                      <Input type="number" step="0.5" className="h-8 mt-1 text-xs" value={clientForm.hours_per_month} onChange={(e) => setClientForm({ ...clientForm, hours_per_month: e.target.value })} placeholder="ex: 20" />
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-600">Tarif horaire (€/h)</Label>
+                      <Input type="number" step="0.01" className="h-8 mt-1 text-xs" value={clientForm.hourly_rate_client} onChange={(e) => setClientForm({ ...clientForm, hourly_rate_client: e.target.value })} placeholder="ex: 25.66" />
+                    </div>
+                    <div className="col-span-2">
+                      <Label className="text-xs text-gray-600">Adresse</Label>
+                      <Input className="h-8 mt-1 text-xs" value={clientForm.location} onChange={(e) => setClientForm({ ...clientForm, location: e.target.value })} />
+                    </div>
+                    <div className="col-span-2">
+                      <Label className="text-xs text-gray-600">Notes internes</Label>
+                      <Textarea className="mt-1 text-xs" rows={2} value={clientForm.admin_notes} onChange={(e) => setClientForm({ ...clientForm, admin_notes: e.target.value })} placeholder="Notes visibles uniquement par l'admin..." />
+                    </div>
                   </div>
-                  <div className="space-y-0.5">
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Date de demande</p>
-                    <p className="text-sm text-gray-900 font-medium">
-                      {new Date(quoteRequest.created_at).toLocaleString("fr-FR", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                      {quoteRequest.quoted_at && (
-                        <div className="mt-2 text-sm text-green-700">
-                          <strong>Validé le :</strong> {new Date(quoteRequest.quoted_at).toLocaleString("fr-FR", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </div>
-                      )}
-                    </p>
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
 
-            {/* Service et localisation */}
+            {quoteRequest.service_name && (
             <Card className="shadow-md border">
-              <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 py-3">
-                <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                  <FaBriefcase className="w-4 h-4 text-site-primary" />
-                  Service et localisation
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-0.5">
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Service demandé</p>
-                    <p className="text-sm text-gray-900 font-medium">{quoteRequest.service_name || "N/A"}</p>
-                  </div>
-                  <div className="space-y-0.5">
-                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide flex items-center gap-1">
-                      <FaMapMarkerAlt className="w-3 h-3" />
-                      Localisation
-                    </p>
-                    <p className="text-sm text-gray-900 font-medium">{quoteRequest.location}</p>
-                  </div>
+              <CardContent className="p-3 flex items-center gap-2">
+                <FaBriefcase className="w-4 h-4 text-site-primary flex-shrink-0" />
+                <div>
+                  <p className="text-xs text-gray-500">Service demandé</p>
+                  <p className="text-sm font-semibold text-gray-900">{quoteRequest.service_name}</p>
                 </div>
               </CardContent>
             </Card>
+            )}
 
             {/* Tableau tarifaire */}
             <Card className="shadow-md border">
@@ -614,6 +726,45 @@ export default function DevisDetail() {
                       }
                       return null;
                     })}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            {/* Informations de paiement */}
+            {(siteSettings?.paiement_iban || siteSettings?.paiement_beneficiaire) && (
+              <Card className="shadow-md border">
+                <CardHeader className="bg-gradient-to-r from-gray-50 to-gray-100 py-3">
+                  <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                    <FaDollarSign className="w-4 h-4 text-site-primary" />
+                    Informations de paiement
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    {siteSettings.paiement_beneficiaire && (
+                      <div>
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">Bénéficiaire</p>
+                        <p className="font-semibold text-gray-900">{siteSettings.paiement_beneficiaire}</p>
+                      </div>
+                    )}
+                    {siteSettings.paiement_banque && (
+                      <div>
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">Banque</p>
+                        <p className="font-semibold text-gray-900">{siteSettings.paiement_banque}</p>
+                      </div>
+                    )}
+                    {siteSettings.paiement_iban && (
+                      <div className="col-span-2">
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">IBAN</p>
+                        <p className="font-mono font-semibold text-gray-900">{siteSettings.paiement_iban}</p>
+                      </div>
+                    )}
+                    {siteSettings.paiement_bic && (
+                      <div>
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">BIC</p>
+                        <p className="font-semibold text-gray-900">{siteSettings.paiement_bic}</p>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

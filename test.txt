@@ -1,0 +1,12 @@
+# 1. Aller dans le dossier du projet
+cd /chemin/vers/servicemenager-main
+
+# 2. Récupérer les derniers changements
+git pull origin youssef-dev
+
+# 3. Appliquer les migrations
+docker compose exec backend python manage.py migrate
+
+# 4. Rebuild et redémarrer
+docker compose build frontend
+docker compose up -d

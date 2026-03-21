@@ -31,6 +31,9 @@ const contactSchema = z.object({
   email: z.string().email("Email invalide"),
   telephone: z.string().min(8, "Le téléphone doit contenir au moins 8 caractères"),
   message: z.string().min(10, "Le message doit contenir au moins 10 caractères"),
+  birth_date: z.string().optional(),
+  hours_per_month: z.string().optional(),
+  hourly_rate_client: z.string().optional(),
 });
 
 type ContactFormData = z.infer<typeof contactSchema>;
@@ -270,7 +273,7 @@ export default function QuoteRequest() {
         }
       });
       
-      const fullData = {
+      const fullData: any = {
         service: formData.serviceId || null,
         location: formData.localisation || "",
         location_lat: null,
@@ -279,8 +282,11 @@ export default function QuoteRequest() {
         client_email: data.email,
         client_phone: data.telephone,
         additional_info: additionalInfo,
-        calculated_price: totalPrice > 0 ? totalPrice.toFixed(2) : "0.00", // Envoyer le prix calculé
+        calculated_price: totalPrice > 0 ? totalPrice.toFixed(2) : "0.00",
       };
+      if (data.birth_date) fullData.birth_date = data.birth_date;
+      if (data.hours_per_month) fullData.hours_per_month = parseFloat(data.hours_per_month);
+      if (data.hourly_rate_client) fullData.hourly_rate_client = parseFloat(data.hourly_rate_client);
       const response = await axios.post(`${API_URL}/quote-requests/`, fullData);
       return response.data;
     },
@@ -1137,6 +1143,21 @@ export default function QuoteRequest() {
                     </div>
 
                     <div className="space-y-2">
+                      <Label htmlFor="hours_per_month" className="text-base font-semibold text-gray-700">
+                        Heures souhaitées / mois
+                      </Label>
+                      <Input
+                        id="hours_per_month"
+                        type="number"
+                        min="0"
+                        step="0.5"
+                        {...register("hours_per_month")}
+                        placeholder="ex : 20"
+                        className="h-12 text-base"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
                       <Label htmlFor="message" className="text-base font-semibold text-gray-700">
                         Message complémentaire *
                       </Label>
@@ -1144,7 +1165,7 @@ export default function QuoteRequest() {
                         id="message"
                         {...register("message")}
                         placeholder="Décrivez vos besoins en détail..."
-                        rows={6}
+                        rows={5}
                         className="text-base resize-none"
                       />
                       {errors.message && (

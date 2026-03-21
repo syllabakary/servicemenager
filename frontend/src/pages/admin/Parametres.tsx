@@ -431,6 +431,7 @@ export default function AdminParametres() {
     devis_pdf_primary_color: "#087A00",
     logo: null as File | null,
     logo_favicon: null as File | null,
+    logo_signature: null as File | null,
   });
 
   const [smtpSettings, setSmtpSettings] = useState({
@@ -442,8 +443,23 @@ export default function AdminParametres() {
     smtp_password: "",
   });
 
+  const [legalSettings, setLegalSettings] = useState({
+    siret: "",
+    code_ape: "",
+    num_tva: "",
+    forme_juridique: "",
+    rcs_ville: "",
+    mention_tva: "TVA non applicable selon l'article 293 B du Code Général des Impôts",
+    mention_bon_pour_accord: "Si accord, le devis suivant devra être retourné signé avec la mention « Bon pour accord » et constituera une annexe au contrat signé ultérieurement.",
+    paiement_beneficiaire: "EASE-DOM",
+    paiement_iban: "FR38 3000 2005 1000 0000 9774 Z35",
+    paiement_banque: "LCL",
+    paiement_bic: "CRLYFRPP",
+  });
+
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [faviconPreview, setFaviconPreview] = useState<string | null>(null);
+  const [logoSignaturePreview, setLogoSignaturePreview] = useState<string | null>(null);
   const [themeSectionsOpen, setThemeSectionsOpen] = useState<Record<string, boolean>>({
     "Informations générales": true,
     "Couleurs du nom et slogan": true,
@@ -517,12 +533,16 @@ export default function AdminParametres() {
         devis_pdf_primary_color: normalizeHexColor(siteSettings.devis_pdf_primary_color || siteSettings.primary_color || "#087A00"),
         logo: null,
         logo_favicon: null,
+        logo_signature: null,
       });
       if (siteSettings.logo_url) {
         setLogoPreview(siteSettings.logo_url);
       }
       if (siteSettings.logo_favicon_url) {
         setFaviconPreview(siteSettings.logo_favicon_url);
+      }
+      if (siteSettings.logo_signature_url) {
+        setLogoSignaturePreview(siteSettings.logo_signature_url);
       }
       // Charger les paramètres SMTP
       if (siteSettings) {
@@ -533,6 +553,20 @@ export default function AdminParametres() {
           smtp_use_ssl: siteSettings.smtp_use_ssl || false,
           smtp_username: siteSettings.smtp_username || "",
           smtp_password: siteSettings.smtp_password || "",
+        });
+        // Charger les paramètres légaux et de paiement
+        setLegalSettings({
+          siret: siteSettings.siret || "",
+          code_ape: siteSettings.code_ape || "",
+          num_tva: siteSettings.num_tva || "",
+          forme_juridique: siteSettings.forme_juridique || "",
+          rcs_ville: siteSettings.rcs_ville || "",
+          mention_tva: siteSettings.mention_tva || "TVA non applicable selon l'article 293 B du Code Général des Impôts",
+          mention_bon_pour_accord: siteSettings.mention_bon_pour_accord || "Si accord, le devis suivant devra être retourné signé avec la mention « Bon pour accord » et constituera une annexe au contrat signé ultérieurement.",
+          paiement_beneficiaire: siteSettings.paiement_beneficiaire || "EASE-DOM",
+          paiement_iban: siteSettings.paiement_iban || "FR38 3000 2005 1000 0000 9774 Z35",
+          paiement_banque: siteSettings.paiement_banque || "LCL",
+          paiement_bic: siteSettings.paiement_bic || "CRLYFRPP",
         });
       }
     }
@@ -557,6 +591,18 @@ export default function AdminParametres() {
       const reader = new FileReader();
       reader.onloadend = () => {
         setFaviconPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleLogoSignatureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setThemeSettings({ ...themeSettings, logo_signature: file });
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoSignaturePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -713,7 +759,10 @@ export default function AdminParametres() {
       if (data.logo_favicon) {
         formData.append("logo_favicon", data.logo_favicon);
       }
-      
+      if (data.logo_signature) {
+        formData.append("logo_signature", data.logo_signature);
+      }
+
       // Ajouter les paramètres SMTP
       formData.append("smtp_host", smtpSettings.smtp_host || "");
       formData.append("smtp_port", smtpSettings.smtp_port.toString());
@@ -957,6 +1006,30 @@ export default function AdminParametres() {
   const handleSaveSmtp = (e: React.FormEvent) => {
     e.preventDefault();
     saveSmtpMutation.mutate(smtpSettings);
+  };
+
+  const saveLegalMutation = useMutation({
+    mutationFn: async (data: typeof legalSettings) => {
+      const token = localStorage.getItem("access_token");
+      const formData = new FormData();
+      Object.entries(data).forEach(([k, v]) => formData.append(k, v || ""));
+      await axios.patch(`${API_URL}/site-settings/1/`, formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["site-settings"] });
+      queryClient.invalidateQueries({ queryKey: ["site-settings-devis"] });
+      toast({ title: "✅ Succès", description: "Informations légales et de paiement enregistrées !" });
+    },
+    onError: () => {
+      toast({ title: "❌ Erreur", description: "Erreur lors de l'enregistrement.", variant: "destructive" });
+    },
+  });
+
+  const handleSaveLegal = (e: React.FormEvent) => {
+    e.preventDefault();
+    saveLegalMutation.mutate(legalSettings);
   };
 
   if (footerLoading || locationLoading || siteSettingsLoading) {
@@ -2207,6 +2280,27 @@ export default function AdminParametres() {
                     <p className="text-xs text-gray-500">Format recommandé: ICO, PNG (16x16 ou 32x32). Taille max: 1MB</p>
                   </div>
                 </div>
+                <div className="space-y-2 pt-2">
+                  <Label htmlFor="logo_signature">Signature / Logo de fin de devis</Label>
+                  <Input
+                    id="logo_signature"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleLogoSignatureChange}
+                    className="cursor-pointer"
+                  />
+                  {logoSignaturePreview && (
+                    <div className="mt-2">
+                      <img
+                        src={logoSignaturePreview}
+                        alt="Aperçu de la signature"
+                        className="max-h-24 object-contain rounded-lg border-2 border-gray-200"
+                        onError={() => setLogoSignaturePreview(null)}
+                      />
+                    </div>
+                  )}
+                  <p className="text-xs text-gray-500">Image affichée en bas du PDF devis (signature, cachet, logo de fin). Format PNG recommandé.</p>
+                </div>
                 </div>
                 </CollapsibleContent>
               </Collapsible>
@@ -2362,6 +2456,105 @@ export default function AdminParametres() {
             </form>
           </CardContent>
         </Card>
+        {/* ── Informations légales et de paiement ── */}
+        <Card className="shadow-xl border-0 bg-white">
+          <CardHeader className="border-b">
+            <CardTitle className="text-2xl font-semibold text-gray-800 flex items-center gap-2">
+              <FaSave className="w-6 h-6 text-site-primary" />
+              Informations légales et de paiement
+            </CardTitle>
+            <CardDescription>
+              Ces informations apparaissent sur les devis PDF générés (SIRET, IBAN, TVA, mentions légales)
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <form onSubmit={handleSaveLegal} className="space-y-8">
+
+              {/* Identité légale */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 border-b pb-2">Identité légale</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label htmlFor="siret">SIRET</Label>
+                    <Input id="siret" value={legalSettings.siret} onChange={(e) => setLegalSettings({ ...legalSettings, siret: e.target.value })} placeholder="ex : 100 124 809 00011" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="code_ape">Code APE / NAF</Label>
+                    <Input id="code_ape" value={legalSettings.code_ape} onChange={(e) => setLegalSettings({ ...legalSettings, code_ape: e.target.value })} placeholder="ex : 88.10A" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="num_tva">N° TVA intracommunautaire</Label>
+                    <Input id="num_tva" value={legalSettings.num_tva} onChange={(e) => setLegalSettings({ ...legalSettings, num_tva: e.target.value })} placeholder="ex : FR68100124809" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="forme_juridique">Forme juridique</Label>
+                    <Input id="forme_juridique" value={legalSettings.forme_juridique} onChange={(e) => setLegalSettings({ ...legalSettings, forme_juridique: e.target.value })} placeholder="ex : SAS, SARL, Auto-entrepreneur..." />
+                  </div>
+                  <div className="space-y-1 md:col-span-2">
+                    <Label htmlFor="rcs_ville">RCS / Ville</Label>
+                    <Input id="rcs_ville" value={legalSettings.rcs_ville} onChange={(e) => setLegalSettings({ ...legalSettings, rcs_ville: e.target.value })} placeholder="ex : Nanterre" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Informations de paiement */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 border-b pb-2">Informations de paiement</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <Label htmlFor="paiement_beneficiaire">Nom du bénéficiaire</Label>
+                    <Input id="paiement_beneficiaire" value={legalSettings.paiement_beneficiaire} onChange={(e) => setLegalSettings({ ...legalSettings, paiement_beneficiaire: e.target.value })} placeholder="ex : EASE-DOM" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="paiement_banque">Banque bénéficiaire</Label>
+                    <Input id="paiement_banque" value={legalSettings.paiement_banque} onChange={(e) => setLegalSettings({ ...legalSettings, paiement_banque: e.target.value })} placeholder="ex : LCL" />
+                  </div>
+                  <div className="space-y-1 md:col-span-2">
+                    <Label htmlFor="paiement_iban">IBAN du bénéficiaire</Label>
+                    <Input id="paiement_iban" value={legalSettings.paiement_iban} onChange={(e) => setLegalSettings({ ...legalSettings, paiement_iban: e.target.value })} placeholder="ex : FR38 3000 2005 1000 0000 9774 Z35" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="paiement_bic">Code BIC / SWIFT</Label>
+                    <Input id="paiement_bic" value={legalSettings.paiement_bic} onChange={(e) => setLegalSettings({ ...legalSettings, paiement_bic: e.target.value })} placeholder="ex : CRLYFRPP" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Mentions devis */}
+              <div>
+                <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 border-b pb-2">Mentions sur les devis PDF</h3>
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <Label htmlFor="mention_tva">Mention TVA</Label>
+                    <Input id="mention_tva" value={legalSettings.mention_tva} onChange={(e) => setLegalSettings({ ...legalSettings, mention_tva: e.target.value })} placeholder="TVA non applicable selon l'article 293 B du CGI" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="mention_bon_pour_accord">Mention « Bon pour accord »</Label>
+                    <textarea
+                      id="mention_bon_pour_accord"
+                      className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 min-h-[80px] resize-none"
+                      value={legalSettings.mention_bon_pour_accord}
+                      onChange={(e) => setLegalSettings({ ...legalSettings, mention_bon_pour_accord: e.target.value })}
+                      placeholder="Si accord, le devis devra être retourné signé..."
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end pt-4 border-t">
+                <Button
+                  type="submit"
+                  className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text"
+                  disabled={saveLegalMutation.isPending}
+                >
+                  <FaSave className="w-4 h-4 mr-2" />
+                  {saveLegalMutation.isPending ? "Enregistrement..." : "Enregistrer les informations légales"}
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+
       </div>
     </DashboardLayout>
   );

@@ -603,6 +603,19 @@ class QuoteRequest(models.Model):
         max_length=20,
         verbose_name="Téléphone"
     )
+    # Heures et tarif souhaités (renseignés par le client dans le formulaire)
+    hours_per_month = models.DecimalField(
+        max_digits=6, decimal_places=1,
+        null=True, blank=True,
+        verbose_name="Nombre d'heures souhaitées / mois",
+        help_text="Nombre d'heures par mois indiqué par le client"
+    )
+    hourly_rate_client = models.DecimalField(
+        max_digits=6, decimal_places=2,
+        null=True, blank=True,
+        verbose_name="Tarif horaire souhaité (€)",
+        help_text="Tarif horaire indiqué par le client"
+    )
     # Informations supplémentaires (JSON)
     additional_info = models.JSONField(
         default=dict,
@@ -1390,6 +1403,11 @@ class SiteSettings(models.Model):
     num_tva = models.CharField(max_length=30, blank=True, null=True, verbose_name="N° TVA intracommunautaire")
     forme_juridique = models.CharField(max_length=50, blank=True, null=True, verbose_name="Forme juridique", help_text="Ex: S.A.S., SARL, Auto-entrepreneur...")
     rcs_ville = models.CharField(max_length=100, blank=True, null=True, verbose_name="RCS / Ville", help_text="Ex: R.C.S. Nanterre")
+    # Informations de paiement
+    paiement_beneficiaire = models.CharField(max_length=100, blank=True, null=True, default="EASE-DOM", verbose_name="Nom du bénéficiaire (paiement)")
+    paiement_iban = models.CharField(max_length=50, blank=True, null=True, default="FR38 3000 2005 1000 0000 9774 Z35", verbose_name="IBAN")
+    paiement_banque = models.CharField(max_length=100, blank=True, null=True, default="LCL", verbose_name="Banque bénéficiaire")
+    paiement_bic = models.CharField(max_length=20, blank=True, null=True, default="CRLYFRPP", verbose_name="Code BIC")
     mention_tva = models.TextField(
         blank=True,
         null=True,
@@ -1425,6 +1443,13 @@ class SiteSettings(models.Model):
         null=True,
         verbose_name="Favicon",
         help_text="Icône du site (favicon)"
+    )
+    logo_signature = models.ImageField(
+        upload_to='site/',
+        blank=True,
+        null=True,
+        verbose_name="Signature / Logo de fin de devis",
+        help_text="Image affichée en bas du devis PDF (signature, cachet, logo officiel...)"
     )
     # Métadonnées
     site_name = models.CharField(

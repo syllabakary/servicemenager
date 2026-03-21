@@ -764,6 +764,23 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
             except Exception as e:
                 logger.error(f'Erreur lors du chargement du logo secondaire: {e}')
 
+        # Logo signature (fin de devis)
+        logo_signature_path = None
+        if site_settings:
+            try:
+                if hasattr(site_settings, 'logo_signature') and site_settings.logo_signature:
+                    import os
+                    import base64
+                    sig_path = site_settings.logo_signature.path
+                    if os.path.exists(sig_path):
+                        with open(sig_path, 'rb') as f:
+                            sig_data = base64.b64encode(f.read()).decode('utf-8')
+                            sig_ext = os.path.splitext(sig_path)[1].lower()
+                            mime = 'image/png' if sig_ext == '.png' else 'image/jpeg'
+                            logo_signature_path = f'data:{mime};base64,{sig_data}'
+            except Exception as e:
+                logger.error(f'Erreur lors du chargement du logo signature: {e}')
+
         # Calculer le prix final avec réduction
         base_price = float(quote_request.calculated_price or 0)
         discount = float(quote_request.discount_percentage or 0)
@@ -773,17 +790,27 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
         pdf_primary = '#087A00'
         if site_settings:
             pdf_primary = (getattr(site_settings, 'devis_pdf_primary_color', None) or getattr(site_settings, 'primary_color', None) or '').strip() or '#087A00'
+
+        # Grouper les lignes par catégorie pour simplifier le template
+        all_lines = list(quote_request.lines.all().order_by('order'))
+        lines_a = [l for l in all_lines if l.category == 'A']
+        lines_b = [l for l in all_lines if l.category == 'B']
+
         context = {
             'quote_request': quote_request,
             'site_settings': site_settings,
             'today': date.today(),
             'logo_path': logo_path,
             'logo_secondary_path': logo_secondary_path,
+            'logo_signature_path': logo_signature_path,
             'base_price': base_price,
             'discount': discount,
             'discount_amount': discount_amount,
             'final_price': final_price,
             'pdf_primary_color': pdf_primary,
+            'lines_a': lines_a,
+            'lines_b': lines_b,
+            'has_lines': bool(all_lines),
         }
         
         # Rendre le template HTML
@@ -918,6 +945,21 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
                 except Exception as e:
                     logger.error(f'Erreur logo secondaire: {e}')
 
+            # Logo signature (fin de devis)
+            logo_signature_path = None
+            if site_settings:
+                try:
+                    if hasattr(site_settings, 'logo_signature') and site_settings.logo_signature:
+                        sig_path = site_settings.logo_signature.path
+                        if os.path.exists(sig_path):
+                            with open(sig_path, 'rb') as f:
+                                sig_data = base64.b64encode(f.read()).decode('utf-8')
+                                sig_ext = os.path.splitext(sig_path)[1].lower()
+                                mime = 'image/png' if sig_ext == '.png' else 'image/jpeg'
+                                logo_signature_path = f'data:{mime};base64,{sig_data}'
+                except Exception as e:
+                    logger.error(f'Erreur logo signature: {e}')
+
             # Calculer le prix final avec réduction
             base_price = float(quote_request.calculated_price or 0)
             discount = float(quote_request.discount_percentage or 0)
@@ -926,12 +968,31 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
 
             pdf_primary = (getattr(site_settings, 'devis_pdf_primary_color', None) or getattr(site_settings, 'primary_color', None) or '').strip() if site_settings else ''
             pdf_primary = pdf_primary or '#087A00'
+
+            # URL publique du logo pour l'email (base64 bloqué par Gmail)
+            logo_url_email = None
+            if site_settings and site_settings.logo:
+                try:
+                    logo_url_email = request.build_absolute_uri(site_settings.logo.url)
+                except Exception:
+                    logo_url_email = None
+
+            # Grouper les lignes par catégorie
+            all_lines = list(quote_request.lines.all().order_by('order'))
+            lines_a = [l for l in all_lines if l.category == 'A']
+            lines_b = [l for l in all_lines if l.category == 'B']
+
             context = {
                 'quote_request': quote_request,
                 'site_settings': site_settings,
                 'today': date.today(),
                 'logo_path': logo_path,
+                'logo_url_email': logo_url_email,
                 'logo_secondary_path': logo_secondary_path,
+                'logo_signature_path': logo_signature_path,
+                'lines_a': lines_a,
+                'lines_b': lines_b,
+                'has_lines': len(all_lines) > 0,
                 'base_price': base_price,
                 'discount': discount,
                 'discount_amount': discount_amount,
@@ -1062,14 +1123,52 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
                     raise
                 
                 # Créer le message email avec pièce jointe
-                msg = MIMEMultipart('alternative')
+                msg = MIMEMultipart('mixed')
                 msg['Subject'] = subject
                 msg['From'] = smtp_username
                 msg['To'] = quote_request.client_email
-                
+
+                # Partie related pour HTML + images inline CID
+                msg_related = MIMEMultipart('related')
+                msg.attach(msg_related)
+
+                # Remplacer base64 par CID dans l'email body pour le logo
+                email_body_cid = email_body
+                logo_cid_data = None
+                logo_cid_mime = None
+                if site_settings and site_settings.logo:
+                    try:
+                        import os
+                        logo_file_path = site_settings.logo.path
+                        if os.path.exists(logo_file_path):
+                            ext = os.path.splitext(logo_file_path)[1].lower()
+                            mime_type = 'image/png' if ext == '.png' else 'image/jpeg'
+                            with open(logo_file_path, 'rb') as lf:
+                                logo_cid_data = lf.read()
+                                logo_cid_mime = mime_type
+                            # Remplacer la src base64 par cid:logo_main
+                            import re
+                            email_body_cid = re.sub(
+                                r'src="data:image/[^;]+;base64,[^"]*"(\s+alt="[^"]*")',
+                                r'src="cid:logo_main"\1',
+                                email_body_cid,
+                                count=1
+                            )
+                    except Exception as e:
+                        logger.error(f'Erreur CID logo: {e}')
+
                 # Ajouter le corps HTML
-                msg.attach(MIMEText(email_body, 'html', 'utf-8'))
-                
+                msg_related.attach(MIMEText(email_body_cid, 'html', 'utf-8'))
+
+                # Attacher le logo comme image inline CID
+                if logo_cid_data and logo_cid_mime:
+                    logo_img = MIMEBase('image', logo_cid_mime.split('/')[1])
+                    logo_img.set_payload(logo_cid_data)
+                    encoders.encode_base64(logo_img)
+                    logo_img.add_header('Content-ID', '<logo_main>')
+                    logo_img.add_header('Content-Disposition', 'inline', filename='logo.png')
+                    msg_related.attach(logo_img)
+
                 # Ajouter le PDF en pièce jointe
                 pdf_attachment = MIMEBase('application', 'pdf')
                 pdf_attachment.set_payload(result.getvalue())

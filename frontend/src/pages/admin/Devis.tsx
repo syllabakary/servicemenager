@@ -55,7 +55,24 @@ import { Link, useLocation } from "wouter";
 import { API_URL } from "@/config/api";
 
 // ─── Composant de création de devis ───────────────────────────────────────────
-const EMPTY_LINE = { category: "A", label: "", notes: "", hours: "", hourly_rate: "", total: "", total_display: "", is_bold: false, order: 0 };
+const DEFAULT_RATE_A = 25.66; // tarif horaire semaine par défaut
+const DEFAULT_RATE_B = 32.00; // tarif horaire dimanche/férié par défaut
+
+function calcTotal(hours_nb: number, rate: number): number {
+  if (!hours_nb || !rate) return 0;
+  return parseFloat((hours_nb * rate).toFixed(2));
+}
+
+function makeDefaultLines(rateA: number, rateB: number) {
+  return [
+    { category: "A", label: "Prestation mensuelle", notes: "tous les jours sauf Dimanche", hours_nb: 0, hourly_rate: rateA, total: 0, total_display: "", is_bold: false },
+    { category: "A", label: "Dimanche et jour Férié", notes: "bonification de 25%", hours_nb: 0, hourly_rate: rateB, total: 0, total_display: "", is_bold: false },
+    { category: "A", label: "Total sans prise en charge", notes: "", hours_nb: 0, hourly_rate: 0, total: 0, total_display: "", is_bold: true },
+    { category: "B", label: "Prestation mensuelle (en semaine)", notes: "", hours_nb: 0, hourly_rate: rateA, total: 0, total_display: "00,00€", is_bold: false },
+    { category: "B", label: "Dimanche et jour Férié", notes: "", hours_nb: 0, hourly_rate: rateB, total: 0, total_display: "/", is_bold: false },
+    { category: "B", label: "Participation du département", notes: "", hours_nb: 0, hourly_rate: 0, total: 0, total_display: "00,00 €", is_bold: false },
+  ];
+}
 
 function CreateDevisDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { toast } = useToast();
@@ -65,6 +82,10 @@ function CreateDevisDialog({ open, onClose }: { open: boolean; onClose: () => vo
   const [clientType, setClientType] = useState<"registered" | "new">("new");
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
   const [patientSearch, setPatientSearch] = useState("");
+
+  // Tarifs horaires par défaut (configurables en haut du dialog)
+  const [defaultRateA, setDefaultRateA] = useState(DEFAULT_RATE_A);
+  const [defaultRateB, setDefaultRateB] = useState(DEFAULT_RATE_B);
 
   const [form, setForm] = useState({
     civility: "",
@@ -77,14 +98,42 @@ function CreateDevisDialog({ open, onClose }: { open: boolean; onClose: () => vo
     admin_notes: "",
   });
 
-  const [lines, setLines] = useState<any[]>([
-    { ...EMPTY_LINE, category: "A", label: "Prestation mensuelle", order: 0 },
-    { ...EMPTY_LINE, category: "A", label: "Dimanche et jour Férié", notes: "bonification de 25%", order: 1 },
-    { ...EMPTY_LINE, category: "A", label: "Total sans prise en charge", is_bold: true, order: 2 },
-    { ...EMPTY_LINE, category: "B", label: "Prestation mensuelle (en semaine)", order: 3 },
-    { ...EMPTY_LINE, category: "B", label: "Dimanche et jour Férié", order: 4 },
-    { ...EMPTY_LINE, category: "B", label: "Participation du département", order: 5 },
-  ]);
+  const [lines, setLines] = useState<any[]>(makeDefaultLines(DEFAULT_RATE_A, DEFAULT_RATE_B));
+
+  // Recalcul auto quand on change heures ou tarif
+  const updateLine = (index: number, field: string, value: any) => {
+    setLines((prev) => prev.map((l, i) => {
+      if (i !== index) return l;
+      const updated = { ...l, [field]: value };
+      // Recalcul auto si pas une ligne total/participation
+      if ((field === "hours_nb" || field === "hourly_rate") && !updated.is_bold && updated.total_display === "") {
+        const h = parseFloat(updated.hours_nb) || 0;
+        const r = parseFloat(updated.hourly_rate) || 0;
+        updated.total = h > 0 && r > 0 ? calcTotal(h, r) : 0;
+      }
+      return updated;
+    }));
+  };
+
+  // Recalcule le total A automatiquement
+  const linesWithAutoTotal = lines.map((l, i) => {
+    if (l.category === "A" && l.is_bold) {
+      const totalA = lines
+        .filter((x) => x.category === "A" && !x.is_bold)
+        .reduce((sum, x) => sum + (parseFloat(x.total) || 0), 0);
+      return { ...l, total: parseFloat(totalA.toFixed(2)) };
+    }
+    return l;
+  });
+
+  const addLine = (category: string) => {
+    const rate = category === "A" ? defaultRateA : defaultRateB;
+    setLines((prev) => [...prev, { category, label: "", notes: "", hours_nb: 0, hourly_rate: rate, total: 0, total_display: "", is_bold: false }]);
+  };
+
+  const removeLine = (index: number) => {
+    setLines((prev) => prev.filter((_, i) => i !== index));
+  };
 
   // Chercher patients
   const { data: patientsData } = useQuery({
@@ -96,21 +145,18 @@ function CreateDevisDialog({ open, onClose }: { open: boolean; onClose: () => vo
       });
       return Array.isArray(res.data) ? res.data : (res.data?.results || []);
     },
-    enabled: clientType === "registered",
+    enabled: clientType === "registered" && patientSearch.length > 1,
   });
 
   const { data: servicesData } = useQuery({
     queryKey: ["services-list"],
     queryFn: async () => {
       const token = localStorage.getItem("access_token");
-      const res = await axios.get(`${API_URL}/services/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const res = await axios.get(`${API_URL}/services/`, { headers: { Authorization: `Bearer ${token}` } });
       return Array.isArray(res.data) ? res.data : (res.data?.results || []);
     },
   });
 
-  // Quand on sélectionne un patient, auto-remplir les champs
   const handleSelectPatient = (patient: any) => {
     setSelectedPatient(patient);
     setForm((f) => ({
@@ -125,30 +171,20 @@ function CreateDevisDialog({ open, onClose }: { open: boolean; onClose: () => vo
     setPatientSearch(`${patient.first_name} ${patient.last_name}`);
   };
 
-  const updateLine = (index: number, field: string, value: any) => {
-    setLines((prev) => prev.map((l, i) => i === index ? { ...l, [field]: value } : l));
+  // Quand les tarifs par défaut changent, mettre à jour les lignes qui ont encore le tarif par défaut
+  const applyDefaultRates = () => {
+    setLines(makeDefaultLines(defaultRateA, defaultRateB));
   };
 
-  const addLine = (category: string) => {
-    setLines((prev) => [...prev, { ...EMPTY_LINE, category, order: prev.length }]);
-  };
-
-  const removeLine = (index: number) => {
-    setLines((prev) => prev.filter((_, i) => i !== index));
-  };
+  const totalResteMensuel = linesWithAutoTotal
+    .filter((l) => l.category === "A" && l.is_bold)
+    .reduce((sum, l) => sum + (parseFloat(l.total) || 0), 0);
 
   const createMutation = useMutation({
     mutationFn: async () => {
       const token = localStorage.getItem("access_token");
-      // Créer le devis
-      const payload: any = {
-        ...form,
-        status: "PENDING",
-        calculated_price: 0,
-      };
-      if (clientType === "registered" && selectedPatient) {
-        payload.patient = selectedPatient.id;
-      }
+      const payload: any = { ...form, status: "PENDING", calculated_price: totalResteMensuel };
+      if (clientType === "registered" && selectedPatient) payload.patient = selectedPatient.id;
       if (form.service) payload.service = Number(form.service);
       else delete payload.service;
 
@@ -157,16 +193,15 @@ function CreateDevisDialog({ open, onClose }: { open: boolean; onClose: () => vo
       });
       const quoteId = res.data.id;
 
-      // Créer les lignes
-      for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
+      for (let i = 0; i < linesWithAutoTotal.length; i++) {
+        const line = linesWithAutoTotal[i];
         if (!line.label) continue;
         await axios.post(`${API_URL}/quote-lines/`, {
           quote_request: quoteId,
           category: line.category,
           label: line.label,
           notes: line.notes || "",
-          hours: line.hours || "",
+          hours: line.hours_nb ? `${line.hours_nb} heures/mois` : "",
           hourly_rate: line.hourly_rate ? Number(line.hourly_rate) : null,
           total: line.total ? Number(line.total) : null,
           total_display: line.total_display || "",
@@ -184,72 +219,68 @@ function CreateDevisDialog({ open, onClose }: { open: boolean; onClose: () => vo
     },
     onError: (err: any) => {
       const data = err?.response?.data;
-      if (data && typeof data === "object") {
-        const msg = Object.entries(data).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`).join("\n");
-        toast({ title: "Erreur", description: msg, variant: "destructive" });
-      } else {
-        toast({ title: "Erreur", description: "Impossible de créer le devis.", variant: "destructive" });
-      }
+      const msg = data && typeof data === "object"
+        ? Object.entries(data).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`).join(" | ")
+        : "Impossible de créer le devis.";
+      toast({ title: "Erreur", description: msg, variant: "destructive" });
     },
   });
 
-  const catLabel = (cat: string) => cat === "A" ? "A) Sans prise en charge" : "B) Avec prise en charge";
-
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl flex flex-col max-h-[90vh]">
-        <DialogHeader className="flex-shrink-0">
-          <DialogTitle>Nouveau devis</DialogTitle>
+      <DialogContent className="max-w-5xl flex flex-col max-h-[92vh]">
+        <DialogHeader className="flex-shrink-0 border-b pb-3">
+          <DialogTitle className="text-xl font-bold text-site-primary flex items-center gap-2">
+            <FaPlus className="w-4 h-4" /> Nouveau devis
+          </DialogTitle>
           <DialogDescription>Créer un devis pour un client enregistré ou non</DialogDescription>
         </DialogHeader>
 
-        <div className="overflow-y-auto flex-1 min-h-0 space-y-5 pr-1 py-2">
-          {/* Type de client */}
-          <div className="flex gap-3">
-            <Button
+        <div className="overflow-y-auto flex-1 min-h-0 space-y-5 pr-1 py-3">
+
+          {/* ── Type de client ── */}
+          <div className="flex gap-2 p-1 bg-gray-100 rounded-lg">
+            <button
               type="button"
-              variant={clientType === "new" ? "default" : "outline"}
               onClick={() => { setClientType("new"); setSelectedPatient(null); }}
-              className="flex-1"
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${clientType === "new" ? "bg-site-primary text-white shadow" : "text-gray-600 hover:text-gray-900"}`}
             >
               Client non enregistré
-            </Button>
-            <Button
+            </button>
+            <button
               type="button"
-              variant={clientType === "registered" ? "default" : "outline"}
               onClick={() => setClientType("registered")}
-              className="flex-1"
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${clientType === "registered" ? "bg-site-primary text-white shadow" : "text-gray-600 hover:text-gray-900"}`}
             >
               Client enregistré
-            </Button>
+            </button>
           </div>
 
-          {/* Sélecteur patient */}
+          {/* ── Sélecteur patient ── */}
           {clientType === "registered" && (
-            <div className="space-y-2">
-              <Label>Rechercher un patient</Label>
+            <div className="space-y-2 bg-green-50 border border-green-200 rounded-lg p-3">
+              <Label className="text-green-800 font-medium">Rechercher un patient</Label>
               <Input
-                placeholder="Nom du patient..."
+                placeholder="Tapez au moins 2 caractères..."
                 value={patientSearch}
-                onChange={(e) => setPatientSearch(e.target.value)}
+                onChange={(e) => { setPatientSearch(e.target.value); setSelectedPatient(null); }}
+                className="border-green-300 focus:ring-green-500"
               />
               {patientsData && patientsData.length > 0 && !selectedPatient && (
-                <div className="border rounded-md max-h-40 overflow-y-auto">
+                <div className="border border-green-200 rounded-md max-h-36 overflow-y-auto bg-white shadow-sm">
                   {patientsData.map((p: any) => (
-                    <div
-                      key={p.id}
-                      className="px-3 py-2 hover:bg-gray-50 cursor-pointer text-sm border-b last:border-b-0"
-                      onClick={() => handleSelectPatient(p)}
-                    >
-                      {p.first_name} {p.last_name} — {p.email || p.phone || ""}
+                    <div key={p.id} className="px-3 py-2 hover:bg-green-50 cursor-pointer text-sm border-b last:border-b-0 flex justify-between items-center" onClick={() => handleSelectPatient(p)}>
+                      <span className="font-medium">{p.civility} {p.first_name} {p.last_name}</span>
+                      <span className="text-gray-500 text-xs">{p.email || p.phone || ""}</span>
                     </div>
                   ))}
                 </div>
               )}
               {selectedPatient && (
-                <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 rounded px-3 py-2">
-                  <FaCheckCircle /> Patient sélectionné : {selectedPatient.first_name} {selectedPatient.last_name}
-                  <button className="ml-auto text-gray-500 hover:text-red-500" onClick={() => { setSelectedPatient(null); setPatientSearch(""); }}>
+                <div className="flex items-center gap-2 text-sm text-green-700 bg-green-100 rounded-md px-3 py-2 border border-green-300">
+                  <FaCheckCircle className="text-green-600 flex-shrink-0" />
+                  <span className="font-medium">{selectedPatient.civility} {selectedPatient.first_name} {selectedPatient.last_name}</span>
+                  <button className="ml-auto text-gray-400 hover:text-red-500" onClick={() => { setSelectedPatient(null); setPatientSearch(""); }}>
                     <FaTimes />
                   </button>
                 </div>
@@ -257,125 +288,180 @@ function CreateDevisDialog({ open, onClose }: { open: boolean; onClose: () => vo
             </div>
           )}
 
-          {/* Infos client */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label>Civilité</Label>
-              <Select value={form.civility || "none"} onValueChange={(v) => setForm({ ...form, civility: v === "none" ? "" : v })}>
-                <SelectTrigger><SelectValue placeholder="Civilité" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Non précisé</SelectItem>
-                  <SelectItem value="M.">Monsieur</SelectItem>
-                  <SelectItem value="Mme">Madame</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label>Nom complet *</Label>
-              <Input value={form.client_name} onChange={(e) => setForm({ ...form, client_name: e.target.value })} placeholder="Nom et prénom" />
-            </div>
-            <div>
-              <Label>Date de naissance</Label>
-              <Input type="date" value={form.birth_date} onChange={(e) => setForm({ ...form, birth_date: e.target.value })} />
-            </div>
-            <div>
-              <Label>Email</Label>
-              <Input type="email" value={form.client_email} onChange={(e) => setForm({ ...form, client_email: e.target.value })} placeholder="email@exemple.fr" />
-            </div>
-            <div>
-              <Label>Téléphone</Label>
-              <Input value={form.client_phone} onChange={(e) => setForm({ ...form, client_phone: e.target.value })} placeholder="06 00 00 00 00" />
-            </div>
-            <div>
-              <Label>Adresse</Label>
-              <Input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Adresse du client" />
-            </div>
-            <div className="col-span-2">
-              <Label>Service (optionnel)</Label>
-              <Select value={form.service || "none"} onValueChange={(v) => setForm({ ...form, service: v === "none" ? "" : v })}>
-                <SelectTrigger><SelectValue placeholder="Sélectionner un service" /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">Aucun service spécifique</SelectItem>
-                  {(servicesData || []).map((s: any) => (
-                    <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          {/* ── Infos client ── */}
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+            <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <span className="w-5 h-5 bg-site-primary text-white rounded-full flex items-center justify-center text-xs">1</span>
+              Informations client
+            </h3>
+            <div className="grid grid-cols-3 gap-3">
+              <div>
+                <Label className="text-xs text-gray-600">Civilité</Label>
+                <Select value={form.civility || "none"} onValueChange={(v) => setForm({ ...form, civility: v === "none" ? "" : v })}>
+                  <SelectTrigger className="h-9"><SelectValue placeholder="Civilité" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Non précisé</SelectItem>
+                    <SelectItem value="M.">Monsieur</SelectItem>
+                    <SelectItem value="Mme">Madame</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="col-span-2">
+                <Label className="text-xs text-gray-600">Nom complet *</Label>
+                <Input className="h-9" value={form.client_name} onChange={(e) => setForm({ ...form, client_name: e.target.value })} placeholder="Nom et prénom" />
+              </div>
+              <div>
+                <Label className="text-xs text-gray-600">Date de naissance</Label>
+                <Input className="h-9" type="date" value={form.birth_date} onChange={(e) => setForm({ ...form, birth_date: e.target.value })} />
+              </div>
+              <div>
+                <Label className="text-xs text-gray-600">Email</Label>
+                <Input className="h-9" type="email" value={form.client_email} onChange={(e) => setForm({ ...form, client_email: e.target.value })} placeholder="email@exemple.fr" />
+              </div>
+              <div>
+                <Label className="text-xs text-gray-600">Téléphone</Label>
+                <Input className="h-9" value={form.client_phone} onChange={(e) => setForm({ ...form, client_phone: e.target.value })} placeholder="06 00 00 00 00" />
+              </div>
+              <div className="col-span-2">
+                <Label className="text-xs text-gray-600">Adresse</Label>
+                <Input className="h-9" value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Adresse du client" />
+              </div>
+              <div>
+                <Label className="text-xs text-gray-600">Service (optionnel)</Label>
+                <Select value={form.service || "none"} onValueChange={(v) => setForm({ ...form, service: v === "none" ? "" : v })}>
+                  <SelectTrigger className="h-9"><SelectValue placeholder="Service..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">Aucun service</SelectItem>
+                    {(servicesData || []).map((s: any) => (
+                      <SelectItem key={s.id} value={String(s.id)}>{s.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
 
-          {/* Tableau tarifaire */}
+          {/* ── Tarifs par défaut ── */}
+          <div className="bg-site-primary/5 border border-site-primary/20 rounded-lg p-4">
+            <h3 className="text-sm font-semibold text-site-primary mb-3 flex items-center gap-2">
+              <span className="w-5 h-5 bg-site-primary text-white rounded-full flex items-center justify-center text-xs">2</span>
+              Tarifs horaires par défaut
+            </h3>
+            <div className="grid grid-cols-3 gap-3 items-end">
+              <div>
+                <Label className="text-xs text-gray-600">Tarif semaine (€/h)</Label>
+                <Input className="h-9" type="number" step="0.01" value={defaultRateA} onChange={(e) => setDefaultRateA(parseFloat(e.target.value) || 0)} />
+              </div>
+              <div>
+                <Label className="text-xs text-gray-600">Tarif Dimanche/Férié (€/h)</Label>
+                <Input className="h-9" type="number" step="0.01" value={defaultRateB} onChange={(e) => setDefaultRateB(parseFloat(e.target.value) || 0)} />
+              </div>
+              <Button type="button" variant="outline" className="h-9 border-site-primary text-site-primary hover:bg-site-primary hover:text-white" onClick={applyDefaultRates}>
+                Réinitialiser le tableau
+              </Button>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">Le total de chaque ligne est calculé automatiquement : <strong>Heures × Tarif/h</strong>. Vous pouvez modifier le tarif par ligne.</p>
+          </div>
+
+          {/* ── Tableau tarifaire ── */}
           <div>
-            <h3 className="font-semibold text-sm mb-3">Tableau tarifaire</h3>
-            {["A", "B"].map((cat) => (
-              <div key={cat} className="mb-4">
-                <div className="text-xs font-bold bg-gray-100 px-3 py-2 rounded-t border border-gray-300">
-                  {catLabel(cat)}
+            <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+              <span className="w-5 h-5 bg-site-primary text-white rounded-full flex items-center justify-center text-xs">3</span>
+              Tableau tarifaire mensuel
+            </h3>
+            {(["A", "B"] as const).map((cat) => (
+              <div key={cat} className="mb-4 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+                <div className={`px-4 py-2.5 font-semibold text-sm text-white ${cat === "A" ? "bg-site-primary" : "bg-site-primary/70"}`}>
+                  {cat === "A" ? "A) Sans prise en charge" : "B) Avec prise en charge (dès réception de la Notification de prise en charge)"}
                 </div>
-                <div className="border border-t-0 border-gray-300 rounded-b overflow-hidden">
-                  <table className="w-full text-xs">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="text-left px-2 py-1.5 w-[25%]">Libellé</th>
-                        <th className="text-left px-2 py-1.5 w-[20%]">Notes</th>
-                        <th className="text-left px-2 py-1.5 w-[15%]">Heures</th>
-                        <th className="text-left px-2 py-1.5 w-[12%]">Tarif/h (€)</th>
-                        <th className="text-left px-2 py-1.5 w-[12%]">Total (€)</th>
-                        <th className="text-left px-2 py-1.5 w-[12%]">Affichage</th>
-                        <th className="px-2 py-1.5 w-[4%]"></th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {lines.filter((l) => l.category === cat).map((line, relIdx) => {
-                        const absIdx = lines.indexOf(line);
-                        return (
-                          <tr key={absIdx} className="border-t border-gray-200">
-                            <td className="px-1 py-1">
-                              <Input className="h-7 text-xs" value={line.label} onChange={(e) => updateLine(absIdx, "label", e.target.value)} placeholder="Libellé" />
-                            </td>
-                            <td className="px-1 py-1">
-                              <Input className="h-7 text-xs" value={line.notes} onChange={(e) => updateLine(absIdx, "notes", e.target.value)} placeholder="Notes" />
-                            </td>
-                            <td className="px-1 py-1">
-                              <Input className="h-7 text-xs" value={line.hours} onChange={(e) => updateLine(absIdx, "hours", e.target.value)} placeholder="52h/mois" />
-                            </td>
-                            <td className="px-1 py-1">
-                              <Input className="h-7 text-xs" type="number" value={line.hourly_rate} onChange={(e) => updateLine(absIdx, "hourly_rate", e.target.value)} placeholder="25.66" />
-                            </td>
-                            <td className="px-1 py-1">
-                              <Input className="h-7 text-xs" type="number" value={line.total} onChange={(e) => updateLine(absIdx, "total", e.target.value)} placeholder="1334.32" />
-                            </td>
-                            <td className="px-1 py-1">
-                              <Input className="h-7 text-xs" value={line.total_display} onChange={(e) => updateLine(absIdx, "total_display", e.target.value)} placeholder="/" />
-                            </td>
-                            <td className="px-1 py-1">
-                              <button onClick={() => removeLine(absIdx)} className="text-red-400 hover:text-red-600">
-                                <FaTimes className="w-3 h-3" />
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                  <div className="px-2 py-1.5 bg-gray-50 border-t border-gray-200">
-                    <button
-                      onClick={() => addLine(cat)}
-                      className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
-                    >
-                      <FaPlus className="w-2.5 h-2.5" /> Ajouter une ligne {catLabel(cat).split(")")[0]})
-                    </button>
-                  </div>
+                <table className="w-full text-xs">
+                  <thead className="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                      <th className="text-left px-3 py-2 w-[24%] font-semibold text-gray-600">Libellé</th>
+                      <th className="text-left px-2 py-2 w-[18%] font-semibold text-gray-600">Notes</th>
+                      <th className="text-center px-2 py-2 w-[12%] font-semibold text-gray-600">Nb heures/mois</th>
+                      <th className="text-center px-2 py-2 w-[13%] font-semibold text-gray-600">Tarif/h (€)</th>
+                      <th className="text-right px-2 py-2 w-[14%] font-semibold text-site-primary">Total (€)</th>
+                      <th className="text-center px-2 py-2 w-[13%] font-semibold text-gray-600">Affichage libre</th>
+                      <th className="w-[6%]"></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {linesWithAutoTotal.filter((l) => l.category === cat).map((line) => {
+                      const absIdx = lines.indexOf(lines.find((x, xi) => x === line || (x.category === line.category && x.label === line.label && lines.indexOf(x) === linesWithAutoTotal.indexOf(line))));
+                      const realIdx = linesWithAutoTotal.indexOf(line);
+                      const computedTotal = !line.is_bold && line.total_display === ""
+                        ? (parseFloat(line.hours_nb) || 0) * (parseFloat(line.hourly_rate) || 0)
+                        : parseFloat(line.total) || 0;
+                      return (
+                        <tr key={realIdx} className={`border-b border-gray-100 ${line.is_bold ? "bg-gray-50 font-semibold" : "hover:bg-green-50/30"}`}>
+                          <td className="px-2 py-1.5">
+                            <Input className="h-7 text-xs border-gray-200 focus:border-site-primary" value={line.label} onChange={(e) => updateLine(realIdx, "label", e.target.value)} placeholder="Libellé" />
+                          </td>
+                          <td className="px-1 py-1.5">
+                            <Input className="h-7 text-xs border-gray-200" value={line.notes} onChange={(e) => updateLine(realIdx, "notes", e.target.value)} placeholder="ex: tous les jours sauf dim." />
+                          </td>
+                          <td className="px-1 py-1.5">
+                            {line.is_bold ? (
+                              <div className="text-center font-bold text-site-primary px-2">
+                                {lines.filter((x) => x.category === cat && !x.is_bold).reduce((s, x) => s + (parseFloat(x.hours_nb) || 0), 0)} h
+                              </div>
+                            ) : (
+                              <Input className="h-7 text-xs text-center border-gray-200 focus:border-site-primary" type="number" min="0" value={line.hours_nb || ""} onChange={(e) => updateLine(realIdx, "hours_nb", e.target.value)} placeholder="0" />
+                            )}
+                          </td>
+                          <td className="px-1 py-1.5">
+                            {line.is_bold ? (
+                              <div className="text-center text-gray-400 px-2">/</div>
+                            ) : (
+                              <Input className="h-7 text-xs text-center border-gray-200 focus:border-site-primary" type="number" step="0.01" value={line.hourly_rate || ""} onChange={(e) => updateLine(realIdx, "hourly_rate", e.target.value)} placeholder="0.00" />
+                            )}
+                          </td>
+                          <td className="px-1 py-1.5">
+                            {line.total_display ? (
+                              <div className="text-right font-medium text-gray-500 px-2">{line.total_display}</div>
+                            ) : (
+                              <div className={`text-right font-bold px-2 ${computedTotal > 0 ? "text-site-primary" : "text-gray-400"}`}>
+                                {computedTotal > 0 ? `${computedTotal.toFixed(2)} €` : "/"}
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-1 py-1.5">
+                            <Input className="h-7 text-xs text-center border-gray-200" value={line.total_display} onChange={(e) => updateLine(realIdx, "total_display", e.target.value)} placeholder="/" title="Surcharge l'affichage (ex: /, 00,00€)" />
+                          </td>
+                          <td className="px-1 py-1.5 text-center">
+                            <button onClick={() => removeLine(realIdx)} className="text-gray-300 hover:text-red-500 transition-colors">
+                              <FaTimes className="w-3 h-3" />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+                <div className="px-3 py-2 bg-gray-50 border-t border-gray-100">
+                  <button onClick={() => addLine(cat)} className="text-xs text-site-primary hover:text-site-primary/80 flex items-center gap-1 font-medium">
+                    <FaPlus className="w-2.5 h-2.5" /> Ajouter une ligne
+                  </button>
                 </div>
               </div>
             ))}
+
+            {/* Total reste mensuel */}
+            {totalResteMensuel > 0 && (
+              <div className="flex items-center justify-between bg-site-primary text-white rounded-lg px-4 py-3 mt-2">
+                <span className="text-sm font-semibold">Reste mensuel à charge du client (Y COMPRIS dimanche et férié)</span>
+                <span className="text-xl font-bold">{totalResteMensuel.toFixed(2)} €</span>
+              </div>
+            )}
           </div>
 
-          {/* Notes admin */}
+          {/* ── Notes admin ── */}
           <div>
-            <Label>Notes internes</Label>
-            <Textarea value={form.admin_notes} onChange={(e) => setForm({ ...form, admin_notes: e.target.value })} placeholder="Notes visibles uniquement par l'administration..." rows={2} />
+            <Label className="text-xs text-gray-600">Notes internes (non visibles par le client)</Label>
+            <Textarea className="mt-1" value={form.admin_notes} onChange={(e) => setForm({ ...form, admin_notes: e.target.value })} placeholder="Notes visibles uniquement par l'administration..." rows={2} />
           </div>
+
         </div>
 
         <DialogFooter className="flex-shrink-0 border-t pt-4">
@@ -383,6 +469,7 @@ function CreateDevisDialog({ open, onClose }: { open: boolean; onClose: () => vo
           <Button
             onClick={() => createMutation.mutate()}
             disabled={createMutation.isPending || !form.client_name}
+            className="bg-site-primary hover:bg-site-primary/90 text-white"
           >
             {createMutation.isPending ? <FaSpinner className="animate-spin mr-2" /> : <FaPlus className="mr-2" />}
             Créer le devis
@@ -602,13 +689,12 @@ export default function AdminDevis() {
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Button
-                onClick={() => setShowCreateDialog(true)}
-                className="flex items-center gap-2 bg-site-primary hover:bg-site-primary/90 text-white"
-              >
-                <FaPlus className="w-4 h-4" />
-                Nouveau devis
-              </Button>
+              <Link href="/admin/devis/nouveau">
+                <Button className="flex items-center gap-2 bg-site-primary hover:bg-site-primary/90 text-white">
+                  <FaPlus className="w-4 h-4" />
+                  Nouveau devis
+                </Button>
+              </Link>
               <Button
                 onClick={() => setShowFilters(!showFilters)}
                 variant="outline"

@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//^class Service/\\(models.Model/\\):/,/^class [A-Z]/**)",
+      "Bash(ls -la backend/api/migrations/*.py)",
+      "Bash(grep -l \"Service\\\\|pricing\\\\|icon\" backend/api/migrations/*.py)",
+      "Bash(docker compose exec backend python manage.py makemigrations api --name service_icon_show_fields)",
+      "Bash(docker compose exec backend python manage.py migrate)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); s=d.get\\(''results'',[]\\); [print\\(f''{x[\"\"name\"\"]} | icon={x.get\\(\"\"icon\"\"\\)} | show_icon={x.get\\(\"\"show_icon\"\"\\)} | show_pricing={x.get\\(\"\"show_pricing\"\"\\)}''\\) for x in s]\")",
+      "Bash(docker compose exec backend python manage.py shell -c \":*)",
+      "Bash(curl -s http://localhost/api/services/?active=true)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(f''{x[\"\"name\"\"]} | show_pricing={x.get\\(\"\"show_pricing\"\"\\)} | price={x.get\\(\"\"price_per_hour\"\"\\)}''\\) for x in d.get\\(''results'',[]\\)]\")",
+      "Bash(docker compose restart frontend)",
+      "Bash(docker compose exec backend python manage.py shell -c \"from api.models import QuoteRequest, Service; qr = QuoteRequest.objects.get\\(id=10\\); s = qr.service; print\\(''QuoteRequest #10 calculated_price:'', qr.calculated_price\\); print\\(''Service:'', s.name if s else None\\); print\\(''Service show_pricing:'', s.show_pricing if s else None\\)\")",
+      "Bash(docker compose build --no-cache frontend)",
+      "Bash(docker compose exec frontend grep -n \"show_pricing\" /app/src/pages/QuoteRequest.tsx)",
+      "Bash(docker compose exec frontend sh -c \"grep -l ''show_pricing'' /usr/share/nginx/html/assets/*.js 2>/dev/null | head -3\")",
+      "Bash(docker compose exec frontend sh -c \"grep -o ''show_pricing.*return 0'' /usr/share/nginx/html/assets/QuoteRequest--L4QIHOU.js | head -3\")",
+      "Bash(docker compose exec frontend sh -c \"grep -o ''.show_pricing===!1.*return 0\\\\|show_pricing.*false.*return 0\\\\|===false.*return 0'' /usr/share/nginx/html/assets/QuoteRequest--L4QIHOU.js | head -5\")",
+      "Bash(npm run build)",
+      "Bash(grep -o 'show_pricing[^,;\\)\\\\\"\"]*' /c/Users/VICTUS/Documents/servicemenager-main/frontend/dist/assets/QuoteRequest*.js)",
+      "Bash(grep -o '.\\\\{50\\\\}show_pricing.\\\\{100\\\\}' /c/Users/VICTUS/Documents/servicemenager-main/frontend/dist/assets/QuoteRequest*.js)",
+      "Bash(docker compose exec frontend sh -c \"ls /usr/share/nginx/html/assets/QuoteRequest*.js\")",
+      "Bash(ls /c/Users/VICTUS/Documents/servicemenager-main/frontend/dist/assets/QuoteRequest*.js)",
+      "Bash(docker cp frontend/dist/. servicemenager_frontend:/usr/share/nginx/html/)",
+      "Bash(docker compose exec frontend sh -c \"grep ''QuoteRequest\\\\|DevisDetail'' /usr/share/nginx/html/index.html | head -5\")",
+      "Bash(ls /c/Users/VICTUS/Documents/servicemenager-main/frontend/dist/assets/index*.js)",
+      "Bash(docker compose exec frontend sh -c \"rm -f /usr/share/nginx/html/assets/QuoteRequest--L4QIHOU.js /usr/share/nginx/html/assets/DevisDetail-Cg0nWWnx.js && nginx -s reload && echo ''OK''\")",
+      "Bash(docker compose -f /c/Users/VICTUS/Documents/servicemenager-main/docker-compose.yml exec frontend sh -c \"grep -o ''.\\\\{30\\\\}show_pricing.\\\\{80\\\\}'' /usr/share/nginx/html/assets/QuoteRequest-Dlw1T4w9.js | head -3\")",
+      "Bash(docker exec servicemenager_backend python manage.py shell -c \":*)",
+      "Bash(docker cp /c/Users/VICTUS/Documents/servicemenager-main/frontend/dist/. servicemenager_frontend:/usr/share/nginx/html/)",
+      "Bash(docker exec servicemenager_frontend nginx -s reload)",
+      "Bash(docker exec servicemenager_frontend sh -c \"grep -o ''QuoteRequest[^\"\"]*'' /usr/share/nginx/html/index.html\")",
+      "Bash(docker exec servicemenager_frontend sh -c \"grep -c ''QuoteRequest'' /usr/share/nginx/html/index.html; head -5 /usr/share/nginx/html/index.html\")",
+      "Bash(docker exec servicemenager_frontend sh -c \"rm /usr/share/nginx/html/assets/QuoteRequest-Dlw1T4w9.js && ls /usr/share/nginx/html/assets/ | grep QuoteRequest\")"
+    ]
+  }
+}

@@ -7,260 +7,283 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         html, body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 10px;
+            font-size: 9.5px;
             color: #222;
             background: #fff;
         }
         .page {
             width: 210mm;
-            min-height: 297mm;
-            margin: 0 auto;
-            padding: 18mm 15mm 15mm 15mm;
+            padding: 13mm 13mm 10mm 13mm;
         }
 
         /* ─── EN-TÊTE ─── */
         .header {
             display: table;
             width: 100%;
-            margin-bottom: 18px;
+            margin-bottom: 12px;
+            border-bottom: 2px solid {{ pdf_primary_color|default:"#087A00" }};
+            padding-bottom: 8px;
         }
-        .header-left, .header-center, .header-right {
-            display: table-cell;
-            vertical-align: middle;
-        }
-        .header-left { width: 30%; }
-        .header-center { width: 40%; text-align: center; }
-        .header-right { width: 30%; text-align: right; }
-        .logo-main img { max-width: 100px; max-height: 80px; }
-        .logo-secondary img { max-width: 90px; max-height: 70px; }
-        .company-center { line-height: 1.8; }
-        .company-center .company-name {
+        .header-left  { display: table-cell; width: 28%; vertical-align: middle; }
+        .header-center { display: table-cell; width: 44%; vertical-align: middle; text-align: center; }
+        .header-right  { display: table-cell; width: 28%; vertical-align: middle; text-align: right; }
+        .logo-main img   { width: 80px; height: auto; }
+        .logo-secondary img { width: 70px; height: auto; }
+        .company-name {
             font-size: 13px;
             font-weight: bold;
-            color: #222;
+            color: {{ pdf_primary_color|default:"#087A00" }};
+            margin-bottom: 2px;
         }
-        .company-center .company-addr { font-size: 9px; color: #444; }
+        .company-sub { font-size: 8px; color: #555; }
 
-        /* ─── BÉNÉFICIAIRE ─── */
-        .beneficiary { margin: 18px 0 10px 0; }
-        .beneficiary p { font-size: 11px; margin-bottom: 4px; }
-        .beneficiary .attn { font-weight: bold; font-size: 12px; }
-        .beneficiary .birth { font-size: 11px; }
+        /* ─── BÉNÉFICIAIRE + DATE ─── */
+        .meta-row { display: table; width: 100%; margin-bottom: 8px; }
+        .meta-left  { display: table-cell; width: 65%; vertical-align: top; }
+        .meta-right { display: table-cell; width: 35%; vertical-align: top; text-align: right; }
+        .attn { font-weight: bold; font-size: 11px; margin-bottom: 2px; }
+        .meta-info { font-size: 9px; color: #333; margin-bottom: 1px; }
+        .meta-date { font-size: 8.5px; color: #555; margin-bottom: 2px; }
 
-        /* ─── TITRE DEVIS ─── */
+        /* ─── TITRE ─── */
         .devis-title {
             text-align: center;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             font-style: italic;
             text-decoration: underline;
             color: {{ pdf_primary_color|default:"#087A00" }};
-            margin: 16px 0 14px 0;
+            margin: 8px 0 8px 0;
         }
 
         /* ─── TABLEAU TARIFAIRE ─── */
         .tarif-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 12px;
-            font-size: 9.5px;
+            margin-bottom: 6px;
+            font-size: 8.5px;
         }
         .tarif-table th, .tarif-table td {
-            border: 1px solid #555;
-            padding: 5px 6px;
-            vertical-align: top;
+            border: 1px solid #999;
+            padding: 3px 5px;
+            vertical-align: middle;
         }
-        .tarif-table thead th {
-            background-color: #f0f0f0;
+        .th-main {
+            background-color: #d0d0d0;
             text-align: center;
             font-weight: bold;
-            font-size: 9.5px;
+            font-size: 9px;
+            letter-spacing: 0.5px;
         }
-        .tarif-table .cat-header td {
+        .th-col {
             background-color: #e8e8e8;
+            text-align: center;
             font-weight: bold;
-            font-size: 9.5px;
-            padding: 5px 6px;
+            font-size: 8px;
         }
-        .tarif-table .row-bold td {
+        .cat-header td {
+            background-color: {{ pdf_primary_color|default:"#087A00" }};
+            color: #fff;
             font-weight: bold;
-            background-color: #f5f5f5;
+            font-size: 8.5px;
+            padding: 3.5px 6px;
         }
-        .tarif-table .col-label { width: 28%; }
-        .tarif-table .col-hours { width: 27%; text-align: center; }
-        .tarif-table .col-rate  { width: 20%; text-align: center; }
-        .tarif-table .col-total { width: 25%; text-align: right; font-weight: bold; }
+        .row-normal td { background-color: #fff; }
+        .row-bold td {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        .col-label  { width: 34%; }
+        .col-hours  { width: 24%; text-align: center; }
+        .col-rate   { width: 18%; text-align: center; }
+        .col-total  { width: 24%; text-align: right; }
 
-        /* ─── LIGNE RESTE MENSUEL ─── */
+        /* ─── RESTE MENSUEL ─── */
         .reste-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 6px;
-            font-size: 9.5px;
+            margin-top: 4px;
+            margin-bottom: 10px;
+            font-size: 8.5px;
         }
         .reste-table td {
-            border: 1px solid #555;
-            padding: 6px 8px;
+            border: 1px solid #999;
+            padding: 4px 6px;
             font-weight: bold;
+            background-color: #f5f5f5;
         }
-        .reste-table .reste-label { width: 75%; }
-        .reste-table .reste-value { width: 25%; text-align: right; }
+        .reste-label { width: 76%; }
+        .reste-value { width: 24%; text-align: right; }
 
-        /* ─── PAGE 2 : LÉGAL ─── */
-        .page-break { page-break-before: always; }
-        .legal-page {
-            width: 210mm;
-            min-height: 297mm;
-            margin: 0 auto;
-            padding: 20mm 18mm 20mm 18mm;
+        /* ─── MENTIONS LÉGALES ─── */
+        .legal-block {
+            margin-top: 10px;
+            padding-top: 8px;
+            border-top: 1px solid #ccc;
         }
-        .legal-mention {
-            margin-bottom: 20px;
-            line-height: 1.8;
-        }
-        .legal-mention p { font-size: 10px; margin-bottom: 6px; }
-        .legal-mention p strong { font-weight: bold; }
-        .legal-mention .accord {
-            font-size: 10px;
+        .legal-tva {
+            font-size: 8px;
             font-weight: bold;
+            color: #333;
+            margin-bottom: 4px;
         }
-        .legal-infos {
-            margin: 30px 0 30px 80px;
-            line-height: 2.2;
-            font-size: 10px;
-            color: #222;
+        .legal-accord {
+            font-size: 8px;
+            color: #333;
+            font-style: italic;
+            margin-bottom: 8px;
         }
-        .legal-infos p { margin-bottom: 4px; }
-        .legal-stamp {
+
+        /* ─── PIED DE PAGE ─── */
+        .footer-block {
             display: table;
-            margin: 30px auto 0 auto;
+            width: 100%;
+            margin-top: 8px;
+            border-top: 1px solid #ddd;
+            padding-top: 6px;
         }
-        .legal-stamp-logo {
-            display: table-cell;
-            vertical-align: middle;
-            padding-right: 12px;
-        }
-        .legal-stamp-logo img { width: 70px; height: 70px; }
-        .legal-stamp-text {
-            display: table-cell;
-            vertical-align: middle;
-            font-size: 8.5px;
-            line-height: 1.8;
-            color: #222;
-        }
-        .legal-stamp-text .stamp-name {
-            font-size: 11px;
+        .footer-left  { display: table-cell; width: 55%; vertical-align: middle; }
+        .footer-right { display: table-cell; width: 45%; vertical-align: middle; text-align: right; }
+        .footer-info { font-size: 7.5px; color: #555; line-height: 1.8; }
+
+        .footer-stamp { display: table; float: right; }
+        .footer-stamp-logo { display: table-cell; vertical-align: middle; padding-right: 8px; }
+        .footer-stamp-logo img { width: 40px; height: auto; }
+        .footer-stamp-text { display: table-cell; vertical-align: middle; }
+        .stamp-name {
+            font-size: 9px;
             font-weight: bold;
             color: {{ pdf_primary_color|default:"#087A00" }};
         }
+        .stamp-detail { font-size: 7px; color: #555; line-height: 1.7; }
     </style>
 </head>
 <body>
-
-<!-- ═══════════════════ PAGE 1 ═══════════════════ -->
 <div class="page">
 
-    <!-- EN-TÊTE -->
+    <!-- ═══ EN-TÊTE ═══ -->
     <div class="header">
         <div class="header-left">
             {% if logo_path %}
             <div class="logo-main">
-                <img src="{{ logo_path }}" alt="{{ site_settings.site_name|default:'Logo' }}" />
+                <img src="{{ logo_path }}" alt="{{ site_settings.site_name|default:'Logo' }}" width="80" />
             </div>
             {% endif %}
         </div>
         <div class="header-center">
-            <div class="company-center">
-                <div class="company-name">{{ site_settings.site_name|default:"" }}</div>
-                <div class="company-addr">{{ site_settings.site_tagline|default:"" }}</div>
-                {% if site_settings.siret or site_settings.code_ape %}
-                <div class="company-addr">
-                    {% if site_settings.siret %}SIRET : {{ site_settings.siret }}{% endif %}
-                </div>
-                {% endif %}
-            </div>
+            <div class="company-name">{{ site_settings.site_name|default:"" }}</div>
+            {% if site_settings.site_tagline %}<div class="company-sub">{{ site_settings.site_tagline }}</div>{% endif %}
         </div>
         <div class="header-right">
             {% if logo_secondary_path %}
             <div class="logo-secondary">
-                <img src="{{ logo_secondary_path }}" alt="Partenaire" />
+                <img src="{{ logo_secondary_path }}" alt="Partenaire" width="70" />
             </div>
             {% endif %}
         </div>
     </div>
 
-    <!-- BÉNÉFICIAIRE -->
-    <div class="beneficiary">
-        <p class="attn">ATTN DE : {{ quote_request.civility }} {{ quote_request.client_name }}</p>
-        {% if quote_request.birth_date %}
-        <p class="birth">Né(e) le : {{ quote_request.birth_date|date:"d/m/Y" }}</p>
-        {% endif %}
+    <!-- ═══ BÉNÉFICIAIRE + DATE ═══ -->
+    <div class="meta-row">
+        <div class="meta-left">
+            <p class="attn">ATTN DE : {% if quote_request.civility %}{{ quote_request.civility }} {% endif %}{{ quote_request.client_name }}</p>
+            {% if quote_request.birth_date %}<p class="meta-info">Né(e) le : {{ quote_request.birth_date|date:"d/m/Y" }}</p>{% endif %}
+            {% if quote_request.location %}<p class="meta-info">{{ quote_request.location }}</p>{% endif %}
+        </div>
+        <div class="meta-right">
+            <p class="meta-date">Date : {{ quote_request.created_at|date:"d/m/Y" }}</p>
+            <p class="meta-date">Réf. : N° {{ quote_request.id }}</p>
+        </div>
     </div>
 
-    <!-- TITRE -->
+    <!-- ═══ TITRE ═══ -->
     <div class="devis-title">
         DEVIS : {% if quote_request.service %}{{ quote_request.service.name }}{% else %}Services d'aide et d'accompagnement à domicile{% endif %}
     </div>
 
-    <!-- TABLEAU TARIFAIRE -->
-    {% if quote_request.lines.all %}
+    <!-- ═══ TABLEAU TARIFAIRE ═══ -->
+    {% if has_lines %}
     <table class="tarif-table">
         <thead>
+            <tr><th colspan="4" class="th-main">TARIF MENSUEL</th></tr>
             <tr>
-                <th colspan="4" style="background-color:#ddd; font-size:10px;">TARIF MENSUEL</th>
-            </tr>
-            <tr>
-                <th class="col-label"></th>
-                <th class="col-hours">NOMBRE D'HEURES</th>
-                <th class="col-rate">TARIF HORAIRE</th>
-                <th class="col-total">TOTAL</th>
+                <th class="th-col col-label">&nbsp;</th>
+                <th class="th-col col-hours">NOMBRE D'HEURES</th>
+                <th class="th-col col-rate">TARIF HORAIRE</th>
+                <th class="th-col col-total">TOTAL</th>
             </tr>
         </thead>
         <tbody>
-            {% for line in quote_request.lines.all %}
-                {% if line.category == 'A' or line.category == 'B' or line.category == 'TOTAL' %}
-                    {% if forloop.first or line.category != prev_category %}
-                    <tr class="cat-header">
-                        <td colspan="4">
-                            {% if line.category == 'A' %}A) SANS PRISE EN CHARGE
-                            {% elif line.category == 'B' %}B) PRISE EN CHARGE (dès réception de la Notification de prise en charge)
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endif %}
-                {% endif %}
-                <tr class="{% if line.is_bold %}row-bold{% endif %}">
-                    <td class="col-label">
-                        {{ line.label }}
-                        {% if line.notes %}<br/><em style="font-size:8.5px;">{{ line.notes }}</em>{% endif %}
-                    </td>
-                    <td class="col-hours">{{ line.hours|default:"/" }}</td>
-                    <td class="col-rate">
-                        {% if line.hourly_rate %}{{ line.hourly_rate|floatformat:2 }} €{% else %}/{% endif %}
-                    </td>
-                    <td class="col-total">
-                        {% if line.total_display %}{{ line.total_display }}
-                        {% elif line.total %}{{ line.total|floatformat:2 }} €
-                        {% else %}/{% endif %}
-                    </td>
-                </tr>
+            {% if lines_a %}
+            <tr class="cat-header"><td colspan="4">A) SANS PRISE EN CHARGE</td></tr>
+            {% for line in lines_a %}
+            <tr class="{% if line.is_bold %}row-bold{% else %}row-normal{% endif %}">
+                <td class="col-label">
+                    {{ line.label }}
+                    {% if line.notes %}<br/><em style="font-size:7.5px;color:#666;">{{ line.notes }}</em>{% endif %}
+                </td>
+                <td class="col-hours">{{ line.hours|default:"/" }}</td>
+                <td class="col-rate">{% if line.hourly_rate %}{{ line.hourly_rate|floatformat:2 }} €{% else %}/{% endif %}</td>
+                <td class="col-total">
+                    {% if line.total_display %}{{ line.total_display }}
+                    {% elif line.total %}{{ line.total|floatformat:2 }} €
+                    {% else %}/{% endif %}
+                </td>
+            </tr>
             {% endfor %}
+            {% endif %}
+
+            {% if lines_b %}
+            <tr class="cat-header"><td colspan="4">B) PRISE EN CHARGE (dès réception de la Notification de prise en charge)</td></tr>
+            {% for line in lines_b %}
+            <tr class="{% if line.is_bold %}row-bold{% else %}row-normal{% endif %}">
+                <td class="col-label">
+                    {{ line.label }}
+                    {% if line.notes %}<br/><em style="font-size:7.5px;color:#666;">{{ line.notes }}</em>{% endif %}
+                </td>
+                <td class="col-hours">{{ line.hours|default:"/" }}</td>
+                <td class="col-rate">{% if line.hourly_rate %}{{ line.hourly_rate|floatformat:2 }} €{% else %}/{% endif %}</td>
+                <td class="col-total">
+                    {% if line.total_display %}{{ line.total_display }}
+                    {% elif line.total %}{{ line.total|floatformat:2 }} €
+                    {% else %}/{% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            {% endif %}
         </tbody>
     </table>
 
-    <!-- RESTE MENSUEL -->
-    {% if final_price > 0 %}
+    {% if base_price > 0 %}
     <table class="reste-table">
         <tr>
             <td class="reste-label">Reste mensuel à charge du client *(pour des prestations réalisées tous les jours Y COMPRIS dimanche et férié)</td>
-            <td class="reste-value">{{ final_price|floatformat:2 }} €</td>
+            <td class="reste-value">{{ base_price|floatformat:2 }} €</td>
+        </tr>
+    </table>
+    {% endif %}
+
+    {% if discount > 0 and base_price > 0 %}
+    <table style="width:100%; border-collapse:collapse; margin-top:4px; font-size:8.5px;">
+        <tr>
+            <td style="border:1px solid #999; padding:3px 6px; width:52%; background:#fff8e1; font-style:italic;">Prix initial</td>
+            <td style="border:1px solid #999; padding:3px 6px; width:24%; text-align:right; background:#fff8e1; text-decoration:line-through; color:#888;">{{ base_price|floatformat:2 }} €</td>
+            <td style="border:1px solid #999; padding:3px 6px; width:24%; text-align:right; background:#fff8e1;"></td>
+        </tr>
+        <tr>
+            <td style="border:1px solid #999; padding:3px 6px; background:#fff8e1; font-style:italic; color:#c00;">Réduction appliquée</td>
+            <td style="border:1px solid #999; padding:3px 6px; text-align:right; background:#fff8e1; color:#c00; font-weight:bold;">-{{ discount|floatformat:2 }} %</td>
+            <td style="border:1px solid #999; padding:3px 6px; text-align:right; background:#fff8e1; color:#c00; font-weight:bold;">-{{ discount_amount|floatformat:2 }} €</td>
+        </tr>
+        <tr>
+            <td style="border:1px solid #999; padding:4px 6px; background:{{ pdf_primary_color|default:'#087A00' }}; color:#fff; font-weight:bold; font-size:9px;">TOTAL APRÈS RÉDUCTION</td>
+            <td colspan="2" style="border:1px solid #999; padding:4px 6px; text-align:right; background:{{ pdf_primary_color|default:'#087A00' }}; color:#fff; font-weight:bold; font-size:9px;">{{ final_price|floatformat:2 }} €</td>
         </tr>
     </table>
     {% endif %}
 
     {% else %}
-    <!-- Affichage simplifié si pas de lignes -->
-    {% if base_price > 0 %}
+    {% if final_price > 0 %}
     <table class="reste-table">
         <tr>
             <td class="reste-label">Montant estimé</td>
@@ -268,44 +291,116 @@
         </tr>
     </table>
     {% else %}
-    <p style="text-align:center; margin-top:20px; font-style:italic;">Prix sur devis — nous vous contacterons pour finaliser l'offre.</p>
+    <p style="text-align:center; margin-top:14px; font-style:italic; font-size:9px;">Prix sur devis — nous vous contacterons pour finaliser l'offre.</p>
     {% endif %}
     {% endif %}
+
+    <!-- ═══ RÉCAP CLIENT + PAIEMENT ═══ -->
+    <div style="display:table; width:100%; margin-top:10px; margin-bottom:6px;">
+
+        {% if quote_request.hours_per_month or quote_request.hourly_rate_client or quote_request.birth_date %}
+        <!-- Récap client -->
+        <div style="display:table-cell; width:48%; vertical-align:top; padding-right:8px;">
+            <table style="width:100%; border-collapse:collapse; font-size:8px;">
+                <tr>
+                    <td colspan="2" style="background:#e8e8e8; font-weight:bold; padding:3px 5px; border:1px solid #999; font-size:8.5px;">INFORMATIONS DU CLIENT</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #bbb; padding:2px 5px; font-weight:bold; width:55%;">Nom / Prénom</td>
+                    <td style="border:1px solid #bbb; padding:2px 5px;">{% if quote_request.civility %}{{ quote_request.civility }} {% endif %}{{ quote_request.client_name }}</td>
+                </tr>
+                {% if quote_request.birth_date %}
+                <tr>
+                    <td style="border:1px solid #bbb; padding:2px 5px; font-weight:bold;">Date de naissance</td>
+                    <td style="border:1px solid #bbb; padding:2px 5px;">{{ quote_request.birth_date|date:"d/m/Y" }}</td>
+                </tr>
+                {% endif %}
+                {% if quote_request.hours_per_month %}
+                <tr>
+                    <td style="border:1px solid #bbb; padding:2px 5px; font-weight:bold;">Nb d'heures / mois</td>
+                    <td style="border:1px solid #bbb; padding:2px 5px;">{{ quote_request.hours_per_month }} h</td>
+                </tr>
+                {% endif %}
+                {% if quote_request.hourly_rate_client %}
+                <tr>
+                    <td style="border:1px solid #bbb; padding:2px 5px; font-weight:bold;">Tarif horaire</td>
+                    <td style="border:1px solid #bbb; padding:2px 5px;">{{ quote_request.hourly_rate_client|floatformat:2 }} €</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+        {% endif %}
+
+        <!-- Informations de paiement -->
+        <div style="display:table-cell; width:{% if quote_request.hours_per_month or quote_request.hourly_rate_client or quote_request.birth_date %}52%{% else %}100%{% endif %}; vertical-align:top; {% if quote_request.hours_per_month or quote_request.hourly_rate_client or quote_request.birth_date %}padding-left:8px;{% endif %}">
+            <table style="width:100%; border-collapse:collapse; font-size:8px;">
+                <tr>
+                    <td colspan="2" style="background:#e8e8e8; font-weight:bold; padding:3px 5px; border:1px solid #999; font-size:8.5px;">INFORMATIONS DE PAIEMENT</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #bbb; padding:2px 5px; font-weight:bold; width:45%;">Nom du bénéficiaire</td>
+                    <td style="border:1px solid #bbb; padding:2px 5px;">{{ site_settings.paiement_beneficiaire|default:"EASE-DOM" }}</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #bbb; padding:2px 5px; font-weight:bold;">IBAN</td>
+                    <td style="border:1px solid #bbb; padding:2px 5px; font-size:7.5px;">{{ site_settings.paiement_iban|default:"FR38 3000 2005 1000 0000 9774 Z35" }}</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #bbb; padding:2px 5px; font-weight:bold;">Banque</td>
+                    <td style="border:1px solid #bbb; padding:2px 5px;">{{ site_settings.paiement_banque|default:"LCL" }}</td>
+                </tr>
+                <tr>
+                    <td style="border:1px solid #bbb; padding:2px 5px; font-weight:bold;">Code BIC</td>
+                    <td style="border:1px solid #bbb; padding:2px 5px;">{{ site_settings.paiement_bic|default:"CRLYFRPP" }}</td>
+                </tr>
+                {% if site_settings.siret %}
+                <tr>
+                    <td style="border:1px solid #bbb; padding:2px 5px; font-weight:bold;">SIRET</td>
+                    <td style="border:1px solid #bbb; padding:2px 5px;">{{ site_settings.siret }}</td>
+                </tr>
+                {% endif %}
+                {% if site_settings.code_ape %}
+                <tr>
+                    <td style="border:1px solid #bbb; padding:2px 5px; font-weight:bold;">Code APE/NAF</td>
+                    <td style="border:1px solid #bbb; padding:2px 5px;">{{ site_settings.code_ape }}</td>
+                </tr>
+                {% endif %}
+                {% if site_settings.num_tva %}
+                <tr>
+                    <td style="border:1px solid #bbb; padding:2px 5px; font-weight:bold;">N° TVA</td>
+                    <td style="border:1px solid #bbb; padding:2px 5px;">{{ site_settings.num_tva }}</td>
+                </tr>
+                {% endif %}
+            </table>
+        </div>
+    </div>
+
+    <!-- ═══ MENTIONS LÉGALES ═══ -->
+    <div class="legal-block">
+        <p class="legal-tva">{{ site_settings.mention_tva|default:"TVA non applicable selon l'article 293 B du Code Général des Impôts" }}</p>
+        <p class="legal-accord">{{ site_settings.mention_bon_pour_accord|default:"Si accord, le devis suivant devra être retourné signé avec la mention « Bon pour accord » et constituera une annexe au contrat signé ultérieurement." }}</p>
+    </div>
+
+    <!-- ═══ SIGNATURE / LOGO FIN DE DEVIS ═══ -->
+    {% if logo_signature_path %}
+    <div style="text-align:center; margin: 14px 0 8px 0;">
+        <img src="{{ logo_signature_path }}" alt="Signature" width="180" />
+    </div>
+    {% endif %}
+
+    <!-- ═══ PIED DE PAGE ═══ -->
+    <div class="footer-block">
+        <div class="footer-left">
+            <div class="footer-info">
+                {% if site_settings.siret %}<span>SIRET : {{ site_settings.siret }}</span>{% endif %}
+                {% if site_settings.code_ape %}&nbsp;&nbsp;|&nbsp;&nbsp;<span>Code APE : {{ site_settings.code_ape }}</span>{% endif %}
+                {% if site_settings.num_tva %}<br/><span>N° TVA : {{ site_settings.num_tva }}</span>{% endif %}
+                {% if site_settings.forme_juridique %}&nbsp;&nbsp;|&nbsp;&nbsp;<span>{{ site_settings.forme_juridique }}</span>{% endif %}
+            </div>
+        </div>
+        <div class="footer-right"></div>
+    </div>
 
 </div>
-<!-- ═══════════════════ FIN PAGE 1 ═══════════════════ -->
-
-<!-- ═══════════════════ PAGE 2 ═══════════════════ -->
-<div class="page-break"></div>
-<div class="legal-page">
-
-    <div class="legal-mention">
-        <p><strong>{{ site_settings.mention_tva|default:"TVA non applicable selon l'article 293 B du Code Général des Impôts" }}</strong></p>
-        <br/>
-        <p class="accord"><strong>{{ site_settings.mention_bon_pour_accord|default:"Si accord, le devis suivant devra être retourné signer avec la mention « Bon pour accord » et constituera une annexe au contrat signé ultérieurement." }}</strong></p>
-    </div>
-
-    <div class="legal-infos">
-        {% if site_settings.siret %}<p>SIRET : {{ site_settings.siret }}</p>{% endif %}
-        {% if site_settings.code_ape %}<p>CODE APE : {{ site_settings.code_ape }}</p>{% endif %}
-        {% if site_settings.num_tva %}<p>N° TVA : {{ site_settings.num_tva }}</p>{% endif %}
-    </div>
-
-    {% if logo_path %}
-    <div class="legal-stamp">
-        <div class="legal-stamp-logo">
-            <img src="{{ logo_path }}" alt="{{ site_settings.site_name|default:'Logo' }}" />
-        </div>
-        <div class="legal-stamp-text">
-            <div class="stamp-name">{{ site_settings.site_name|default:"" }}</div>
-            {% if site_settings.siret %}<div>{{ site_settings.siret }} R.C.S. {% if site_settings.rcs_ville %}{{ site_settings.rcs_ville }}{% endif %}</div>{% endif %}
-            {% if site_settings.num_tva %}<div>N°TVA : {{ site_settings.num_tva }}{% if site_settings.forme_juridique %} - Forme Juridique : {{ site_settings.forme_juridique }}{% endif %}</div>{% endif %}
-        </div>
-    </div>
-    {% endif %}
-
-</div>
-<!-- ═══════════════════ FIN PAGE 2 ═══════════════════ -->
-
 </body>
 </html>

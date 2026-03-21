@@ -446,6 +446,7 @@ class QuoteRequestSerializer(serializers.ModelSerializer):
             'civility', 'client_name', 'birth_date',
             'client_email', 'client_phone',
             'location', 'location_lat', 'location_lng',
+            'hours_per_month', 'hourly_rate_client',
             'additional_info', 'calculated_price', 'discount_percentage', 'status', 'status_display',
             'admin_notes', 'contacted_at', 'quoted_at',
             'created_at', 'updated_at', 'created_by_user',
@@ -627,6 +628,7 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
     logo_url = serializers.SerializerMethodField()
     logo_favicon_url = serializers.SerializerMethodField()
     logo_secondary_url = serializers.SerializerMethodField()
+    logo_signature_url = serializers.SerializerMethodField()
 
     def get_logo_secondary_url(self, obj):
         request = self.context.get('request')
@@ -634,6 +636,14 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
             if request:
                 return request.build_absolute_uri(obj.logo_secondary.url)
             return obj.logo_secondary.url
+        return None
+
+    def get_logo_signature_url(self, obj):
+        request = self.context.get('request')
+        if obj.logo_signature and hasattr(obj.logo_signature, 'url'):
+            if request:
+                return request.build_absolute_uri(obj.logo_signature.url)
+            return obj.logo_signature.url
         return None
 
     class Meta:
@@ -656,8 +666,10 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
             'logo_area_bg_color', 'logo_area_text_color', 'devis_pdf_primary_color',
             'logo', 'logo_url', 'logo_favicon', 'logo_favicon_url',
             'logo_secondary', 'logo_secondary_url',
+            'logo_signature', 'logo_signature_url',
             'siret', 'code_ape', 'num_tva', 'forme_juridique', 'rcs_ville',
             'mention_tva', 'mention_bon_pour_accord',
+            'paiement_beneficiaire', 'paiement_iban', 'paiement_banque', 'paiement_bic',
             'site_name', 'site_tagline',
             'smtp_host', 'smtp_port', 'smtp_use_tls', 'smtp_use_ssl',
             'smtp_username', 'smtp_password',

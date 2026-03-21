@@ -35,6 +35,7 @@ const AdminParametres = React.lazy(() => import("@/pages/admin/Parametres"));
 const AdminAvis = React.lazy(() => import("@/pages/admin/Avis"));
 const AdminDevis = React.lazy(() => import("@/pages/admin/Devis"));
 const DevisDetail = React.lazy(() => import("@/pages/admin/DevisDetail"));
+const NouveauDevis = React.lazy(() => import("@/pages/admin/NouveauDevis"));
 const AdminAvantages = React.lazy(() => import("@/pages/admin/Avantages"));
 const AdminFormulairesDevis = React.lazy(() => import("@/pages/admin/FormulairesDevis"));
 const AdminEmployes = React.lazy(() => import("@/pages/admin/Employes"));
@@ -79,6 +80,7 @@ function Router() {
       <Route path="/admin/utilisateurs" component={AdminUtilisateurs} />
       <Route path="/admin/avis" component={AdminAvis} />
       <Route path="/admin/devis" component={AdminDevis} />
+      <Route path="/admin/devis/nouveau" component={NouveauDevis} />
       <Route path="/admin/devis/:id" component={DevisDetail} />
       <Route path="/admin/formulaires-devis" component={AdminFormulairesDevis} />
       <Route path="/admin/avantages" component={AdminAvantages} />

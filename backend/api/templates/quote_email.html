@@ -24,10 +24,10 @@
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 3px solid #DC2626;
+            border-bottom: 3px solid {{ pdf_primary_color|default:"#087A00" }};
         }
         .header h1 {
-            color: #DC2626;
+            color: {{ pdf_primary_color|default:"#087A00" }};
             margin: 0;
             font-size: 24px;
         }
@@ -43,10 +43,10 @@
             padding: 20px;
             border-radius: 5px;
             margin: 20px 0;
-            border-left: 4px solid #DC2626;
+            border-left: 4px solid {{ pdf_primary_color|default:"#087A00" }};
         }
         .quote-info h2 {
-            color: #DC2626;
+            color: {{ pdf_primary_color|default:"#087A00" }};
             margin-top: 0;
             font-size: 18px;
         }
@@ -59,7 +59,7 @@
         }
         .price-box {
             background-color: #fff;
-            border: 2px solid #DC2626;
+            border: 2px solid {{ pdf_primary_color|default:"#087A00" }};
             border-radius: 5px;
             padding: 15px;
             margin: 20px 0;
@@ -73,17 +73,7 @@
         .price-box .price-value {
             font-size: 28px;
             font-weight: bold;
-            color: #DC2626;
-        }
-        .button {
-            display: inline-block;
-            padding: 12px 24px;
-            background-color: #DC2626;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            margin: 20px 0;
-            text-align: center;
+            color: {{ pdf_primary_color|default:"#087A00" }};
         }
         .footer {
             margin-top: 40px;
@@ -94,64 +84,34 @@
             font-size: 12px;
         }
         .highlight {
-            background-color: #fff3cd;
+            background-color: #f0fdf0;
             padding: 15px;
             border-radius: 5px;
             margin: 20px 0;
-            border-left: 4px solid #ffc107;
+            border-left: 4px solid {{ pdf_primary_color|default:"#087A00" }};
         }
     </style>
 </head>
 <body>
     <div class="email-container">
         <div class="header">
-            <h1>{{ site_settings.site_name|default:"Services Locaux" }}</h1>
+            <h1>{{ site_settings.site_name|default:"EASE - DOM" }}</h1>
             <p>{{ site_settings.site_tagline|default:"Votre partenaire de confiance" }}</p>
         </div>
-        
+
         <div class="content">
             <p>Bonjour {{ quote_request.client_name }},</p>
-            
+
             <p>Nous vous remercions pour votre confiance et votre demande de devis. Nous avons le plaisir de vous transmettre notre proposition commerciale.</p>
-            
+
             <div class="quote-info">
                 <h2>Détails du devis</h2>
-                <p><strong>Numéro de devis:</strong> #{{ quote_request.id }}</p>
-                <p><strong>Date:</strong> {{ today|date:"d/m/Y" }}</p>
-                <p><strong>Service:</strong> {% if quote_request.service %}{{ quote_request.service.name }}{% else %}Non spécifié{% endif %}</p>
-                <p><strong>Localisation:</strong> {{ quote_request.location }}</p>
-                {% if quote_request.additional_info %}
-                    {% for key, value in quote_request.additional_info.items %}
-                        {% if value and key != "message" %}
-                            {% comment %}Masquer les textes de placeholder ou instructions{% endcomment %}
-                            {% if "cliquez" not in value|lower|stringformat:"s" and "sous-service" not in value|lower|stringformat:"s" and "sélectionner" not in value|lower|stringformat:"s" %}
-                                <p><strong>{{ key|title }}:</strong> 
-                                {% if value|length > 0 %}
-                                    {% if value|length_is:"1" %}
-                                        {% if value|first|length > 1 %}
-                                            {{ value|first }}
-                                        {% else %}
-                                            {% comment %}Si c'est une liste de caractères, ne pas l'afficher{% endcomment %}
-                                        {% endif %}
-                                    {% else %}
-                                        {% for item in value %}
-                                            {% if item|length > 1 and "cliquez" not in item|lower|stringformat:"s" %}
-                                                {{ item }}{% if not forloop.last %}, {% endif %}
-                                            {% endif %}
-                                        {% endfor %}
-                                    {% endif %}
-                                {% else %}
-                                    {% if value|length > 50 or "cliquez" not in value|lower|stringformat:"s" %}
-                                        {{ value }}
-                                    {% endif %}
-                                {% endif %}
-                                </p>
-                            {% endif %}
-                        {% endif %}
-                    {% endfor %}
-                {% endif %}
+                <p><strong>Numéro de devis :</strong> #{{ quote_request.id }}</p>
+                <p><strong>Date :</strong> {{ today|date:"d/m/Y" }}</p>
+                <p><strong>Service :</strong> {% if quote_request.service %}{{ quote_request.service.name }}{% else %}Non spécifié{% endif %}</p>
+                {% if quote_request.location %}<p><strong>Localisation :</strong> {{ quote_request.location }}</p>{% endif %}
             </div>
-            
+
             {% if final_price > 0 %}
             <div class="price-box">
                 <div class="price-label">Montant total</div>
@@ -164,35 +124,37 @@
             </div>
             {% else %}
             <div class="highlight">
-                <p><strong>Note:</strong> Le prix final sera déterminé après évaluation détaillée de vos besoins.</p>
+                <p><strong>Note :</strong> Le prix final sera déterminé après évaluation détaillée de vos besoins.</p>
             </div>
             {% endif %}
-            
+
             <p>Le devis détaillé en format PDF est joint à cet email. Vous y trouverez toutes les informations concernant notre proposition.</p>
-            
+
             {% if quote_request.additional_info.message %}
-                {% if "cliquez" not in quote_request.additional_info.message|lower and "sous-service" not in quote_request.additional_info.message|lower and "sélectionner" not in quote_request.additional_info.message|lower %}
+                {% if "cliquez" not in quote_request.additional_info.message|lower and "sous-service" not in quote_request.additional_info.message|lower %}
                 <div class="quote-info">
                     <h3>Votre message</h3>
                     <p>{{ quote_request.additional_info.message }}</p>
                 </div>
                 {% endif %}
             {% endif %}
-            
+
             <p>Ce devis est valable 30 jours à compter de sa date d'émission. Si vous avez des questions ou souhaitez modifier certains éléments, n'hésitez pas à nous contacter.</p>
-            
+
             <p>Nous restons à votre disposition pour toute information complémentaire.</p>
-            
+
             <p>Cordialement,<br>
-            <strong>L'équipe {{ site_settings.site_name|default:"Services Locaux" }}</strong></p>
+            <strong>L'équipe {{ site_settings.site_name|default:"EASE - DOM" }}</strong></p>
+
         </div>
-        
+
         <div class="footer">
-            <p><strong>{{ site_settings.site_name|default:"Services Locaux" }}</strong></p>
-            <p>Plateau, Abidjan - Côte d'Ivoire</p>
-            <p>Tél: +225 01 23 45 67 89 | Email: contact@serviceslocaux.ci</p>
+            <p><strong>{{ site_settings.site_name|default:"EASE - DOM" }}</strong></p>
+            {% if site_settings.rcs_ville %}<p>{{ site_settings.rcs_ville }}</p>{% endif %}
+            {% if site_settings.siret %}
+            <p>SIRET : {{ site_settings.siret }}{% if site_settings.rcs_ville %} R.C.S. {{ site_settings.rcs_ville }}{% endif %}{% if site_settings.forme_juridique %} — {{ site_settings.forme_juridique }}{% endif %}</p>
+            {% endif %}
         </div>
     </div>
 </body>
 </html>
-

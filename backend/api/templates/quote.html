@@ -250,15 +250,23 @@
                 </td>
             </tr>
             {% endfor %}
+            {% if total_b > 0 %}
+            <tr class="row-bold">
+                <td class="col-label">Total avec prise en charge</td>
+                <td class="col-hours">/</td>
+                <td class="col-rate">/</td>
+                <td class="col-total">{{ total_b|floatformat:2 }} €</td>
+            </tr>
+            {% endif %}
             {% endif %}
         </tbody>
     </table>
 
     {% if base_price > 0 %}
-    <table class="reste-table">
-        <tr>
-            <td class="reste-label">Reste mensuel à charge du client *(pour des prestations réalisées tous les jours Y COMPRIS dimanche et férié)</td>
-            <td class="reste-value">{{ base_price|floatformat:2 }} €</td>
+    <table class="reste-table" style="margin-top:6px;">
+        <tr style="background:{{ pdf_primary_color|default:'#087A00' }};">
+            <td class="reste-label" style="color:#fff !important; font-weight:bold; padding:5px 8px;">TOTAL GÉNÉRAL</td>
+            <td class="reste-value" style="color:#fff !important; font-weight:bold; padding:5px 8px;">{{ base_price|floatformat:2 }} €</td>
         </tr>
     </table>
     {% endif %}

@@ -305,10 +305,24 @@ export default function DevisDetail() {
     setLines((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Calculer le total A+B depuis les lignes
+  const calculateTotalAB = () => {
+    const allSavedLines = quoteRequest?.lines || [];
+    const getTotal = (category: string) => {
+      const catLines = allSavedLines.filter((l: any) => l.category === category);
+      const boldLines = catLines.filter((l: any) => l.is_bold && l.total);
+      if (boldLines.length > 0) return parseFloat(String(boldLines[boldLines.length - 1].total)) || 0;
+      return catLines.filter((l: any) => !l.is_bold).reduce((s: number, l: any) => s + (parseFloat(String(l.total)) || 0), 0);
+    };
+    const ta = getTotal('A');
+    const tb = getTotal('B');
+    const total = ta + tb;
+    return total > 0 ? total : parseFloat(String(quoteRequest?.calculated_price || 0));
+  };
+
   // Calculer le prix après réduction
   const calculateFinalPrice = () => {
-    const price = quoteRequest?.calculated_price;
-    const basePrice = price ? parseFloat(String(price)) : 0;
+    const basePrice = calculateTotalAB();
     const discount = parseFloat(discountValue || "0");
     if (discount > 0 && basePrice > 0) {
       return basePrice * (1 - discount / 100);
@@ -579,6 +593,13 @@ export default function DevisDetail() {
                           {["A", "B"].map((cat) => {
                             const catLines = lines.filter((l) => l.category === cat);
                             if (catLines.length === 0) return null;
+                            // Calcul total de la catégorie
+                            const boldLine = catLines.filter((l: any) => l.is_bold && l.total);
+                            const catTotal = boldLine.length > 0
+                              ? parseFloat(String(boldLine[boldLine.length - 1].total)) || 0
+                              : catLines.filter((l: any) => !l.is_bold).reduce((s: number, l: any) => s + (parseFloat(String(l.total)) || 0), 0);
+                            // Vérifier si une ligne bold existe déjà pour ce total
+                            const hasBoldTotal = catLines.some((l: any) => l.is_bold);
                             return [
                               <tr key={`cat-${cat}`} className="bg-gray-50">
                                 <td colSpan={4} className="border border-gray-300 px-2 py-1 font-bold text-xs">
@@ -600,6 +621,17 @@ export default function DevisDetail() {
                                   </td>
                                 </tr>
                               )),
+                              // Ajouter ligne total auto si pas de ligne bold et catTotal > 0
+                              (!hasBoldTotal && catTotal > 0) ? (
+                                <tr key={`total-${cat}`} className="font-bold bg-gray-50">
+                                  <td className="border border-gray-300 px-2 py-1">
+                                    {cat === "A" ? "Total sans prise en charge" : "Total avec prise en charge"}
+                                  </td>
+                                  <td className="border border-gray-300 px-2 py-1 text-center">/</td>
+                                  <td className="border border-gray-300 px-2 py-1 text-center">/</td>
+                                  <td className="border border-gray-300 px-2 py-1 text-right">{catTotal.toFixed(2)} €</td>
+                                </tr>
+                              ) : null,
                             ];
                           })}
                         </tbody>
@@ -784,8 +816,7 @@ export default function DevisDetail() {
               <CardContent className="p-4">
                 <div className="space-y-3">
                   {(() => {
-                    const price = quoteRequest?.calculated_price;
-                    const priceValue = price ? parseFloat(String(price)) : 0;
+                    const priceValue = calculateTotalAB();
 
                     if (priceValue > 0) {
                       return (

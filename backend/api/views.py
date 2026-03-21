@@ -781,8 +781,34 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
             except Exception as e:
                 logger.error(f'Erreur lors du chargement du logo signature: {e}')
 
-        # Calculer le prix final avec réduction
-        base_price = float(quote_request.calculated_price or 0)
+        # Calculer total A et total B depuis les lignes
+        all_lines_for_total = list(quote_request.lines.all())
+
+        def get_total_for_category(lines, category):
+            cat_lines = [l for l in lines if l.category == category]
+            # Si une ligne bold existe avec un total, c'est le total de la catégorie
+            bold_lines = [l for l in cat_lines if l.is_bold and l.total]
+            if bold_lines:
+                try:
+                    return float(bold_lines[-1].total)
+                except (ValueError, TypeError):
+                    pass
+            # Sinon on somme les lignes non-bold
+            total = 0.0
+            for l in cat_lines:
+                if not l.is_bold and l.total:
+                    try:
+                        total += float(l.total)
+                    except (ValueError, TypeError):
+                        pass
+            return total
+
+        total_a_lines = get_total_for_category(all_lines_for_total, 'A')
+        total_b_lines = get_total_for_category(all_lines_for_total, 'B')
+        total_ab = total_a_lines + total_b_lines
+
+        # Utiliser le total calculé depuis les lignes si disponible, sinon fallback sur calculated_price
+        base_price = total_ab if total_ab > 0 else float(quote_request.calculated_price or 0)
         discount = float(quote_request.discount_percentage or 0)
         discount_amount = base_price * (discount / 100) if discount > 0 else 0
         final_price = base_price - discount_amount if discount > 0 else base_price
@@ -804,6 +830,8 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
             'logo_secondary_path': logo_secondary_path,
             'logo_signature_path': logo_signature_path,
             'base_price': base_price,
+            'total_a': total_a_lines,
+            'total_b': total_b_lines,
             'discount': discount,
             'discount_amount': discount_amount,
             'final_price': final_price,
@@ -960,8 +988,24 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
                 except Exception as e:
                     logger.error(f'Erreur logo signature: {e}')
 
-            # Calculer le prix final avec réduction
-            base_price = float(quote_request.calculated_price or 0)
+            # Calculer le prix final avec réduction depuis les lignes A+B
+            all_lines_calc = list(quote_request.lines.all())
+            def get_total_cat(lines, category):
+                cat_lines = [l for l in lines if l.category == category]
+                bold_lines = [l for l in cat_lines if l.is_bold and l.total]
+                if bold_lines:
+                    try: return float(bold_lines[-1].total)
+                    except: pass
+                t = 0.0
+                for l in cat_lines:
+                    if not l.is_bold and l.total:
+                        try: t += float(l.total)
+                        except: pass
+                return t
+            total_a_lines = get_total_cat(all_lines_calc, 'A')
+            total_b_lines = get_total_cat(all_lines_calc, 'B')
+            total_ab = total_a_lines + total_b_lines
+            base_price = total_ab if total_ab > 0 else float(quote_request.calculated_price or 0)
             discount = float(quote_request.discount_percentage or 0)
             discount_amount = base_price * (discount / 100) if discount > 0 else 0
             final_price = base_price - discount_amount if discount > 0 else base_price
@@ -994,6 +1038,8 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
                 'lines_b': lines_b,
                 'has_lines': len(all_lines) > 0,
                 'base_price': base_price,
+                'total_a': total_a_lines,
+                'total_b': total_b_lines,
                 'discount': discount,
                 'discount_amount': discount_amount,
                 'final_price': final_price,

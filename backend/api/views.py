@@ -18,7 +18,7 @@ import traceback
 
 logger = logging.getLogger(__name__)
 
-from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, QuoteLine, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile, ContactMessage, HeroContent
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, QuoteLine, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile, ContactMessage, HeroContent, UserPermission
 from .serializers import (
     UserSerializer, ServiceSerializer, ServiceSummarySerializer,
     AgencySerializer, AgencySummarySerializer, ContactSerializer,
@@ -27,7 +27,7 @@ from .serializers import (
     QuoteLineSerializer, ServiceAdvantageSerializer, SiteSettingsSerializer, InvoiceSerializer,
     QuoteFormStepSerializer, QuoteFormOptionSerializer, PatientSerializer, PresenceSerializer,
     EmployeeProfileSerializer, ContactMessageSerializer, HeroContentSerializer,
-    ActivityLogSerializer
+    ActivityLogSerializer, UserPermissionSerializer, UserPermissionBulkSerializer, UserWithPermissionsSerializer
 )
 from rest_framework import generics
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
@@ -36,6 +36,57 @@ from .permissions import (
     IsAdmin, IsEmploye, IsClient, IsSuperAdminOrAdmin, IsSuperAdminOrAdminOrEmploye,
     IsAdminOrPublicReadOnly
 )
+
+
+# ── Mixin de vérification de permissions granulaires ─────────────────────────
+
+_ACTION_MAP = {
+    'list':           'view',
+    'retrieve':       'view',
+    'create':         'create',
+    'update':         'update',
+    'partial_update': 'update',
+    'destroy':        'delete',
+    'send_email':     'email',
+    'send_quote':     'email',
+    'pdf':            'pdf',
+    'download_pdf':   'pdf',
+    'generate_pdf':   'pdf',
+}
+
+
+class ModulePermissionMixin:
+    """
+    Mixin à ajouter sur un ViewSet pour vérifier les permissions granulaires.
+    Définir `module_name` sur la classe enfant.
+    SUPERADMIN passe toujours. CLIENT/EMPLOYE ne sont pas concernés.
+    """
+    module_name = None
+
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+        user = request.user
+        if not user or not user.is_authenticated:
+            return
+        if getattr(user, 'role', None) != 'ADMIN':
+            return
+        if not self.module_name:
+            return
+        action_name = _ACTION_MAP.get(self.action, None)
+        if not action_name:
+            return
+        if not UserPermission.has_permission(user, self.module_name, action_name):
+            from rest_framework.exceptions import PermissionDenied
+            MODULE_LABELS = dict(UserPermission.MODULE_CHOICES)
+            ACTION_LABELS = dict(UserPermission.ACTION_CHOICES)
+            raise PermissionDenied(detail={
+                "code": "permission_denied",
+                "message": "Vous n'avez pas la permission d'effectuer cette action.",
+                "module": self.module_name,
+                "module_label": MODULE_LABELS.get(self.module_name, self.module_name),
+                "action": action_name,
+                "action_label": ACTION_LABELS.get(action_name, action_name),
+            })
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -299,8 +350,9 @@ Connectez-vous avec ce nom d'utilisateur et ce mot de passe. Vous pourrez modifi
             raise APIException(f"Erreur lors de la suppression ({error_type}): {str(e)}")
 
 
-class ServiceViewSet(viewsets.ModelViewSet):
+class ServiceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour Service"""
+    module_name = 'services'
     queryset = Service.objects.all()
     serializer_class = ServiceSerializer
     permission_classes = [IsAdminOrPublicReadOnly]
@@ -349,8 +401,9 @@ class ServiceViewSet(viewsets.ModelViewSet):
         })
 
 
-class AgencyViewSet(viewsets.ModelViewSet):
+class AgencyViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour Agency"""
+    module_name = 'agences'
     queryset = Agency.objects.all()
     serializer_class = AgencySerializer
     permission_classes = [IsAdminOrPublicReadOnly]
@@ -496,8 +549,9 @@ class ContactViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
 
 
-class PageContentViewSet(viewsets.ModelViewSet):
+class PageContentViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour PageContent"""
+    module_name = 'bannieres'
     queryset = PageContent.objects.all()
     serializer_class = PageContentSerializer
     permission_classes = [IsAdminOrPublicReadOnly]
@@ -527,8 +581,9 @@ class PageContentViewSet(viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
 
 
-class CategoryViewSet(viewsets.ModelViewSet):
+class CategoryViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour Category"""
+    module_name = 'categories'
     queryset = Category.objects.all().order_by('order', 'name')
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
@@ -580,8 +635,9 @@ class NavbarViewSet(viewsets.ViewSet):
     navbar = list
 
 
-class ServiceReviewViewSet(viewsets.ModelViewSet):
+class ServiceReviewViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour ServiceReview"""
+    module_name = 'avis'
     queryset = ServiceReview.objects.all()
     serializer_class = ServiceReviewSerializer
     permission_classes = [IsAdminOrPublicReadOnly]
@@ -628,8 +684,9 @@ class ServiceFAQViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class ServiceAdvantageViewSet(viewsets.ModelViewSet):
+class ServiceAdvantageViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour ServiceAdvantage"""
+    module_name = 'avantages'
     queryset = ServiceAdvantage.objects.all()
     serializer_class = ServiceAdvantageSerializer
     permission_classes = [IsAdminOrPublicReadOnly]
@@ -650,8 +707,9 @@ class ServiceAdvantageViewSet(viewsets.ModelViewSet):
         return queryset.order_by('order', 'title')
 
 
-class QuoteRequestViewSet(viewsets.ModelViewSet):
+class QuoteRequestViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour QuoteRequest"""
+    module_name = 'devis'
     queryset = QuoteRequest.objects.all()
     serializer_class = QuoteRequestSerializer
     permission_classes = [IsAdminOrReadOnly]
@@ -810,9 +868,29 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
 
         # Utiliser le total calculé depuis les lignes si disponible, sinon fallback sur calculated_price
         base_price = total_ab if total_ab > 0 else float(quote_request.calculated_price or 0)
-        discount = float(quote_request.discount_percentage or 0)
-        discount_amount = base_price * (discount / 100) if discount > 0 else 0
-        final_price = base_price - discount_amount if discount > 0 else base_price
+
+        # Remise sur partie A
+        remise_a = float(quote_request.remise_partie_a or 0)
+        remise_a_commentaire = quote_request.remise_partie_a_commentaire or ''
+        remise_a_montant = total_a_lines * (remise_a / 100) if remise_a > 0 else 0
+        total_a_apres_remise = total_a_lines - remise_a_montant
+
+        # Prise en charge sur partie B
+        taux_pec = float(quote_request.taux_prise_en_charge or 0)
+        has_b_lines = total_b_lines > 0
+        has_a_lines = total_a_lines > 0
+        if has_b_lines and taux_pec > 0:
+            prise_en_charge = total_b_lines * (taux_pec / 100)
+            reste_a_charge_b = total_b_lines - prise_en_charge
+            final_price = total_a_apres_remise + reste_a_charge_b
+            discount = 0
+            discount_amount = 0
+        else:
+            prise_en_charge = 0
+            reste_a_charge_b = total_b_lines
+            discount = 0
+            discount_amount = 0
+            final_price = total_a_apres_remise + total_b_lines if (total_a_lines + total_b_lines) > 0 else base_price
 
         pdf_primary = '#087A00'
         if site_settings:
@@ -833,6 +911,15 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
             'base_price': base_price,
             'total_a': total_a_lines,
             'total_b': total_b_lines,
+            'remise_a': remise_a,
+            'remise_a_montant': remise_a_montant,
+            'remise_a_commentaire': remise_a_commentaire,
+            'total_a_apres_remise': total_a_apres_remise,
+            'has_a_lines': has_a_lines,
+            'taux_pec': taux_pec,
+            'has_b_lines': has_b_lines,
+            'prise_en_charge': prise_en_charge,
+            'reste_a_charge_b': reste_a_charge_b,
             'discount': discount,
             'discount_amount': discount_amount,
             'final_price': final_price,
@@ -1007,9 +1094,25 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
             total_b_lines = get_total_cat(all_lines_calc, 'B')
             total_ab = total_a_lines + total_b_lines
             base_price = total_ab if total_ab > 0 else float(quote_request.calculated_price or 0)
-            discount = float(quote_request.discount_percentage or 0)
-            discount_amount = base_price * (discount / 100) if discount > 0 else 0
-            final_price = base_price - discount_amount if discount > 0 else base_price
+            remise_a = float(quote_request.remise_partie_a or 0)
+            remise_a_commentaire = quote_request.remise_partie_a_commentaire or ''
+            remise_a_montant = total_a_lines * (remise_a / 100) if remise_a > 0 else 0
+            total_a_apres_remise = total_a_lines - remise_a_montant
+            has_a_lines = total_a_lines > 0
+            taux_pec = float(quote_request.taux_prise_en_charge or 0)
+            has_b_lines = total_b_lines > 0
+            if has_b_lines and taux_pec > 0:
+                prise_en_charge = total_b_lines * (taux_pec / 100)
+                reste_a_charge_b = total_b_lines - prise_en_charge
+                final_price = total_a_apres_remise + reste_a_charge_b
+                discount = 0
+                discount_amount = 0
+            else:
+                prise_en_charge = 0
+                reste_a_charge_b = total_b_lines
+                discount = 0
+                discount_amount = 0
+                final_price = total_a_apres_remise + total_b_lines if (total_a_lines + total_b_lines) > 0 else base_price
 
             pdf_primary = (getattr(site_settings, 'devis_pdf_primary_color', None) or getattr(site_settings, 'primary_color', None) or '').strip() if site_settings else ''
             pdf_primary = pdf_primary or '#087A00'
@@ -1041,6 +1144,15 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
                 'base_price': base_price,
                 'total_a': total_a_lines,
                 'total_b': total_b_lines,
+                'remise_a': remise_a,
+                'remise_a_montant': remise_a_montant,
+                'remise_a_commentaire': remise_a_commentaire,
+                'total_a_apres_remise': total_a_apres_remise,
+                'has_a_lines': has_a_lines,
+                'taux_pec': taux_pec,
+                'has_b_lines': has_b_lines,
+                'prise_en_charge': prise_en_charge,
+                'reste_a_charge_b': reste_a_charge_b,
                 'discount': discount,
                 'discount_amount': discount_amount,
                 'final_price': final_price,
@@ -1323,8 +1435,9 @@ class QuoteRequestViewSet(viewsets.ModelViewSet):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class InvoiceViewSet(viewsets.ModelViewSet):
+class InvoiceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour Invoice"""
+    module_name = 'factures'
     queryset = Invoice.objects.all()
     serializer_class = InvoiceSerializer
     permission_classes = [IsAdminOrReadOnly]
@@ -1928,8 +2041,9 @@ class QuoteLineViewSet(viewsets.ModelViewSet):
         return Response(created, status=status.HTTP_201_CREATED)
 
 
-class SiteSettingsViewSet(viewsets.ModelViewSet):
+class SiteSettingsViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour SiteSettings"""
+    module_name = 'parametres'
     queryset = SiteSettings.objects.all()
     serializer_class = SiteSettingsSerializer
     permission_classes = [IsAdminOrPublicReadOnly]
@@ -1965,11 +2079,15 @@ class SiteSettingsViewSet(viewsets.ModelViewSet):
             )
     
     def list(self, request, *args, **kwargs):
+        from rest_framework.exceptions import APIException
+        from django.http import Http404
         # Récupérer ou créer l'instance unique
         try:
             settings = SiteSettings.get_settings()
             serializer = self.get_serializer(settings)
             return Response(serializer.data)
+        except (APIException, Http404):
+            raise
         except Exception as e:
             import logging
             logger = logging.getLogger(__name__)
@@ -2009,10 +2127,14 @@ class SiteSettingsViewSet(viewsets.ModelViewSet):
         }
     
     def retrieve(self, request, *args, **kwargs):
+        from rest_framework.exceptions import APIException
+        from django.http import Http404
         try:
             settings = SiteSettings.get_settings()
             serializer = self.get_serializer(settings)
             return Response(serializer.data)
+        except (APIException, Http404):
+            raise
         except Exception as e:
             import logging
             logger = logging.getLogger(__name__)
@@ -2031,6 +2153,8 @@ class SiteSettingsViewSet(viewsets.ModelViewSet):
             return Response(data)
     
     def update(self, request, *args, **kwargs):
+        from rest_framework.exceptions import APIException
+        from django.http import Http404
         # Mettre à jour l'instance unique
         try:
             settings = SiteSettings.get_settings()
@@ -2038,13 +2162,13 @@ class SiteSettingsViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
+        except (APIException, Http404):
+            raise
         except Exception as e:
             import logging
             logger = logging.getLogger(__name__)
             logger.error(f'Erreur lors de la mise à jour des paramètres: {e}')
-            # Si les champs SMTP n'existent pas encore, ignorer ces champs dans la mise à jour
             settings = SiteSettings.get_settings()
-            # Filtrer les données pour exclure les champs SMTP si ils n'existent pas
             filtered_data = request.data.copy()
             if not hasattr(SiteSettings, 'smtp_host'):
                 for field in ['smtp_host', 'smtp_port', 'smtp_use_tls', 'smtp_use_ssl', 'smtp_username', 'smtp_password']:
@@ -2055,8 +2179,9 @@ class SiteSettingsViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
 
 
-class PatientViewSet(viewsets.ModelViewSet):
+class PatientViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour Patient avec gestion des QR codes"""
+    module_name = 'patients'
     queryset = Patient.objects.select_related('client', 'created_by').all()
     serializer_class = PatientSerializer
     permission_classes = [IsSuperAdminOrAdmin]
@@ -2533,8 +2658,9 @@ class PatientViewSet(viewsets.ModelViewSet):
             )
 
 
-class PresenceViewSet(viewsets.ModelViewSet):
+class PresenceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour Presence avec scan QR code"""
+    module_name = 'scans'
     queryset = Presence.objects.select_related('patient', 'employe', 'patient__client').all()
     serializer_class = PresenceSerializer
     permission_classes = [IsAuthenticated]
@@ -3187,9 +3313,92 @@ class PresenceViewSet(viewsets.ModelViewSet):
             'recent_presences': PresenceSerializer(today_presences[:20], many=True, context={'request': request}).data
         })
 
+    @action(detail=False, methods=['get'], permission_classes=[IsSuperAdminOrAdmin])
+    def dashboard_stats(self, request):
+        """Statistiques d'évolution par employé pour les graphiques du dashboard.
+        Paramètres: period = 7 | 30 | 90 (jours), défaut 30
+        """
+        from django.utils import timezone
+        from datetime import timedelta
+        from django.db.models import Count, Q
+        from django.db.models.functions import TruncDate
 
-class EmployeeProfileViewSet(viewsets.ModelViewSet):
+        period = int(request.query_params.get('period', 30))
+        period = min(max(period, 7), 365)
+
+        end_date = timezone.now()
+        start_date = end_date - timedelta(days=period)
+
+        presences = Presence.objects.filter(scan_time__gte=start_date).select_related('employe')
+
+        # ── Liste des employés actifs sur la période ──────────────────────────
+        employees_qs = (
+            presences
+            .filter(status='ARRIVEE')
+            .values('employe__id', 'employe__username', 'employe__first_name', 'employe__last_name')
+            .annotate(total=Count('id'))  # force GROUP BY sur tous les champs
+            .order_by('employe__id')
+        )
+        seen_ids = set()
+        employees = []
+        for e in employees_qs:
+            if e['employe__id'] in seen_ids:
+                continue
+            seen_ids.add(e['employe__id'])
+            name = f"{e['employe__first_name'] or ''} {e['employe__last_name'] or ''}".strip() or e['employe__username']
+            employees.append({'id': e['employe__id'], 'name': name})
+
+        # ── Scans par jour et par employé ─────────────────────────────────────
+        daily_by_emp = (
+            presences
+            .filter(status='ARRIVEE')
+            .annotate(date=TruncDate('scan_time'))
+            .values('date', 'employe__id')
+            .annotate(count=Count('id'))
+            .order_by('date')
+        )
+
+        # Indexer : {date: {employe_id: count}}
+        emp_date_map: dict = {}
+        for row in daily_by_emp:
+            d = row['date']
+            if d not in emp_date_map:
+                emp_date_map[d] = {}
+            emp_date_map[d][row['employe__id']] = row['count']
+
+        # Construire la liste evolution avec une clé par employé
+        evolution = []
+        current = start_date.date()
+        while current <= end_date.date():
+            point: dict = {'date': current.strftime('%d/%m')}
+            day_data = emp_date_map.get(current, {})
+            for emp in employees:
+                point[emp['name']] = day_data.get(emp['id'], 0)
+            evolution.append(point)
+            current += timedelta(days=1)
+
+        # ── Résumé global ─────────────────────────────────────────────────────
+        total_arrivals = presences.filter(status='ARRIVEE').count()
+        total_departures = presences.filter(status='DEPART').count()
+        unique_employees = presences.values('employe').distinct().count()
+        unique_patients = presences.values('patient').distinct().count()
+
+        return Response({
+            'period': period,
+            'evolution': evolution,
+            'employees': [e['name'] for e in employees],
+            'summary': {
+                'total_arrivals': total_arrivals,
+                'total_departures': total_departures,
+                'unique_employees': unique_employees,
+                'unique_patients': unique_patients,
+            },
+        })
+
+
+class EmployeeProfileViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour EmployeeProfile"""
+    module_name = 'employes'
     queryset = EmployeeProfile.objects.select_related('user').all()
     serializer_class = EmployeeProfileSerializer
     permission_classes = [IsSuperAdminOrAdmin]
@@ -3241,8 +3450,9 @@ class EmployeeProfileViewSet(viewsets.ModelViewSet):
             raise ValidationError(f"Erreur lors de la mise à jour du profil: {str(e)}")
 
 
-class ContactMessageViewSet(viewsets.ModelViewSet):
+class ContactMessageViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
     """Messages de contact entrants — création publique, lecture admin seulement"""
+    module_name = 'messages'
     queryset = ContactMessage.objects.all()
     serializer_class = ContactMessageSerializer
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
@@ -3323,3 +3533,116 @@ class ActivityLogViewSet(viewsets.ReadOnlyModelViewSet):
                 Q(user__username__icontains=search)
             )
         return qs
+
+
+# ── Décorateur de vérification de permissions granulaires ─────────────────────
+
+def check_module_permission(module, action):
+    """
+    Décorateur pour les actions de ViewSet.
+    Vérifie UserPermission en DB. SUPERADMIN passe toujours.
+    Retourne 403 avec message clair si refusé.
+    """
+    from functools import wraps
+
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrapped(self, request, *args, **kwargs):
+            user = request.user
+            if not user or not user.is_authenticated:
+                from rest_framework.exceptions import NotAuthenticated
+                raise NotAuthenticated()
+            # SUPERADMIN : accès total
+            if getattr(user, 'role', None) == 'SUPERADMIN':
+                return view_func(self, request, *args, **kwargs)
+            # Vérification permission DB
+            if not UserPermission.has_permission(user, module, action):
+                from rest_framework.exceptions import PermissionDenied
+                MODULE_LABELS = dict(UserPermission.MODULE_CHOICES)
+                ACTION_LABELS = dict(UserPermission.ACTION_CHOICES)
+                mod_label = MODULE_LABELS.get(module, module)
+                act_label = ACTION_LABELS.get(action, action)
+                raise PermissionDenied(
+                    detail={
+                        "code": "permission_denied",
+                        "message": f"Vous n'avez pas la permission d'effectuer cette action.",
+                        "module": module,
+                        "module_label": mod_label,
+                        "action": action,
+                        "action_label": act_label,
+                    }
+                )
+            return view_func(self, request, *args, **kwargs)
+        return wrapped
+    return decorator
+
+
+# ── ViewSet gestion des permissions (SUPERADMIN) ──────────────────────────────
+
+class UserPermissionViewSet(viewsets.ViewSet):
+    """Gestion des permissions — SUPERADMIN pour list/update, ADMIN pour lire ses propres droits"""
+    from .permissions import IsSuperAdmin
+
+    def get_permissions(self):
+        from .permissions import IsSuperAdmin, IsAdmin
+        # Un admin peut lire ses propres permissions (endpoint retrieve avec son propre ID)
+        if self.action in ('retrieve', 'my_permissions'):
+            return [IsAdmin()]
+        return [IsSuperAdmin()]
+
+    def list(self, request):
+        """Liste tous les admins avec leurs permissions (SUPERADMIN)"""
+        users = CustomUser.objects.filter(role='ADMIN').order_by('username')
+        data = UserWithPermissionsSerializer(users, many=True).data
+        return Response(data)
+
+    def retrieve(self, request, pk=None):
+        """Permissions d'un utilisateur — un admin peut lire les siennes, SUPERADMIN peut lire celles de n'importe qui"""
+        user = request.user
+        # Un ADMIN ne peut lire que ses propres permissions
+        if user.role == 'ADMIN' and str(user.pk) != str(pk):
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied()
+        try:
+            target = CustomUser.objects.get(pk=pk)
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'Utilisateur introuvable'}, status=status.HTTP_404_NOT_FOUND)
+        serializer = UserWithPermissionsSerializer(target)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='me')
+    def my_permissions(self, request):
+        """Retourne les permissions de l'utilisateur connecté"""
+        serializer = UserWithPermissionsSerializer(request.user)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'], url_path='bulk-update')
+    def bulk_update(self, request, pk=None):
+        """Met à jour toutes les permissions d'un utilisateur en une seule requête"""
+        try:
+            user = CustomUser.objects.get(pk=pk, role='ADMIN')
+        except CustomUser.DoesNotExist:
+            return Response({'error': 'Utilisateur introuvable'}, status=status.HTTP_404_NOT_FOUND)
+
+        permissions_data = request.data.get('permissions', [])
+        for item in permissions_data:
+            module = item.get('module')
+            action_name = item.get('action')
+            granted = item.get('granted', False)
+            if module and action_name:
+                UserPermission.objects.update_or_create(
+                    user=user,
+                    module=module,
+                    action=action_name,
+                    defaults={'granted': granted}
+                )
+        serializer = UserWithPermissionsSerializer(user)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['get'], url_path='schema')
+    def schema(self, request):
+        """Retourne les modules et actions disponibles"""
+        return Response({
+            'modules': [{'value': v, 'label': l} for v, l in UserPermission.MODULE_CHOICES],
+            'actions': [{'value': v, 'label': l} for v, l in UserPermission.ACTION_CHOICES],
+        })

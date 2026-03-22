@@ -44,6 +44,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
+import { usePermissionError, extractPermissionError } from "@/hooks/usePermissionError";
 import { useParams, Link, useLocation } from "wouter";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
@@ -73,8 +74,13 @@ export default function DevisDetail() {
   const quoteId = params.id;
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const { showPermissionError } = usePermissionError();
   const [, navigate] = useLocation();
   const [discountValue, setDiscountValue] = useState<string>("");
+  const [tauxPEC, setTauxPEC] = useState<string>("");
+  const [remiseA, setRemiseA] = useState<string>("");
+  const [remiseAComment, setRemiseAComment] = useState<string>("");
+  const [showRemiseAForm, setShowRemiseAForm] = useState(false);
   const [manualPriceValue, setManualPriceValue] = useState<string>("");
   const [editingPrice, setEditingPrice] = useState(false);
   const [showSendConfirmDialog, setShowSendConfirmDialog] = useState(false);
@@ -134,10 +140,19 @@ export default function DevisDetail() {
     },
   });
 
-  // Initialiser la valeur de réduction
+  // Initialiser la valeur de réduction et taux PEC
   useEffect(() => {
     if (quoteRequest?.discount_percentage) {
       setDiscountValue(quoteRequest.discount_percentage);
+    }
+    if (quoteRequest?.taux_prise_en_charge !== undefined) {
+      setTauxPEC(String(quoteRequest.taux_prise_en_charge || "0"));
+    }
+    if (quoteRequest?.remise_partie_a !== undefined) {
+      setRemiseA(String(quoteRequest.remise_partie_a || "0"));
+    }
+    if (quoteRequest?.remise_partie_a_commentaire !== undefined) {
+      setRemiseAComment(quoteRequest.remise_partie_a_commentaire || "");
     }
   }, [quoteRequest]);
 
@@ -169,6 +184,46 @@ export default function DevisDetail() {
     },
   });
 
+
+  // Mutation pour sauvegarder la remise Partie A
+  const updateRemiseAMutation = useMutation({
+    mutationFn: async () => {
+      const token = localStorage.getItem("access_token");
+      await axios.patch(
+        `${API_URL}/quote-requests/${quoteId}/`,
+        { remise_partie_a: remiseA, remise_partie_a_commentaire: remiseAComment },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["quote-request", quoteId] });
+      queryClient.invalidateQueries({ queryKey: ["admin-quote-requests"] });
+      toast({ title: "✅ Remise enregistrée", description: `Remise de ${remiseA}% appliquée sur la partie A`, variant: "default" });
+    },
+    onError: (error: any) => {
+      toast({ title: "❌ Erreur", description: error.response?.data?.detail || "Erreur lors de l'enregistrement", variant: "destructive" });
+    },
+  });
+
+  // Mutation pour sauvegarder le taux de prise en charge (partie B)
+  const updateTauxPECMutation = useMutation({
+    mutationFn: async (taux: string) => {
+      const token = localStorage.getItem("access_token");
+      await axios.patch(
+        `${API_URL}/quote-requests/${quoteId}/`,
+        { taux_prise_en_charge: taux },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["quote-request", quoteId] });
+      queryClient.invalidateQueries({ queryKey: ["admin-quote-requests"] });
+      toast({ title: "✅ Taux enregistré", description: `Prise en charge de ${tauxPEC}% appliquée sur la partie B`, variant: "default" });
+    },
+    onError: (error: any) => {
+      toast({ title: "❌ Erreur", description: error.response?.data?.detail || "Erreur lors de l'enregistrement", variant: "destructive" });
+    },
+  });
 
   // Mutation pour saisir le prix manuellement
   const updatePriceMutation = useMutation({
@@ -305,29 +360,45 @@ export default function DevisDetail() {
     setLines((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // Calculer le total d'une catégorie depuis les lignes sauvegardées
+  const getCategoryTotal = (category: string) => {
+    const allSavedLines = quoteRequest?.lines || [];
+    const catLines = allSavedLines.filter((l: any) => l.category === category);
+    const boldLines = catLines.filter((l: any) => l.is_bold && l.total);
+    if (boldLines.length > 0) return parseFloat(String(boldLines[boldLines.length - 1].total)) || 0;
+    return catLines.filter((l: any) => !l.is_bold).reduce((s: number, l: any) => s + (parseFloat(String(l.total)) || 0), 0);
+  };
+
   // Calculer le total A+B depuis les lignes
   const calculateTotalAB = () => {
-    const allSavedLines = quoteRequest?.lines || [];
-    const getTotal = (category: string) => {
-      const catLines = allSavedLines.filter((l: any) => l.category === category);
-      const boldLines = catLines.filter((l: any) => l.is_bold && l.total);
-      if (boldLines.length > 0) return parseFloat(String(boldLines[boldLines.length - 1].total)) || 0;
-      return catLines.filter((l: any) => !l.is_bold).reduce((s: number, l: any) => s + (parseFloat(String(l.total)) || 0), 0);
-    };
-    const ta = getTotal('A');
-    const tb = getTotal('B');
+    const ta = getCategoryTotal('A');
+    const tb = getCategoryTotal('B');
     const total = ta + tb;
     return total > 0 ? total : parseFloat(String(quoteRequest?.calculated_price || 0));
   };
 
-  // Calculer le prix après réduction
+  // Calculs remise partie A
+  const getRemiseASaved = () => parseFloat(String(quoteRequest?.remise_partie_a || "0"));
+  const getRemiseAMontant = (totalA: number) => totalA * (getRemiseASaved() / 100);
+  const getTotalAApresRemise = (totalA: number) => totalA - getRemiseAMontant(totalA);
+
+  // Calculs prise en charge partie B
+  const getTauxPECSaved = () => parseFloat(String(quoteRequest?.taux_prise_en_charge || "0"));
+  const getPriseEnCharge = (totalB: number) => totalB * (getTauxPECSaved() / 100);
+  const getResteACharge = (totalB: number) => totalB - getPriseEnCharge(totalB);
+
+  // Total final = Partie A après remise + Reste à charge B
   const calculateFinalPrice = () => {
-    const basePrice = calculateTotalAB();
-    const discount = parseFloat(discountValue || "0");
-    if (discount > 0 && basePrice > 0) {
-      return basePrice * (1 - discount / 100);
+    const ta = getCategoryTotal('A');
+    const tb = getCategoryTotal('B');
+    const hasBLines = (quoteRequest?.lines || []).some((l: any) => l.category === 'B');
+    const taux = getTauxPECSaved();
+    const taApresRemise = getTotalAApresRemise(ta);
+    if (hasBLines && taux > 0 && tb > 0) {
+      return taApresRemise + getResteACharge(tb);
     }
-    return basePrice;
+    if (ta + tb > 0) return taApresRemise + tb;
+    return parseFloat(String(quoteRequest?.calculated_price || 0));
   };
 
   if (isLoading) {
@@ -814,59 +885,85 @@ export default function DevisDetail() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-4">
-                <div className="space-y-3">
-                  {(() => {
-                    const priceValue = calculateTotalAB();
+                {(() => {
+                  const ta = getCategoryTotal('A');
+                  const tb = getCategoryTotal('B');
+                  const hasBLines = (quoteRequest?.lines || []).some((l: any) => l.category === 'B');
+                  const taux = getTauxPECSaved();
+                  const priseEnCharge = getPriseEnCharge(tb);
+                  const resteACharge = getResteACharge(tb);
+                  const totalFinal = calculateFinalPrice();
+                  const hasData = ta > 0 || tb > 0 || parseFloat(String(quoteRequest?.calculated_price || 0)) > 0;
 
-                    if (priceValue > 0) {
-                      return (
+                  if (!hasData) return (
+                    <div className="text-center py-3">
+                      <p className="text-xs text-gray-500">Aucun prix calculé pour le moment</p>
+                    </div>
+                  );
+
+                  const remiseASaved = getRemiseASaved();
+                  const remiseAMontant = getRemiseAMontant(ta);
+                  const taApresRemise = getTotalAApresRemise(ta);
+
+                  return (
+                    <div className="space-y-2 text-sm">
+                      {ta > 0 && (
                         <>
-                          <div className="flex items-center justify-between pb-2">
-                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Prix calculé</p>
-                            <div className="flex items-center gap-2">
-                              <p className="text-lg font-bold text-gray-900">
-                                {priceValue.toFixed(2)} €
-                              </p>
-                              <button
-                                onClick={() => { setEditingPrice(true); setManualPriceValue(priceValue.toFixed(2)); }}
-                                className="text-xs text-amber-600 hover:text-amber-700 underline font-medium"
-                              >
-                                Modifier
-                              </button>
-                            </div>
+                          <div className="flex justify-between items-center py-1.5 border-b border-gray-100">
+                            <span className="text-gray-600 font-medium">A — Sans prise en charge</span>
+                            <span className="font-semibold text-gray-900">{ta.toFixed(2)} €</span>
                           </div>
-                          {parseFloat(discountValue || "0") > 0 && (
+                          {remiseASaved > 0 && (
                             <>
-                              <div className="flex items-center justify-between pt-2 border-t border-gray-200 pb-2">
-                                <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Réduction</p>
-                                <p className="text-sm text-red-600 font-semibold">
-                                  -{parseFloat(discountValue).toFixed(2)}%
-                                </p>
+                              <div className="flex justify-between items-center py-1.5 border-b border-gray-100">
+                                <span className="text-orange-600 font-medium text-xs">
+                                  Remise ({remiseASaved}%){quoteRequest?.remise_partie_a_commentaire ? ` — ${quoteRequest.remise_partie_a_commentaire}` : ""}
+                                </span>
+                                <span className="font-semibold text-orange-600">-{remiseAMontant.toFixed(2)} €</span>
                               </div>
-                              <div className="flex items-center justify-between pt-2 border-t-2 border-site-primary">
-                                <p className="text-sm font-bold text-gray-900">Total après réduction</p>
-                                <p className="text-xl font-bold text-site-primary">
-                                  {calculateFinalPrice().toFixed(2)} €
-                                </p>
+                              <div className="flex justify-between items-center py-1.5 border-b border-gray-100">
+                                <span className="text-gray-600 font-medium">A après remise</span>
+                                <span className="font-semibold text-gray-900">{taApresRemise.toFixed(2)} €</span>
                               </div>
                             </>
                           )}
                         </>
-                      );
-                    } else {
-                      return (
-                        <div className="text-center py-3">
-                          <p className="text-xs text-gray-500 mb-1">
-                            Aucun prix calculé pour le moment
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            Le prix sera calculé automatiquement
-                          </p>
+                      )}
+                      {hasBLines && tb > 0 && (
+                        <>
+                          <div className="flex justify-between items-center py-1.5 border-b border-gray-100">
+                            <span className="text-gray-600 font-medium">B — Avec prise en charge</span>
+                            <span className="font-semibold text-gray-900">{tb.toFixed(2)} €</span>
+                          </div>
+                          {taux > 0 && (
+                            <>
+                              <div className="flex justify-between items-center py-1.5 border-b border-gray-100">
+                                <span className="text-green-700 font-medium">Prise en charge <span className="text-xs">({taux}%)</span></span>
+                                <span className="font-semibold text-green-700">-{priseEnCharge.toFixed(2)} €</span>
+                              </div>
+                              <div className="flex justify-between items-center py-1.5 border-b border-gray-100">
+                                <span className="text-orange-700 font-medium">Reste à charge</span>
+                                <span className="font-semibold text-orange-700">{resteACharge.toFixed(2)} €</span>
+                              </div>
+                            </>
+                          )}
+                        </>
+                      )}
+                      <div className="flex justify-between items-center pt-2 border-t-2 border-site-primary">
+                        <span className="font-bold text-gray-900">Total à payer</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-xl font-bold text-site-primary">{totalFinal.toFixed(2)} €</span>
+                          <button
+                            onClick={() => { setEditingPrice(true); setManualPriceValue(totalFinal.toFixed(2)); }}
+                            className="text-xs text-amber-600 hover:text-amber-700 underline font-medium"
+                          >
+                            Modifier
+                          </button>
                         </div>
-                      );
-                    }
-                  })()}
-                </div>
+                      </div>
+                    </div>
+                  );
+                })()}
               </CardContent>
             </Card>
 
@@ -874,6 +971,7 @@ export default function DevisDetail() {
             {(() => {
               const price = quoteRequest?.calculated_price;
               const priceValue = price ? parseFloat(String(price)) : 0;
+              if (lines.length > 0) return null;
               if (priceValue > 0 && !editingPrice) return null;
               return (
                 <Card className="shadow-md border border-amber-200 bg-amber-50/30">
@@ -945,53 +1043,132 @@ export default function DevisDetail() {
               );
             })()}
 
-            {/* Appliquer une réduction (seulement si prix > 0) */}
-            {parseFloat(String(quoteRequest?.calculated_price || 0)) > 0 && (
-              <Card className="shadow-md border border-blue-200 bg-blue-50/30">
-                <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 py-3">
+            {/* Remise Partie A */}
+            {(quoteRequest?.lines || []).some((l: any) => l.category === 'A') && (
+              <Card className="shadow-md border border-orange-200 bg-orange-50/30">
+                <CardHeader className="bg-gradient-to-r from-orange-50 to-orange-100 py-3">
+                  <CardTitle className="flex items-center justify-between text-base font-semibold">
+                    <span className="flex items-center gap-2">
+                      <FaPercent className="w-4 h-4 text-orange-500" />
+                      Remise — A (Sans prise en charge)
+                    </span>
+                    {!showRemiseAForm && (
+                      <button
+                        onClick={() => setShowRemiseAForm(true)}
+                        className="text-xs text-orange-600 hover:text-orange-700 underline font-medium"
+                      >
+                        {parseFloat(remiseA || "0") > 0 ? "Modifier" : "Appliquer une remise"}
+                      </button>
+                    )}
+                  </CardTitle>
+                </CardHeader>
+                {(showRemiseAForm || parseFloat(remiseA || "0") > 0) && (
+                  <CardContent className="p-4">
+                    {parseFloat(remiseA || "0") > 0 && !showRemiseAForm ? (
+                      <div className="text-sm text-orange-700 bg-orange-50 rounded p-2">
+                        Remise de <strong>{remiseA}%</strong> appliquée
+                        {quoteRequest?.remise_partie_a_commentaire && (
+                          <span> — {quoteRequest.remise_partie_a_commentaire}</span>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="space-y-2.5">
+                        <div>
+                          <Label htmlFor="remiseA" className="text-xs font-medium text-gray-600 mb-1.5 block">
+                            Taux de remise (%)
+                          </Label>
+                          <Input
+                            id="remiseA"
+                            type="number"
+                            step="1"
+                            min="0"
+                            max="100"
+                            value={remiseA}
+                            onChange={(e) => setRemiseA(e.target.value)}
+                            placeholder="Ex: 10"
+                            className="h-9 text-sm"
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="remiseAComment" className="text-xs font-medium text-gray-600 mb-1.5 block">
+                            Motif (affiché sur le devis)
+                          </Label>
+                          <Input
+                            id="remiseAComment"
+                            type="text"
+                            value={remiseAComment}
+                            onChange={(e) => setRemiseAComment(e.target.value)}
+                            placeholder="Ex: Fête de fin d'année"
+                            className="h-9 text-sm"
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            onClick={() => setShowRemiseAForm(false)}
+                            variant="outline"
+                            size="sm"
+                            className="flex-1 text-sm"
+                          >
+                            Annuler
+                          </Button>
+                          <Button
+                            onClick={() => { updateRemiseAMutation.mutate(); setShowRemiseAForm(false); }}
+                            disabled={updateRemiseAMutation.isPending}
+                            size="sm"
+                            className="flex-1 bg-orange-500 hover:bg-orange-600 text-white text-sm"
+                          >
+                            {updateRemiseAMutation.isPending ? (
+                              <><FaSpinner className="w-3.5 h-3.5 animate-spin mr-1.5" />...</>
+                            ) : "Enregistrer"}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </CardContent>
+                )}
+              </Card>
+            )}
+
+            {/* Prise en charge Partie B */}
+            {(quoteRequest?.lines || []).some((l: any) => l.category === 'B') && (
+              <Card className="shadow-md border border-green-200 bg-green-50/30">
+                <CardHeader className="bg-gradient-to-r from-green-50 to-green-100 py-3">
                   <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                    <FaPercent className="w-4 h-4 text-blue-600" />
-                    Appliquer une réduction
+                    <FaPercent className="w-4 h-4 text-green-600" />
+                    Prise en charge — B (Avec prise en charge)
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-4">
                   <div className="space-y-2.5">
+                    <p className="text-xs text-green-800 bg-green-100 rounded p-2">
+                      Indiquez le pourcentage pris en charge par l'entreprise sur la partie B.
+                    </p>
                     <div>
-                      <Label htmlFor="discount" className="text-xs font-medium text-gray-600 mb-1.5 block">
-                        Réduction en pourcentage (%)
+                      <Label htmlFor="tauxPEC" className="text-xs font-medium text-gray-600 mb-1.5 block">
+                        Taux de prise en charge (%)
                       </Label>
                       <Input
-                        id="discount"
+                        id="tauxPEC"
                         type="number"
-                        step="0.01"
+                        step="1"
                         min="0"
                         max="100"
-                        value={discountValue}
-                        onChange={(e) => setDiscountValue(e.target.value)}
-                        placeholder="Ex: 10"
+                        value={tauxPEC}
+                        onChange={(e) => setTauxPEC(e.target.value)}
+                        placeholder="Ex: 60"
                         className="h-9 text-sm"
                       />
-                      <p className="text-xs text-gray-500 mt-1.5">
-                        Entrez un pourcentage (ex: 10 pour 10%)
-                      </p>
                     </div>
                     <Button
-                      onClick={() => {
-                        if (discountValue !== quoteRequest.discount_percentage) {
-                          updateDiscountMutation.mutate(discountValue);
-                        }
-                      }}
-                      disabled={updateDiscountMutation.isPending || discountValue === quoteRequest.discount_percentage}
+                      onClick={() => updateTauxPECMutation.mutate(tauxPEC)}
+                      disabled={updateTauxPECMutation.isPending || tauxPEC === String(quoteRequest?.taux_prise_en_charge || "0")}
                       size="sm"
-                      className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                      className="w-full bg-green-600 hover:bg-green-700 text-white text-sm"
                     >
-                      {updateDiscountMutation.isPending ? (
-                        <>
-                          <FaSpinner className="w-3.5 h-3.5 animate-spin mr-1.5" />
-                          Application...
-                        </>
+                      {updateTauxPECMutation.isPending ? (
+                        <><FaSpinner className="w-3.5 h-3.5 animate-spin mr-1.5" />Enregistrement...</>
                       ) : (
-                        "Appliquer la réduction"
+                        "Enregistrer le taux"
                       )}
                     </Button>
                   </div>
@@ -1063,6 +1240,8 @@ export default function DevisDetail() {
                         variant: "default",
                       });
                     } catch (error: any) {
+                      const permErr = extractPermissionError(error);
+                      if (permErr) { showPermissionError(permErr); return; }
                       toast({
                         title: "❌ Erreur",
                         description: error.response?.data?.error || "Erreur lors du téléchargement du PDF",
@@ -1166,6 +1345,8 @@ export default function DevisDetail() {
                       });
                     }
                   } catch (error: any) {
+                    const permErr = extractPermissionError(error);
+                    if (permErr) { setShowSendConfirmDialog(false); showPermissionError(permErr); return; }
                     const errorMessage = error.response?.data?.message || error.response?.data?.error || "Erreur lors de l'envoi du devis";
                     toast({
                       title: "❌ Erreur",

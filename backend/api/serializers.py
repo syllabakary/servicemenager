@@ -1,7 +1,7 @@
 import os
 from rest_framework import serializers
 from django.conf import settings
-from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, QuoteLine, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile, ContactMessage, HeroContent, ActivityLog
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, QuoteLine, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile, ContactMessage, HeroContent, ActivityLog, UserPermission
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -437,6 +437,40 @@ class QuoteRequestSerializer(serializers.ModelSerializer):
         source='get_status_display',
         read_only=True
     )
+    final_price = serializers.SerializerMethodField()
+
+    def get_final_price(self, obj):
+        """Calcule le prix final réel : A après remise + reste à charge B."""
+        lines = list(obj.lines.all())
+
+        def get_cat_total(category):
+            cat_lines = [l for l in lines if l.category == category]
+            bold = [l for l in cat_lines if l.is_bold and l.total]
+            if bold:
+                try: return float(bold[-1].total)
+                except: pass
+            total = 0.0
+            for l in cat_lines:
+                if not l.is_bold and l.total:
+                    try: total += float(l.total)
+                    except: pass
+            return total
+
+        total_a = get_cat_total('A')
+        total_b = get_cat_total('B')
+
+        remise_a = float(obj.remise_partie_a or 0)
+        total_a_apres_remise = total_a * (1 - remise_a / 100)
+
+        taux_pec = float(obj.taux_prise_en_charge or 0)
+        if total_b > 0 and taux_pec > 0:
+            reste_b = total_b * (1 - taux_pec / 100)
+            return round(total_a_apres_remise + reste_b, 2)
+
+        if total_a + total_b > 0:
+            return round(total_a_apres_remise + total_b, 2)
+
+        return round(float(obj.calculated_price or 0), 2)
 
     class Meta:
         model = QuoteRequest
@@ -447,7 +481,9 @@ class QuoteRequestSerializer(serializers.ModelSerializer):
             'client_email', 'client_phone',
             'location', 'location_lat', 'location_lng',
             'hours_per_month', 'hourly_rate_client',
-            'additional_info', 'calculated_price', 'discount_percentage', 'status', 'status_display',
+            'additional_info', 'calculated_price', 'discount_percentage',
+            'remise_partie_a', 'remise_partie_a_commentaire',
+            'taux_prise_en_charge', 'final_price', 'status', 'status_display',
             'admin_notes', 'contacted_at', 'quoted_at',
             'created_at', 'updated_at', 'created_by_user',
             'lines',
@@ -554,7 +590,9 @@ class InvoiceSerializer(serializers.ModelSerializer):
     client_name = serializers.CharField(source='quote_request.client_name', read_only=True)
     client_email = serializers.CharField(source='quote_request.client_email', read_only=True)
     service_name = serializers.CharField(source='quote_request.service.name', read_only=True)
-    
+    tax_amount = serializers.DecimalField(max_digits=10, decimal_places=2, required=False, default=0)
+    total = serializers.DecimalField(max_digits=10, decimal_places=2, required=False, default=0)
+
     class Meta:
         model = Invoice
         fields = [
@@ -608,12 +646,12 @@ class InvoiceSerializer(serializers.ModelSerializer):
         
         subtotal = validated_data.get('subtotal', Decimal('0.00'))
         if tax_rate > 0:
-            validated_data['tax_amount'] = (subtotal * tax_rate) / 100
+            validated_data['tax_amount'] = ((subtotal * tax_rate) / 100).quantize(Decimal('0.01'))
         else:
             validated_data['tax_amount'] = Decimal('0.00')
-        
+
         # Calculer le total
-        validated_data['total'] = subtotal + validated_data['tax_amount']
+        validated_data['total'] = (subtotal + validated_data['tax_amount']).quantize(Decimal('0.01'))
         
         # S'assurer que currency a une valeur par défaut
         if 'currency' not in validated_data or not validated_data.get('currency'):
@@ -1150,3 +1188,43 @@ class ActivityLogSerializer(serializers.ModelSerializer):
             'CRITICAL': 'darkred',
         }
         return {'value': obj.level, 'color': colors.get(obj.level, 'gray')}
+
+
+class UserPermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserPermission
+        fields = ['id', 'user', 'module', 'action', 'granted']
+
+
+class UserPermissionBulkSerializer(serializers.Serializer):
+    """Serializer pour mise à jour en masse des permissions d'un utilisateur"""
+    permissions = serializers.ListField(
+        child=serializers.DictField()
+    )
+
+    def validate_permissions(self, value):
+        valid_modules = [m[0] for m in UserPermission.MODULE_CHOICES]
+        valid_actions = [a[0] for a in UserPermission.ACTION_CHOICES]
+        for item in value:
+            if item.get('module') not in valid_modules:
+                raise serializers.ValidationError(f"Module invalide: {item.get('module')}")
+            if item.get('action') not in valid_actions:
+                raise serializers.ValidationError(f"Action invalide: {item.get('action')}")
+        return value
+
+
+class UserWithPermissionsSerializer(serializers.ModelSerializer):
+    """Serializer utilisateur avec toutes ses permissions"""
+    permissions = serializers.SerializerMethodField()
+    full_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'role', 'full_name', 'permissions']
+
+    def get_full_name(self, obj):
+        return obj.get_full_name() or obj.username
+
+    def get_permissions(self, obj):
+        perms = UserPermission.objects.filter(user=obj)
+        return {f"{p.module}.{p.action}": p.granted for p in perms}

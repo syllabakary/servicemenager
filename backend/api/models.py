@@ -643,6 +643,33 @@ class QuoteRequest(models.Model):
         verbose_name="Réduction (%)",
         help_text="Réduction en pourcentage appliquée au montant total"
     )
+    # Remise sur la partie A (client direct, occasion spéciale)
+    remise_partie_a = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        blank=True,
+        null=True,
+        verbose_name="Remise Partie A (%)",
+        help_text="Remise en pourcentage accordée sur la partie A"
+    )
+    remise_partie_a_commentaire = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name="Motif de la remise Partie A",
+        help_text="Ex: Fête de fin d'année, offre spéciale..."
+    )
+    # Taux de prise en charge sur la partie B (client indirect / entreprise)
+    taux_prise_en_charge = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=Decimal('0.00'),
+        blank=True,
+        null=True,
+        verbose_name="Taux prise en charge (%)",
+        help_text="Pourcentage pris en charge par l'entreprise sur la partie B"
+    )
     # Statut et suivi
     status = models.CharField(
         max_length=20,
@@ -1050,11 +1077,15 @@ class Invoice(models.Model):
                 self.subtotal = self.quote_request.service.price_per_hour
         
         # Calculer automatiquement le total si nécessaire
-        if not self.tax_amount and self.tax_rate:
-            self.tax_amount = (self.subtotal * self.tax_rate) / 100
-        
+        subtotal_d = Decimal(str(self.subtotal)) if self.subtotal else Decimal('0.00')
+        tax_rate_d = Decimal(str(self.tax_rate)) if self.tax_rate else Decimal('0.00')
+
+        if not self.tax_amount and tax_rate_d:
+            self.tax_amount = ((subtotal_d * tax_rate_d) / 100).quantize(Decimal('0.01'))
+
+        tax_amount_d = Decimal(str(self.tax_amount)) if self.tax_amount else Decimal('0.00')
         if not self.total or self.total == 0:
-            self.total = self.subtotal + self.tax_amount
+            self.total = (subtotal_d + tax_amount_d).quantize(Decimal('0.01'))
         
         super().save(*args, **kwargs)
 
@@ -2332,6 +2363,70 @@ class HeroContent(models.Model):
 
     def __str__(self):
         return "Hero Page d'accueil"
+
+
+class UserPermission(models.Model):
+    """Permissions granulaires par utilisateur et par module"""
+
+    MODULE_CHOICES = [
+        ('devis',            'Devis'),
+        ('factures',         'Factures'),
+        ('employes',         'Employés'),
+        ('patients',         'Patients'),
+        ('scans',            'Scans'),
+        ('services',         'Services'),
+        ('categories',       'Catégories'),
+        ('avantages',        'Avantages'),
+        ('agences',          'Agences'),
+        ('avis',             'Avis clients'),
+        ('messages',         'Messages contact'),
+        ('bannieres',        'Bannières'),
+        ('hero',             'Page d\'accueil'),
+        ('parametres',       'Paramètres'),
+    ]
+
+    ACTION_CHOICES = [
+        ('view',   'Voir'),
+        ('create', 'Créer'),
+        ('update', 'Modifier'),
+        ('delete', 'Supprimer'),
+        ('email',  'Envoyer email'),
+        ('pdf',    'Générer PDF'),
+    ]
+
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='custom_permissions',
+        verbose_name="Utilisateur"
+    )
+    module = models.CharField(max_length=50, choices=MODULE_CHOICES, verbose_name="Module")
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES, verbose_name="Action")
+    granted = models.BooleanField(default=False, verbose_name="Accordé")
+
+    class Meta:
+        verbose_name = "Permission utilisateur"
+        verbose_name_plural = "Permissions utilisateurs"
+        unique_together = ('user', 'module', 'action')
+        ordering = ['user', 'module', 'action']
+
+    def __str__(self):
+        status = "✓" if self.granted else "✗"
+        return f"{status} {self.user.username} — {self.module}.{self.action}"
+
+    @classmethod
+    def has_permission(cls, user, module, action):
+        """Vérifie si un user a une permission. SUPERADMIN a toujours accès."""
+        if not user or not user.is_authenticated:
+            return False
+        if user.role == 'SUPERADMIN':
+            return True
+        try:
+            perm = cls.objects.get(user=user, module=module, action=action)
+            return perm.granted
+        except cls.DoesNotExist:
+            # Par défaut : ADMIN a accès à tout sauf si une permission explicite dit non
+            return user.role == 'ADMIN'
 
 
 class ActivityLog(models.Model):

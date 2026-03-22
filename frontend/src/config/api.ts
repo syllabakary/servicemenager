@@ -68,6 +68,16 @@ export function setupAxiosAuth(axiosInstance: any) {
     (res: any) => res,
     async (err: any) => {
       const original = err.config;
+
+      // Intercepter les 403 permission_denied → émettre un événement global
+      if (err?.response?.status === 403) {
+        const data = err.response.data;
+        if (data?.code === "permission_denied") {
+          window.dispatchEvent(new CustomEvent("permission-denied", { detail: data }));
+        }
+        return Promise.reject(err);
+      }
+
       if (err?.response?.status !== 401 || original?.url?.includes("/token/") || original._retry) {
         return Promise.reject(err);
       }

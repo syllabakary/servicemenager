@@ -17,6 +17,7 @@ import {
 } from "react-icons/fa";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
+import { usePermissionError, extractPermissionError } from "@/hooks/usePermissionError";
 import { useState } from "react";
 import { Link } from "wouter";
 import { API_URL } from "@/config/api";
@@ -70,8 +71,6 @@ function CreateFactureDialog({ open, onClose, devis }: { open: boolean; onClose:
         quote_request: parseInt(form.quote_request),
         subtotal: sub,
         tax_rate: tva,
-        tax_amount: sub * tva / 100,
-        total: sub * (1 + tva / 100),
         notes: form.notes,
         payment_terms: form.payment_terms,
         invoice_date: today,
@@ -120,7 +119,7 @@ function CreateFactureDialog({ open, onClose, devis }: { open: boolean; onClose:
                   {disponibles.map((d: any) => (
                     <SelectItem key={d.id} value={String(d.id)}>
                       #{d.id} — {d.client_name}{d.service_name ? ` — ${d.service_name}` : ""}
-                      {d.calculated_price ? ` (${parseFloat(d.calculated_price).toFixed(2)} €)` : ""}
+                      {` (${parseFloat(d.final_price ?? d.calculated_price ?? 0).toFixed(2)} €)`}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -178,6 +177,7 @@ function CreateFactureDialog({ open, onClose, devis }: { open: boolean; onClose:
 // ── Dialog confirmation envoi email ─────────────────────────────────────────
 function SendEmailDialog({ inv, open, onClose, onSent }: { inv: any; open: boolean; onClose: () => void; onSent: () => void }) {
   const { toast } = useToast();
+  const { showPermissionError } = usePermissionError();
   const [sending, setSending] = useState(false);
 
   const handleSend = async () => {
@@ -188,6 +188,8 @@ function SendEmailDialog({ inv, open, onClose, onSent }: { inv: any; open: boole
       onSent();
       onClose();
     } catch (err: any) {
+      const permErr = extractPermissionError(err);
+      if (permErr) { onClose(); showPermissionError(permErr); return; }
       toast({ title: "Erreur envoi", description: err.response?.data?.error || "Erreur", variant: "destructive" });
     } finally {
       setSending(false);
@@ -246,6 +248,7 @@ function SendEmailDialog({ inv, open, onClose, onSent }: { inv: any; open: boole
 // ── Dialog suppression facture ───────────────────────────────────────────────
 function DeleteFactureDialog({ inv, open, onClose, onDeleted }: { inv: any; open: boolean; onClose: () => void; onDeleted: () => void }) {
   const { toast } = useToast();
+  const { showPermissionError } = usePermissionError();
   const [deleting, setDeleting] = useState(false);
 
   const handleDelete = async () => {
@@ -256,6 +259,8 @@ function DeleteFactureDialog({ inv, open, onClose, onDeleted }: { inv: any; open
       onDeleted();
       onClose();
     } catch (err: any) {
+      const permErr = extractPermissionError(err);
+      if (permErr) { onClose(); showPermissionError(permErr); return; }
       toast({ title: "Erreur suppression", description: err.response?.data?.detail || "Erreur", variant: "destructive" });
     } finally {
       setDeleting(false);
@@ -305,6 +310,7 @@ function DeleteFactureDialog({ inv, open, onClose, onDeleted }: { inv: any; open
 // ── Dialog modification facture ──────────────────────────────────────────────
 function EditFactureDialog({ inv, open, onClose, onUpdated }: { inv: any; open: boolean; onClose: () => void; onUpdated: () => void }) {
   const { toast } = useToast();
+  const { showPermissionError } = usePermissionError();
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({
     subtotal: String(inv.subtotal || ""),
@@ -335,6 +341,8 @@ function EditFactureDialog({ inv, open, onClose, onUpdated }: { inv: any; open: 
       onUpdated();
       onClose();
     } catch (err: any) {
+      const permErr = extractPermissionError(err);
+      if (permErr) { onClose(); showPermissionError(permErr); return; }
       toast({ title: "Erreur", description: err.response?.data?.detail || JSON.stringify(err.response?.data) || "Erreur", variant: "destructive" });
     } finally {
       setSaving(false);
@@ -430,6 +438,7 @@ function EditFactureDialog({ inv, open, onClose, onUpdated }: { inv: any; open: 
 // ── Ligne facture ────────────────────────────────────────────────────────────
 function FactureRow({ inv, onUpdate, onDelete }: { inv: any; onUpdate: (id: number, data: any) => void; onDelete: () => void }) {
   const { toast } = useToast();
+  const { showPermissionError } = usePermissionError();
   const dateStr = inv.invoice_date ? new Date(inv.invoice_date).toLocaleDateString("fr-FR") : "—";
   const echeance = inv.due_date ? new Date(inv.due_date).toLocaleDateString("fr-FR") : "—";
   const [showSendDialog, setShowSendDialog] = useState(false);
@@ -448,7 +457,9 @@ function FactureRow({ inv, onUpdate, onDelete }: { inv: any; onUpdate: (id: numb
       a.download = `facture-${inv.invoice_number || inv.id}.pdf`;
       a.click();
       window.URL.revokeObjectURL(url);
-    } catch {
+    } catch (err: any) {
+      const permErr = extractPermissionError(err);
+      if (permErr) { showPermissionError(permErr); return; }
       toast({ title: "Erreur PDF", variant: "destructive" });
     }
   };

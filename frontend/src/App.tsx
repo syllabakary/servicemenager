@@ -8,6 +8,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 setupAxiosAuth(axios);
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { PermissionErrorProvider } from "@/hooks/usePermissionError";
 import { Navbar } from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ScrollToTop } from "@/components/ScrollToTop";
@@ -46,6 +47,7 @@ const AdminChangePassword = React.lazy(() => import("@/pages/admin/AdminChangePa
 const AdminContactMessages = React.lazy(() => import("@/pages/admin/ContactMessages"));
 const AdminFactures = React.lazy(() => import("@/pages/admin/Factures"));
 const AdminLogs = React.lazy(() => import("@/pages/admin/Logs"));
+const AdminPermissions = React.lazy(() => import("@/pages/admin/Permissions"));
 const AdminHero = React.lazy(() => import("@/pages/admin/Hero"));
 const ScanQR = React.lazy(() => import("@/pages/employe/ScanQR"));
 const EmployeLogin = React.lazy(() => import("@/pages/employe/EmployeLogin"));
@@ -94,6 +96,7 @@ function Router() {
       <Route path="/admin/contact-messages" component={AdminContactMessages} />
       <Route path="/admin/factures" component={AdminFactures} />
       <Route path="/admin/logs" component={AdminLogs} />
+      <Route path="/admin/permissions" component={AdminPermissions} />
       <Route path="/admin/hero" component={AdminHero} />
       <Route path="/employe/login" component={EmployeLogin} />
       <Route path="/employe/dashboard" component={EmployeDashboard} />
@@ -113,6 +116,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
+      <PermissionErrorProvider>
       <TooltipProvider>
         <SiteTheme />
         <ScrollToTop />
@@ -133,6 +137,7 @@ function App() {
         )}
         <Toaster />
       </TooltipProvider>
+      </PermissionErrorProvider>
     </QueryClientProvider>
   );
 }

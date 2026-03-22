@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { Link } from "wouter";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,13 +23,20 @@ import {
   FaQrcode,
   FaClock,
   FaUser,
+  FaChartLine,
 } from "react-icons/fa";
+import {
+  LineChart, Line,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  ResponsiveContainer,
+} from "recharts";
 import axios from "axios";
 import { API_URL } from "@/config/api";
 
 export default function AdminDashboard() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [statsPeriod, setStatsPeriod] = useState(30);
 
   // Mutation pour activer/désactiver l'affichage des avis
   const toggleShowReviewsMutation = useMutation({
@@ -152,6 +160,18 @@ export default function AdminDashboard() {
     },
   });
 
+  // Stats d'évolution pour les graphiques
+  const { data: dashboardStats } = useQuery({
+    queryKey: ["dashboard-stats", statsPeriod],
+    queryFn: async () => {
+      const token = localStorage.getItem("access_token");
+      const res = await axios.get(`${API_URL}/presences/dashboard_stats/?period=${statsPeriod}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.data;
+    },
+  });
+
   // Présences en temps réel
   const { data: presencesRealtime } = useQuery({
     queryKey: ["admin-presences-realtime"],
@@ -247,6 +267,94 @@ export default function AdminDashboard() {
             );
           })}
         </div>
+
+        {/* ── Graphiques d'évolution ─────────────────────────────────── */}
+        {dashboardStats && (
+          <div className="space-y-4">
+            {/* En-tête avec sélecteur de période */}
+            <div className="bg-white rounded-2xl shadow-lg p-4 border border-gray-100 flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <FaChartLine className="w-5 h-5 text-site-primary" />
+                <h2 className="text-lg font-bold text-gray-900">Statistiques d'activité</h2>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-500">Période :</span>
+                {[7, 30, 90].map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setStatsPeriod(p)}
+                    className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                      statsPeriod === p
+                        ? "bg-site-primary text-white"
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+                  >
+                    {p === 7 ? "7 jours" : p === 30 ? "30 jours" : "3 mois"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Résumé chiffres clés */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {[
+                { label: "Arrivées", value: dashboardStats.summary?.total_arrivals ?? 0, color: "text-green-700 bg-green-50 border-green-200" },
+                { label: "Départs", value: dashboardStats.summary?.total_departures ?? 0, color: "text-blue-700 bg-blue-50 border-blue-200" },
+                { label: "Employés actifs", value: dashboardStats.summary?.unique_employees ?? 0, color: "text-purple-700 bg-purple-50 border-purple-200" },
+                { label: "Patients suivis", value: dashboardStats.summary?.unique_patients ?? 0, color: "text-orange-700 bg-orange-50 border-orange-200" },
+              ].map((s) => (
+                <div key={s.label} className={`rounded-xl border p-4 ${s.color}`}>
+                  <p className="text-xs font-semibold uppercase tracking-wide opacity-70">{s.label}</p>
+                  <p className="text-3xl font-bold mt-1">{s.value}</p>
+                  <p className="text-xs opacity-60 mt-0.5">sur {statsPeriod} jours</p>
+                </div>
+              ))}
+            </div>
+
+            {/* Courbe d'évolution des scans */}
+            <Card className="shadow-xl border-0 bg-white">
+              <CardHeader className="border-b border-gray-100 pb-3">
+                <CardTitle className="text-base font-semibold text-gray-800">
+                  Missions par employé — {statsPeriod} derniers jours
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-4">
+                {dashboardStats.employees?.length > 0 ? (
+                  <ResponsiveContainer width="100%" height={280}>
+                    <LineChart data={dashboardStats.evolution} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                      <XAxis
+                        dataKey="date"
+                        tick={{ fontSize: 11 }}
+                        interval={statsPeriod <= 7 ? 0 : statsPeriod <= 30 ? 3 : 6}
+                      />
+                      <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
+                      <Tooltip />
+                      <Legend />
+                      {(dashboardStats.employees as string[]).map((empName: string, i: number) => {
+                        const colors = ["#22c55e","#3b82f6","#f97316","#8b5cf6","#ec4899","#14b8a6","#f59e0b","#ef4444"];
+                        return (
+                          <Line
+                            key={empName}
+                            type="monotone"
+                            dataKey={empName}
+                            stroke={colors[i % colors.length]}
+                            strokeWidth={2}
+                            dot={{ r: 3 }}
+                            activeDot={{ r: 5 }}
+                          />
+                        );
+                      })}
+                    </LineChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <p className="text-center text-gray-400 py-12 text-sm">Aucun scan enregistré sur cette période</p>
+                )}
+              </CardContent>
+            </Card>
+
+          </div>
+        )}
 
         {/* Présences en temps réel */}
         {presencesRealtime && (

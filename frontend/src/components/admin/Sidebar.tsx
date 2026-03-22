@@ -26,6 +26,7 @@ import {
   FaUserTie,
   FaComments,
   FaClipboardList,
+  FaShieldAlt,
 } from "react-icons/fa";
 
 interface SidebarProps {
@@ -215,6 +216,12 @@ export function Sidebar({ userRole }: SidebarProps) {
           name: "Journal d'activité",
           icon: FaClipboardList,
           path: "/admin/logs",
+          roles: ["SUPERADMIN"],
+        },
+        {
+          name: "Permissions",
+          icon: FaShieldAlt,
+          path: "/admin/permissions",
           roles: ["SUPERADMIN"],
         },
       ],

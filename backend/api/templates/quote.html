@@ -271,21 +271,45 @@
     </table>
     {% endif %}
 
-    {% if discount > 0 and base_price > 0 %}
-    <table style="width:100%; border-collapse:collapse; margin-top:4px; font-size:8.5px;">
+    {% if has_a_lines and remise_a > 0 or has_b_lines and taux_pec > 0 %}
+    <table class="reste-table" style="margin-top:2px;">
+        {% if total_a > 0 %}
         <tr>
-            <td style="border:1px solid #999; padding:3px 6px; width:52%; background:#fff8e1; font-style:italic;">Prix initial</td>
-            <td style="border:1px solid #999; padding:3px 6px; width:24%; text-align:right; background:#fff8e1; text-decoration:line-through; color:#888;">{{ base_price|floatformat:2 }} €</td>
-            <td style="border:1px solid #999; padding:3px 6px; width:24%; text-align:right; background:#fff8e1;"></td>
+            <td class="reste-label" style="background:#f5f5f5; font-weight:normal;">A) Sans prise en charge</td>
+            <td class="reste-value" style="background:#f5f5f5; font-weight:bold;">{{ total_a|floatformat:2 }} &euro;</td>
+        </tr>
+        {% endif %}
+        {% if has_a_lines and remise_a > 0 %}
+        <tr>
+            <td class="reste-label" style="background:#fff8e1; color:#b45309; font-style:italic; font-weight:normal;">
+                Remise ({{ remise_a|floatformat:0 }}%){% if remise_a_commentaire %} &mdash; {{ remise_a_commentaire }}{% endif %}
+            </td>
+            <td class="reste-value" style="background:#fff8e1; color:#b45309; font-weight:bold;">-{{ remise_a_montant|floatformat:2 }} &euro;</td>
         </tr>
         <tr>
-            <td style="border:1px solid #999; padding:3px 6px; background:#fff8e1; font-style:italic; color:#c00;">Réduction appliquée</td>
-            <td style="border:1px solid #999; padding:3px 6px; text-align:right; background:#fff8e1; color:#c00; font-weight:bold;">-{{ discount|floatformat:2 }} %</td>
-            <td style="border:1px solid #999; padding:3px 6px; text-align:right; background:#fff8e1; color:#c00; font-weight:bold;">-{{ discount_amount|floatformat:2 }} €</td>
+            <td class="reste-label" style="background:#f0fff4; font-weight:normal;">A) Apr&egrave;s remise</td>
+            <td class="reste-value" style="background:#f0fff4; font-weight:bold;">{{ total_a_apres_remise|floatformat:2 }} &euro;</td>
+        </tr>
+        {% endif %}
+        {% if total_b > 0 %}
+        <tr>
+            <td class="reste-label" style="background:#f5f5f5; font-weight:normal;">B) Avec prise en charge</td>
+            <td class="reste-value" style="background:#f5f5f5; font-weight:bold;">{{ total_b|floatformat:2 }} &euro;</td>
+        </tr>
+        {% endif %}
+        {% if has_b_lines and taux_pec > 0 %}
+        <tr>
+            <td class="reste-label" style="background:#e6f9ee; color:#166534; font-style:italic; font-weight:normal;">Prise en charge entreprise ({{ taux_pec|floatformat:0 }}%)</td>
+            <td class="reste-value" style="background:#e6f9ee; color:#166534; font-weight:bold;">-{{ prise_en_charge|floatformat:2 }} &euro;</td>
         </tr>
         <tr>
-            <td style="border:1px solid #999; padding:4px 6px; background:{{ pdf_primary_color|default:'#087A00' }}; color:#fff; font-weight:bold; font-size:9px;">TOTAL APRÈS RÉDUCTION</td>
-            <td colspan="2" style="border:1px solid #999; padding:4px 6px; text-align:right; background:{{ pdf_primary_color|default:'#087A00' }}; color:#fff; font-weight:bold; font-size:9px;">{{ final_price|floatformat:2 }} €</td>
+            <td class="reste-label" style="background:#fff8e1; color:#b45309; font-style:italic; font-weight:normal;">Reste &agrave; charge (Partie B)</td>
+            <td class="reste-value" style="background:#fff8e1; color:#b45309; font-weight:bold;">{{ reste_a_charge_b|floatformat:2 }} &euro;</td>
+        </tr>
+        {% endif %}
+        <tr style="background:{{ pdf_primary_color|default:'#087A00' }};">
+            <td class="reste-label" style="color:#fff !important; font-weight:bold; padding:5px 8px;">TOTAL &Agrave; PAYER</td>
+            <td class="reste-value" style="color:#fff !important; font-weight:bold; padding:5px 8px;">{{ final_price|floatformat:2 }} &euro;</td>
         </tr>
     </table>
     {% endif %}

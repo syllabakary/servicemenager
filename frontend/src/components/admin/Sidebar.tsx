@@ -22,6 +22,10 @@ import {
   FaQrcode,
   FaLock,
   FaEnvelope,
+  FaFileInvoiceDollar,
+  FaUserTie,
+  FaComments,
+  FaClipboardList,
 } from "react-icons/fa";
 
 interface SidebarProps {
@@ -48,7 +52,7 @@ export function Sidebar({ userRole }: SidebarProps) {
 
   const menuSections: MenuSection[] = [
     {
-      title: "Administration",
+      title: "Tableau de bord",
       icon: FaChartLine,
       items: [
         {
@@ -63,16 +67,16 @@ export function Sidebar({ userRole }: SidebarProps) {
           path: "/admin/utilisateurs",
           roles: ["SUPERADMIN"],
         },
+      ],
+    },
+    {
+      title: "Personnel",
+      icon: FaUserTie,
+      items: [
         {
           name: "Employés",
           icon: FaUsers,
           path: "/admin/employes",
-          roles: ["ADMIN", "SUPERADMIN"],
-        },
-        {
-          name: "Patients",
-          icon: FaUser,
-          path: "/admin/patients",
           roles: ["ADMIN", "SUPERADMIN"],
         },
         {
@@ -81,16 +85,52 @@ export function Sidebar({ userRole }: SidebarProps) {
           path: "/admin/scans",
           roles: ["ADMIN", "SUPERADMIN"],
         },
+      ],
+    },
+    {
+      title: "Clients",
+      icon: FaUser,
+      items: [
         {
-          name: "Paramètres",
-          icon: FaCog,
-          path: "/admin/parametres",
+          name: "Patients",
+          icon: FaUser,
+          path: "/admin/patients",
           roles: ["ADMIN", "SUPERADMIN"],
         },
         {
-          name: "Changer mot de passe",
-          icon: FaLock,
-          path: "/admin/change-password",
+          name: "Messages contact",
+          icon: FaComments,
+          path: "/admin/contact-messages",
+          roles: ["ADMIN", "SUPERADMIN"],
+        },
+        {
+          name: "Avis clients",
+          icon: FaStar,
+          path: "/admin/avis",
+          roles: ["ADMIN", "SUPERADMIN"],
+        },
+      ],
+    },
+    {
+      title: "Facturation",
+      icon: FaFileInvoiceDollar,
+      items: [
+        {
+          name: "Devis",
+          icon: FaCalendar,
+          path: "/admin/devis",
+          roles: ["ADMIN", "SUPERADMIN"],
+        },
+        {
+          name: "Factures",
+          icon: FaFileInvoiceDollar,
+          path: "/admin/factures",
+          roles: ["ADMIN", "SUPERADMIN"],
+        },
+        {
+          name: "Formulaires de devis",
+          icon: FaFileAlt,
+          path: "/admin/formulaires-devis",
           roles: ["ADMIN", "SUPERADMIN"],
         },
       ],
@@ -109,30 +149,6 @@ export function Sidebar({ userRole }: SidebarProps) {
           name: "Services",
           icon: FaBriefcase,
           path: "/admin/services",
-          roles: ["ADMIN", "SUPERADMIN"],
-        },
-        {
-          name: "Avis clients",
-          icon: FaStar,
-          path: "/admin/avis",
-          roles: ["ADMIN", "SUPERADMIN"],
-        },
-        {
-          name: "Messages contact",
-          icon: FaEnvelope,
-          path: "/admin/contact-messages",
-          roles: ["ADMIN", "SUPERADMIN"],
-        },
-        {
-          name: "Devis",
-          icon: FaCalendar,
-          path: "/admin/devis",
-          roles: ["ADMIN", "SUPERADMIN"],
-        },
-        {
-          name: "Formulaires de devis",
-          icon: FaFileAlt,
-          path: "/admin/formulaires-devis",
           roles: ["ADMIN", "SUPERADMIN"],
         },
         {
@@ -170,6 +186,36 @@ export function Sidebar({ userRole }: SidebarProps) {
           icon: FaImages,
           path: "/admin/bannieres",
           roles: ["ADMIN", "SUPERADMIN"],
+        },
+      ],
+    },
+    {
+      title: "Paramètres",
+      icon: FaCog,
+      items: [
+        {
+          name: "Paramètres",
+          icon: FaCog,
+          path: "/admin/parametres",
+          roles: ["ADMIN", "SUPERADMIN"],
+        },
+        {
+          name: "Changer mot de passe",
+          icon: FaLock,
+          path: "/admin/change-password",
+          roles: ["ADMIN", "SUPERADMIN"],
+        },
+      ],
+    },
+    {
+      title: "Système",
+      icon: FaClipboardList,
+      items: [
+        {
+          name: "Journal d'activité",
+          icon: FaClipboardList,
+          path: "/admin/logs",
+          roles: ["SUPERADMIN"],
         },
       ],
     },

@@ -17,10 +17,10 @@
             text-align: center;
             margin-bottom: 30px;
             padding-bottom: 20px;
-            border-bottom: 3px solid #DC2626;
+            border-bottom: 3px solid {{ pdf_primary_color|default:"#16a34a" }};
         }
         .header h1 {
-            color: #DC2626;
+            color: {{ pdf_primary_color|default:"#16a34a" }};
             margin: 0;
         }
         .content {
@@ -33,7 +33,7 @@
             margin: 20px 0;
         }
         .invoice-info h2 {
-            color: #DC2626;
+            color: {{ pdf_primary_color|default:"#16a34a" }};
             margin-top: 0;
         }
         .invoice-info p {
@@ -42,7 +42,7 @@
         .button {
             display: inline-block;
             padding: 12px 24px;
-            background-color: #DC2626;
+            background-color: {{ pdf_primary_color|default:"#16a34a" }};
             color: white;
             text-decoration: none;
             border-radius: 5px;
@@ -82,21 +82,31 @@
         
         <p>La facture en format PDF est jointe à cet email. Vous pouvez également la télécharger en cliquant sur le bouton ci-dessous.</p>
         
+        {% if invoice.payment_terms or invoice.due_date %}
+        <p><strong>Conditions de paiement :</strong><br>
         {% if invoice.payment_terms %}
-        <p><strong>Conditions de paiement:</strong></p>
-        <p>{{ invoice.payment_terms }}</p>
+        Paiement à effectuer dans <strong>{{ invoice.payment_terms }} jours</strong> à compter de la date de facturation ({{ invoice.invoice_date|date:"d/m/Y" }}).
         {% endif %}
-        
+        {% if invoice.due_date %}
+        Date limite de paiement : <strong>{{ invoice.due_date|date:"d/m/Y" }}</strong>.
+        {% endif %}
+        </p>
+        {% endif %}
+
         <p>Si vous avez des questions concernant cette facture, n'hésitez pas à nous contacter.</p>
-        
+
         <p>Cordialement,<br>
         L'équipe {{ site_settings.site_name|default:"Services Locaux" }}</p>
     </div>
-    
+
     <div class="footer">
         <p>{{ site_settings.site_name|default:"Services Locaux" }}</p>
-        <p>Plateau, Abidjan - Côte d'Ivoire</p>
-        <p>Tél: +225 01 23 45 67 89 | Email: contact@serviceslocaux.ci</p>
+        {% if site_settings.address %}<p>{{ site_settings.address }}</p>{% endif %}
+        <p>
+            {% if site_settings.phone %}Tél: {{ site_settings.phone }}{% endif %}
+            {% if site_settings.phone and site_settings.email %} | {% endif %}
+            {% if site_settings.email %}Email: {{ site_settings.email }}{% endif %}
+        </p>
     </div>
 </body>
 </html>

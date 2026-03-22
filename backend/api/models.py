@@ -964,6 +964,21 @@ class Invoice(models.Model):
         ],
         verbose_name="Devise"
     )
+    # Statut
+    STATUS_CHOICES = [
+        ('DRAFT', 'Brouillon'),
+        ('SENT', 'Envoyée'),
+        ('PAID', 'Payée'),
+        ('UNPAID', 'Impayée'),
+        ('OVERDUE', 'En retard'),
+        ('CANCELLED', 'Annulée'),
+    ]
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='DRAFT',
+        verbose_name="Statut"
+    )
     # Dates
     invoice_date = models.DateField(
         verbose_name="Date de facturation",
@@ -1017,10 +1032,17 @@ class Invoice(models.Model):
         # Générer automatiquement le numéro de facture s'il n'existe pas
         if not self.invoice_number:
             from django.utils import timezone
+            import re
             year = timezone.now().year
-            # Compter les factures de l'année
-            count = Invoice.objects.filter(invoice_date__year=year).count() + 1
-            self.invoice_number = f"FACT-{year}-{count:04d}"
+            prefix = f"FACT-{year}-"
+            # Prendre le numéro séquentiel le plus élevé existant pour cette année
+            existing = Invoice.objects.filter(invoice_number__startswith=prefix).values_list('invoice_number', flat=True)
+            max_seq = 0
+            for num in existing:
+                match = re.search(r'(\d+)$', num)
+                if match:
+                    max_seq = max(max_seq, int(match.group(1)))
+            self.invoice_number = f"{prefix}{max_seq + 1:04d}"
         
         # Si le subtotal est 0 et qu'on a un quote_request, essayer de récupérer le prix du service
         if self.subtotal == 0 and self.quote_request and self.quote_request.service:
@@ -2310,3 +2332,53 @@ class HeroContent(models.Model):
 
     def __str__(self):
         return "Hero Page d'accueil"
+
+
+class ActivityLog(models.Model):
+    """Journal d'activité — toutes les actions sur le site"""
+    ACTION_CHOICES = [
+        ('CREATE', 'Création'),
+        ('UPDATE', 'Modification'),
+        ('DELETE', 'Suppression'),
+        ('LOGIN',  'Connexion'),
+        ('LOGOUT', 'Déconnexion'),
+        ('EMAIL',  'Email envoyé'),
+        ('PDF',    'PDF généré'),
+        ('ERROR',  'Erreur'),
+        ('OTHER',  'Autre'),
+    ]
+
+    user = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name='activity_logs',
+        verbose_name="Utilisateur"
+    )
+    LEVEL_CHOICES = [
+        ('DEBUG',    'DEBUG'),
+        ('INFO',     'INFO'),
+        ('WARNING',  'WARNING'),
+        ('ERROR',    'ERROR'),
+        ('CRITICAL', 'CRITICAL'),
+    ]
+
+    action = models.CharField(max_length=20, choices=ACTION_CHOICES, verbose_name="Action")
+    level = models.CharField(max_length=10, choices=LEVEL_CHOICES, default='INFO', verbose_name="Niveau")
+    logger_name = models.CharField(max_length=200, blank=True, verbose_name="Logger")
+    model_name = models.CharField(max_length=100, blank=True, verbose_name="Modèle")
+    object_id = models.CharField(max_length=50, blank=True, verbose_name="ID objet")
+    object_repr = models.CharField(max_length=300, blank=True, verbose_name="Représentation")
+    detail = models.TextField(blank=True, verbose_name="Détail")
+    extra = models.JSONField(null=True, blank=True, verbose_name="Données extra")
+    ip_address = models.GenericIPAddressField(null=True, blank=True, verbose_name="Adresse IP")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Date")
+
+    class Meta:
+        verbose_name = "Journal d'activité"
+        verbose_name_plural = "Journal d'activités"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        user_str = self.user.username if self.user else "Anonyme"
+        return f"[{self.get_action_display()}] {user_str} — {self.object_repr} ({self.created_at.strftime('%d/%m/%Y %H:%M')})"

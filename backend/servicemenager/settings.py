@@ -39,6 +39,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'api.middleware.CurrentUserMiddleware',
+    'api.middleware.ErrorLogMiddleware',
 ]
 
 ROOT_URLCONF = 'servicemenager.urls'
@@ -141,6 +143,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.OrderingFilter',
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
+    'EXCEPTION_HANDLER': 'api.middleware.drf_exception_handler',
 }
 
 # Simple JWT Configuration
@@ -186,3 +189,61 @@ AUTH_PASSWORD_VALIDATORS = [] if DEBUG else [
 
 
 
+
+# ── Logging : tout en DB, pas de console en production ────────────────────────
+LOGGING = {
+    'version': 1,
+    'disable_existing_handlers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[{levelname}] {asctime} {name} {module}:{lineno} — {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        # Handler base de données — toujours actif
+        'database': {
+            'level': 'INFO',
+            'class': 'api.middleware.DatabaseLogHandler',
+            'formatter': 'verbose',
+        },
+        # Console — uniquement en développement (DEBUG=True)
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler' if DEBUG else 'logging.NullHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        # Logger principal Django
+        'django': {
+            'handlers': ['database'] if not DEBUG else ['database', 'console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        # Requêtes Django (erreurs 500, etc.)
+        'django.request': {
+            'handlers': ['database'] if not DEBUG else ['database', 'console'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        # Sécurité
+        'django.security': {
+            'handlers': ['database'] if not DEBUG else ['database', 'console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        # Logger de l'app api (utilisé dans views.py)
+        'api': {
+            'handlers': ['database'] if not DEBUG else ['database', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        # Logger racine — capture tout le reste
+        '': {
+            'handlers': ['database'] if not DEBUG else ['database', 'console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+    },
+}

@@ -306,47 +306,14 @@
     <!-- ═══ RÉCAP CLIENT + PAIEMENT ═══ -->
     <div style="display:table; width:100%; margin-top:10px; margin-bottom:6px;">
 
-        {% if quote_request.hours_per_month or quote_request.hourly_rate_client or quote_request.birth_date %}
-        <!-- Récap client -->
-        <div style="display:table-cell; width:48%; vertical-align:top; padding-right:8px;">
-            <table style="width:100%; border-collapse:collapse; font-size:8px;">
-                <tr>
-                    <td colspan="2" style="background:#e8e8e8; font-weight:bold; padding:3px 5px; border:1px solid #999; font-size:8.5px;">INFORMATIONS DU CLIENT</td>
-                </tr>
-                <tr>
-                    <td style="border:1px solid #bbb; padding:2px 5px; font-weight:bold; width:55%;">Nom / Prénom</td>
-                    <td style="border:1px solid #bbb; padding:2px 5px;">{% if quote_request.civility %}{{ quote_request.civility }} {% endif %}{{ quote_request.client_name }}</td>
-                </tr>
-                {% if quote_request.birth_date %}
-                <tr>
-                    <td style="border:1px solid #bbb; padding:2px 5px; font-weight:bold;">Date de naissance</td>
-                    <td style="border:1px solid #bbb; padding:2px 5px;">{{ quote_request.birth_date|date:"d/m/Y" }}</td>
-                </tr>
-                {% endif %}
-                {% if quote_request.hours_per_month %}
-                <tr>
-                    <td style="border:1px solid #bbb; padding:2px 5px; font-weight:bold;">Nb d'heures / mois</td>
-                    <td style="border:1px solid #bbb; padding:2px 5px;">{{ quote_request.hours_per_month }} h</td>
-                </tr>
-                {% endif %}
-                {% if quote_request.hourly_rate_client %}
-                <tr>
-                    <td style="border:1px solid #bbb; padding:2px 5px; font-weight:bold;">Tarif horaire</td>
-                    <td style="border:1px solid #bbb; padding:2px 5px;">{{ quote_request.hourly_rate_client|floatformat:2 }} €</td>
-                </tr>
-                {% endif %}
-            </table>
-        </div>
-        {% endif %}
-
         <!-- Informations de paiement -->
-        <div style="display:table-cell; width:{% if quote_request.hours_per_month or quote_request.hourly_rate_client or quote_request.birth_date %}52%{% else %}100%{% endif %}; vertical-align:top; {% if quote_request.hours_per_month or quote_request.hourly_rate_client or quote_request.birth_date %}padding-left:8px;{% endif %}">
+        <div style="display:table-cell; width:100%; vertical-align:top;">
             <table style="width:100%; border-collapse:collapse; font-size:8px;">
                 <tr>
                     <td colspan="2" style="background:#e8e8e8; font-weight:bold; padding:3px 5px; border:1px solid #999; font-size:8.5px;">INFORMATIONS DE PAIEMENT</td>
                 </tr>
                 <tr>
-                    <td style="border:1px solid #bbb; padding:2px 5px; font-weight:bold; width:45%;">Nom du bénéficiaire</td>
+                    <td style="border:1px solid #bbb; padding:2px 5px; font-weight:bold; width:45%;">Nom de l'entreprise</td>
                     <td style="border:1px solid #bbb; padding:2px 5px;">{{ site_settings.paiement_beneficiaire|default:"EASE-DOM" }}</td>
                 </tr>
                 <tr>

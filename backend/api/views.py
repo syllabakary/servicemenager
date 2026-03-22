@@ -26,7 +26,8 @@ from .serializers import (
     CategorySerializer, ServiceReviewSerializer, ServiceFAQSerializer, QuoteRequestSerializer,
     QuoteLineSerializer, ServiceAdvantageSerializer, SiteSettingsSerializer, InvoiceSerializer,
     QuoteFormStepSerializer, QuoteFormOptionSerializer, PatientSerializer, PresenceSerializer,
-    EmployeeProfileSerializer, ContactMessageSerializer, HeroContentSerializer
+    EmployeeProfileSerializer, ContactMessageSerializer, HeroContentSerializer,
+    ActivityLogSerializer
 )
 from rest_framework import generics
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
@@ -1349,14 +1350,44 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                 pass  # Pas de facture existante, on continue
         
         return super().create(request, *args, **kwargs)
-    
+
+    def perform_create(self, serializer):
+        """Auto-calculer due_date depuis payment_terms si non fournie"""
+        from datetime import date, timedelta
+        due_date = serializer.validated_data.get('due_date')
+        payment_terms = serializer.validated_data.get('payment_terms')
+        invoice_date = serializer.validated_data.get('invoice_date', date.today())
+        if not due_date and payment_terms:
+            try:
+                days = int(str(payment_terms).strip())
+                due_date = invoice_date + timedelta(days=days)
+            except (ValueError, TypeError):
+                pass
+        serializer.save(due_date=due_date)
+
+    def perform_update(self, serializer):
+        """Auto-calculer due_date depuis payment_terms si non fournie"""
+        from datetime import date, timedelta
+        due_date = serializer.validated_data.get('due_date', serializer.instance.due_date)
+        payment_terms = serializer.validated_data.get('payment_terms', serializer.instance.payment_terms)
+        invoice_date = serializer.validated_data.get('invoice_date', serializer.instance.invoice_date)
+        if not due_date and payment_terms:
+            try:
+                days = int(str(payment_terms).strip())
+                due_date = invoice_date + timedelta(days=days)
+            except (ValueError, TypeError):
+                pass
+        serializer.save(due_date=due_date)
+
     @action(detail=True, methods=['get'], permission_classes=[IsAdminOrReadOnly])
     def pdf(self, request, pk=None):
         """Générer le PDF de la facture"""
         import logging
         import traceback
+        from django.http import Http404
+        from rest_framework.exceptions import APIException
         logger = logging.getLogger(__name__)
-        
+
         try:
             from django.http import HttpResponse
             from django.template.loader import render_to_string
@@ -1364,7 +1395,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
             from xhtml2pdf import pisa
             from datetime import date
             import io
-            
+
             invoice = self.get_object()
             
             # Vérifier que la facture a un quote_request
@@ -1408,6 +1439,22 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 
             pdf_primary = (getattr(site_settings, 'devis_pdf_primary_color', None) or getattr(site_settings, 'primary_color', None) or '').strip() if site_settings else ''
             pdf_primary = pdf_primary or '#087A00'
+
+            # Signature
+            signature_path = None
+            if site_settings and getattr(site_settings, 'logo_signature', None):
+                try:
+                    import os, base64
+                    sig_path = site_settings.logo_signature.path
+                    if os.path.exists(sig_path):
+                        with open(sig_path, 'rb') as f:
+                            sig_data = base64.b64encode(f.read()).decode('utf-8')
+                            ext = os.path.splitext(sig_path)[1].lower()
+                            mime = 'image/png' if ext == '.png' else 'image/jpeg'
+                            signature_path = f'data:{mime};base64,{sig_data}'
+                except Exception as e:
+                    logger.error(f'Erreur signature: {e}')
+
             context = {
                 'invoice': invoice,
                 'quote_request': invoice.quote_request,
@@ -1415,6 +1462,7 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                 'today': date.today(),
                 'logo_path': logo_path,
                 'pdf_primary_color': pdf_primary,
+                'signature_path': signature_path,
             }
 
             # Rendre le template HTML
@@ -1426,16 +1474,12 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                 return Response({
                     'error': f'Erreur lors du rendu du template: {str(e)}'
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
+
             # Générer le PDF
             result = io.BytesIO()
             try:
-                pdf_file = pisa.pisaDocument(
-                    io.BytesIO(html_string.encode("UTF-8")),
-                    result,
-                    encoding='UTF-8'
-                )
-                
+                pdf_file = pisa.CreatePDF(html_string, dest=result)
+
                 if pdf_file.err:
                     logger.error(f'Erreur lors de la génération du PDF: {pdf_file.err}')
                     return Response({
@@ -1460,16 +1504,20 @@ class InvoiceViewSet(viewsets.ModelViewSet):
             response['Content-Disposition'] = f'inline; filename="facture-{invoice.invoice_number}.pdf"'
             return response
             
+        except (Http404, APIException):
+            raise
         except Exception as e:
             error_details = traceback.format_exc()
             logger.error(f'Erreur critique dans pdf: {str(e)}\n{error_details}')
             return Response({
                 'error': f'Erreur inattendue lors de la génération du PDF: {str(e)}'
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
     @action(detail=True, methods=['post'], permission_classes=[IsAdminOrReadOnly])
     def send_email(self, request, pk=None):
         """Envoyer la facture par email au client avec PDF en pièce jointe"""
+        from django.http import Http404
+        from rest_framework.exceptions import APIException
         logger = logging.getLogger(__name__)
         # Initialiser les variables SMTP avec des valeurs par défaut
         smtp_host = None
@@ -1554,6 +1602,22 @@ class InvoiceViewSet(viewsets.ModelViewSet):
 
             pdf_primary = (getattr(site_settings, 'devis_pdf_primary_color', None) or getattr(site_settings, 'primary_color', None) or '').strip() if site_settings else ''
             pdf_primary = pdf_primary or '#087A00'
+
+            # Signature
+            signature_path = None
+            if site_settings and getattr(site_settings, 'logo_signature', None):
+                try:
+                    import os, base64
+                    sig_path = site_settings.logo_signature.path
+                    if os.path.exists(sig_path):
+                        with open(sig_path, 'rb') as f:
+                            sig_data = base64.b64encode(f.read()).decode('utf-8')
+                            ext = os.path.splitext(sig_path)[1].lower()
+                            mime = 'image/png' if ext == '.png' else 'image/jpeg'
+                            signature_path = f'data:{mime};base64,{sig_data}'
+                except Exception as e:
+                    logger.error(f'Erreur signature: {e}')
+
             context = {
                 'invoice': invoice,
                 'quote_request': invoice.quote_request,
@@ -1561,25 +1625,22 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                 'today': date.today(),
                 'logo_path': logo_path,
                 'pdf_primary_color': pdf_primary,
+                'signature_path': signature_path,
             }
 
             # Générer le PDF de la facture
             result = None
             try:
-                logger.info('Génération du PDF de la facture...')
+                logger.info('Generation du PDF de la facture...')
                 html_string = render_to_string('invoice.html', context)
                 result = io.BytesIO()
-                pdf_file = pisa.pisaDocument(
-                    io.BytesIO(html_string.encode("UTF-8")),
-                    result,
-                    encoding='UTF-8'
-                )
-                
+                pdf_file = pisa.CreatePDF(html_string, dest=result)
+
                 if pdf_file.err:
-                    logger.error(f'Erreur lors de la génération du PDF: {pdf_file.err}')
+                    logger.error(f'Erreur lors de la generation du PDF: {pdf_file.err}')
                     return Response({
                         'success': False,
-                        'message': f'Erreur lors de la génération du PDF de la facture: {pdf_file.err}'
+                        'message': f'Erreur lors de la generation du PDF de la facture: {pdf_file.err}'
                     }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
                 logger.info('PDF généré avec succès')
             except Exception as e:
@@ -1782,6 +1843,8 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                     'status_updated': False,
                     'error': error_message
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except (Http404, APIException):
+            raise
         except Exception as e:
             # Catch-all pour toutes les exceptions non gérées au niveau supérieur
             error_details = traceback.format_exc()
@@ -3219,3 +3282,44 @@ class HeroContentView(generics.RetrieveUpdateAPIView):
     def get_object(self):
         obj, _ = HeroContent.objects.get_or_create(id=1)
         return obj
+
+
+class ActivityLogViewSet(viewsets.ReadOnlyModelViewSet):
+    """Journal d'activité — lecture seule, SUPERADMIN uniquement"""
+    serializer_class = ActivityLogSerializer
+    permission_classes = [IsAuthenticated]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['username', 'object_repr', 'detail', 'model_name']
+    filterset_fields = ['action', 'model_name']
+    ordering_fields = ['created_at']
+    ordering = ['-created_at']
+
+    def get_queryset(self):
+        from api.models import ActivityLog
+        user = self.request.user
+        if getattr(user, 'role', None) != 'SUPERADMIN':
+            return ActivityLog.objects.none()
+        qs = ActivityLog.objects.select_related('user').all()
+        # Filtres optionnels via query params
+        model_name = self.request.query_params.get('model_name')
+        action = self.request.query_params.get('action')
+        date_from = self.request.query_params.get('date_from')
+        date_to = self.request.query_params.get('date_to')
+        search = self.request.query_params.get('search')
+        if model_name:
+            qs = qs.filter(model_name__icontains=model_name)
+        if action:
+            qs = qs.filter(action=action)
+        if date_from:
+            qs = qs.filter(created_at__date__gte=date_from)
+        if date_to:
+            qs = qs.filter(created_at__date__lte=date_to)
+        if search:
+            from django.db.models import Q
+            qs = qs.filter(
+                Q(object_repr__icontains=search) |
+                Q(detail__icontains=search) |
+                Q(model_name__icontains=search) |
+                Q(user__username__icontains=search)
+            )
+        return qs

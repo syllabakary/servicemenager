@@ -1,7 +1,7 @@
 import os
 from rest_framework import serializers
 from django.conf import settings
-from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, QuoteLine, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile, ContactMessage, HeroContent
+from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, QuoteLine, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile, ContactMessage, HeroContent, ActivityLog
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -560,7 +560,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'quote_request', 'quote_request_id', 'invoice_number',
             'subtotal', 'tax_rate', 'tax_amount', 'total', 'currency',
-            'invoice_date', 'due_date', 'notes', 'payment_terms',
+            'status', 'invoice_date', 'due_date', 'notes', 'payment_terms',
             'client_name', 'client_email', 'service_name',
             'created_at', 'updated_at', 'created_by'
         ]
@@ -1115,3 +1115,38 @@ class HeroContentSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(obj.background_image.url)
             return obj.background_image.url
         return None
+
+
+class ActivityLogSerializer(serializers.ModelSerializer):
+    username = serializers.SerializerMethodField()
+    action_label = serializers.SerializerMethodField()
+    level_display = serializers.SerializerMethodField()
+
+    class Meta:
+        model = ActivityLog
+        fields = [
+            'id', 'user', 'username', 'action', 'action_label',
+            'level', 'level_display', 'logger_name',
+            'model_name', 'object_id', 'object_repr',
+            'detail', 'extra', 'ip_address', 'created_at'
+        ]
+        read_only_fields = fields
+
+    def get_username(self, obj):
+        if obj.user:
+            name = obj.user.get_full_name()
+            return name if name else obj.user.username
+        return "Anonyme"
+
+    def get_action_label(self, obj):
+        return obj.get_action_display()
+
+    def get_level_display(self, obj):
+        colors = {
+            'DEBUG':    'gray',
+            'INFO':     'blue',
+            'WARNING':  'orange',
+            'ERROR':    'red',
+            'CRITICAL': 'darkred',
+        }
+        return {'value': obj.level, 'color': colors.get(obj.level, 'gray')}

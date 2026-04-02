@@ -43,6 +43,7 @@ const AdminEmployes = React.lazy(() => import("@/pages/admin/Employes"));
 const EmployeDetail = React.lazy(() => import("@/pages/admin/EmployeDetail"));
 const AdminPatients = React.lazy(() => import("@/pages/admin/Patients"));
 const AdminScans = React.lazy(() => import("@/pages/admin/Scans"));
+const AdminRapportHeures = React.lazy(() => import("@/pages/admin/RapportHeures"));
 const AdminChangePassword = React.lazy(() => import("@/pages/admin/AdminChangePassword"));
 const AdminContactMessages = React.lazy(() => import("@/pages/admin/ContactMessages"));
 const AdminFactures = React.lazy(() => import("@/pages/admin/Factures"));
@@ -92,6 +93,7 @@ function Router() {
       <Route path="/admin/employe-detail" component={EmployeDetail} />
       <Route path="/admin/patients" component={AdminPatients} />
       <Route path="/admin/scans" component={AdminScans} />
+      <Route path="/admin/rapport-heures" component={AdminRapportHeures} />
       <Route path="/admin/change-password" component={AdminChangePassword} />
       <Route path="/admin/contact-messages" component={AdminContactMessages} />
       <Route path="/admin/factures" component={AdminFactures} />

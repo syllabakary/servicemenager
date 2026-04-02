@@ -450,7 +450,7 @@ export default function DevisDetail() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-gradient-to-r from-site-primary to-site-primary/80 text-white rounded-lg p-4 shadow-md"
         >
-          <h1 className="text-2xl font-bold">Devis #{quoteRequest.id}</h1>
+          <h1 className="text-2xl font-bold">Devis {quoteRequest.id}</h1>
           <p className="text-white/90 text-sm mt-1">
             Demandé le {new Date(quoteRequest.created_at).toLocaleString("fr-FR", {
               year: "numeric",
@@ -1293,7 +1293,7 @@ export default function DevisDetail() {
                     <div className="space-y-1.5 text-sm text-blue-800">
                       <p><strong>Destinataire:</strong> {quoteRequest?.client_email}</p>
                       <p><strong>Client:</strong> {quoteRequest?.client_name}</p>
-                      <p><strong>Devis #:</strong> {quoteRequest?.id}</p>
+                      <p><strong>Devis :</strong> {quoteRequest?.id}</p>
                       {quoteRequest?.service && (
                         <p><strong>Service:</strong> {typeof quoteRequest.service === 'object' ? quoteRequest.service.name : quoteRequest.service}</p>
                       )}

@@ -1197,10 +1197,10 @@ class QuoteRequestViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
             # Créer le message email
             try:
                 site_name = getattr(site_settings, 'site_name', None) if site_settings else None
-                subject = f'Devis #{quote_request.id} - {site_name or "Services Locaux"}'
+                subject = f'Devis {str(quote_request.id).zfill(4)} - {site_name or "Services Locaux"}'
             except Exception as e:
                 logger.error(f'Erreur lors de la création du sujet: {e}')
-                subject = f'Devis #{quote_request.id}'
+                subject = f'Devis {str(quote_request.id).zfill(4)}'
             
             # Corps de l'email en HTML
             try:
@@ -2747,7 +2747,344 @@ class PresenceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
                 pass  # Ignorer les dates invalides
         
         return queryset
-    
+
+    def _build_monthly_data(self, qs, debut, periode_label=None):
+        """Construit les données du rapport organisées par PATIENT, avec sous-groupes par employé."""
+        from collections import defaultdict
+
+        if not periode_label:
+            MOIS_LABELS = {
+                1: 'Janvier', 2: 'Février', 3: 'Mars', 4: 'Avril', 5: 'Mai', 6: 'Juin',
+                7: 'Juillet', 8: 'Août', 9: 'Septembre', 10: 'Octobre', 11: 'Novembre', 12: 'Décembre'
+            }
+            periode_label = f"{MOIS_LABELS[debut.month]} {debut.year}"
+
+        # Grouper par (patient, employe, date) pour avoir les paires ARRIVEE/DEPART correctes
+        groupes = defaultdict(list)
+        for p in qs:
+            date_str = p.scan_time.strftime('%d/%m/%Y')
+            key = (p.patient_id, p.employe_id, date_str)
+            groupes[key].append(p)
+
+        patients_map = {}
+        total_minutes_global = 0
+        nb_visites_global = 0
+        employes_ids = set()
+
+        for (pat_id, emp_id, date_str), scans in groupes.items():
+            arrivees = [s for s in scans if s.status == 'ARRIVEE']
+            departs = [s for s in scans if s.status == 'DEPART']
+            arrivee = arrivees[0] if arrivees else None
+            depart = departs[-1] if departs else None
+
+            ref = arrivee or depart
+            if not ref:
+                continue
+
+            patient_obj = ref.patient
+            employe_obj = ref.employe
+            fn = (employe_obj.first_name or '').strip()
+            ln = (employe_obj.last_name or '').strip()
+            if fn.lower() == ln.lower():
+                employe_nom = fn or employe_obj.username
+            else:
+                employe_nom = f"{fn} {ln}".strip() or employe_obj.username
+            employes_ids.add(emp_id)
+
+            duree_min = 0
+            if arrivee and depart:
+                delta = depart.scan_time - arrivee.scan_time
+                duree_min = max(0, int(delta.total_seconds() / 60))
+
+            h, m = divmod(duree_min, 60)
+            duree_str = f"{h}h{m:02d}" if duree_min > 0 else "—"
+
+            visite = {
+                'date': date_str,
+                'employe_id': emp_id,
+                'employe': employe_nom,
+                'heure_arrivee': arrivee.scan_time.strftime('%H:%M') if arrivee else None,
+                'heure_depart': depart.scan_time.strftime('%H:%M') if depart else None,
+                'duree_minutes': duree_min,
+                'duree_str': duree_str,
+            }
+
+            if pat_id not in patients_map:
+                patients_map[pat_id] = {
+                    'patient_id': pat_id,
+                    'patient_nom': (lambda f, l: f if f.lower() == l.lower() else f"{f} {l}".strip())(
+                        (patient_obj.first_name or '').strip(), (patient_obj.last_name or '').strip()
+                    ) or patient_obj.username,
+                    'patient_email': getattr(patient_obj, 'email', '') or '',
+                    'visites': [],
+                    'employes_map': {},  # emp_id -> {nom, visites, total_minutes}
+                    'total_minutes': 0,
+                    'nb_visites': 0,
+                }
+
+            pat = patients_map[pat_id]
+            pat['visites'].append(visite)
+            pat['total_minutes'] += duree_min
+            pat['nb_visites'] += 1
+            total_minutes_global += duree_min
+            nb_visites_global += 1
+
+            # Sous-groupe employé
+            if emp_id not in pat['employes_map']:
+                pat['employes_map'][emp_id] = {
+                    'employe_id': emp_id,
+                    'employe_nom': employe_nom,
+                    'visites': [],
+                    'total_minutes': 0,
+                }
+            pat['employes_map'][emp_id]['visites'].append(visite)
+            pat['employes_map'][emp_id]['total_minutes'] += duree_min
+
+        patients_data = []
+        for pd in patients_map.values():
+            pd['visites'].sort(key=lambda v: v['date'])
+            th, tm = divmod(pd['total_minutes'], 60)
+            pd['total_heures_str'] = f"{th}h{tm:02d}"
+
+            # Finaliser les sous-groupes employés
+            employes_list = []
+            for emp_data in pd['employes_map'].values():
+                emp_data['visites'].sort(key=lambda v: v['date'])
+                eh, em = divmod(emp_data['total_minutes'], 60)
+                emp_data['total_heures_str'] = f"{eh}h{em:02d}"
+                emp_data['nb_visites'] = len(emp_data['visites'])
+                employes_list.append(emp_data)
+            employes_list.sort(key=lambda e: e['employe_nom'])
+            pd['employes'] = employes_list
+            del pd['employes_map']
+
+            patients_data.append(pd)
+
+        patients_data.sort(key=lambda p: p['patient_nom'])
+
+        gh, gm = divmod(total_minutes_global, 60)
+        return {
+            'patients_data': patients_data,
+            'nb_patients': len(patients_map),
+            'nb_employes': len(employes_ids),
+            'nb_visites': nb_visites_global,
+            'total_minutes': total_minutes_global,
+            'total_heures_str': f"{gh}h{gm:02d}",
+            'mois_label': periode_label,
+        }
+
+    def _get_period(self, mois_str=None, date_debut_str=None, date_fin_str=None):
+        from datetime import datetime, timezone as dt_tz
+        import calendar
+        today = datetime.now(tz=dt_tz.utc)
+
+        # Intervalle personnalisé
+        if date_debut_str and date_fin_str:
+            try:
+                debut = datetime.strptime(date_debut_str, '%Y-%m-%d').replace(tzinfo=dt_tz.utc)
+                fin = datetime.strptime(date_fin_str, '%Y-%m-%d').replace(hour=23, minute=59, second=59, tzinfo=dt_tz.utc)
+                return debut, fin, today, f"{debut.strftime('%d/%m/%Y')} — {fin.strftime('%d/%m/%Y')}"
+            except ValueError:
+                pass
+
+        # Mois YYYY-MM
+        if mois_str:
+            try:
+                debut = datetime.strptime(mois_str, '%Y-%m').replace(day=1, tzinfo=dt_tz.utc)
+            except ValueError:
+                debut = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        else:
+            debut = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+
+        last_day = calendar.monthrange(debut.year, debut.month)[1]
+        fin = debut.replace(day=last_day, hour=23, minute=59, second=59)
+        MOIS_LABELS = {
+            1:'Janvier',2:'Février',3:'Mars',4:'Avril',5:'Mai',6:'Juin',
+            7:'Juillet',8:'Août',9:'Septembre',10:'Octobre',11:'Novembre',12:'Décembre'
+        }
+        label = f"{MOIS_LABELS[debut.month]} {debut.year}"
+        return debut, fin, today, label
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def monthly_report(self, request):
+        """Rapport des heures par patient — JSON ou PDF — supporte mois ou intervalle date_debut/date_fin"""
+        mois = request.query_params.get('mois')
+        date_debut_str = request.query_params.get('date_debut')
+        date_fin_str = request.query_params.get('date_fin')
+        patient_id = request.query_params.get('patient')
+        format_out = request.query_params.get('output', request.query_params.get('format', 'json'))
+
+        debut, fin, today, periode_label = self._get_period(mois, date_debut_str, date_fin_str)
+        user = request.user
+
+        qs = Presence.objects.select_related('patient', 'employe').filter(
+            scan_time__gte=debut, scan_time__lte=fin
+        ).order_by('patient', 'scan_time')
+
+        if not (user.is_superadmin or user.is_admin):
+            qs = qs.filter(employe=user)
+
+        if patient_id:
+            qs = qs.filter(patient_id=int(patient_id))
+
+        data = self._build_monthly_data(qs, debut, periode_label)
+
+        if format_out == 'pdf':
+            return self._generate_pdf(data, debut, periode_label)
+
+        return Response({
+            'mois': mois or debut.strftime('%Y-%m'),
+            'date_debut': debut.strftime('%Y-%m-%d'),
+            'date_fin': fin.strftime('%Y-%m-%d'),
+            **data,
+        })
+
+    def _load_image_b64(self, image_field):
+        """Charge une image depuis un FileField et retourne une data URI base64."""
+        import os, base64
+        try:
+            if not image_field:
+                return None
+            path = image_field.path
+            if not os.path.exists(path):
+                return None
+            with open(path, 'rb') as f:
+                data = base64.b64encode(f.read()).decode('utf-8')
+            ext = os.path.splitext(path)[1].lower()
+            mime = 'image/png' if ext == '.png' else 'image/jpeg'
+            return f'data:{mime};base64,{data}'
+        except Exception:
+            return None
+
+    def _generate_pdf(self, data, debut, periode_label=None):
+        from xhtml2pdf import pisa
+        from django.template.loader import render_to_string
+        from django.http import HttpResponse
+        from io import BytesIO
+        from datetime import datetime
+
+        try:
+            site_settings = SiteSettings.objects.first()
+        except Exception:
+            site_settings = None
+
+        logo_path = self._load_image_b64(getattr(site_settings, 'logo', None)) if site_settings else None
+        logo_secondary_path = self._load_image_b64(getattr(site_settings, 'logo_secondary', None)) if site_settings else None
+        logo_signature_path = self._load_image_b64(getattr(site_settings, 'logo_signature', None)) if site_settings else None
+
+        pdf_primary = '#087A00'
+        if site_settings:
+            pdf_primary = (getattr(site_settings, 'devis_pdf_primary_color', None) or getattr(site_settings, 'primary_color', None) or '').strip() or '#087A00'
+
+        context = {
+            **data,
+            'mois_label': periode_label or data.get('mois_label', ''),
+            'date_generation': datetime.now().strftime('%d/%m/%Y'),
+            'site_settings': site_settings,
+            'logo_path': logo_path,
+            'logo_secondary_path': logo_secondary_path,
+            'logo_signature_path': logo_signature_path,
+            'pdf_primary_color': pdf_primary,
+        }
+
+        html = render_to_string('monthly_report.html', context)
+        buffer = BytesIO()
+        pisa.CreatePDF(html, dest=buffer, encoding='utf-8')
+        buffer.seek(0)
+        filename = f"rapport-heures-{debut.strftime('%Y-%m-%d')}.pdf"
+        response = HttpResponse(buffer.read(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
+    def send_monthly_report(self, request):
+        """Envoie le rapport mensuel par email au patient"""
+        from xhtml2pdf import pisa
+        from django.template.loader import render_to_string
+        from io import BytesIO
+        import smtplib
+        from email.mime.multipart import MIMEMultipart
+        from email.mime.text import MIMEText
+        from email.mime.base import MIMEBase
+        from email import encoders
+
+        mois = request.data.get('mois')
+        date_debut_str = request.data.get('date_debut')
+        date_fin_str = request.data.get('date_fin')
+        patient_id = request.data.get('patient_id')
+        email_dest = request.data.get('email')
+
+        if not patient_id:
+            return Response({'error': 'patient_id requis'}, status=400)
+
+        debut, fin, today, periode_label = self._get_period(mois, date_debut_str, date_fin_str)
+
+        qs = Presence.objects.select_related('patient', 'employe').filter(
+            scan_time__gte=debut, scan_time__lte=fin,
+            patient_id=patient_id
+        ).order_by('patient', 'scan_time')
+
+        data = self._build_monthly_data(qs, debut, periode_label)
+
+        if not data['patients_data']:
+            return Response({'error': 'Aucune donnée pour ce patient ce mois-ci'}, status=404)
+
+        patient_data = data['patients_data'][0]
+        dest_email = email_dest or patient_data.get('patient_email', '')
+        if not dest_email:
+            return Response({'error': 'Aucun email pour ce patient'}, status=400)
+
+        # Générer le PDF via _generate_pdf
+        pdf_response = self._generate_pdf(data, debut, data.get('mois_label'))
+        pdf_bytes = pdf_response.content
+
+        # Envoyer l'email
+        try:
+            smtp_host = getattr(site_settings, 'smtp_host', None) if site_settings else None
+            smtp_port = getattr(site_settings, 'smtp_port', 587) if site_settings else 587
+            smtp_use_tls = getattr(site_settings, 'smtp_use_tls', True) if site_settings else True
+            smtp_username = getattr(site_settings, 'smtp_username', None) if site_settings else None
+            smtp_password = getattr(site_settings, 'smtp_password', None) if site_settings else None
+            site_name = getattr(site_settings, 'site_name', 'EASE-DOM') if site_settings else 'EASE-DOM'
+
+            if not smtp_host or not smtp_username:
+                return Response({'error': 'SMTP non configuré dans les paramètres'}, status=500)
+
+            msg = MIMEMultipart()
+            msg['From'] = smtp_username
+            msg['To'] = dest_email
+            msg['Subject'] = f"{site_name} — Rapport heures {data['mois_label']}"
+
+            body = f"""Bonjour {patient_data['patient_nom']},
+
+Veuillez trouver ci-joint votre rapport des heures de prestations pour le mois de {data['mois_label']}.
+
+Récapitulatif :
+- Nombre de visites : {patient_data['nb_visites']}
+- Total heures effectuées : {patient_data['total_heures_str']}
+
+Cordialement,
+{site_name}"""
+
+            msg.attach(MIMEText(body, 'plain'))
+
+            part = MIMEBase('application', 'octet-stream')
+            part.set_payload(pdf_bytes)
+            encoders.encode_base64(part)
+            part.add_header('Content-Disposition', f'attachment; filename="rapport-heures-{debut.strftime("%Y-%m")}.pdf"')
+            msg.attach(part)
+
+            with smtplib.SMTP(smtp_host, smtp_port, timeout=30) as server:
+                if smtp_use_tls:
+                    server.starttls()
+                server.login(smtp_username, smtp_password)
+                server.sendmail(smtp_username, dest_email, msg.as_string())
+
+            return Response({'success': True, 'message': f'Rapport envoyé à {dest_email}'})
+
+        except Exception as e:
+            return Response({'error': f'Erreur envoi email: {str(e)}'}, status=500)
+
     @action(detail=False, methods=['post'], permission_classes=[IsEmploye])
     def scan_qr_code(self, request):
         """Endpoint pour scanner un QR code (arrivée ou départ)"""

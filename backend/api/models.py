@@ -716,7 +716,7 @@ class QuoteRequest(models.Model):
         ]
     
     def __str__(self):
-        return f"Devis #{self.id} - {self.client_name} - {self.service.name}"
+        return f"Devis {self.id} - {self.client_name} - {self.service.name}"
 
 
 class QuoteLine(models.Model):
@@ -942,8 +942,26 @@ class Invoice(models.Model):
         QuoteRequest,
         on_delete=models.CASCADE,
         related_name='invoice',
+        null=True,
+        blank=True,
         verbose_name="Demande de devis",
-        help_text="Devis associé à cette facture"
+        help_text="Devis associé à cette facture (optionnel)"
+    )
+    patient = models.ForeignKey(
+        'Patient',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='invoices',
+        verbose_name="Patient",
+        help_text="Patient directement associé (si pas de devis)"
+    )
+    client_name_libre = models.CharField(
+        max_length=200,
+        blank=True,
+        null=True,
+        verbose_name="Nom client (libre)",
+        help_text="Nom du client si pas de devis ni patient"
     )
     invoice_number = models.CharField(
         max_length=50,
@@ -1052,9 +1070,23 @@ class Invoice(models.Model):
             models.Index(fields=['-invoice_date']),
         ]
     
+    def get_client_name(self):
+        if self.quote_request:
+            return self.quote_request.client_name
+        if self.patient:
+            return f"{self.patient.first_name} {self.patient.last_name}"
+        return self.client_name_libre or "—"
+
+    def get_client_email(self):
+        if self.quote_request:
+            return self.quote_request.client_email
+        if self.patient:
+            return self.patient.email or ""
+        return ""
+
     def __str__(self):
-        return f"Facture {self.invoice_number} - {self.quote_request.client_name}"
-    
+        return f"Facture {self.invoice_number} - {self.get_client_name()}"
+
     def save(self, *args, **kwargs):
         # Générer automatiquement le numéro de facture s'il n'existe pas
         if not self.invoice_number:
@@ -1062,7 +1094,6 @@ class Invoice(models.Model):
             import re
             year = timezone.now().year
             prefix = f"FACT-{year}-"
-            # Prendre le numéro séquentiel le plus élevé existant pour cette année
             existing = Invoice.objects.filter(invoice_number__startswith=prefix).values_list('invoice_number', flat=True)
             max_seq = 0
             for num in existing:
@@ -1070,7 +1101,7 @@ class Invoice(models.Model):
                 if match:
                     max_seq = max(max_seq, int(match.group(1)))
             self.invoice_number = f"{prefix}{max_seq + 1:04d}"
-        
+
         # Si le subtotal est 0 et qu'on a un quote_request, essayer de récupérer le prix du service
         if self.subtotal == 0 and self.quote_request and self.quote_request.service:
             if self.quote_request.service.price_per_hour:

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Rapport des heures — {{ mois_label }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { font-family: Arial, Helvetica, sans-serif; font-size: 9.5px; color: #222; background: #fff; }
+        .page { width: 210mm; padding: 13mm 13mm 10mm 13mm; }
+
+        /* EN-TÊTE */
+        .header { width: 100%; border-collapse: collapse; margin-bottom: 12px; border-bottom: 2px solid {{ pdf_primary_color|default:"#087A00" }}; padding-bottom: 8px; }
+        .company-name { font-size: 14px; font-weight: bold; color: {{ pdf_primary_color|default:"#087A00" }}; }
+        .company-sub  { font-size: 8px; color: #666; }
+
+        /* TITRE */
+        .rapport-title { text-align: center; font-size: 13px; font-weight: bold; font-style: italic; text-decoration: underline; color: {{ pdf_primary_color|default:"#087A00" }}; margin: 10px 0 4px 0; }
+        .rapport-sub   { text-align: center; font-size: 8.5px; color: #666; margin-bottom: 12px; }
+
+        /* SECTION */
+        .section-title { font-size: 9px; font-weight: bold; color: {{ pdf_primary_color|default:"#087A00" }}; border-bottom: 2px solid {{ pdf_primary_color|default:"#087A00" }}; padding-bottom: 2px; margin: 12px 0 6px 0; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* RÉSUMÉ */
+        .summary-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 9px; }
+        .summary-table td { border: 1px solid #ccc; padding: 5px 8px; }
+        .summary-table .lbl { background: #f4f4f4; font-weight: bold; width: 38%; }
+        .summary-table .val { text-align: right; }
+        .summary-table .val-big { text-align: right; font-weight: bold; color: {{ pdf_primary_color|default:"#087A00" }}; font-size: 12px; }
+
+        /* TABLEAU PRINCIPAL */
+        .main-table { width: 100%; border-collapse: collapse; font-size: 9px; margin-bottom: 14px; }
+
+        /* Ligne patient */
+        .row-patient td { background: {{ pdf_primary_color|default:"#087A00" }}; color: white; padding: 6px 10px; }
+        .row-patient .pat-name { font-size: 11px; font-weight: bold; }
+        .row-patient .pat-meta { font-size: 8px; opacity: 0.9; }
+
+        /* Ligne employé */
+        .row-employe td { background: #f0fdf4; border-left: 4px solid {{ pdf_primary_color|default:"#087A00" }}; padding: 4px 8px; font-weight: bold; color: #155724; font-size: 9.5px; }
+        .row-employe .emp-right { text-align: right; font-size: 8.5px; color: {{ pdf_primary_color|default:"#087A00" }}; border-left: none; }
+
+        /* En-tête colonnes */
+        .row-thead td { background: {{ pdf_primary_color|default:"#087A00" }}; color: white; padding: 4px 8px; font-weight: bold; font-size: 8.5px; }
+        .row-thead .col-right { text-align: right; }
+
+        /* Lignes de visites */
+        .row-visit td { padding: 4px 8px; border-bottom: 1px solid #eee; }
+        .row-visit-alt td { padding: 4px 8px; border-bottom: 1px solid #eee; background: #fafafa; }
+        .col-right { text-align: right; }
+
+        /* Sous-total employé */
+        .row-subtotal td { background: #e8f5e9; padding: 4px 8px; font-weight: bold; color: #155724; border-top: 1.5px solid {{ pdf_primary_color|default:"#087A00" }}; }
+        .row-subtotal .col-right { text-align: right; }
+
+        /* Total patient */
+        .row-total td { background: {{ pdf_primary_color|default:"#087A00" }}; color: white; padding: 6px 10px; font-weight: bold; font-size: 10px; }
+        .row-total .col-right { text-align: right; }
+
+        /* Pied */
+        .footer-info { font-size: 7.5px; color: #777; margin-top: 16px; padding-top: 5px; border-top: 1px solid #ddd; line-height: 1.8; }
+    </style>
+</head>
+<body>
+<div class="page">
+
+    <!-- EN-TÊTE -->
+    <table style="width:100%; border-collapse:collapse; margin-bottom:12px; border-bottom:2px solid {{ pdf_primary_color|default:'#087A00' }}; padding-bottom:8px;">
+        <tr>
+            <td style="width:28%; vertical-align:middle;">
+                {% if logo_path %}<img src="{{ logo_path }}" alt="Logo" width="80" />{% endif %}
+            </td>
+            <td style="width:44%; vertical-align:middle; text-align:center;">
+                <div class="company-name">{{ site_settings.site_name|default:"" }}</div>
+                {% if site_settings.site_tagline %}<div class="company-sub">{{ site_settings.site_tagline }}</div>{% endif %}
+            </td>
+            <td style="width:28%; vertical-align:middle; text-align:right;">
+                {% if logo_secondary_path %}<img src="{{ logo_secondary_path }}" alt="Partenaire" width="70" />{% endif %}
+            </td>
+        </tr>
+    </table>
+
+    <!-- TITRE -->
+    <p class="rapport-title">RAPPORT MENSUEL DES HEURES</p>
+    <p class="rapport-sub">Période : {{ mois_label }} &nbsp;|&nbsp; Généré le {{ date_generation }}</p>
+
+    <!-- RÉSUMÉ -->
+    <div class="section-title">Résumé de la période</div>
+    <table class="summary-table">
+        <tr>
+            <td class="lbl">Nombre de patients</td><td class="val">{{ nb_patients }}</td>
+            <td class="lbl">Nombre de visites</td><td class="val">{{ nb_visites }}</td>
+        </tr>
+        <tr>
+            <td class="lbl">Employés intervenus</td><td class="val">{{ nb_employes }}</td>
+            <td class="lbl">Total heures effectuées</td><td class="val-big">{{ total_heures_str }}</td>
+        </tr>
+    </table>
+
+    <!-- DÉTAIL PAR PATIENT -->
+    <div class="section-title">Détail par patient</div>
+
+    {% for pat in patients_data %}
+    <table class="main-table">
+
+        <!-- Entête patient -->
+        <tr class="row-patient">
+            <td colspan="4">
+                <div class="pat-name">{{ pat.patient_nom }}</div>
+                <div class="pat-meta">{{ pat.employes|length }} employé(s) &nbsp;|&nbsp; {{ pat.nb_visites }} visite(s) &nbsp;|&nbsp; Total : {{ pat.total_heures_str }}{% if pat.patient_email %} &nbsp;|&nbsp; {{ pat.patient_email }}{% endif %}</div>
+            </td>
+        </tr>
+
+        {% for emp in pat.employes %}
+        <!-- Employé -->
+        <tr class="row-employe">
+            <td colspan="3">{{ emp.employe_nom }}</td>
+            <td class="emp-right">{{ emp.nb_visites }} visite(s) &nbsp;|&nbsp; {{ emp.total_heures_str }}</td>
+        </tr>
+        <!-- Colonnes -->
+        <tr class="row-thead">
+            <td style="width:30%">Date</td>
+            <td style="width:23%">Arrivée</td>
+            <td style="width:23%">Départ</td>
+            <td class="col-right" style="width:24%">Durée</td>
+        </tr>
+        <!-- Visites -->
+        {% for v in emp.visites %}
+        {% if forloop.counter|divisibleby:2 %}
+        <tr class="row-visit-alt">
+        {% else %}
+        <tr class="row-visit">
+        {% endif %}
+            <td>{{ v.date }}</td>
+            <td>{{ v.heure_arrivee|default:"—" }}</td>
+            <td>{{ v.heure_depart|default:"—" }}</td>
+            <td class="col-right">{{ v.duree_str }}</td>
+        </tr>
+        {% empty %}
+        <tr class="row-visit"><td colspan="4" style="text-align:center;color:#999;">Aucune visite</td></tr>
+        {% endfor %}
+        <!-- Sous-total employé -->
+        <tr class="row-subtotal">
+            <td colspan="3">Sous-total {{ emp.employe_nom }}</td>
+            <td class="col-right">{{ emp.total_heures_str }}</td>
+        </tr>
+        {% endfor %}
+
+        <!-- Total patient -->
+        <tr class="row-total">
+            <td colspan="3">TOTAL HEURES CUMULÉES</td>
+            <td class="col-right">{{ pat.total_heures_str }}</td>
+        </tr>
+
+    </table>
+    {% endfor %}
+
+    <!-- SIGNATURE -->
+    {% if logo_signature_path %}
+    <div style="text-align:center; margin:12px 0 6px 0;">
+        <img src="{{ logo_signature_path }}" alt="Signature" width="180" />
+    </div>
+    {% endif %}
+
+    <!-- PIED DE PAGE -->
+    <div class="footer-info">
+        {% if site_settings.siret %}<span>SIRET : {{ site_settings.siret }}</span>{% endif %}
+        {% if site_settings.code_ape %} &nbsp;|&nbsp; <span>Code APE : {{ site_settings.code_ape }}</span>{% endif %}
+        {% if site_settings.num_tva %}<br/><span>N° TVA : {{ site_settings.num_tva }}</span>{% endif %}
+        {% if site_settings.forme_juridique %} &nbsp;|&nbsp; <span>{{ site_settings.forme_juridique }}</span>{% endif %}
+    </div>
+
+</div>
+</body>
+</html>

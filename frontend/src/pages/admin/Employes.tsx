@@ -523,7 +523,7 @@ export default function AdminEmployes() {
       if (!formData.first_name?.trim()) missing.push("Prénom");
       if (!formData.last_name?.trim()) missing.push("Nom");
       if (!formData.email?.trim()) missing.push("Email");
-      if (!formData.matricule?.trim()) missing.push("Matricule");
+      if (!editingEmploye && !formData.matricule?.trim()) missing.push("Matricule");
       if (!editingEmploye && !formData.password?.trim()) missing.push("Mot de passe");
       if (missing.length > 0) {
         toast({
@@ -559,10 +559,10 @@ export default function AdminEmployes() {
     e.preventDefault();
     
     // Validation des champs requis à la soumission finale
-    if (!formData.email || !formData.first_name || !formData.last_name || !formData.matricule) {
+    if (!formData.email || !formData.first_name || !formData.last_name || (!editingEmploye && !formData.matricule)) {
       toast({
         title: "❌ Champs requis manquants",
-        description: "Veuillez remplir tous les champs obligatoires (Email, Prénom, Nom, Matricule).",
+        description: "Veuillez remplir tous les champs obligatoires (Email, Prénom, Nom" + (!editingEmploye ? ", Matricule" : "") + ").",
         variant: "destructive",
       });
       setCurrentStep(1);
@@ -840,17 +840,17 @@ export default function AdminEmployes() {
                           </div>
                           <div className="grid grid-cols-2 gap-4 mt-4">
                             <div className="space-y-2">
-                              <Label htmlFor="matricule">Matricule *</Label>
+                              <Label htmlFor="matricule">{editingEmploye ? "Matricule" : "Matricule *"}</Label>
                               <Input
                                 id="matricule"
                                 name="matricule"
                                 value={formData.matricule || ""}
                                 onChange={(e) => updateField("matricule", e.target.value)}
-                                required
                                 placeholder="Ex: EMP001"
-                                className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
+                                disabled={!!editingEmploye}
+                                className={`h-11 border-gray-300 focus:border-site-primary focus:ring-site-primary ${editingEmploye ? "bg-gray-100 text-gray-500 cursor-not-allowed" : "bg-white"}`}
                               />
-                              <p className="text-xs text-gray-500">Le matricule doit être unique et sera utilisé pour la connexion</p>
+                              <p className="text-xs text-gray-500">{editingEmploye ? "Le matricule ne peut pas être modifié" : "Le matricule doit être unique et sera utilisé pour la connexion"}</p>
                             </div>
                             <div className="space-y-2">
                               <Label htmlFor="password">

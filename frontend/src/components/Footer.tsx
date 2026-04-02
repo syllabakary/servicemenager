@@ -1,6 +1,6 @@
 import { Link } from "wouter";
 import { useQuery } from "@tanstack/react-query";
-import { FaHome, FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaMapMarkerAlt, FaPhone, FaEnvelope } from "react-icons/fa";
+import { FaHome, FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaMapMarkerAlt, FaPhone, FaMobileAlt, FaEnvelope } from "react-icons/fa";
 import { API_URL } from "@/config/api";
 
 const currentYear = new Date().getFullYear();
@@ -20,17 +20,32 @@ export default function Footer() {
     },
   });
 
+  // Récupérer les 5 premiers services actifs
+  const { data: servicesData } = useQuery({
+    queryKey: ["footer_services"],
+    queryFn: async () => {
+      try {
+        const response = await fetch(`${API_URL}/services/?is_active=true&limit=5`);
+        const data = await response.json();
+        return data.results || data || [];
+      } catch {
+        return [];
+      }
+    },
+  });
+
   // Parser les données JSON ou utiliser les valeurs par défaut
   let footerInfo = {
     address: "Abidjan, Côte d'Ivoire",
     phone: "+225 01 23 45 67 89",
+    mobile: "",
     email: "contact@serviceslocaux.ci",
     facebook: "https://facebook.com",
     twitter: "https://twitter.com",
     instagram: "https://instagram.com",
     linkedin: "https://linkedin.com",
     description: "Votre partenaire de confiance pour tous vos besoins de services à domicile.",
-    copyright: "EASE - DOM", // marque par défaut
+    copyright: "EASE - DOM",
   };
 
   if (footerData?.body) {
@@ -40,6 +55,8 @@ export default function Footer() {
       // Si ce n'est pas du JSON valide, utiliser les valeurs par défaut
     }
   }
+
+  const services: any[] = Array.isArray(servicesData) ? servicesData.slice(0, 5) : [];
 
   return (
     <footer className="bg-site-footer-bg border-t border-site-footer-border overflow-x-hidden w-full max-w-full">
@@ -107,26 +124,28 @@ export default function Footer() {
       <div>
         <h3 className="font-semibold text-site-footer-text mb-4">Services</h3>
         <ul className="space-y-2">
-          <li>
-            <Link href="/services" className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
-              Ménage à domicile
-            </Link>
-          </li>
-          <li>
-            <Link href="/services" className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
-              Garde d'enfants
-            </Link>
-          </li>
-          <li>
-            <Link href="/services" className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
-              Jardinage
-            </Link>
-          </li>
-          <li>
-            <Link href="/services" className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
-              Tous les services
-            </Link>
-          </li>
+          {services.length > 0 ? (
+            <>
+              {services.map((s: any) => (
+                <li key={s.id}>
+                  <Link href={`/services/${s.slug || s.id}`} className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
+                    {s.name}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <Link href="/services" className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm font-medium">
+                  Tous les services →
+                </Link>
+              </li>
+            </>
+          ) : (
+            <li>
+              <Link href="/services" className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
+                Tous les services
+              </Link>
+            </li>
+          )}
         </ul>
       </div>
 
@@ -160,12 +179,28 @@ export default function Footer() {
             <FaMapMarkerAlt className="w-4 h-4 mt-0.5 text-site-footer-link flex-shrink-0" />
             <span className="text-site-footer-text text-sm">{footerInfo.address}</span>
           </li>
-          <li className="flex items-start gap-2">
-            <FaPhone className="w-4 h-4 mt-0.5 text-site-footer-link flex-shrink-0" />
-            <a href={`tel:${footerInfo.phone.replace(/\s/g, "")}`} className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
-              {footerInfo.phone}
-            </a>
-          </li>
+          {footerInfo.phone && (
+            <li className="flex items-start gap-2">
+              <FaPhone className="w-4 h-4 mt-0.5 text-site-footer-link flex-shrink-0" />
+              <div className="flex flex-col">
+                <span className="text-site-footer-text text-xs font-medium uppercase tracking-wide opacity-70">Tél</span>
+                <a href={`tel:${footerInfo.phone.replace(/\s/g, "")}`} className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
+                  {footerInfo.phone}
+                </a>
+              </div>
+            </li>
+          )}
+          {footerInfo.mobile && (
+            <li className="flex items-start gap-2">
+              <FaMobileAlt className="w-4 h-4 mt-0.5 text-site-footer-link flex-shrink-0" />
+              <div className="flex flex-col">
+                <span className="text-site-footer-text text-xs font-medium uppercase tracking-wide opacity-70">Mobile</span>
+                <a href={`tel:${footerInfo.mobile.replace(/\s/g, "")}`} className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">
+                  {footerInfo.mobile}
+                </a>
+              </div>
+            </li>
+          )}
           <li className="flex items-start gap-2">
             <FaEnvelope className="w-4 h-4 mt-0.5 text-site-footer-link flex-shrink-0" />
             <a href={`mailto:${footerInfo.email}`} className="text-site-footer-text hover:text-site-footer-link-hover transition-colors text-sm">

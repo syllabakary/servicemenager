@@ -1290,7 +1290,7 @@ export default function AdminDevis() {
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold text-gray-900">
-                Détails de la demande de devis #{selectedRequest?.id}
+                Détails de la demande de devis {selectedRequest?.id}
               </DialogTitle>
               <DialogDescription>
                 Informations complètes renseignées par le client

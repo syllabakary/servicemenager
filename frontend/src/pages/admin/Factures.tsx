@@ -58,7 +58,20 @@ function StatusBadge({ status }: { status: string }) {
 function CreateFactureDialog({ open, onClose, devis }: { open: boolean; onClose: () => void; devis: any[] }) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [form, setForm] = useState({ quote_request: "", subtotal: "", tax_rate: "0", notes: "", payment_terms: "30" });
+  const [mode, setMode] = useState<"devis" | "libre">("devis");
+  const [form, setForm] = useState({
+    quote_request: "", patient: "", client_name_libre: "",
+    subtotal: "", tax_rate: "0", notes: "", payment_terms: "30",
+  });
+
+  // Charger les patients pour la facture libre
+  const { data: patients } = useQuery({
+    queryKey: ["patients-facture"],
+    queryFn: async () => {
+      const res = await axios.get(`${API_URL}/patients/?limit=200`, { headers: authHeader() });
+      return res.data.results || res.data || [];
+    },
+  });
 
   const disponibles = devis.filter((d: any) => !d.invoice);
 
@@ -67,20 +80,27 @@ function CreateFactureDialog({ open, onClose, devis }: { open: boolean; onClose:
       const sub = parseFloat(form.subtotal) || 0;
       const tva = parseFloat(form.tax_rate) || 0;
       const today = new Date().toISOString().split("T")[0];
-      await axios.post(`${API_URL}/invoices/`, {
-        quote_request: parseInt(form.quote_request),
+      const payload: any = {
         subtotal: sub,
         tax_rate: tva,
         notes: form.notes,
         payment_terms: form.payment_terms,
         invoice_date: today,
-      }, { headers: authHeader() });
+      };
+      if (mode === "devis" && form.quote_request) {
+        payload.quote_request = parseInt(form.quote_request);
+      } else {
+        if (form.patient) payload.patient = parseInt(form.patient);
+        if (form.client_name_libre) payload.client_name_libre = form.client_name_libre;
+      }
+      await axios.post(`${API_URL}/invoices/`, payload, { headers: authHeader() });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-invoices"] });
       toast({ title: "Facture créée" });
       onClose();
-      setForm({ quote_request: "", subtotal: "", tax_rate: "0", notes: "", payment_terms: "30" });
+      setForm({ quote_request: "", patient: "", client_name_libre: "", subtotal: "", tax_rate: "0", notes: "", payment_terms: "30" });
+      setMode("devis");
     },
     onError: (err: any) => {
       toast({ title: "Erreur", description: err.response?.data?.detail || JSON.stringify(err.response?.data) || "Erreur", variant: "destructive" });
@@ -96,6 +116,11 @@ function CreateFactureDialog({ open, onClose, devis }: { open: boolean; onClose:
     setForm(f => ({ ...f, quote_request: id, subtotal: d ? String(d.final_price || d.calculated_price || "") : "" }));
   };
 
+  const isValid = form.subtotal && (
+    mode === "devis" ? (form.quote_request && form.quote_request !== "none") :
+    (form.patient || form.client_name_libre)
+  );
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-lg">
@@ -104,31 +129,87 @@ function CreateFactureDialog({ open, onClose, devis }: { open: boolean; onClose:
             <FaFileInvoiceDollar className="text-site-primary" /> Nouvelle facture
           </DialogTitle>
           <DialogDescription>
-            Sélectionnez un devis et renseignez les informations de facturation.
+            Créez une facture liée à un devis ou directement à un patient.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-2">
-          <div>
-            <Label className="text-sm font-medium">Devis associé *</Label>
-            {disponibles.length === 0 ? (
-              <p className="text-sm text-orange-500 mt-1">Tous les devis ont déjà une facture.</p>
-            ) : (
-              <Select value={form.quote_request || "none"} onValueChange={handleDevisChange}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Sélectionner un devis..." /></SelectTrigger>
-                <SelectContent>
-                  {disponibles.map((d: any) => (
-                    <SelectItem key={d.id} value={String(d.id)}>
-                      #{d.id} — {d.client_name}{d.service_name ? ` — ${d.service_name}` : ""}
-                      {` (${parseFloat(d.final_price ?? d.calculated_price ?? 0).toFixed(2)} €)`}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-            {selectedDevis && (
-              <p className="text-xs text-gray-500 mt-1">Service : {selectedDevis.service_name || "Non renseigné"}</p>
-            )}
+
+          {/* Choix du mode */}
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant={mode === "devis" ? "default" : "outline"}
+              size="sm"
+              className={mode === "devis" ? "bg-site-primary text-white" : ""}
+              onClick={() => setMode("devis")}
+            >
+              Lié à un devis
+            </Button>
+            <Button
+              type="button"
+              variant={mode === "libre" ? "default" : "outline"}
+              size="sm"
+              className={mode === "libre" ? "bg-site-primary text-white" : ""}
+              onClick={() => setMode("libre")}
+            >
+              Facture libre (sans devis)
+            </Button>
           </div>
+
+          {/* Mode devis */}
+          {mode === "devis" && (
+            <div>
+              <Label className="text-sm font-medium">Devis associé *</Label>
+              {disponibles.length === 0 ? (
+                <p className="text-sm text-orange-500 mt-1">Tous les devis ont déjà une facture.</p>
+              ) : (
+                <Select value={form.quote_request || "none"} onValueChange={handleDevisChange}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Sélectionner un devis..." /></SelectTrigger>
+                  <SelectContent>
+                    {disponibles.map((d: any) => (
+                      <SelectItem key={d.id} value={String(d.id)}>
+                        #{d.id} — {d.client_name}{d.service_name ? ` — ${d.service_name}` : ""}
+                        {` (${parseFloat(d.final_price ?? d.calculated_price ?? 0).toFixed(2)} €)`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+              {selectedDevis && (
+                <p className="text-xs text-gray-500 mt-1">Service : {selectedDevis.service_name || "Non renseigné"}</p>
+              )}
+            </div>
+          )}
+
+          {/* Mode libre */}
+          {mode === "libre" && (
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm font-medium">Patient *</Label>
+                <Select value={form.patient || "none"} onValueChange={(v) => setForm(f => ({ ...f, patient: v === "none" ? "" : v, client_name_libre: "" }))}>
+                  <SelectTrigger className="mt-1"><SelectValue placeholder="Sélectionner un patient..." /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">— Sélectionner —</SelectItem>
+                    {(patients || []).map((p: any) => (
+                      <SelectItem key={p.id} value={String(p.id)}>
+                        {p.first_name} {p.last_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {!form.patient && (
+                <div>
+                  <Label className="text-sm font-medium text-gray-500">Ou nom client libre</Label>
+                  <Input className="mt-1" value={form.client_name_libre}
+                    onChange={(e) => setForm(f => ({ ...f, client_name_libre: e.target.value }))}
+                    placeholder="Nom du client..." />
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Montants */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label className="text-sm font-medium">Montant HT (€) *</Label>
@@ -164,7 +245,7 @@ function CreateFactureDialog({ open, onClose, devis }: { open: boolean; onClose:
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Annuler</Button>
           <Button onClick={() => createMutation.mutate()}
-            disabled={!form.quote_request || form.quote_request === "none" || !form.subtotal || createMutation.isPending}
+            disabled={!isValid || createMutation.isPending}
             className="bg-site-primary text-white">
             {createMutation.isPending ? "Création..." : "Créer"}
           </Button>
@@ -471,7 +552,7 @@ function FactureRow({ inv, onUpdate, onDelete }: { inv: any; onUpdate: (id: numb
         <TableCell className="text-sm">{inv.client_name || "—"}</TableCell>
         <TableCell className="text-sm">
           <Link href={`/admin/devis/${inv.quote_request}`} className="text-blue-600 hover:underline text-xs">
-            Devis #{inv.quote_request}
+            Devis {inv.quote_request}
           </Link>
         </TableCell>
         <TableCell className="text-sm text-gray-600">{dateStr}</TableCell>

@@ -586,17 +586,40 @@ class QuoteRequestSerializer(serializers.ModelSerializer):
 
 class InvoiceSerializer(serializers.ModelSerializer):
     """Serializer pour Invoice"""
-    quote_request_id = serializers.IntegerField(source='quote_request.id', read_only=True)
-    client_name = serializers.CharField(source='quote_request.client_name', read_only=True)
-    client_email = serializers.CharField(source='quote_request.client_email', read_only=True)
-    service_name = serializers.CharField(source='quote_request.service.name', read_only=True)
+    quote_request_id = serializers.SerializerMethodField()
+    client_name = serializers.SerializerMethodField()
+    client_email = serializers.SerializerMethodField()
+    service_name = serializers.SerializerMethodField()
+    patient_name = serializers.SerializerMethodField()
     tax_amount = serializers.DecimalField(max_digits=10, decimal_places=2, required=False, default=0)
     total = serializers.DecimalField(max_digits=10, decimal_places=2, required=False, default=0)
+
+    def get_quote_request_id(self, obj):
+        return obj.quote_request.id if obj.quote_request else None
+
+    def get_client_name(self, obj):
+        return obj.get_client_name()
+
+    def get_client_email(self, obj):
+        return obj.get_client_email()
+
+    def get_service_name(self, obj):
+        if obj.quote_request and obj.quote_request.service:
+            return obj.quote_request.service.name
+        return None
+
+    def get_patient_name(self, obj):
+        if obj.patient:
+            return f"{obj.patient.first_name} {obj.patient.last_name}"
+        if obj.quote_request and obj.quote_request.client_name:
+            return obj.quote_request.client_name
+        return None
 
     class Meta:
         model = Invoice
         fields = [
-            'id', 'quote_request', 'quote_request_id', 'invoice_number',
+            'id', 'quote_request', 'quote_request_id', 'patient', 'patient_name',
+            'client_name_libre', 'invoice_number',
             'subtotal', 'tax_rate', 'tax_amount', 'total', 'currency',
             'status', 'invoice_date', 'due_date', 'notes', 'payment_terms',
             'client_name', 'client_email', 'service_name',
@@ -604,20 +627,25 @@ class InvoiceSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ['created_at', 'updated_at', 'invoice_number']
     
+    def validate(self, data):
+        # Au moins un des deux doit être renseigné : quote_request OU patient OU client_name_libre
+        if not data.get('quote_request') and not data.get('patient') and not data.get('client_name_libre'):
+            raise serializers.ValidationError("Veuillez associer un devis, un patient ou saisir un nom client.")
+        return data
+
     def create(self, validated_data):
         """Création d'une facture avec génération automatique du numéro et du prix"""
         from decimal import Decimal
         from django.utils import timezone
-        
+
         quote_request = validated_data.get('quote_request')
-        
+
         # Si invoice_date n'est pas fourni, utiliser la date du jour
         if 'invoice_date' not in validated_data or not validated_data.get('invoice_date'):
             validated_data['invoice_date'] = timezone.now().date()
-        
-        # Si le subtotal n'est pas fourni ou est 0, calculer depuis le service ou le calculated_price
+
+        # Si le subtotal n'est pas fourni ou est 0, calculer depuis le devis
         if not validated_data.get('subtotal') or validated_data.get('subtotal') == Decimal('0.00'):
-            # D'abord essayer avec calculated_price du quote_request
             if quote_request and hasattr(quote_request, 'calculated_price') and quote_request.calculated_price:
                 try:
                     calculated_price = Decimal(str(quote_request.calculated_price))
@@ -625,14 +653,9 @@ class InvoiceSerializer(serializers.ModelSerializer):
                         validated_data['subtotal'] = calculated_price
                 except (ValueError, TypeError):
                     pass
-            
-            # Si toujours 0, essayer avec le service
             if (not validated_data.get('subtotal') or validated_data.get('subtotal') == Decimal('0.00')):
-                if quote_request and quote_request.service:
-                    service = quote_request.service
-                    if service.price_per_hour:
-                        validated_data['subtotal'] = Decimal(str(service.price_per_hour))
-                    # Si pas de prix, laisser 0.00 pour que l'admin puisse le modifier
+                if quote_request and quote_request.service and quote_request.service.price_per_hour:
+                    validated_data['subtotal'] = Decimal(str(quote_request.service.price_per_hour))
         
         # S'assurer que subtotal est un Decimal
         if 'subtotal' in validated_data:

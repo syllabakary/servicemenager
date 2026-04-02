@@ -144,6 +144,7 @@ export default function AdminParametres() {
   const [footerInfo, setFooterInfo] = useState({
     address: "Abidjan, Côte d'Ivoire",
     phone: "+225 01 23 45 67 89",
+    mobile: "",
     email: "contact@serviceslocaux.ci",
     facebook: "https://facebook.com",
     twitter: "https://twitter.com",
@@ -1079,7 +1080,7 @@ export default function AdminParametres() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="footer-phone">Téléphone *</Label>
+                  <Label htmlFor="footer-phone">Téléphone fixe *</Label>
                   <div className="relative">
                     <FaPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
@@ -1088,6 +1089,20 @@ export default function AdminParametres() {
                       onChange={(e) => setFooterInfo({ ...footerInfo, phone: e.target.value })}
                       className="pl-10"
                       required
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="footer-mobile">Mobile</Label>
+                  <div className="relative">
+                    <FaPhone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                    <Input
+                      id="footer-mobile"
+                      value={footerInfo.mobile || ""}
+                      onChange={(e) => setFooterInfo({ ...footerInfo, mobile: e.target.value })}
+                      className="pl-10"
+                      placeholder="+33 6 ..."
                     />
                   </div>
                 </div>
@@ -2502,15 +2517,15 @@ export default function AdminParametres() {
                 <h3 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4 border-b pb-2">Informations de paiement</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <Label htmlFor="paiement_beneficiaire">Nom du bénéficiaire</Label>
+                    <Label htmlFor="paiement_beneficiaire">Nom de l'entreprise</Label>
                     <Input id="paiement_beneficiaire" value={legalSettings.paiement_beneficiaire} onChange={(e) => setLegalSettings({ ...legalSettings, paiement_beneficiaire: e.target.value })} placeholder="ex : EASE-DOM" />
                   </div>
                   <div className="space-y-1">
-                    <Label htmlFor="paiement_banque">Banque bénéficiaire</Label>
+                    <Label htmlFor="paiement_banque">Banque de l'entreprise</Label>
                     <Input id="paiement_banque" value={legalSettings.paiement_banque} onChange={(e) => setLegalSettings({ ...legalSettings, paiement_banque: e.target.value })} placeholder="ex : LCL" />
                   </div>
                   <div className="space-y-1 md:col-span-2">
-                    <Label htmlFor="paiement_iban">IBAN du bénéficiaire</Label>
+                    <Label htmlFor="paiement_iban">IBAN de l'entreprise</Label>
                     <Input id="paiement_iban" value={legalSettings.paiement_iban} onChange={(e) => setLegalSettings({ ...legalSettings, paiement_iban: e.target.value })} placeholder="ex : FR38 3000 2005 1000 0000 9774 Z35" />
                   </div>
                   <div className="space-y-1">

@@ -86,6 +86,12 @@ export function Sidebar({ userRole }: SidebarProps) {
           path: "/admin/scans",
           roles: ["ADMIN", "SUPERADMIN"],
         },
+        {
+          name: "Rapport heures",
+          icon: FaClipboardList,
+          path: "/admin/rapport-heures",
+          roles: ["ADMIN", "SUPERADMIN"],
+        },
       ],
     },
     {

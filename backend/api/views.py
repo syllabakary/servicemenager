@@ -1511,13 +1511,6 @@ class InvoiceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
 
             invoice = self.get_object()
             
-            # Vérifier que la facture a un quote_request
-            if not invoice.quote_request:
-                logger.error(f'Facture {invoice.id} n\'a pas de quote_request associé')
-                return Response({
-                    'error': 'Facture invalide: aucun devis associé'
-                }, status=status.HTTP_400_BAD_REQUEST)
-            
             # Récupérer les paramètres du site (logo, etc.)
             try:
                 site_settings = SiteSettings.get_settings()
@@ -1571,6 +1564,8 @@ class InvoiceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
             context = {
                 'invoice': invoice,
                 'quote_request': invoice.quote_request,
+                'client_name': invoice.get_client_name(),
+                'client_email': invoice.get_client_email(),
                 'site_settings': site_settings,
                 'today': date.today(),
                 'logo_path': logo_path,

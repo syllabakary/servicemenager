@@ -83,23 +83,23 @@
         </colgroup>
         <tr>
             <td class="info-label">Nom :</td>
-            <td class="info-value" style="word-break:break-word;">{{ quote_request.client_name }}</td>
+            <td class="info-value" style="word-break:break-word;">{{ client_name }}</td>
             <td class="info-label">Email :</td>
-            <td class="info-value" style="word-break:break-all;">{{ quote_request.client_email }}</td>
+            <td class="info-value" style="word-break:break-all;">{{ client_email }}</td>
         </tr>
         <tr>
             <td class="info-label">Telephone :</td>
-            <td class="info-value">{{ quote_request.client_phone }}</td>
+            <td class="info-value">{{ quote_request.client_phone|default:"" }}</td>
             <td class="info-label">Localisation :</td>
-            <td class="info-value" style="word-break:break-word;">{{ quote_request.location }}</td>
+            <td class="info-value" style="word-break:break-word;">{{ quote_request.location|default:"" }}</td>
         </tr>
     </table>
 
     <!-- SERVICE -->
     <div class="section-title">Service</div>
     <div class="service-box">
-        <strong>Service facture :</strong> {% if quote_request.service %}{{ quote_request.service.name }}{% else %}Non specifie{% endif %}<br/>
-        <strong>Localisation :</strong> {{ quote_request.location }}
+        <strong>Service facture :</strong> {% if quote_request.service %}{{ quote_request.service.name }}{% else %}Prestation de service{% endif %}<br/>
+        {% if quote_request.location %}<strong>Localisation :</strong> {{ quote_request.location }}{% endif %}
     </div>
 
     <!-- DETAILS -->
@@ -115,7 +115,7 @@
         </thead>
         <tbody>
             <tr>
-                <td>{% if quote_request.service %}{{ quote_request.service.name }}{% else %}Prestation de service{% endif %}</td>
+                <td>{% if quote_request and quote_request.service %}{{ quote_request.service.name }}{% else %}Prestation de service{% endif %}</td>
                 <td style="text-align:center;">1</td>
                 <td style="text-align:right;">{{ invoice.subtotal|floatformat:2 }} {{ invoice.currency }}</td>
                 <td style="text-align:right;">{{ invoice.subtotal|floatformat:2 }} {{ invoice.currency }}</td>

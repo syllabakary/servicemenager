@@ -2754,11 +2754,12 @@ class PresenceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
             }
             periode_label = f"{MOIS_LABELS[debut.month]} {debut.year}"
 
-        # Grouper par (patient, employe, date) pour avoir les paires ARRIVEE/DEPART correctes
+        # Grouper par (patient, employe) — sans grouper par jour
+        # pour reproduire exactement la logique de la page Scans :
+        # chaque ARRIVEE est appariée au DEPART le plus proche chronologiquement
         groupes = defaultdict(list)
         for p in qs:
-            date_str = p.scan_time.strftime('%d/%m/%Y')
-            key = (p.patient_id, p.employe_id, date_str)
+            key = (p.patient_id, p.employe_id)
             groupes[key].append(p)
 
         patients_map = {}
@@ -2766,34 +2767,14 @@ class PresenceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
         nb_visites_global = 0
         employes_ids = set()
 
-        # Structure intermédiaire pour collecter les visites avant de les ajouter aux maps
         visites_intermediaires = []
 
-        for (pat_id, emp_id, date_str), scans in groupes.items():
-            # Trier les scans par heure
+        for (pat_id, emp_id), scans in groupes.items():
             scans_sorted = sorted(scans, key=lambda s: s.scan_time)
 
-            # Apparier arrivées et départs dans l'ordre chronologique
-            # On ne compte que les paires complètes (arrivée+départ) ou arrivée seule
-            # Un départ sans arrivée est ignoré (scan orphelin)
-            paires = []
-            arrivee_courante = None
-            for scan in scans_sorted:
-                if scan.status == 'ARRIVEE':
-                    # Nouvelle arrivée : remplace l'éventuelle arrivée précédente non clôturée
-                    arrivee_courante = scan
-                elif scan.status == 'DEPART':
-                    if arrivee_courante is not None:
-                        # Paire complète
-                        paires.append((arrivee_courante, scan))
-                        arrivee_courante = None
-                    # DEPART sans ARRIVEE = scan orphelin, ignoré
-            # Arrivée sans départ (mission en cours)
-            if arrivee_courante:
-                paires.append((arrivee_courante, None))
-
-            if not paires:
-                continue
+            arrivees = [s for s in scans_sorted if s.status == 'ARRIVEE']
+            departs  = [s for s in scans_sorted if s.status == 'DEPART']
+            processed_ids = set()
 
             ref = scans_sorted[0]
             patient_obj = ref.patient
@@ -2806,20 +2787,33 @@ class PresenceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
                 employe_nom = f"{fn} {ln}".strip() or employe_obj.username
             employes_ids.add(emp_id)
 
-            for arrivee, depart in paires:
+            for arrivee in arrivees:
+                if arrivee.id in processed_ids:
+                    continue
+                # Départ le plus proche après cette arrivée, non encore utilisé
+                depart = next(
+                    (d for d in departs
+                     if d.id not in processed_ids and d.scan_time >= arrivee.scan_time),
+                    None
+                )
+                if depart:
+                    processed_ids.add(depart.id)
+                processed_ids.add(arrivee.id)
+
                 duree_min = 0
-                if arrivee and depart:
+                if depart:
                     delta = depart.scan_time - arrivee.scan_time
                     duree_min = max(0, int(delta.total_seconds() / 60))
 
                 h, m = divmod(duree_min, 60)
                 duree_str = f"{h}h{m:02d}" if duree_min > 0 else "—"
 
+                date_str = arrivee.scan_time.strftime('%d/%m/%Y')
                 visite = {
                     'date': date_str,
                     'employe_id': emp_id,
                     'employe': employe_nom,
-                    'heure_arrivee': arrivee.scan_time.strftime('%H:%M') if arrivee else None,
+                    'heure_arrivee': arrivee.scan_time.strftime('%H:%M'),
                     'heure_depart': depart.scan_time.strftime('%H:%M') if depart else None,
                     'duree_minutes': duree_min,
                     'duree_str': duree_str,

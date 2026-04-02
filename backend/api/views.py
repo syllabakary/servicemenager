@@ -2754,9 +2754,11 @@ class PresenceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
             }
             periode_label = f"{MOIS_LABELS[debut.month]} {debut.year}"
 
-        # Grouper par (patient, employe) — sans grouper par jour
-        # pour reproduire exactement la logique de la page Scans :
-        # chaque ARRIVEE est appariée au DEPART le plus proche chronologiquement
+        # Grouper par (patient, employe)
+        # Logique identique à Scans.tsx :
+        # - trier du plus récent au plus ancien
+        # - pour chaque ARRIVEE, trouver le DEPART le plus proche chronologiquement après
+        # - ne compter les heures que sur les paires complètes (arrivée+départ)
         groupes = defaultdict(list)
         for p in qs:
             key = (p.patient_id, p.employe_id)
@@ -2770,7 +2772,8 @@ class PresenceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
         visites_intermediaires = []
 
         for (pat_id, emp_id), scans in groupes.items():
-            scans_sorted = sorted(scans, key=lambda s: s.scan_time)
+            # Trier du plus récent au plus ancien (identique à Scans.tsx)
+            scans_sorted = sorted(scans, key=lambda s: s.scan_time, reverse=True)
 
             arrivees = [s for s in scans_sorted if s.status == 'ARRIVEE']
             departs  = [s for s in scans_sorted if s.status == 'DEPART']
@@ -2790,20 +2793,24 @@ class PresenceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
             for arrivee in arrivees:
                 if arrivee.id in processed_ids:
                     continue
-                # Départ le plus proche après cette arrivée, non encore utilisé
-                depart = next(
-                    (d for d in departs
-                     if d.id not in processed_ids and d.scan_time >= arrivee.scan_time),
-                    None
+                # Départ le plus proche après cette arrivée (trié par date croissante)
+                matching = sorted(
+                    [d for d in departs
+                     if d.id not in processed_ids and d.scan_time >= arrivee.scan_time],
+                    key=lambda d: d.scan_time
                 )
+                depart = matching[0] if matching else None
+
+                processed_ids.add(arrivee.id)
                 if depart:
                     processed_ids.add(depart.id)
-                processed_ids.add(arrivee.id)
 
-                duree_min = 0
-                if depart:
-                    delta = depart.scan_time - arrivee.scan_time
-                    duree_min = max(0, int(delta.total_seconds() / 60))
+                # Ne compter les heures que sur paires complètes (comme Scans.tsx)
+                if not depart:
+                    continue
+
+                delta = depart.scan_time - arrivee.scan_time
+                duree_min = max(0, int(delta.total_seconds() / 60))
 
                 h, m = divmod(duree_min, 60)
                 duree_str = f"{h}h{m:02d}" if duree_min > 0 else "—"
@@ -2814,7 +2821,7 @@ class PresenceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
                     'employe_id': emp_id,
                     'employe': employe_nom,
                     'heure_arrivee': arrivee.scan_time.strftime('%H:%M'),
-                    'heure_depart': depart.scan_time.strftime('%H:%M') if depart else None,
+                    'heure_depart': depart.scan_time.strftime('%H:%M'),
                     'duree_minutes': duree_min,
                     'duree_str': duree_str,
                 }

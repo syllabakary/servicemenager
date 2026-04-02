@@ -846,7 +846,7 @@ export default function DevisDetail() {
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     {siteSettings.paiement_beneficiaire && (
                       <div>
-                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">Bénéficiaire</p>
+                        <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-0.5">Entreprise</p>
                         <p className="font-semibold text-gray-900">{siteSettings.paiement_beneficiaire}</p>
                       </div>
                     )}

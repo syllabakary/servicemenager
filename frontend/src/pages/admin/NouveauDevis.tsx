@@ -719,9 +719,9 @@ export default function NouveauDevis() {
                 </thead>
                 <tbody>
                   {[
-                    { label: "Nom du bénéficiaire", value: siteSettings?.paiement_beneficiaire || "EASE-DOM" },
-                    { label: "IBAN du bénéficiaire", value: siteSettings?.paiement_iban || "FR38 3000 2005 1000 0000 9774 Z35" },
-                    { label: "Banque bénéficiaire", value: siteSettings?.paiement_banque || "LCL" },
+                    { label: "Nom de l'entreprise", value: siteSettings?.paiement_beneficiaire || "EASE-DOM" },
+                    { label: "IBAN de l'entreprise", value: siteSettings?.paiement_iban || "FR38 3000 2005 1000 0000 9774 Z35" },
+                    { label: "Banque de l'entreprise", value: siteSettings?.paiement_banque || "LCL" },
                     { label: "Code BIC", value: siteSettings?.paiement_bic || "CRLYFRPP" },
                     { label: "SIRET", value: siteSettings?.siret || "—" },
                     { label: "Code APE/NAF", value: siteSettings?.code_ape || "—" },

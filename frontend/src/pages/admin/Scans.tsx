@@ -108,7 +108,7 @@ export default function AdminScans() {
       const params = buildQueryParams();
       const res = await axios.get(`${API_URL}/presences/`, {
         headers: { Authorization: `Bearer ${token}` },
-        params,
+        params: { ...params, limit: 10000 },
       });
       return res.data;
     },

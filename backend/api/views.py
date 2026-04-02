@@ -2774,15 +2774,21 @@ class PresenceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
             scans_sorted = sorted(scans, key=lambda s: s.scan_time)
 
             # Apparier arrivées et départs dans l'ordre chronologique
+            # On ne compte que les paires complètes (arrivée+départ) ou arrivée seule
+            # Un départ sans arrivée est ignoré (scan orphelin)
             paires = []
             arrivee_courante = None
             for scan in scans_sorted:
                 if scan.status == 'ARRIVEE':
+                    # Nouvelle arrivée : remplace l'éventuelle arrivée précédente non clôturée
                     arrivee_courante = scan
                 elif scan.status == 'DEPART':
-                    paires.append((arrivee_courante, scan))
-                    arrivee_courante = None
-            # Arrivée sans départ
+                    if arrivee_courante is not None:
+                        # Paire complète
+                        paires.append((arrivee_courante, scan))
+                        arrivee_courante = None
+                    # DEPART sans ARRIVEE = scan orphelin, ignoré
+            # Arrivée sans départ (mission en cours)
             if arrivee_courante:
                 paires.append((arrivee_courante, None))
 

@@ -2766,16 +2766,30 @@ class PresenceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
         nb_visites_global = 0
         employes_ids = set()
 
-        for (pat_id, emp_id, date_str), scans in groupes.items():
-            arrivees = [s for s in scans if s.status == 'ARRIVEE']
-            departs = [s for s in scans if s.status == 'DEPART']
-            arrivee = arrivees[0] if arrivees else None
-            depart = departs[-1] if departs else None
+        # Structure intermédiaire pour collecter les visites avant de les ajouter aux maps
+        visites_intermediaires = []
 
-            ref = arrivee or depart
-            if not ref:
+        for (pat_id, emp_id, date_str), scans in groupes.items():
+            # Trier les scans par heure
+            scans_sorted = sorted(scans, key=lambda s: s.scan_time)
+
+            # Apparier arrivées et départs dans l'ordre chronologique
+            paires = []
+            arrivee_courante = None
+            for scan in scans_sorted:
+                if scan.status == 'ARRIVEE':
+                    arrivee_courante = scan
+                elif scan.status == 'DEPART':
+                    paires.append((arrivee_courante, scan))
+                    arrivee_courante = None
+            # Arrivée sans départ
+            if arrivee_courante:
+                paires.append((arrivee_courante, None))
+
+            if not paires:
                 continue
 
+            ref = scans_sorted[0]
             patient_obj = ref.patient
             employe_obj = ref.employe
             fn = (employe_obj.first_name or '').strip()
@@ -2786,23 +2800,27 @@ class PresenceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
                 employe_nom = f"{fn} {ln}".strip() or employe_obj.username
             employes_ids.add(emp_id)
 
-            duree_min = 0
-            if arrivee and depart:
-                delta = depart.scan_time - arrivee.scan_time
-                duree_min = max(0, int(delta.total_seconds() / 60))
+            for arrivee, depart in paires:
+                duree_min = 0
+                if arrivee and depart:
+                    delta = depart.scan_time - arrivee.scan_time
+                    duree_min = max(0, int(delta.total_seconds() / 60))
 
-            h, m = divmod(duree_min, 60)
-            duree_str = f"{h}h{m:02d}" if duree_min > 0 else "—"
+                h, m = divmod(duree_min, 60)
+                duree_str = f"{h}h{m:02d}" if duree_min > 0 else "—"
 
-            visite = {
-                'date': date_str,
-                'employe_id': emp_id,
-                'employe': employe_nom,
-                'heure_arrivee': arrivee.scan_time.strftime('%H:%M') if arrivee else None,
-                'heure_depart': depart.scan_time.strftime('%H:%M') if depart else None,
-                'duree_minutes': duree_min,
-                'duree_str': duree_str,
-            }
+                visite = {
+                    'date': date_str,
+                    'employe_id': emp_id,
+                    'employe': employe_nom,
+                    'heure_arrivee': arrivee.scan_time.strftime('%H:%M') if arrivee else None,
+                    'heure_depart': depart.scan_time.strftime('%H:%M') if depart else None,
+                    'duree_minutes': duree_min,
+                    'duree_str': duree_str,
+                }
+                visites_intermediaires.append((pat_id, emp_id, patient_obj, employe_nom, duree_min, visite))
+
+        for (pat_id, emp_id, patient_obj, employe_nom, duree_min, visite) in visites_intermediaires:
 
             if pat_id not in patients_map:
                 patients_map[pat_id] = {

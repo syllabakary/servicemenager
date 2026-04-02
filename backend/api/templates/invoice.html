@@ -160,9 +160,43 @@
     </div>
     {% endif %}
 
+    <!-- INFORMATIONS DE PAIEMENT -->
+    {% if site_settings %}
+    <div class="section-title">Informations de paiement</div>
+    <table style="width:100%; border-collapse:collapse; font-size:9px; margin-bottom:12px;">
+        <tr>
+            <td style="border:1px solid #ddd; padding:5px 8px; font-weight:bold; background:#f4f4f4; width:35%;">Nom de l'entreprise</td>
+            <td style="border:1px solid #ddd; padding:5px 8px;">{{ site_settings.paiement_beneficiaire|default:"" }}</td>
+        </tr>
+        <tr>
+            <td style="border:1px solid #ddd; padding:5px 8px; font-weight:bold; background:#f4f4f4;">IBAN</td>
+            <td style="border:1px solid #ddd; padding:5px 8px; font-size:8px;">{{ site_settings.paiement_iban|default:"" }}</td>
+        </tr>
+        <tr>
+            <td style="border:1px solid #ddd; padding:5px 8px; font-weight:bold; background:#f4f4f4;">Banque</td>
+            <td style="border:1px solid #ddd; padding:5px 8px;">{{ site_settings.paiement_banque|default:"" }}</td>
+        </tr>
+        <tr>
+            <td style="border:1px solid #ddd; padding:5px 8px; font-weight:bold; background:#f4f4f4;">Code BIC</td>
+            <td style="border:1px solid #ddd; padding:5px 8px;">{{ site_settings.paiement_bic|default:"" }}</td>
+        </tr>
+        {% if site_settings.siret %}
+        <tr>
+            <td style="border:1px solid #ddd; padding:5px 8px; font-weight:bold; background:#f4f4f4;">SIRET</td>
+            <td style="border:1px solid #ddd; padding:5px 8px;">{{ site_settings.siret }}</td>
+        </tr>
+        {% endif %}
+    </table>
+    {% endif %}
+
+    <!-- MENTIONS LÉGALES -->
+    {% if site_settings.mention_tva %}
+    <div style="font-size:8px; color:#555; margin-bottom:4px; font-weight:bold;">{{ site_settings.mention_tva }}</div>
+    {% endif %}
+
     <!-- SIGNATURE -->
     {% if signature_path %}
-    <table style="width:100%; margin-top:20px;">
+    <table style="width:100%; margin-top:16px;">
         <tr>
             <td style="width:60%;"></td>
             <td style="width:40%; text-align:center;">
@@ -176,7 +210,10 @@
     <!-- FOOTER -->
     <div class="footer">
         {% if site_settings %}
-        {{ site_settings.site_name|default:"" }} | {{ site_settings.address|default:"" }} | {{ site_settings.phone|default:"" }}
+        {{ site_settings.site_name|default:"" }}
+        {% if site_settings.siret %} | SIRET : {{ site_settings.siret }}{% endif %}
+        {% if site_settings.num_tva %} | N° TVA : {{ site_settings.num_tva }}{% endif %}
+        {% if site_settings.forme_juridique %} | {{ site_settings.forme_juridique }}{% endif %}
         {% endif %}
     </div>
 

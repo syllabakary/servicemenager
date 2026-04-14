@@ -27,6 +27,7 @@ import {
   FaComments,
   FaClipboardList,
   FaShieldAlt,
+  FaTrash,
 } from "react-icons/fa";
 
 interface SidebarProps {
@@ -229,6 +230,12 @@ export function Sidebar({ userRole }: SidebarProps) {
           icon: FaShieldAlt,
           path: "/admin/permissions",
           roles: ["SUPERADMIN"],
+        },
+        {
+          name: "Corbeille",
+          icon: FaTrash,
+          path: "/admin/corbeille",
+          roles: ["ADMIN", "SUPERADMIN"],
         },
       ],
     },

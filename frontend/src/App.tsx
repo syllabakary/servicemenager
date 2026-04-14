@@ -50,6 +50,7 @@ const AdminFactures = React.lazy(() => import("@/pages/admin/Factures"));
 const AdminLogs = React.lazy(() => import("@/pages/admin/Logs"));
 const AdminPermissions = React.lazy(() => import("@/pages/admin/Permissions"));
 const AdminHero = React.lazy(() => import("@/pages/admin/Hero"));
+const AdminCorbeille = React.lazy(() => import("@/pages/admin/Corbeille"));
 const ScanQR = React.lazy(() => import("@/pages/employe/ScanQR"));
 const EmployeLogin = React.lazy(() => import("@/pages/employe/EmployeLogin"));
 const EmployeDashboard = React.lazy(() => import("@/pages/employe/EmployeDashboard"));
@@ -100,6 +101,7 @@ function Router() {
       <Route path="/admin/logs" component={AdminLogs} />
       <Route path="/admin/permissions" component={AdminPermissions} />
       <Route path="/admin/hero" component={AdminHero} />
+      <Route path="/admin/corbeille" component={AdminCorbeille} />
       <Route path="/employe/login" component={EmployeLogin} />
       <Route path="/employe/dashboard" component={EmployeDashboard} />
       <Route path="/employe/scan" component={ScanQR} />

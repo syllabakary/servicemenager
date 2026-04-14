@@ -7,7 +7,7 @@ from .views import (
     ServiceReviewViewSet, ServiceFAQViewSet, QuoteRequestViewSet, QuoteLineViewSet, ServiceAdvantageViewSet, InvoiceViewSet,
     SiteSettingsViewSet, QuoteFormStepViewSet, QuoteFormOptionViewSet, PatientViewSet, PresenceViewSet,
     EmployeeProfileViewSet, ContactMessageViewSet, HeroContentView,
-    ActivityLogViewSet, UserPermissionViewSet
+    ActivityLogViewSet, UserPermissionViewSet, TrashViewSet
 )
 from .views_auth import register, login_with_matricule
 
@@ -34,6 +34,7 @@ router.register(r'meta', NavbarViewSet, basename='meta')
 router.register(r'contact-messages', ContactMessageViewSet, basename='contact-message')
 router.register(r'activity-logs', ActivityLogViewSet, basename='activity-log')
 router.register(r'user-permissions', UserPermissionViewSet, basename='user-permission')
+router.register(r'trash', TrashViewSet, basename='trash')
 
 urlpatterns = [
     # JWT Authentication

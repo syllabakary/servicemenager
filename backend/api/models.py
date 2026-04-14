@@ -99,6 +99,7 @@ class Category(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True, default=None)
 
     class Meta:
         verbose_name = "Catégorie"
@@ -274,7 +275,8 @@ class Service(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+    deleted_at = models.DateTimeField(null=True, blank=True, default=None)
+
     class Meta:
         ordering = ['order', 'name']
         verbose_name = "Service"
@@ -363,7 +365,8 @@ class Agency(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+    deleted_at = models.DateTimeField(null=True, blank=True, default=None)
+
     class Meta:
         ordering = ['name']
         verbose_name = "Agence"
@@ -425,7 +428,8 @@ class Contact(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+    deleted_at = models.DateTimeField(null=True, blank=True, default=None)
+
     class Meta:
         ordering = ['-is_headquarter', 'name']
         verbose_name = "Contact"
@@ -697,6 +701,7 @@ class QuoteRequest(models.Model):
     # Métadonnées
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True, default=None)
     created_by_user = models.ForeignKey(
         CustomUser,
         on_delete=models.SET_NULL,
@@ -1051,6 +1056,7 @@ class Invoice(models.Model):
     # Métadonnées
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    deleted_at = models.DateTimeField(null=True, blank=True, default=None)
     created_by = models.ForeignKey(
         CustomUser,
         on_delete=models.SET_NULL,
@@ -1762,7 +1768,8 @@ class Patient(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+    deleted_at = models.DateTimeField(null=True, blank=True, default=None)
+
     class Meta:
         verbose_name = "Patient"
         verbose_name_plural = "Patients"
@@ -2017,7 +2024,8 @@ class Presence(models.Model):
         verbose_name="Notes",
         help_text="Notes additionnelles (optionnel)"
     )
-    
+    deleted_at = models.DateTimeField(null=True, blank=True, default=None)
+
     class Meta:
         verbose_name = "Présence"
         verbose_name_plural = "Présences"

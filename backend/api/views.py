@@ -38,6 +38,19 @@ from .permissions import (
 )
 
 
+# ── Soft Delete Mixin ─────────────────────────────────────────────────────────
+
+class SoftDeleteMixin:
+    """Remplace la suppression définitive par un soft delete (deleted_at)"""
+
+    def destroy(self, request, *args, **kwargs):
+        from django.utils import timezone
+        instance = self.get_object()
+        instance.deleted_at = timezone.now()
+        instance.save(update_fields=['deleted_at'])
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
 # ── Mixin de vérification de permissions granulaires ─────────────────────────
 
 _ACTION_MAP = {
@@ -350,7 +363,7 @@ Connectez-vous avec ce nom d'utilisateur et ce mot de passe. Vous pourrez modifi
             raise APIException(f"Erreur lors de la suppression ({error_type}): {str(e)}")
 
 
-class ServiceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
+class ServiceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour Service"""
     module_name = 'services'
     queryset = Service.objects.all()
@@ -365,17 +378,17 @@ class ServiceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Filtrage : actifs seulement pour API publique"""
-        queryset = Service.objects.select_related('created_by')
-        
+        queryset = Service.objects.select_related('created_by').filter(deleted_at__isnull=True)
+
         # Filtre par slug si fourni
         slug = self.request.query_params.get('slug')
         if slug:
             queryset = queryset.filter(slug=slug)
-        
+
         # Si pas authentifié ou client, seulement actifs
         if not self.request.user.is_authenticated or self.request.user.is_client:
             queryset = queryset.filter(active=True)
-        
+
         return queryset
     
     def get_serializer_class(self):
@@ -401,7 +414,7 @@ class ServiceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
         })
 
 
-class AgencyViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
+class AgencyViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour Agency"""
     module_name = 'agences'
     queryset = Agency.objects.all()
@@ -421,7 +434,7 @@ class AgencyViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Filtrage : actifs seulement pour API publique"""
-        queryset = Agency.objects.select_related('created_by').prefetch_related('contacts')
+        queryset = Agency.objects.select_related('created_by').prefetch_related('contacts').filter(deleted_at__isnull=True)
         
         # Recherche par proximité
         lat = self.request.query_params.get('lat')
@@ -531,7 +544,7 @@ class AgencyViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
         return Response({'detail': 'Siège social non trouvé'}, status=404)
 
 
-class ContactViewSet(viewsets.ModelViewSet):
+class ContactViewSet(SoftDeleteMixin, viewsets.ModelViewSet):
     """ViewSet pour Contact"""
     queryset = Contact.objects.all()
     serializer_class = ContactSerializer
@@ -539,10 +552,10 @@ class ContactViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     search_fields = ['name', 'email', 'role']
     filterset_fields = ['agency', 'is_headquarter']
-    
+
     def get_queryset(self):
         """Optimisation avec select_related"""
-        return Contact.objects.select_related('agency', 'created_by')
+        return Contact.objects.select_related('agency', 'created_by').filter(deleted_at__isnull=True)
     
     def perform_create(self, serializer):
         """Création avec created_by"""
@@ -581,16 +594,19 @@ class PageContentViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
         serializer.save(created_by=self.request.user)
 
 
-class CategoryViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
+class CategoryViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour Category"""
     module_name = 'categories'
-    queryset = Category.objects.all().order_by('order', 'name')
+    queryset = Category.objects.filter(deleted_at__isnull=True).order_by('order', 'name')
     serializer_class = CategorySerializer
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     search_fields = ['name']
     ordering_fields = ['order', 'name', 'created_at']
     ordering = ['order', 'name']
+
+    def get_queryset(self):
+        return Category.objects.filter(deleted_at__isnull=True).order_by('order', 'name')
 
 
 class NavbarViewSet(viewsets.ViewSet):
@@ -707,7 +723,7 @@ class ServiceAdvantageViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
         return queryset.order_by('order', 'title')
 
 
-class QuoteRequestViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
+class QuoteRequestViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour QuoteRequest"""
     module_name = 'devis'
     queryset = QuoteRequest.objects.all()
@@ -721,7 +737,7 @@ class QuoteRequestViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
     
     def get_queryset(self):
         """Filtrage selon le rôle"""
-        queryset = QuoteRequest.objects.select_related('service', 'created_by_user')
+        queryset = QuoteRequest.objects.select_related('service', 'created_by_user').filter(deleted_at__isnull=True)
         
         # Si pas authentifié ou client, seulement leurs propres demandes
         if not self.request.user.is_authenticated or self.request.user.is_client:
@@ -1435,10 +1451,10 @@ class QuoteRequestViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class InvoiceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
+class InvoiceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour Invoice"""
     module_name = 'factures'
-    queryset = Invoice.objects.all()
+    queryset = Invoice.objects.filter(deleted_at__isnull=True)
     serializer_class = InvoiceSerializer
     permission_classes = [IsAdminOrReadOnly]
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
@@ -2174,7 +2190,7 @@ class SiteSettingsViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
             return Response(serializer.data)
 
 
-class PatientViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
+class PatientViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour Patient avec gestion des QR codes"""
     module_name = 'patients'
     queryset = Patient.objects.select_related('client', 'created_by').all()
@@ -2191,10 +2207,10 @@ class PatientViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
         user = self.request.user
         # Précharger les relations pour optimiser les requêtes
         try:
-            queryset = Patient.objects.select_related('client', 'created_by').prefetch_related('assigned_employees')
+            queryset = Patient.objects.select_related('client', 'created_by').prefetch_related('assigned_employees').filter(deleted_at__isnull=True)
         except Exception:
             # Si le champ assigned_employees n'existe pas encore, ne pas précharger
-            queryset = Patient.objects.select_related('client', 'created_by')
+            queryset = Patient.objects.select_related('client', 'created_by').filter(deleted_at__isnull=True)
         
         if user.is_superadmin:
             return queryset
@@ -2653,7 +2669,7 @@ class PatientViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
             )
 
 
-class PresenceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
+class PresenceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelViewSet):
     """ViewSet pour Presence avec scan QR code"""
     module_name = 'scans'
     queryset = Presence.objects.select_related('patient', 'employe', 'patient__client').all()
@@ -2681,13 +2697,13 @@ class PresenceViewSet(ModulePermissionMixin, viewsets.ModelViewSet):
         return super().partial_update(request, *args, **kwargs)
     
     def destroy(self, request, *args, **kwargs):
-        """Suppression d'une présence - réservée aux admins"""
-        return super().destroy(request, *args, **kwargs)
+        """Soft delete d'une présence - réservée aux admins"""
+        return SoftDeleteMixin.destroy(self, request, *args, **kwargs)
     
     def get_queryset(self):
         """Filtrage selon le rôle et filtres additionnels"""
         user = self.request.user
-        queryset = Presence.objects.select_related('patient', 'employe', 'patient__client').all()
+        queryset = Presence.objects.select_related('patient', 'employe', 'patient__client').filter(deleted_at__isnull=True)
         
         if user.is_superadmin or user.is_admin:
             # SuperAdmin et Admin voient toutes les présences
@@ -4003,3 +4019,123 @@ class UserPermissionViewSet(viewsets.ViewSet):
             'modules': [{'value': v, 'label': l} for v, l in UserPermission.MODULE_CHOICES],
             'actions': [{'value': v, 'label': l} for v, l in UserPermission.ACTION_CHOICES],
         })
+
+
+# ── Corbeille (Trash) ──────────────────────────────────────────────────────────
+
+class TrashViewSet(viewsets.ViewSet):
+    """Corbeille — liste et gestion des éléments soft-supprimés"""
+    permission_classes = [IsAuthenticated]
+
+    TRASH_MODELS = {
+        'devis':       (QuoteRequest,  QuoteRequestSerializer),
+        'factures':    (Invoice,       InvoiceSerializer),
+        'services':    (Service,       ServiceSerializer),
+        'agences':     (Agency,        AgencySerializer),
+        'patients':    (Patient,       PatientSerializer),
+        'scans':       (Presence,      PresenceSerializer),
+        'categories':  (Category,      CategorySerializer),
+        'contacts':    (Contact,       ContactSerializer),
+    }
+
+    LABELS = {
+        'devis':      'Devis',
+        'factures':   'Factures',
+        'services':   'Services',
+        'agences':    'Agences',
+        'patients':   'Patients',
+        'scans':      'Scans',
+        'categories': 'Catégories',
+        'contacts':   'Contacts',
+    }
+
+    def _require_admin(self, request):
+        if not request.user.is_authenticated:
+            return Response({'error': 'Non authentifié'}, status=401)
+        role = getattr(request.user, 'role', None)
+        if role not in ('ADMIN', 'SUPERADMIN'):
+            return Response({'error': 'Accès refusé'}, status=403)
+        return None
+
+    def list(self, request):
+        """Liste tous les éléments supprimés groupés par type"""
+        err = self._require_admin(request)
+        if err:
+            return err
+        result = {}
+        for key, (Model, Serializer) in self.TRASH_MODELS.items():
+            deleted = Model.objects.filter(deleted_at__isnull=False).order_by('-deleted_at')
+            items = []
+            for obj in deleted:
+                s = Serializer(obj, context={'request': request})
+                d = dict(s.data)
+                d['_trash_type'] = key
+                d['_trash_label'] = self.LABELS[key]
+                d['_deleted_at'] = obj.deleted_at.isoformat() if obj.deleted_at else None
+                # Nom lisible
+                if hasattr(obj, 'client_name'):
+                    d['_display_name'] = str(obj.client_name)
+                elif hasattr(obj, 'first_name'):
+                    d['_display_name'] = f"{obj.first_name} {obj.last_name}".strip()
+                elif hasattr(obj, 'name'):
+                    d['_display_name'] = str(obj.name)
+                elif hasattr(obj, 'invoice_number'):
+                    d['_display_name'] = str(obj.invoice_number or obj.id)
+                else:
+                    d['_display_name'] = str(obj)
+                items.append(d)
+            result[key] = items
+        return Response(result)
+
+    @action(detail=False, methods=['post'], url_path=r'restore/(?P<model>[^/.]+)/(?P<pk>[0-9]+)')
+    def restore(self, request, model=None, pk=None):
+        """Restaurer un élément"""
+        err = self._require_admin(request)
+        if err:
+            return err
+        if model not in self.TRASH_MODELS:
+            return Response({'error': 'Modèle inconnu'}, status=400)
+        Model, _ = self.TRASH_MODELS[model]
+        try:
+            instance = Model.objects.get(pk=pk, deleted_at__isnull=False)
+            instance.deleted_at = None
+            instance.save(update_fields=['deleted_at'])
+            return Response({'success': True})
+        except Model.DoesNotExist:
+            return Response({'error': 'Élément non trouvé dans la corbeille'}, status=404)
+
+    @action(detail=False, methods=['delete'], url_path=r'hard-delete/(?P<model>[^/.]+)/(?P<pk>[0-9]+)')
+    def hard_delete(self, request, model=None, pk=None):
+        """Supprimer définitivement un élément"""
+        err = self._require_admin(request)
+        if err:
+            return err
+        if model not in self.TRASH_MODELS:
+            return Response({'error': 'Modèle inconnu'}, status=400)
+        Model, _ = self.TRASH_MODELS[model]
+        try:
+            instance = Model.objects.get(pk=pk, deleted_at__isnull=False)
+            instance.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Model.DoesNotExist:
+            return Response({'error': 'Élément non trouvé dans la corbeille'}, status=404)
+
+    @action(detail=False, methods=['post'], url_path='restore-all')
+    def restore_all(self, request):
+        """Restaurer tous les éléments"""
+        err = self._require_admin(request)
+        if err:
+            return err
+        for Model, _ in self.TRASH_MODELS.values():
+            Model.objects.filter(deleted_at__isnull=False).update(deleted_at=None)
+        return Response({'success': True})
+
+    @action(detail=False, methods=['delete'], url_path='empty')
+    def empty(self, request):
+        """Vider définitivement la corbeille"""
+        err = self._require_admin(request)
+        if err:
+            return err
+        for Model, _ in self.TRASH_MODELS.values():
+            Model.objects.filter(deleted_at__isnull=False).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

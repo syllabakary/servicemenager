@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FaPlus, FaEdit, FaTrash, FaKey, FaLockOpen, FaLock } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaKey, FaLockOpen, FaLock, FaUserLock } from "react-icons/fa";
 import axios from "axios";
 import {
   Dialog,
@@ -39,6 +39,7 @@ export default function AdminUtilisateurs() {
   const [editingUser, setEditingUser] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [userToResetPassword, setUserToResetPassword] = useState<any>(null);
+  const [userToUnlock, setUserToUnlock] = useState<any>(null);
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const isSuperAdmin = storedUser.role === "SUPERADMIN";
 
@@ -232,11 +233,7 @@ export default function AdminUtilisateurs() {
                                 <Button
                                   variant="ghost"
                                   size="sm"
-                                  onClick={() => {
-                                    if (confirm(`Débloquer le compte de ${user.username} ?`)) {
-                                      unlockMutation.mutate(user.id);
-                                    }
-                                  }}
+                                  onClick={() => setUserToUnlock(user)}
                                   className="hover:bg-green-50 hover:text-green-600 rounded-lg"
                                   title="Débloquer le compte"
                                   disabled={unlockMutation.isPending}
@@ -358,6 +355,66 @@ export default function AdminUtilisateurs() {
                     {userToResetPassword?.email ? "Réinitialiser et envoyer l'email" : "Générer un nouveau mot de passe"}
                   </>
                 )}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog déblocage compte */}
+        <Dialog open={!!userToUnlock} onOpenChange={(open) => !open && setUserToUnlock(null)}>
+          <DialogContent className="sm:max-w-md rounded-2xl shadow-xl border-2 border-green-200">
+            <DialogHeader>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 text-red-600">
+                  <FaUserLock className="w-6 h-6" />
+                </div>
+                <div>
+                  <DialogTitle className="text-xl text-gray-900">Débloquer le compte</DialogTitle>
+                  <DialogDescription className="text-gray-600 mt-1">
+                    {userToUnlock && (
+                      <>Compte : <strong className="text-gray-900">{userToUnlock.username}</strong></>
+                    )}
+                  </DialogDescription>
+                </div>
+              </div>
+            </DialogHeader>
+            <div className="py-4 space-y-3">
+              <div className="flex items-start gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <FaLock className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
+                <p className="text-sm text-red-700">
+                  Ce compte est actuellement <strong>bloqué</strong> suite à trop de tentatives de connexion échouées.
+                </p>
+              </div>
+              <p className="text-sm text-gray-700">
+                En débloquant ce compte, l'utilisateur pourra se reconnecter immédiatement. Le compteur de tentatives sera remis à zéro.
+              </p>
+            </div>
+            <div className="flex flex-col-reverse sm:flex-row gap-2 justify-end pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setUserToUnlock(null)}
+                className="rounded-lg"
+              >
+                Annuler
+              </Button>
+              <Button
+                type="button"
+                className="bg-green-600 hover:bg-green-700 text-white rounded-lg"
+                disabled={unlockMutation.isPending}
+                onClick={() => {
+                  if (userToUnlock) {
+                    unlockMutation.mutate(userToUnlock.id);
+                    setUserToUnlock(null);
+                  }
+                }}
+              >
+                {unlockMutation.isPending ? (
+                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin inline-block mr-2" />
+                ) : (
+                  <FaLockOpen className="w-4 h-4 mr-2" />
+                )}
+                Débloquer le compte
               </Button>
             </div>
           </DialogContent>

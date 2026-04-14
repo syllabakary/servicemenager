@@ -335,7 +335,11 @@ def login_with_matricule(request):
     if user.locked_until and user.locked_until > timezone.now():
         remaining = int((user.locked_until - timezone.now()).total_seconds() / 60) + 1
         return Response(
-            {'error': f'Compte temporairement bloqué. Réessayez dans {remaining} minute(s).'},
+            {
+                'error': 'locked',
+                'message': f"Compte bloqué pendant {remaining} minute(s). Contactez un administrateur.",
+                'lock_minutes': remaining,
+            },
             status=status.HTTP_403_FORBIDDEN
         )
 
@@ -343,8 +347,25 @@ def login_with_matricule(request):
     if not user.check_password(password):
         logger.warning(f"[AUTH] ÉCHEC login matricule — matricule: '{matricule}' | IP: {ip} | mot de passe incorrect")
         _handle_failed_login(user, ip, matricule)
+        user.refresh_from_db()
+        remaining_att = MAX_FAILED_ATTEMPTS - (user.failed_login_attempts % MAX_FAILED_ATTEMPTS)
+        is_now_locked = user.locked_until and user.locked_until > timezone.now()
+        if is_now_locked:
+            lock_min = int((user.locked_until - timezone.now()).total_seconds() / 60) + 1
+            return Response(
+                {
+                    'error': 'locked',
+                    'message': f"Compte bloqué pendant {lock_min} minute(s). Contactez un administrateur.",
+                    'lock_minutes': lock_min,
+                },
+                status=status.HTTP_403_FORBIDDEN
+            )
         return Response(
-            {'error': 'Matricule ou mot de passe incorrect'},
+            {
+                'error': 'invalid_credentials',
+                'message': f"Identifiants incorrects. Il vous reste {remaining_att} tentative(s) avant blocage.",
+                'remaining_attempts': remaining_att,
+            },
             status=status.HTTP_401_UNAUTHORIZED
         )
 

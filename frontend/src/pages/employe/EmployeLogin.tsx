@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FaHome, FaLock, FaIdCard } from "react-icons/fa";
+import { FaHome, FaLock, FaIdCard, FaExclamationTriangle } from "react-icons/fa";
 import axios from "axios";
 import { API_URL } from "@/config/api";
 
@@ -15,57 +15,62 @@ export default function EmployeLogin() {
   const [matricule, setMatricule] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [errorType, setErrorType] = useState<"locked" | "warning" | "error" | "">("");
+  const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
+  const [lockMinutes, setLockMinutes] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setErrorType("");
+    setRemainingAttempts(null);
+    setLockMinutes(null);
     setLoading(true);
 
     try {
-      // Normaliser le matricule (trim et uppercase)
       const normalizedMatricule = matricule.trim().toUpperCase();
-      
       const response = await axios.post(`${API_URL}/login-matricule/`, {
         matricule: normalizedMatricule,
-        password: password,
-      }, {
-        timeout: 10000, // 10 secondes de timeout
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+        password,
+      }, { timeout: 10000, headers: { 'Content-Type': 'application/json' } });
 
       if (response.data.tokens && response.data.user) {
         localStorage.setItem("access_token", response.data.tokens.access);
         localStorage.setItem("refresh_token", response.data.tokens.refresh);
         localStorage.setItem("user", JSON.stringify(response.data.user));
-        
         queryClient.invalidateQueries();
-        
-        // Rediriger vers le dashboard employé
         setLocation("/employe/dashboard");
       } else {
         setError("Réponse invalide du serveur");
+        setErrorType("error");
       }
     } catch (err: any) {
-      let errorMessage = "Erreur de connexion";
-      
       if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
-        errorMessage = "Timeout: Le serveur ne répond pas. Vérifiez votre connexion réseau.";
-      } else if (err.code === 'ERR_NETWORK' || err.message?.includes('Network Error')) {
-        errorMessage = "Erreur réseau: Impossible de joindre le serveur. Vérifiez que le serveur est démarré et accessible.";
-      } else if (err.response?.status === 404) {
-        errorMessage = "Endpoint non trouvé. Vérifiez l'URL de l'API.";
-      } else if (err.response?.status === 500) {
-        errorMessage = "Erreur serveur. Contactez l'administrateur.";
+        setError("Le serveur ne répond pas. Vérifiez votre connexion réseau.");
+        setErrorType("error");
+      } else if (err.response?.status === 403) {
+        const data = err.response.data;
+        setErrorType("locked");
+        setError(data?.error || "Compte temporairement bloqué. Contactez un administrateur.");
       } else if (err.response?.data) {
-        errorMessage = err.response.data.error || err.response.data.detail || "Matricule ou mot de passe incorrect";
+        const data = err.response.data;
+        if (data?.error === "locked") {
+          setErrorType("locked");
+          setLockMinutes(data.lock_minutes);
+          setError(data.message);
+        } else if (data?.error === "invalid_credentials") {
+          setErrorType("warning");
+          setRemainingAttempts(data.remaining_attempts);
+          setError(data.message);
+        } else {
+          setErrorType("error");
+          setError(data.error || data.detail || "Matricule ou mot de passe incorrect");
+        }
       } else {
-        errorMessage = err.message || "Erreur inconnue";
+        setErrorType("error");
+        setError("Erreur de connexion. Vérifiez votre réseau.");
       }
-      
-      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -87,7 +92,33 @@ export default function EmployeLogin() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
+            {error && errorType === "locked" && (
+              <div className="p-4 text-sm bg-red-50 border-2 border-red-400 rounded-lg space-y-1">
+                <div className="flex items-center gap-2 font-bold text-red-700">
+                  <FaLock className="w-4 h-4" />
+                  Compte bloqué
+                </div>
+                <p className="text-red-600">{error}</p>
+                {lockMinutes && (
+                  <p className="text-red-500 text-xs">Contactez un administrateur pour débloquer votre compte.</p>
+                )}
+              </div>
+            )}
+            {error && errorType === "warning" && (
+              <div className="p-4 text-sm bg-orange-50 border-2 border-orange-400 rounded-lg space-y-1">
+                <div className="flex items-center gap-2 font-bold text-orange-700">
+                  <FaExclamationTriangle className="w-4 h-4" />
+                  Identifiants incorrects
+                </div>
+                <p className="text-orange-700">{error}</p>
+                {remainingAttempts !== null && remainingAttempts <= 2 && (
+                  <p className="text-orange-500 text-xs font-semibold">
+                    ⚠️ Attention : encore {remainingAttempts} erreur(s) et votre compte sera suspendu.
+                  </p>
+                )}
+              </div>
+            )}
+            {error && errorType === "error" && (
               <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
                 {error}
               </div>

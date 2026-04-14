@@ -12,6 +12,20 @@ import { API_URL } from "@/config/api";
 export default function AdminLogin() {
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
+
+  // Si déjà connecté → rediriger vers le dashboard
+  const token = localStorage.getItem("access_token");
+  const storedUser = localStorage.getItem("user");
+  if (token && storedUser) {
+    try {
+      const u = JSON.parse(storedUser);
+      if (u.role === "ADMIN" || u.role === "SUPERADMIN") {
+        setLocation("/admin/dashboard");
+        return null;
+      }
+    } catch {}
+  }
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");

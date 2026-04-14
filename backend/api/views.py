@@ -27,7 +27,8 @@ from .serializers import (
     QuoteLineSerializer, ServiceAdvantageSerializer, SiteSettingsSerializer, InvoiceSerializer,
     QuoteFormStepSerializer, QuoteFormOptionSerializer, PatientSerializer, PresenceSerializer,
     EmployeeProfileSerializer, ContactMessageSerializer, HeroContentSerializer,
-    ActivityLogSerializer, UserPermissionSerializer, UserPermissionBulkSerializer, UserWithPermissionsSerializer
+    ActivityLogSerializer, UserPermissionSerializer, UserPermissionBulkSerializer, UserWithPermissionsSerializer,
+    build_url
 )
 from rest_framework import generics
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
@@ -162,14 +163,14 @@ class UserViewSet(viewsets.ModelViewSet):
                 ep = user.employee_profile
                 ep.photo_profil = request.FILES['photo']
                 ep.save(update_fields=['photo_profil'])
-                photo_url = request.build_absolute_uri(ep.photo_profil.url)
+                photo_url = build_url(ep.photo_profil.url, request)
             except Exception:
                 pass
         else:
             try:
                 ep = user.employee_profile
                 if ep.photo_profil:
-                    photo_url = request.build_absolute_uri(ep.photo_profil.url)
+                    photo_url = build_url(ep.photo_profil.url, request)
             except Exception:
                 pass
         return Response({
@@ -1213,7 +1214,7 @@ class QuoteRequestViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.Model
             logo_url_email = None
             if site_settings and site_settings.logo:
                 try:
-                    logo_url_email = request.build_absolute_uri(site_settings.logo.url)
+                    logo_url_email = build_url(site_settings.logo.url, request)
                 except Exception:
                     logo_url_email = None
 

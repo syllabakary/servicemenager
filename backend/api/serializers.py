@@ -4,6 +4,16 @@ from django.conf import settings
 from .models import CustomUser, Service, Agency, Contact, PageContent, Category, ServiceReview, ServiceFAQ, QuoteRequest, QuoteLine, ServiceAdvantage, SiteSettings, Invoice, QuoteFormStep, QuoteFormOption, Patient, Presence, EmployeeProfile, ContactMessage, HeroContent, ActivityLog, UserPermission
 
 
+def build_url(path, request=None):
+    """Construit une URL absolue en utilisant SITE_URL si défini, sinon request.build_absolute_uri."""
+    site_url = getattr(settings, 'SITE_URL', '').rstrip('/')
+    if site_url:
+        return f"{site_url}{path}"
+    if request:
+        return build_url(path, request)
+    return path
+
+
 class UserSerializer(serializers.ModelSerializer):
     """Serializer pour CustomUser"""
     password = serializers.CharField(
@@ -136,9 +146,7 @@ def _build_media_url(request, image_field, for_service=False):
         name = f'services/{base}'
     # Toujours préfixer par MEDIA_URL pour avoir /media/services/... ou /media/agencies/...
     path = (settings.MEDIA_URL.rstrip('/') + '/' + name).replace('//', '/')
-    if request:
-        return request.build_absolute_uri(path)
-    return path
+    return build_url(path, request)
 
 
 class ServiceSerializer(serializers.ModelSerializer):
@@ -695,7 +703,7 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if obj.logo_secondary and hasattr(obj.logo_secondary, 'url'):
             if request:
-                return request.build_absolute_uri(obj.logo_secondary.url)
+                return build_url(obj.logo_secondary.url, request)
             return obj.logo_secondary.url
         return None
 
@@ -703,7 +711,7 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if obj.logo_signature and hasattr(obj.logo_signature, 'url'):
             if request:
-                return request.build_absolute_uri(obj.logo_signature.url)
+                return build_url(obj.logo_signature.url, request)
             return obj.logo_signature.url
         return None
 
@@ -842,7 +850,7 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
             return None
         request = self.context.get('request')
         if request:
-            return request.build_absolute_uri(obj.logo.url)
+            return build_url(obj.logo.url, request)
         return obj.logo.url
 
     def get_logo_favicon_url(self, obj):
@@ -855,7 +863,7 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
             return None
         request = self.context.get('request')
         if request:
-            return request.build_absolute_uri(obj.logo_favicon.url)
+            return build_url(obj.logo_favicon.url, request)
         return obj.logo_favicon.url
 
 
@@ -994,7 +1002,7 @@ class PatientSerializer(serializers.ModelSerializer):
             if request:
                 try:
                     # Construire l'URL absolue
-                    url = request.build_absolute_uri(obj.qr_code_image.url)
+                    url = build_url(obj.qr_code_image.url, request)
                     return url
                 except Exception:
                     # Fallback si build_absolute_uri échoue
@@ -1086,7 +1094,7 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
         if obj.photo_profil:
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.photo_profil.url)
+                return build_url(obj.photo_profil.url, request)
             return obj.photo_profil.url
         return None
     
@@ -1094,7 +1102,7 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
         if obj.signature:
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.signature.url)
+                return build_url(obj.signature.url, request)
             return obj.signature.url
         return None
     
@@ -1102,7 +1110,7 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
         if obj.contrat_signe:
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.contrat_signe.url)
+                return build_url(obj.contrat_signe.url, request)
             return obj.contrat_signe.url
         return None
     
@@ -1110,7 +1118,7 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
         if obj.avenants:
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.avenants.url)
+                return build_url(obj.avenants.url, request)
             return obj.avenants.url
         return None
     
@@ -1118,7 +1126,7 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
         if obj.clause_non_concurrence:
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.clause_non_concurrence.url)
+                return build_url(obj.clause_non_concurrence.url, request)
             return obj.clause_non_concurrence.url
         return None
     
@@ -1126,7 +1134,7 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
         if obj.note_information:
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.note_information.url)
+                return build_url(obj.note_information.url, request)
             return obj.note_information.url
         return None
     
@@ -1134,7 +1142,7 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
         if obj.piece_identite:
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.piece_identite.url)
+                return build_url(obj.piece_identite.url, request)
             return obj.piece_identite.url
         return None
     
@@ -1142,7 +1150,7 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
         if obj.diplomes_certifications:
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.diplomes_certifications.url)
+                return build_url(obj.diplomes_certifications.url, request)
             return obj.diplomes_certifications.url
         return None
     
@@ -1150,7 +1158,7 @@ class EmployeeProfileSerializer(serializers.ModelSerializer):
         if obj.documents_administratifs:
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.documents_administratifs.url)
+                return build_url(obj.documents_administratifs.url, request)
             return obj.documents_administratifs.url
         return None
 
@@ -1173,7 +1181,7 @@ class HeroContentSerializer(serializers.ModelSerializer):
         if obj.background_image:
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.background_image.url)
+                return build_url(obj.background_image.url, request)
             return obj.background_image.url
         return None
 

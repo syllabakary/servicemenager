@@ -14,6 +14,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
 from django.utils import timezone
 import logging
+from .serializers import build_url
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
@@ -385,7 +386,7 @@ def login_with_matricule(request):
     try:
         ep = user.employee_profile
         if ep.photo_profil:
-            photo_url = request.build_absolute_uri(ep.photo_profil.url)
+            photo_url = build_url(ep.photo_profil.url, request)
     except Exception:
         pass
 

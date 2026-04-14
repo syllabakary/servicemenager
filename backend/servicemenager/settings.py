@@ -5,6 +5,9 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-change-me-in-production-12345')
+
+# URL publique du site (pour build_absolute_uri derrière un proxy HTTPS)
+SITE_URL = config('SITE_URL', default='')
 DEBUG = config('DEBUG', default=True, cast=bool)
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0,172.20.10.5,10.10.9.42,192.168.0.133,76.13.56.224,ease-dom.fr,www.ease-dom.fr,ease-dom.net,www.ease-dom.net,ease-dom.com,www.ease-dom.com', cast=lambda v: [s.strip() for s in v.split(',')])
 

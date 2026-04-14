@@ -44,7 +44,14 @@ class CustomUser(AbstractUser):
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
+
+    # Sécurité : blocage de compte après tentatives échouées
+    failed_login_attempts = models.IntegerField(default=0, verbose_name="Tentatives échouées")
+    locked_until = models.DateTimeField(null=True, blank=True, verbose_name="Bloqué jusqu'à")
+
+    # Sécurité : détection nouvelle IP
+    last_login_ip = models.GenericIPAddressField(null=True, blank=True, verbose_name="Dernière IP")
+
     class Meta:
         verbose_name = "Utilisateur"
         verbose_name_plural = "Utilisateurs"

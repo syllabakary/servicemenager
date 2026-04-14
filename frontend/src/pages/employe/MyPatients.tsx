@@ -11,11 +11,13 @@ import {
   FaSpinner, FaSignOutAlt, FaEye
 } from "react-icons/fa";
 import { API_URL } from "@/config/api";
+import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 
 export default function MyPatients() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const [user, setUser] = React.useState<any>(null);
+  useInactivityLogout(30 * 60 * 1000);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");

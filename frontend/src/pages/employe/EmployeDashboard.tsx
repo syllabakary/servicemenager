@@ -13,9 +13,12 @@ import {
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { API_URL } from "@/config/api";
+import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 
 export default function EmployeDashboard() {
   const [, setLocation] = useLocation();
+  // Auto-logout après 30 minutes d'inactivité
+  useInactivityLogout(30 * 60 * 1000);
   const { toast } = useToast();
   const [user, setUser] = React.useState<any>(null);
 

@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FaPlus, FaEdit, FaTrash, FaKey } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaKey, FaLockOpen, FaLock } from "react-icons/fa";
 import axios from "axios";
 import {
   Dialog,
@@ -41,6 +41,26 @@ export default function AdminUtilisateurs() {
   const [userToResetPassword, setUserToResetPassword] = useState<any>(null);
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const isSuperAdmin = storedUser.role === "SUPERADMIN";
+
+  const unlockMutation = useMutation({
+    mutationFn: async (userId: number) => {
+      const token = localStorage.getItem("access_token");
+      const res = await axios.post(
+        `${API_URL}/users/${userId}/unlock/`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return res.data;
+    },
+    onSuccess: (data: any) => {
+      toast({ title: "✅ Compte débloqué", description: data.message });
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+    },
+    onError: (error: any) => {
+      const msg = error?.response?.data?.error || "Erreur lors du déblocage.";
+      toast({ title: "❌ Erreur", description: msg, variant: "destructive" });
+    },
+  });
 
   const resetPasswordMutation = useMutation({
     mutationFn: async (userId: number) => {
@@ -170,67 +190,93 @@ export default function AdminUtilisateurs() {
                 </TableHeader>
                 <TableBody>
                   {data?.results?.map((user: any) => (
-                    <TableRow key={user.id} className="hover:bg-gray-50 transition-colors">
-                      <TableCell className="font-semibold text-gray-900">{user.username}</TableCell>
-                      <TableCell className="text-gray-700">{user.email}</TableCell>
-                      <TableCell>
-                        <Badge
-                          className={`${
-                            user.role === "SUPERADMIN"
-                              ? "bg-purple-500 hover:bg-purple-600"
-                              : user.role === "ADMIN"
-                              ? "bg-blue-500 hover:bg-blue-600"
-                              : "bg-gray-500 hover:bg-gray-600"
-                          } text-white font-semibold px-3 py-1 shadow-sm`}
-                        >
-                          {user.role === "SUPERADMIN"
-                            ? "Super Admin"
-                            : user.role === "ADMIN"
-                            ? "Admin"
-                            : "Client"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleEdit(user)}
-                            className="hover:bg-blue-50 hover:text-blue-600 rounded-lg"
-                            title="Modifier"
-                          >
-                            <FaEdit className="w-5 h-5" />
-                          </Button>
-                          {user.role !== "SUPERADMIN" && (
-                            <>
+                    {(() => {
+                      const isLocked = user.locked_until && new Date(user.locked_until) > new Date();
+                      return (
+                        <TableRow key={user.id} className={`hover:bg-gray-50 transition-colors ${isLocked ? "bg-red-50" : ""}`}>
+                          <TableCell className="font-semibold text-gray-900">
+                            <div className="flex items-center gap-2">
+                              {user.username}
+                              {isLocked && (
+                                <span className="inline-flex items-center gap-1 text-xs bg-red-100 text-red-700 border border-red-300 rounded-full px-2 py-0.5 font-semibold">
+                                  <FaLock className="w-3 h-3" /> Bloqué
+                                </span>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-gray-700">{user.email}</TableCell>
+                          <TableCell>
+                            <Badge
+                              className={`${
+                                user.role === "SUPERADMIN"
+                                  ? "bg-purple-500 hover:bg-purple-600"
+                                  : user.role === "ADMIN"
+                                  ? "bg-blue-500 hover:bg-blue-600"
+                                  : "bg-gray-500 hover:bg-gray-600"
+                              } text-white font-semibold px-3 py-1 shadow-sm`}
+                            >
+                              {user.role === "SUPERADMIN" ? "Super Admin" : user.role === "ADMIN" ? "Admin" : "Client"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
                               <Button
                                 variant="ghost"
                                 size="sm"
-                                onClick={() => setUserToResetPassword(user)}
-                                className="hover:bg-amber-50 hover:text-amber-600 rounded-lg"
-                                title="Réinitialiser le mot de passe"
-                                disabled={resetPasswordMutation.isPending}
+                                onClick={() => handleEdit(user)}
+                                className="hover:bg-blue-50 hover:text-blue-600 rounded-lg"
+                                title="Modifier"
                               >
-                                <FaKey className="w-5 h-5" />
+                                <FaEdit className="w-5 h-5" />
                               </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => {
-                                  if (confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
-                                    deleteMutation.mutate(user.id);
-                                  }
-                                }}
-                                className="hover:bg-red-50 hover:text-red-600 rounded-lg"
-                                title="Supprimer"
-                              >
-                                <FaTrash className="w-5 h-5 text-red-500" />
-                              </Button>
-                            </>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                              {isLocked && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    if (confirm(`Débloquer le compte de ${user.username} ?`)) {
+                                      unlockMutation.mutate(user.id);
+                                    }
+                                  }}
+                                  className="hover:bg-green-50 hover:text-green-600 rounded-lg"
+                                  title="Débloquer le compte"
+                                  disabled={unlockMutation.isPending}
+                                >
+                                  <FaLockOpen className="w-5 h-5 text-green-600" />
+                                </Button>
+                              )}
+                              {user.role !== "SUPERADMIN" && (
+                                <>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setUserToResetPassword(user)}
+                                    className="hover:bg-amber-50 hover:text-amber-600 rounded-lg"
+                                    title="Réinitialiser le mot de passe"
+                                    disabled={resetPasswordMutation.isPending}
+                                  >
+                                    <FaKey className="w-5 h-5" />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => {
+                                      if (confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
+                                        deleteMutation.mutate(user.id);
+                                      }
+                                    }}
+                                    className="hover:bg-red-50 hover:text-red-600 rounded-lg"
+                                    title="Supprimer"
+                                  >
+                                    <FaTrash className="w-5 h-5 text-red-500" />
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })()}
                   ))}
                 </TableBody>
               </Table>

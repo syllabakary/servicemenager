@@ -272,6 +272,34 @@ Connectez-vous avec ce nom d'utilisateur et ce mot de passe. Vous pourrez modifi
             status=status.HTTP_200_OK
         )
     
+    @action(detail=True, methods=['post'], permission_classes=[IsSuperAdminOrAdmin])
+    def unlock(self, request, pk=None):
+        """Débloquer un compte verrouillé après trop de tentatives échouées."""
+        user = self.get_object()
+        if user.is_superadmin and not request.user.is_superadmin:
+            return Response(
+                {'error': 'Vous ne pouvez pas débloquer un superadmin.'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        user.failed_login_attempts = 0
+        user.locked_until = None
+        user.save(update_fields=['failed_login_attempts', 'locked_until'])
+        logger.info(f"Compte débloqué: {user.username} par {request.user.username}")
+        try:
+            from api.models import ActivityLog
+            ActivityLog.objects.create(
+                user=request.user,
+                action="OTHER",
+                level="INFO",
+                model_name="Utilisateur",
+                object_id=str(user.pk),
+                object_repr=user.username,
+                detail=f"Compte débloqué par {request.user.username}",
+            )
+        except Exception:
+            pass
+        return Response({'message': f'Compte {user.username} débloqué avec succès.'}, status=status.HTTP_200_OK)
+
     def perform_create(self, serializer):
         """Création avec restrictions"""
         user = self.request.user

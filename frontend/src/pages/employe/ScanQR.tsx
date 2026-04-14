@@ -24,6 +24,7 @@ import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { API_URL } from "@/config/api";
+import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 
 // Import dynamique pour html5-qrcode
 let Html5Qrcode: any = null;
@@ -37,6 +38,7 @@ export default function ScanQR() {
   const { toast } = useToast();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
+  useInactivityLogout(30 * 60 * 1000);
   const [qrCode, setQrCode] = useState("");
   const [lastScan, setLastScan] = useState<any>(null);
   const [user, setUser] = useState<any>(null);

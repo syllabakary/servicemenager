@@ -12,37 +12,148 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
+from django.utils import timezone
 import logging
 
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
+MAX_FAILED_ATTEMPTS = 5
+LOCK_DURATION_MINUTES = 15
+
+
+def get_ip(request):
+    ip = request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip()
+    return ip or request.META.get('REMOTE_ADDR', None)
+
+
+def _log_activity(user=None, action="LOGIN", level="INFO", object_repr="", detail="", ip=None):
+    try:
+        from api.models import ActivityLog
+        ActivityLog.objects.create(
+            user=user,
+            action=action,
+            level=level,
+            model_name="Utilisateur",
+            object_id=str(user.pk) if user else "",
+            object_repr=object_repr,
+            detail=detail,
+            ip_address=ip or None,
+        )
+    except Exception:
+        pass
+
+
+def _send_new_ip_alert(user, ip):
+    """Envoie un email à tous les SUPERADMIN quand un utilisateur se connecte depuis une nouvelle IP."""
+    try:
+        from django.core.mail import send_mail
+        from django.conf import settings
+        admins = User.objects.filter(role='SUPERADMIN', email__isnull=False).exclude(email='')
+        if not admins.exists():
+            return
+        subject = f"[EASE-DOM] Connexion depuis une nouvelle IP — {user.username}"
+        message = (
+            f"Bonjour,\n\n"
+            f"L'utilisateur '{user.username}' ({user.get_full_name() or user.email}) "
+            f"vient de se connecter depuis une nouvelle adresse IP.\n\n"
+            f"Nouvelle IP : {ip}\n"
+            f"Ancienne IP : {user.last_login_ip or 'inconnue'}\n"
+            f"Date : {timezone.now().strftime('%d/%m/%Y à %H:%M:%S')}\n\n"
+            f"Si cette connexion est légitime, ignorez ce message.\n"
+            f"Sinon, bloquez le compte immédiatement depuis l'interface admin.\n\n"
+            f"— Système EASE-DOM"
+        )
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [a.email for a in admins],
+            fail_silently=True,
+        )
+    except Exception:
+        pass
+
+
+def _handle_successful_login(user, ip):
+    """Réinitialise les tentatives, détecte nouvelle IP, envoie alerte si besoin."""
+    new_ip = ip != user.last_login_ip and user.last_login_ip is not None
+    if new_ip:
+        _send_new_ip_alert(user, ip)
+        _log_activity(
+            user=user, action="LOGIN", level="WARNING",
+            object_repr=user.username,
+            detail=f"Connexion depuis une NOUVELLE IP: {ip} (ancienne: {user.last_login_ip})",
+            ip=ip,
+        )
+    else:
+        _log_activity(
+            user=user, action="LOGIN", level="INFO",
+            object_repr=user.username,
+            detail=f"Connexion de {user.username} ({user.get_full_name() or user.email})",
+            ip=ip,
+        )
+    # Réinitialiser les tentatives + sauvegarder la nouvelle IP
+    user.failed_login_attempts = 0
+    user.locked_until = None
+    user.last_login_ip = ip
+    user.save(update_fields=['failed_login_attempts', 'locked_until', 'last_login_ip'])
+
+
+def _handle_failed_login(user, ip, username_repr):
+    """Incrémente les tentatives, bloque si nécessaire, log l'échec."""
+    user.failed_login_attempts += 1
+    if user.failed_login_attempts >= MAX_FAILED_ATTEMPTS:
+        user.locked_until = timezone.now() + timezone.timedelta(minutes=LOCK_DURATION_MINUTES)
+        user.save(update_fields=['failed_login_attempts', 'locked_until'])
+        _log_activity(
+            user=user, action="LOGIN", level="WARNING",
+            object_repr=username_repr,
+            detail=(
+                f"COMPTE BLOQUÉ après {MAX_FAILED_ATTEMPTS} tentatives échouées "
+                f"— utilisateur: '{username_repr}' | IP: {ip}"
+            ),
+            ip=ip,
+        )
+        logger.warning(f"[AUTH] COMPTE BLOQUÉ — utilisateur: '{username_repr}' | IP: {ip}")
+    else:
+        user.save(update_fields=['failed_login_attempts', 'locked_until'])
+        _log_activity(
+            user=user, action="LOGIN", level="WARNING",
+            object_repr=username_repr,
+            detail=(
+                f"ÉCHEC de connexion ({user.failed_login_attempts}/{MAX_FAILED_ATTEMPTS}) "
+                f"— utilisateur: '{username_repr}' | IP: {ip}"
+            ),
+            ip=ip,
+        )
+
 
 class LoggedTokenObtainPairView(TokenObtainPairView):
-    """TokenObtainPairView avec logging des tentatives de connexion échouées"""
+    """TokenObtainPairView avec blocage de compte, alerte nouvelle IP et logging."""
 
     def post(self, request, *args, **kwargs):
         username = request.data.get('username', '—')
-        ip = (
-            request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip()
-            or request.META.get('REMOTE_ADDR', '—')
-        )
+        ip = get_ip(request)
+
+        # Vérifier si le compte est bloqué avant même de tenter l'auth
+        try:
+            user_check = User.objects.get(username=username)
+            if user_check.locked_until and user_check.locked_until > timezone.now():
+                remaining = int((user_check.locked_until - timezone.now()).total_seconds() / 60) + 1
+                return Response(
+                    {'error': f'Compte temporairement bloqué. Réessayez dans {remaining} minute(s).'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+        except User.DoesNotExist:
+            pass
+
         try:
             response = super().post(request, *args, **kwargs)
             logger.info(f"[AUTH] Connexion réussie — utilisateur: {username} | IP: {ip}")
-            # Créer une entrée ActivityLog pour la connexion JWT
             try:
-                from api.models import ActivityLog
                 user = User.objects.get(username=username)
-                ActivityLog.objects.create(
-                    user=user,
-                    action="LOGIN",
-                    model_name="Utilisateur",
-                    object_id=str(user.pk),
-                    object_repr=user.username,
-                    detail=f"Connexion de {user.username} ({user.get_full_name() or user.email})",
-                    ip_address=ip or None,
-                )
+                _handle_successful_login(user, ip)
             except Exception:
                 pass
             return response
@@ -50,25 +161,17 @@ class LoggedTokenObtainPairView(TokenObtainPairView):
             logger.warning(
                 f"[AUTH] ÉCHEC de connexion — utilisateur: '{username}' | IP: {ip} | Erreur: {type(e).__name__}"
             )
-            # Créer une entrée ActivityLog pour la tentative échouée
             try:
-                from api.models import ActivityLog
-                user_obj = None
-                try:
-                    user_obj = User.objects.get(username=username)
-                except User.DoesNotExist:
-                    pass
-                ActivityLog.objects.create(
-                    user=user_obj,
-                    action="LOGIN",
-                    level="WARNING",
-                    model_name="Utilisateur",
+                user_obj = User.objects.get(username=username)
+                _handle_failed_login(user_obj, ip, username)
+            except User.DoesNotExist:
+                # Utilisateur inconnu — log simple sans incrémenter
+                _log_activity(
+                    user=None, action="LOGIN", level="WARNING",
                     object_repr=username,
-                    detail=f"ÉCHEC de connexion — utilisateur: '{username}' | IP: {ip}",
-                    ip_address=ip if ip != '—' else None,
+                    detail=f"ÉCHEC de connexion — utilisateur inconnu: '{username}' | IP: {ip}",
+                    ip=ip,
                 )
-            except Exception:
-                pass
             raise
 
 
@@ -98,41 +201,32 @@ def register(request):
     """
     Endpoint d'inscription pour les clients
     POST /api/register/
-    Body: {
-        "username": "client",
-        "email": "client@example.com",
-        "password": "ClientPass123!",
-        "first_name": "Prénom",
-        "last_name": "Nom"
-    }
     """
     username = request.data.get('username')
     email = request.data.get('email')
     password = request.data.get('password')
     first_name = request.data.get('first_name', '')
     last_name = request.data.get('last_name', '')
-    
+
     if not username or not email or not password:
         return Response(
             {'error': 'username, email et password sont requis'},
             status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     if User.objects.filter(username=username).exists():
         return Response(
             {'error': 'Ce nom d\'utilisateur existe déjà'},
             status=status.HTTP_400_BAD_REQUEST
         )
-    
+
     if User.objects.filter(email=email).exists():
         return Response(
             {'error': 'Cet email est déjà utilisé'},
             status=status.HTTP_400_BAD_REQUEST
         )
-    
-    # Validation du mot de passe (seulement si pas en DEBUG)
+
     from django.conf import settings
-    from django.contrib.auth.password_validation import validate_password
     if not settings.DEBUG:
         try:
             validate_password(password)
@@ -141,8 +235,7 @@ def register(request):
                 {'error': 'Mot de passe invalide', 'details': list(e.messages)},
                 status=status.HTTP_400_BAD_REQUEST
             )
-    
-    # Création de l'utilisateur (toujours CLIENT)
+
     user = User.objects.create_user(
         username=username,
         email=email,
@@ -151,10 +244,9 @@ def register(request):
         last_name=last_name,
         role='CLIENT'
     )
-    
-    # Génération des tokens JWT
+
     refresh = RefreshToken.for_user(user)
-    
+
     return Response({
         'user': {
             'id': user.id,
@@ -175,97 +267,62 @@ def login_with_matricule(request):
     """
     Endpoint d'authentification par matricule pour les employés
     POST /api/login-matricule/
-    Body: {
-        "matricule": "EMP123456",
-        "password": "MotDePasse123!"
-    }
     """
     matricule = request.data.get('matricule')
     password = request.data.get('password')
-    
+
     if not matricule or not password:
         return Response(
             {'error': 'matricule et password sont requis'},
             status=status.HTTP_400_BAD_REQUEST
         )
-    
-    # Normaliser le matricule (trim et uppercase)
+
     matricule = matricule.strip().upper()
-    
-    ip = (
-        request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip()
-        or request.META.get('REMOTE_ADDR', '—')
-    )
+    ip = get_ip(request)
 
     # Trouver l'utilisateur par matricule
     try:
         user = User.objects.get(matricule=matricule, role='EMPLOYE')
     except User.DoesNotExist:
         logger.warning(f"[AUTH] ÉCHEC login matricule — matricule: '{matricule}' | IP: {ip}")
-        try:
-            from api.models import ActivityLog
-            ActivityLog.objects.create(
-                action="LOGIN", level="WARNING",
-                model_name="Utilisateur", object_repr=matricule,
-                detail=f"ÉCHEC connexion employé — matricule inconnu: '{matricule}' | IP: {ip}",
-                ip_address=ip if ip != '—' else None,
-            )
-        except Exception:
-            pass
-        try:
-            user_with_matricule = User.objects.get(matricule=matricule)
-            return Response(
-                {'error': f'Ce matricule existe mais n\'est pas associé à un employé (rôle: {user_with_matricule.role})'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-        except User.DoesNotExist:
-            return Response(
-                {'error': 'Matricule ou mot de passe incorrect'},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-
-    # Vérifier le mot de passe
-    if not user.check_password(password):
-        logger.warning(f"[AUTH] ÉCHEC login matricule — matricule: '{matricule}' | IP: {ip} | mot de passe incorrect")
-        try:
-            from api.models import ActivityLog
-            ActivityLog.objects.create(
-                user=user, action="LOGIN", level="WARNING",
-                model_name="Utilisateur", object_repr=matricule,
-                detail=f"ÉCHEC connexion employé — mauvais mot de passe: '{matricule}' | IP: {ip}",
-                ip_address=ip if ip != '—' else None,
-            )
-        except Exception:
-            pass
+        _log_activity(
+            user=None, action="LOGIN", level="WARNING",
+            object_repr=matricule,
+            detail=f"ÉCHEC connexion employé — matricule inconnu: '{matricule}' | IP: {ip}",
+            ip=ip,
+        )
         return Response(
             {'error': 'Matricule ou mot de passe incorrect'},
             status=status.HTTP_401_UNAUTHORIZED
         )
-    
+
+    # Vérifier si le compte est bloqué
+    if user.locked_until and user.locked_until > timezone.now():
+        remaining = int((user.locked_until - timezone.now()).total_seconds() / 60) + 1
+        return Response(
+            {'error': f'Compte temporairement bloqué. Réessayez dans {remaining} minute(s).'},
+            status=status.HTTP_403_FORBIDDEN
+        )
+
+    # Vérifier le mot de passe
+    if not user.check_password(password):
+        logger.warning(f"[AUTH] ÉCHEC login matricule — matricule: '{matricule}' | IP: {ip} | mot de passe incorrect")
+        _handle_failed_login(user, ip, matricule)
+        return Response(
+            {'error': 'Matricule ou mot de passe incorrect'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
+
     # Vérifier que l'utilisateur est actif
     if not user.is_active:
         return Response(
             {'error': 'Ce compte est désactivé'},
             status=status.HTTP_403_FORBIDDEN
         )
-    
-    # Génération des tokens JWT
-    refresh = RefreshToken.for_user(user)
 
-    # Créer une entrée ActivityLog pour la connexion par matricule
-    try:
-        from api.models import ActivityLog
-        ActivityLog.objects.create(
-            user=user,
-            action="LOGIN",
-            model_name="Utilisateur",
-            object_id=str(user.pk),
-            object_repr=user.username,
-            detail=f"Connexion employé — matricule: {user.matricule} ({user.get_full_name() or user.email})",
-            ip_address=ip or None,
-        )
-    except Exception:
-        pass
+    # Connexion réussie
+    refresh = RefreshToken.for_user(user)
+    _handle_successful_login(user, ip)
 
     return Response({
         'user': {
@@ -282,4 +339,3 @@ def login_with_matricule(request):
             'access': str(refresh.access_token)
         }
     }, status=status.HTTP_200_OK)
-

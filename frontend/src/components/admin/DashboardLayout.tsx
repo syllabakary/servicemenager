@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { Sidebar } from "./Sidebar";
 import axios from "axios";
 import { API_URL } from "@/config/api";
+import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -12,6 +13,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const [, setLocation] = useLocation();
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+
+  // Auto-logout après 30 minutes d'inactivité
+  useInactivityLogout(30 * 60 * 1000);
 
   useEffect(() => {
     const checkAuth = async () => {

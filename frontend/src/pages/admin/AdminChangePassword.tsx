@@ -26,7 +26,7 @@ export default function AdminChangePassword() {
     const token = localStorage.getItem("access_token");
     const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
     if (!token || (storedUser.role !== "ADMIN" && storedUser.role !== "SUPERADMIN")) {
-      setLocation("/admin/login");
+      setLocation("/gestion-ease/acces-prive");
       return;
     }
     setUser(storedUser);

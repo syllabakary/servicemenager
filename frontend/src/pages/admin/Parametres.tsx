@@ -366,7 +366,7 @@ export default function AdminParametres() {
           // Token expiré ou invalide
           localStorage.removeItem("access_token");
           localStorage.removeItem("refresh_token");
-          window.location.href = "/admin/login";
+          window.location.href = "/gestion-ease/acces-prive";
           throw error;
         }
         return null;
@@ -889,7 +889,7 @@ export default function AdminParametres() {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         setTimeout(() => {
-          window.location.href = "/admin/login";
+          window.location.href = "/gestion-ease/acces-prive";
         }, 2000);
       } else if (error.message) {
         errorMessage = error.message;
@@ -986,7 +986,7 @@ export default function AdminParametres() {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         setTimeout(() => {
-          window.location.href = "/admin/login";
+          window.location.href = "/gestion-ease/acces-prive";
         }, 2000);
       } else if (error.message) {
         errorMessage = error.message;

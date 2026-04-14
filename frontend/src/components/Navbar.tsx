@@ -320,7 +320,7 @@ export function Navbar() {
 
           {/* CTA buttons */}
           <div className="hidden md:flex items-center gap-3">
-            <Link href="/admin/login">
+            <Link href="/gestion-ease/acces-prive">
               <Button
                 variant="outline"
                 className="border-2 border-site-button-outline-border text-site-button-outline-text hover:bg-site-button-outline-hover-bg hover:text-white transition-colors"
@@ -525,7 +525,7 @@ export function Navbar() {
               
               {/* CTA Buttons Mobile */}
               <div className="pt-4 mt-4 border-t border-gray-300 space-y-2 w-full">
-                <Link href="/admin/login" onClick={handleCloseMenu} className="block w-full">
+                <Link href="/gestion-ease/acces-prive" onClick={handleCloseMenu} className="block w-full">
                   <Button variant="outline" className="w-full border-2 border-site-button-outline-border text-site-button-outline-text hover:bg-site-button-outline-hover-bg hover:text-white py-2 text-sm font-semibold">
                     Connexion
                   </Button>

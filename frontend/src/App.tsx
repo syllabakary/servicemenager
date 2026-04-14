@@ -76,7 +76,7 @@ function Router() {
       <Route path="/agences/:slug" component={AgencyDetail} />
       <Route path="/contact" component={Contact} />
       <Route path="/devis" component={QuoteRequest} />
-      <Route path="/admin/login" component={AdminLogin} />
+      <Route path="/gestion-ease/acces-prive" component={AdminLogin} />
       <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/categories" component={AdminCategories} />
       <Route path="/admin/services" component={AdminServices} />

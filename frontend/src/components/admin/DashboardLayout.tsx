@@ -19,7 +19,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       const storedUser = localStorage.getItem("user");
 
       if (!token || !storedUser) {
-        setLocation("/admin/login");
+        setLocation("/gestion-ease/acces-prive");
         return;
       }
 
@@ -36,7 +36,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         localStorage.removeItem("user");
-        setLocation("/admin/login");
+        setLocation("/gestion-ease/acces-prive");
       } finally {
         setLoading(false);
       }

@@ -97,7 +97,7 @@ export function setupAxiosAuth(axiosInstance: any) {
         localStorage.removeItem("refresh_token");
         localStorage.removeItem("user");
         if (typeof window !== "undefined" && window.location.pathname.startsWith("/admin")) {
-          window.location.href = "/admin/login";
+          window.location.href = "/gestion-ease/acces-prive";
         }
       }
       return Promise.reject(err);

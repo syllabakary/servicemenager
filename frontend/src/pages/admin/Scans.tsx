@@ -609,7 +609,7 @@ export default function AdminScans() {
                             {duration !== null && (
                               <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-1.5 py-0.5">
                                 <FaClock className="w-2.5 h-2.5 mr-0.5" />
-                                {duration.toFixed(2)}h
+                                {formatHours(duration)}
                               </Badge>
                             )}
                           </div>

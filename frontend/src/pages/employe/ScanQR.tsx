@@ -25,6 +25,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { API_URL } from "@/config/api";
 import { useInactivityLogout } from "@/hooks/useInactivityLogout";
+import { EmployeLayout } from "@/components/employe/EmployeLayout";
 
 // Import dynamique pour html5-qrcode
 let Html5Qrcode: any = null;
@@ -774,8 +775,9 @@ export default function ScanQR() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 pt-20 pb-8 px-4 md:px-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+    <EmployeLayout user={user} onLogout={handleLogout}>
+    <div className="space-y-5 py-5">
+      <div className="space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-white to-gray-50 rounded-2xl shadow-xl p-6 border border-gray-200">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -1423,5 +1425,6 @@ export default function ScanQR() {
         </Dialog>
       </div>
     </div>
+    </EmployeLayout>
   );
 }

@@ -12,6 +12,7 @@ import {
 } from "react-icons/fa";
 import { API_URL } from "@/config/api";
 import { useInactivityLogout } from "@/hooks/useInactivityLogout";
+import { EmployeLayout } from "@/components/employe/EmployeLayout";
 
 export default function MyPatients() {
   const [, setLocation] = useLocation();
@@ -86,8 +87,9 @@ export default function MyPatients() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 pt-20 pb-8 px-4 md:px-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <EmployeLayout user={user} onLogout={handleLogout}>
+    <div className="space-y-5 py-5">
+      <div className="space-y-6">
         {/* Header */}
         <div className="bg-gradient-to-r from-white to-gray-50 rounded-2xl shadow-xl p-6 md:p-8 border border-gray-200">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -199,6 +201,7 @@ export default function MyPatients() {
         )}
       </div>
     </div>
+    </EmployeLayout>
   );
 }
 

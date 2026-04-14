@@ -54,6 +54,7 @@ const AdminCorbeille = React.lazy(() => import("@/pages/admin/Corbeille"));
 const ScanQR = React.lazy(() => import("@/pages/employe/ScanQR"));
 const EmployeLogin = React.lazy(() => import("@/pages/employe/EmployeLogin"));
 const EmployeDashboard = React.lazy(() => import("@/pages/employe/EmployeDashboard"));
+const EmployeProfil = React.lazy(() => import("@/pages/employe/EmployeProfil"));
 const PatientDetail = React.lazy(() => import("@/pages/employe/PatientDetail"));
 const MyPatients = React.lazy(() => import("@/pages/employe/MyPatients"));
 const ChangePassword = React.lazy(() => import("@/pages/employe/ChangePassword"));
@@ -107,6 +108,7 @@ function Router() {
       <Route path="/employe/scan" component={ScanQR} />
       <Route path="/employe/patients" component={MyPatients} />
       <Route path="/employe/patient/:id" component={PatientDetail} />
+      <Route path="/employe/profil" component={EmployeProfil} />
       <Route path="/employe/change-password" component={ChangePassword} />
       <Route component={NotFound} />
     </Switch>

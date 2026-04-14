@@ -21,9 +21,9 @@ class UserSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'username', 'email', 'password', 'first_name',
             'last_name', 'role', 'matricule', 'phone', 'created_by', 'created_by_username',
-            'date_joined', 'created_at'
+            'date_joined', 'created_at', 'failed_login_attempts', 'locked_until', 'last_login_ip'
         ]
-        read_only_fields = ['date_joined', 'created_at', 'created_by']
+        read_only_fields = ['date_joined', 'created_at', 'created_by', 'failed_login_attempts', 'locked_until', 'last_login_ip']
         extra_kwargs = {
             'password': {'write_only': True, 'required': False},
             'username': {'required': False, 'allow_blank': True},

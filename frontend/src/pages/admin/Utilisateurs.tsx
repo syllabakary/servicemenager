@@ -189,10 +189,9 @@ export default function AdminUtilisateurs() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data?.results?.map((user: any) => (
-                    {(() => {
-                      const isLocked = user.locked_until && new Date(user.locked_until) > new Date();
-                      return (
+                  {data?.results?.map((user: any) => {
+                    const isLocked = user.locked_until && new Date(user.locked_until) > new Date();
+                    return (
                         <TableRow key={user.id} className={`hover:bg-gray-50 transition-colors ${isLocked ? "bg-red-50" : ""}`}>
                           <TableCell className="font-semibold text-gray-900">
                             <div className="flex items-center gap-2">
@@ -276,8 +275,8 @@ export default function AdminUtilisateurs() {
                           </TableCell>
                         </TableRow>
                       );
-                    })()}
-                  ))}
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>

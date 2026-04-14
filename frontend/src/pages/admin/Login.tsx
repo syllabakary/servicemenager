@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { FaHome, FaLock, FaUser } from "react-icons/fa";
+import { FaHome, FaLock, FaUser, FaExclamationTriangle } from "react-icons/fa";
 import axios from "axios";
 import { API_URL } from "@/config/api";
 
@@ -29,24 +29,25 @@ export default function AdminLogin() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [errorType, setErrorType] = useState<"locked" | "warning" | "error" | "">("");
+  const [remainingAttempts, setRemainingAttempts] = useState<number | null>(null);
+  const [lockMinutes, setLockMinutes] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setErrorType("");
+    setRemainingAttempts(null);
+    setLockMinutes(null);
     setLoading(true);
 
     try {
-      const response = await axios.post(`${API_URL}/token/`, {
-        username,
-        password,
-      });
-
+      const response = await axios.post(`${API_URL}/token/`, { username, password });
       const { access, refresh } = response.data;
       localStorage.setItem("access_token", access);
       localStorage.setItem("refresh_token", refresh);
 
-      // Récupérer les infos de l'utilisateur
       let user;
       try {
         const userResponse = await axios.get(`${API_URL}/users/me/`, {
@@ -54,27 +55,41 @@ export default function AdminLogin() {
         });
         user = userResponse.data;
       } catch {
-        // Si l'endpoint /me/ n'existe pas, utiliser /users/ avec filtre
         const usersResponse = await axios.get(`${API_URL}/users/`, {
           headers: { Authorization: `Bearer ${access}` },
         });
-        // Trouver l'utilisateur actuel
         user = usersResponse.data.results?.find((u: any) => u.username === username) || usersResponse.data.results?.[0];
       }
       localStorage.setItem("user", JSON.stringify(user));
 
-      // Rediriger selon le rôle
       if (user.role === "SUPERADMIN" || user.role === "ADMIN") {
         setLocation("/admin/dashboard");
       } else {
         setError("Vous n'avez pas les droits d'accès à l'administration");
+        setErrorType("error");
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
       }
     } catch (err: any) {
-      setError(
-        err.response?.data?.detail || "Nom d'utilisateur ou mot de passe incorrect"
-      );
+      const data = err.response?.data;
+      // Réponse structurée du backend
+      const detail = data?.detail || data;
+      if (detail?.error === "locked") {
+        setErrorType("locked");
+        setLockMinutes(detail.lock_minutes);
+        setError(detail.message);
+      } else if (detail?.error === "invalid_credentials") {
+        setErrorType("warning");
+        setRemainingAttempts(detail.remaining_attempts);
+        setError(detail.message);
+      } else if (err.response?.status === 403) {
+        // Bloqué via la vérification pré-auth
+        setErrorType("locked");
+        setError(data?.error || "Compte temporairement bloqué.");
+      } else {
+        setErrorType("error");
+        setError("Identifiants incorrects.");
+      }
     } finally {
       setLoading(false);
     }
@@ -98,7 +113,33 @@ export default function AdminLogin() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
+            {error && errorType === "locked" && (
+              <div className="p-4 text-sm bg-red-50 border-2 border-red-400 rounded-lg space-y-1">
+                <div className="flex items-center gap-2 font-bold text-red-700">
+                  <FaLock className="w-4 h-4" />
+                  Compte bloqué
+                </div>
+                <p className="text-red-600">{error}</p>
+                {lockMinutes && (
+                  <p className="text-red-500 text-xs">Contactez un administrateur pour débloquer votre compte immédiatement.</p>
+                )}
+              </div>
+            )}
+            {error && errorType === "warning" && (
+              <div className="p-4 text-sm bg-orange-50 border-2 border-orange-400 rounded-lg space-y-1">
+                <div className="flex items-center gap-2 font-bold text-orange-700">
+                  <FaExclamationTriangle className="w-4 h-4" />
+                  Identifiants incorrects
+                </div>
+                <p className="text-orange-700">{error}</p>
+                {remainingAttempts !== null && remainingAttempts <= 2 && (
+                  <p className="text-orange-500 text-xs font-semibold">
+                    ⚠️ Attention : encore {remainingAttempts} erreur(s) et votre compte sera suspendu.
+                  </p>
+                )}
+              </div>
+            )}
+            {error && errorType === "error" && (
               <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg">
                 {error}
               </div>

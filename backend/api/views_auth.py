@@ -19,7 +19,20 @@ logger = logging.getLogger(__name__)
 User = get_user_model()
 
 MAX_FAILED_ATTEMPTS = 5
-LOCK_DURATION_MINUTES = 15
+
+def get_lock_duration(user) -> int:
+    """Durée de blocage progressive en minutes selon le nombre de blocages successifs."""
+    attempts = user.failed_login_attempts
+    if attempts < MAX_FAILED_ATTEMPTS * 2:
+        return 15
+    elif attempts < MAX_FAILED_ATTEMPTS * 3:
+        return 30
+    elif attempts < MAX_FAILED_ATTEMPTS * 4:
+        return 60
+    elif attempts < MAX_FAILED_ATTEMPTS * 5:
+        return 120
+    else:
+        return 240
 
 
 def get_ip(request):
@@ -101,28 +114,31 @@ def _handle_successful_login(user, ip):
 
 
 def _handle_failed_login(user, ip, username_repr):
-    """Incrémente les tentatives, bloque si nécessaire, log l'échec."""
+    """Incrémente les tentatives, bloque si nécessaire avec durée progressive, log l'échec."""
     user.failed_login_attempts += 1
-    if user.failed_login_attempts >= MAX_FAILED_ATTEMPTS:
-        user.locked_until = timezone.now() + timezone.timedelta(minutes=LOCK_DURATION_MINUTES)
+    remaining = MAX_FAILED_ATTEMPTS - (user.failed_login_attempts % MAX_FAILED_ATTEMPTS)
+
+    if user.failed_login_attempts % MAX_FAILED_ATTEMPTS == 0:
+        lock_minutes = get_lock_duration(user)
+        user.locked_until = timezone.now() + timezone.timedelta(minutes=lock_minutes)
         user.save(update_fields=['failed_login_attempts', 'locked_until'])
         _log_activity(
             user=user, action="LOGIN", level="WARNING",
             object_repr=username_repr,
             detail=(
-                f"COMPTE BLOQUÉ après {MAX_FAILED_ATTEMPTS} tentatives échouées "
+                f"COMPTE BLOQUÉ {lock_minutes} min après {user.failed_login_attempts} tentatives "
                 f"— utilisateur: '{username_repr}' | IP: {ip}"
             ),
             ip=ip,
         )
-        logger.warning(f"[AUTH] COMPTE BLOQUÉ — utilisateur: '{username_repr}' | IP: {ip}")
+        logger.warning(f"[AUTH] COMPTE BLOQUÉ {lock_minutes}min — utilisateur: '{username_repr}' | IP: {ip}")
     else:
         user.save(update_fields=['failed_login_attempts', 'locked_until'])
         _log_activity(
             user=user, action="LOGIN", level="WARNING",
             object_repr=username_repr,
             detail=(
-                f"ÉCHEC de connexion ({user.failed_login_attempts}/{MAX_FAILED_ATTEMPTS}) "
+                f"ÉCHEC de connexion — {remaining} tentative(s) restante(s) avant blocage "
                 f"— utilisateur: '{username_repr}' | IP: {ip}"
             ),
             ip=ip,
@@ -164,8 +180,27 @@ class LoggedTokenObtainPairView(TokenObtainPairView):
             try:
                 user_obj = User.objects.get(username=username)
                 _handle_failed_login(user_obj, ip, username)
+                # Recharger pour avoir les valeurs à jour
+                user_obj.refresh_from_db()
+                remaining = MAX_FAILED_ATTEMPTS - (user_obj.failed_login_attempts % MAX_FAILED_ATTEMPTS)
+                is_locked = user_obj.locked_until and user_obj.locked_until > timezone.now()
+                if is_locked:
+                    lock_minutes = int((user_obj.locked_until - timezone.now()).total_seconds() / 60) + 1
+                    from rest_framework.exceptions import AuthenticationFailed
+                    raise AuthenticationFailed({
+                        'error': 'locked',
+                        'message': f"Compte bloqué pendant {lock_minutes} minute(s). Contactez un administrateur ou réessayez plus tard.",
+                        'locked_until': user_obj.locked_until.isoformat(),
+                        'lock_minutes': lock_minutes,
+                    })
+                else:
+                    from rest_framework.exceptions import AuthenticationFailed
+                    raise AuthenticationFailed({
+                        'error': 'invalid_credentials',
+                        'message': f"Identifiants incorrects. Il vous reste {remaining} tentative(s) avant blocage du compte.",
+                        'remaining_attempts': remaining,
+                    })
             except User.DoesNotExist:
-                # Utilisateur inconnu — log simple sans incrémenter
                 _log_activity(
                     user=None, action="LOGIN", level="WARNING",
                     object_repr=username,

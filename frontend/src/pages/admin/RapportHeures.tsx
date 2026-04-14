@@ -58,9 +58,11 @@ function pairScans(scans: any[]) {
 
 function calcDureeMin(arrival: any, departure: any): number {
   if (!arrival?.scan_time || !departure?.scan_time) return 0;
-  return Math.max(0, Math.floor(
-    (new Date(departure.scan_time).getTime() - new Date(arrival.scan_time).getTime()) / 60000
-  ));
+  const hours = (new Date(departure.scan_time).getTime() - new Date(arrival.scan_time).getTime()) / (1000 * 60 * 60);
+  if (hours <= 0) return 0;
+  const h = Math.floor(hours);
+  const m = Math.round((hours - h) * 60);
+  return h * 60 + m;
 }
 
 function formatDuree(minutes: number): string {

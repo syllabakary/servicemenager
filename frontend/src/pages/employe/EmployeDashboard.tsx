@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import {
@@ -229,43 +228,46 @@ export default function EmployeDashboard() {
               </div>
 
               {statistics?.recent_presences && statistics.recent_presences.length > 0 ? (
-                <div className="divide-y divide-gray-50">
-                  {statistics.recent_presences.map((visit: any) => (
-                    <div
-                      key={visit.id}
-                      className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors cursor-pointer"
-                      onClick={() => setLocation(`/employe/patient/${visit.patient_id}`)}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-xs ${
-                          visit.status === "ARRIVEE" ? "bg-green-500" : "bg-red-400"
+                <div className="p-3 space-y-2">
+                  {statistics.recent_presences.map((visit: any) => {
+                    const isArrivee = visit.status === "ARRIVEE";
+                    return (
+                      <div
+                        key={visit.id}
+                        onClick={() => setLocation(`/employe/patient/${visit.patient_id}`)}
+                        className={`flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all hover:scale-[0.99] active:scale-[0.97] border ${
+                          isArrivee
+                            ? "bg-green-50 border-green-100"
+                            : "bg-red-50 border-red-100"
+                        }`}
+                      >
+                        {/* Status pill */}
+                        <div className={`w-10 h-10 rounded-xl flex flex-col items-center justify-center flex-shrink-0 text-white font-bold text-[10px] leading-tight ${
+                          isArrivee ? "bg-green-500" : "bg-red-400"
                         }`}>
-                          {visit.status === "ARRIVEE" ? "ARR" : "DEP"}
+                          {isArrivee ? "ARR" : "DEP"}
                         </div>
-                        <div>
-                          <p className="text-sm font-semibold text-gray-900">{visit.patient_name}</p>
-                          <p className="text-xs text-gray-400">
-                            {format(new Date(visit.scan_time), "HH:mm", { locale: fr })}
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-gray-900 truncate">{visit.patient_name}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className={`text-xs font-medium ${isArrivee ? "text-green-700" : "text-red-600"}`}>
+                              {isArrivee ? "Arrivée" : "Départ"}
+                            </span>
+                            <span className="text-xs text-gray-400">
+                              {format(new Date(visit.scan_time), "HH:mm")}
+                            </span>
                             {visit.duration_hours && (
-                              <span className="ml-2 text-blue-500">
-                                · {Math.floor(visit.duration_hours)}h{Math.round((visit.duration_hours % 1) * 60)}min
+                              <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">
+                                {Math.floor(visit.duration_hours)}h{String(Math.round((visit.duration_hours % 1) * 60)).padStart(2, "0")}
                               </span>
                             )}
-                          </p>
+                          </div>
                         </div>
+                        <FaArrowRight className={`w-3 h-3 flex-shrink-0 ${isArrivee ? "text-green-300" : "text-red-300"}`} />
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge className={`text-xs px-2 py-0.5 ${
-                          visit.status === "ARRIVEE"
-                            ? "bg-green-100 text-green-700 border-0"
-                            : "bg-red-100 text-red-600 border-0"
-                        }`}>
-                          {visit.status === "ARRIVEE" ? "Arrivée" : "Départ"}
-                        </Badge>
-                        <FaArrowRight className="w-3 h-3 text-gray-300" />
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="text-center py-10">

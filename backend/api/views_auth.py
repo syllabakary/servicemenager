@@ -380,6 +380,15 @@ def login_with_matricule(request):
     refresh = RefreshToken.for_user(user)
     _handle_successful_login(user, ip)
 
+    # Récupérer la photo de profil depuis le profil employé si elle existe
+    photo_url = None
+    try:
+        ep = user.employee_profile
+        if ep.photo_profil:
+            photo_url = request.build_absolute_uri(ep.photo_profil.url)
+    except Exception:
+        pass
+
     return Response({
         'user': {
             'id': user.id,
@@ -388,7 +397,9 @@ def login_with_matricule(request):
             'role': user.role,
             'matricule': user.matricule,
             'first_name': user.first_name,
-            'last_name': user.last_name
+            'last_name': user.last_name,
+            'phone': user.phone,
+            'photo_url': photo_url,
         },
         'tokens': {
             'refresh': str(refresh),

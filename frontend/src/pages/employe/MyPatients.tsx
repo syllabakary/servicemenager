@@ -1,14 +1,10 @@
 import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
 import axios from "axios";
 import {
-  FaUser, FaArrowLeft, FaPhone, FaMapMarkerAlt, FaQrcode,
-  FaSpinner, FaSignOutAlt, FaEye
+  FaUser, FaPhone, FaMapMarkerAlt, FaArrowRight, FaSpinner, FaSearch,
 } from "react-icons/fa";
 import { API_URL } from "@/config/api";
 import { useInactivityLogout } from "@/hooks/useInactivityLogout";
@@ -16,29 +12,24 @@ import { EmployeLayout } from "@/components/employe/EmployeLayout";
 
 export default function MyPatients() {
   const [, setLocation] = useLocation();
-  const { toast } = useToast();
   const [user, setUser] = React.useState<any>(null);
+  const [search, setSearch] = React.useState("");
   useInactivityLogout(30 * 60 * 1000);
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
     const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    
     if (!token || storedUser.role !== "EMPLOYE") {
       setLocation("/employe/login");
       return;
     }
-    
     setUser(storedUser);
   }, [setLocation]);
 
-  const { data: patients, isLoading, error: patientsError } = useQuery({
+  const { data: patients, isLoading } = useQuery({
     queryKey: ["my-assigned-patients"],
     queryFn: async () => {
       const token = localStorage.getItem("access_token");
-      if (!token) {
-        throw new Error("Token manquant");
-      }
       const response = await axios.get(`${API_URL}/patients/my_assigned_patients/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -48,7 +39,6 @@ export default function MyPatients() {
     retry: false,
     onError: (error: any) => {
       if (error?.response?.status === 401) {
-        // Token invalide, rediriger vers la page de connexion
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
         localStorage.removeItem("user");
@@ -78,130 +68,104 @@ export default function MyPatients() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <FaSpinner className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Chargement...</p>
-        </div>
+        <FaSpinner className="w-8 h-8 text-site-primary animate-spin" />
       </div>
     );
   }
 
+  const filtered = (patients || []).filter((p: any) =>
+    `${p.first_name} ${p.last_name}`.toLowerCase().includes(search.toLowerCase()) ||
+    p.phone?.includes(search) ||
+    p.address?.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
     <EmployeLayout user={user} onLogout={handleLogout}>
-    <div className="space-y-5 py-5">
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-white to-gray-50 rounded-2xl shadow-xl p-6 md:p-8 border border-gray-200">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex-1">
-              <div className="flex items-center gap-4 mb-4">
-                <Button
-                  onClick={() => setLocation("/employe/dashboard")}
-                  variant="outline"
-                  size="sm"
-                  className="mb-2"
-                >
-                  <FaArrowLeft className="w-4 h-4 mr-2" />
-                  Retour
-                </Button>
-              </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-site-section-employe-text">
-                Mes Patients Assignés
-              </h1>
-              <p className="text-gray-600 mt-2">
-                Liste des patients qui vous ont été assignés par l'administrateur
-              </p>
-            </div>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
-            >
-              <FaSignOutAlt className="w-4 h-4 mr-2" />
-              Déconnexion
-            </Button>
-          </div>
+      <div className="space-y-4 py-5">
+
+        {/* Title */}
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">Mes Patients</h2>
+          <p className="text-sm text-gray-400 mt-0.5">
+            {patients?.length || 0} patient{patients?.length !== 1 ? "s" : ""} assigné{patients?.length !== 1 ? "s" : ""}
+          </p>
         </div>
 
-        {/* Liste des patients */}
+        {/* Search */}
+        <div className="relative">
+          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Rechercher un patient..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-site-primary/30 focus:border-site-primary transition-all"
+          />
+        </div>
+
+        {/* List */}
         {isLoading ? (
-          <div className="text-center py-12">
-            <FaSpinner className="w-16 h-16 border-4 border-site-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-gray-600">Chargement des patients...</p>
+          <div className="flex justify-center py-12">
+            <FaSpinner className="w-7 h-7 text-site-primary animate-spin" />
           </div>
-        ) : patients && patients.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {patients.map((patient: any) => (
-              <Card
+        ) : filtered.length > 0 ? (
+          <div className="space-y-3">
+            {filtered.map((patient: any) => (
+              <div
                 key={patient.id}
-                className="shadow-lg border-0 bg-gradient-to-br from-white to-gray-50 hover:shadow-xl transition-all duration-300"
+                onClick={() => setLocation(`/employe/patient/${patient.id}`)}
+                className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex items-center gap-4 cursor-pointer hover:shadow-md hover:border-site-primary/20 transition-all active:scale-[0.98]"
               >
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-site-section-employe-button flex items-center justify-center text-site-button-text font-bold text-lg">
-                        {patient.first_name?.[0]}{patient.last_name?.[0]}
-                      </div>
-                      <div>
-                        <CardTitle className="text-lg font-semibold text-gray-900">
-                          {patient.first_name} {patient.last_name}
-                        </CardTitle>
-                        <p className="text-sm text-gray-500 mt-1">
-                          Client: {patient.client_username || "N/A"}
-                        </p>
-                      </div>
-                    </div>
-                    {patient.is_active ? (
-                      <Badge className="bg-green-500 text-white">Actif</Badge>
-                    ) : (
-                      <Badge variant="outline" className="text-gray-500">Inactif</Badge>
-                    )}
+                {/* Avatar */}
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-site-primary to-site-secondary flex items-center justify-center text-white font-bold text-base flex-shrink-0">
+                  {patient.first_name?.[0]}{patient.last_name?.[0]}
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="font-semibold text-gray-900 text-sm">
+                      {patient.first_name} {patient.last_name}
+                    </p>
+                    <Badge className={`text-[10px] px-1.5 py-0 border-0 ${
+                      patient.is_active
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-500"
+                    }`}>
+                      {patient.is_active ? "Actif" : "Inactif"}
+                    </Badge>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
                   {patient.phone && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <FaPhone className="w-4 h-4 text-gray-400" />
-                      <span>{patient.phone}</span>
-                    </div>
+                    <p className="text-xs text-gray-400 flex items-center gap-1">
+                      <FaPhone className="w-2.5 h-2.5" />{patient.phone}
+                    </p>
                   )}
                   {patient.address && (
-                    <div className="flex items-start gap-2 text-sm text-gray-600">
-                      <FaMapMarkerAlt className="w-4 h-4 text-gray-400 mt-0.5" />
-                      <span className="line-clamp-2">{patient.address}</span>
-                    </div>
+                    <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5 truncate">
+                      <FaMapMarkerAlt className="w-2.5 h-2.5 flex-shrink-0" />
+                      <span className="truncate">{patient.address}</span>
+                    </p>
                   )}
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <FaQrcode className="w-4 h-4 text-gray-400" />
-                    <span className="font-mono text-xs">{patient.qr_code?.substring(0, 20)}...</span>
-                  </div>
-                  <Button
-                    onClick={() => setLocation(`/employe/patient/${patient.id}`)}
-                    className="w-full bg-site-section-employe-button hover:opacity-90 text-site-button-text border-2 border-site-section-employe-button-border mt-4"
-                  >
-                    <FaEye className="w-4 h-4 mr-2" />
-                    Voir les détails
-                  </Button>
-                </CardContent>
-              </Card>
+                </div>
+
+                <FaArrowRight className="w-3.5 h-3.5 text-gray-300 flex-shrink-0" />
+              </div>
             ))}
           </div>
         ) : (
-          <Card className="shadow-lg border-0">
-            <CardContent className="py-12 text-center">
-              <FaUser className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-              <p className="text-gray-600 text-lg font-medium">
-                Aucun patient assigné
-              </p>
-              <p className="text-gray-500 text-sm mt-2">
-                Contactez l'administrateur pour vous assigner des patients
-              </p>
-            </CardContent>
-          </Card>
+          <div className="text-center py-14">
+            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+              <FaUser className="w-7 h-7 text-gray-300" />
+            </div>
+            <p className="text-gray-500 font-medium">
+              {search ? "Aucun résultat" : "Aucun patient assigné"}
+            </p>
+            <p className="text-gray-400 text-sm mt-1">
+              {search ? "Essayez un autre terme" : "Contactez l'administrateur"}
+            </p>
+          </div>
         )}
       </div>
-    </div>
     </EmployeLayout>
   );
 }
-

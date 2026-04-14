@@ -141,6 +141,48 @@ class UserViewSet(viewsets.ModelViewSet):
         """Endpoint pour récupérer l'utilisateur connecté"""
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['patch'], permission_classes=[IsAuthenticated])
+    def update_me(self, request):
+        """Endpoint pour que l'employé mette à jour son propre profil (email, phone, photo)"""
+        user = request.user
+        update_fields = []
+        if 'email' in request.data:
+            user.email = request.data['email']
+            update_fields.append('email')
+        if 'phone' in request.data:
+            user.phone = request.data['phone']
+            update_fields.append('phone')
+        if update_fields:
+            user.save(update_fields=update_fields)
+        # Photo de profil sur le modèle Employe lié
+        photo_url = None
+        if 'photo' in request.FILES:
+            try:
+                ep = user.employee_profile
+                ep.photo_profil = request.FILES['photo']
+                ep.save(update_fields=['photo_profil'])
+                photo_url = request.build_absolute_uri(ep.photo_profil.url)
+            except Exception:
+                pass
+        else:
+            try:
+                ep = user.employee_profile
+                if ep.photo_profil:
+                    photo_url = request.build_absolute_uri(ep.photo_profil.url)
+            except Exception:
+                pass
+        return Response({
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'role': user.role,
+            'matricule': user.matricule,
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'phone': user.phone,
+            'photo_url': photo_url,
+        })
     
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def change_password(self, request, pk=None):
@@ -210,6 +252,9 @@ class UserViewSet(viewsets.ModelViewSet):
         default_password = ''.join(secrets.choice(string.ascii_letters + string.digits) for _ in range(12))
         
         user.set_password(default_password)
+        # Réinitialiser aussi le verrouillage si le compte était bloqué
+        user.failed_login_attempts = 0
+        user.locked_until = None
         user.save()
         
         logger.info(f"Mot de passe réinitialisé pour l'utilisateur {user.username} (ID: {user.id}) par {request.user.username}")
@@ -236,14 +281,17 @@ class UserViewSet(viewsets.ModelViewSet):
                             smtp_server.starttls()
                     smtp_server.login(smtp_username, smtp_password)
                     subject = f'{site_name} - Réinitialisation de votre mot de passe'
-                    body = f"""Bonjour,
+                    # Pour les employés, afficher le matricule comme identifiant de connexion
+                    login_id_label = "Matricule" if getattr(user, 'role', '') == 'EMPLOYE' else "Nom d'utilisateur"
+                    login_id_value = getattr(user, 'matricule', None) if getattr(user, 'role', '') == 'EMPLOYE' else user.username
+                    body = f"""Bonjour {user.first_name or user.username},
 
 Votre mot de passe a été réinitialisé par un administrateur.
 
-Nom d'utilisateur : {user.username}
+{login_id_label} : {login_id_value}
 Nouveau mot de passe : {default_password}
 
-Connectez-vous avec ce nom d'utilisateur et ce mot de passe. Vous pourrez modifier votre mot de passe une fois connecté (Paramètres ou Changer mot de passe).
+Connectez-vous avec ces identifiants. Vous pourrez modifier votre mot de passe une fois connecté (Profil > Changer mot de passe).
 
 —
 {site_name}

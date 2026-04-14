@@ -30,6 +30,21 @@ class LoggedTokenObtainPairView(TokenObtainPairView):
         try:
             response = super().post(request, *args, **kwargs)
             logger.info(f"[AUTH] Connexion réussie — utilisateur: {username} | IP: {ip}")
+            # Créer une entrée ActivityLog pour la connexion JWT
+            try:
+                from api.models import ActivityLog
+                user = User.objects.get(username=username)
+                ActivityLog.objects.create(
+                    user=user,
+                    action="LOGIN",
+                    model_name="Utilisateur",
+                    object_id=str(user.pk),
+                    object_repr=user.username,
+                    detail=f"Connexion de {user.username} ({user.get_full_name() or user.email})",
+                    ip_address=ip or None,
+                )
+            except Exception:
+                pass
             return response
         except Exception as e:
             logger.warning(
@@ -197,7 +212,22 @@ def login_with_matricule(request):
     
     # Génération des tokens JWT
     refresh = RefreshToken.for_user(user)
-    
+
+    # Créer une entrée ActivityLog pour la connexion par matricule
+    try:
+        from api.models import ActivityLog
+        ActivityLog.objects.create(
+            user=user,
+            action="LOGIN",
+            model_name="Utilisateur",
+            object_id=str(user.pk),
+            object_repr=user.username,
+            detail=f"Connexion employé — matricule: {user.matricule} ({user.get_full_name() or user.email})",
+            ip_address=ip or None,
+        )
+    except Exception:
+        pass
+
     return Response({
         'user': {
             'id': user.id,

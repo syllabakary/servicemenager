@@ -2858,7 +2858,7 @@ class PresenceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelView
             groupes[key].append(p)
 
         patients_map = {}
-        total_minutes_global = 0
+        total_seconds_global = 0
         nb_visites_global = 0
         employes_ids = set()
 
@@ -2903,10 +2903,10 @@ class PresenceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelView
                     continue
 
                 delta = depart.scan_time - arrivee.scan_time
-                duree_min = max(0, round(delta.total_seconds() / 60))
-
-                h, m = divmod(duree_min, 60)
-                duree_str = f"{h}h{m:02d}" if duree_min > 0 else "—"
+                duree_sec = max(0, int(delta.total_seconds()))
+                duree_min_affichage = duree_sec // 60
+                h, m = divmod(duree_min_affichage, 60)
+                duree_str = f"{h}h{m:02d}" if duree_min_affichage > 0 else "—"
 
                 date_str = arrivee.scan_time.strftime('%d/%m/%Y')
                 visite = {
@@ -2915,12 +2915,13 @@ class PresenceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelView
                     'employe': employe_nom,
                     'heure_arrivee': arrivee.scan_time.strftime('%H:%M'),
                     'heure_depart': depart.scan_time.strftime('%H:%M'),
-                    'duree_minutes': duree_min,
+                    'duree_minutes': duree_min_affichage,
                     'duree_str': duree_str,
+                    'duree_sec': duree_sec,
                 }
-                visites_intermediaires.append((pat_id, emp_id, patient_obj, employe_nom, duree_min, visite))
+                visites_intermediaires.append((pat_id, emp_id, patient_obj, employe_nom, duree_sec, visite))
 
-        for (pat_id, emp_id, patient_obj, employe_nom, duree_min, visite) in visites_intermediaires:
+        for (pat_id, emp_id, patient_obj, employe_nom, duree_sec, visite) in visites_intermediaires:
 
             if pat_id not in patients_map:
                 patients_map[pat_id] = {
@@ -2930,16 +2931,16 @@ class PresenceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelView
                     ) or patient_obj.username,
                     'patient_email': getattr(patient_obj, 'email', '') or '',
                     'visites': [],
-                    'employes_map': {},  # emp_id -> {nom, visites, total_minutes}
-                    'total_minutes': 0,
+                    'employes_map': {},
+                    'total_seconds': 0,
                     'nb_visites': 0,
                 }
 
             pat = patients_map[pat_id]
             pat['visites'].append(visite)
-            pat['total_minutes'] += duree_min
+            pat['total_seconds'] += duree_sec
             pat['nb_visites'] += 1
-            total_minutes_global += duree_min
+            total_seconds_global += duree_sec
             nb_visites_global += 1
 
             # Sous-groupe employé
@@ -2948,22 +2949,26 @@ class PresenceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelView
                     'employe_id': emp_id,
                     'employe_nom': employe_nom,
                     'visites': [],
-                    'total_minutes': 0,
+                    'total_seconds': 0,
                 }
             pat['employes_map'][emp_id]['visites'].append(visite)
-            pat['employes_map'][emp_id]['total_minutes'] += duree_min
+            pat['employes_map'][emp_id]['total_seconds'] += duree_sec
 
         patients_data = []
         for pd in patients_map.values():
             pd['visites'].sort(key=lambda v: v['date'])
-            th, tm = divmod(pd['total_minutes'], 60)
-            pd['total_heures_str'] = f"{th}h{tm:02d}"
+            # Conversion secondes → h/min (même logique que Scans.tsx : floor puis round)
+            total_h = int(pd['total_seconds'] // 3600)
+            total_m = int((pd['total_seconds'] % 3600) // 60)
+            pd['total_minutes'] = pd['total_seconds'] // 60
+            pd['total_heures_str'] = f"{total_h}h{total_m:02d}"
 
-            # Finaliser les sous-groupes employés
             employes_list = []
             for emp_data in pd['employes_map'].values():
                 emp_data['visites'].sort(key=lambda v: v['date'])
-                eh, em = divmod(emp_data['total_minutes'], 60)
+                eh = int(emp_data['total_seconds'] // 3600)
+                em = int((emp_data['total_seconds'] % 3600) // 60)
+                emp_data['total_minutes'] = emp_data['total_seconds'] // 60
                 emp_data['total_heures_str'] = f"{eh}h{em:02d}"
                 emp_data['nb_visites'] = len(emp_data['visites'])
                 employes_list.append(emp_data)
@@ -2975,13 +2980,14 @@ class PresenceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelView
 
         patients_data.sort(key=lambda p: p['patient_nom'])
 
-        gh, gm = divmod(total_minutes_global, 60)
+        gh = int(total_seconds_global // 3600)
+        gm = int((total_seconds_global % 3600) // 60)
         return {
             'patients_data': patients_data,
             'nb_patients': len(patients_map),
             'nb_employes': len(employes_ids),
             'nb_visites': nb_visites_global,
-            'total_minutes': total_minutes_global,
+            'total_minutes': total_seconds_global // 60,
             'total_heures_str': f"{gh}h{gm:02d}",
             'mois_label': periode_label,
         }

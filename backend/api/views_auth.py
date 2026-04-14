@@ -50,6 +50,25 @@ class LoggedTokenObtainPairView(TokenObtainPairView):
             logger.warning(
                 f"[AUTH] ÉCHEC de connexion — utilisateur: '{username}' | IP: {ip} | Erreur: {type(e).__name__}"
             )
+            # Créer une entrée ActivityLog pour la tentative échouée
+            try:
+                from api.models import ActivityLog
+                user_obj = None
+                try:
+                    user_obj = User.objects.get(username=username)
+                except User.DoesNotExist:
+                    pass
+                ActivityLog.objects.create(
+                    user=user_obj,
+                    action="LOGIN",
+                    level="WARNING",
+                    model_name="Utilisateur",
+                    object_repr=username,
+                    detail=f"ÉCHEC de connexion — utilisateur: '{username}' | IP: {ip}",
+                    ip_address=ip if ip != '—' else None,
+                )
+            except Exception:
+                pass
             raise
 
 
@@ -184,6 +203,16 @@ def login_with_matricule(request):
     except User.DoesNotExist:
         logger.warning(f"[AUTH] ÉCHEC login matricule — matricule: '{matricule}' | IP: {ip}")
         try:
+            from api.models import ActivityLog
+            ActivityLog.objects.create(
+                action="LOGIN", level="WARNING",
+                model_name="Utilisateur", object_repr=matricule,
+                detail=f"ÉCHEC connexion employé — matricule inconnu: '{matricule}' | IP: {ip}",
+                ip_address=ip if ip != '—' else None,
+            )
+        except Exception:
+            pass
+        try:
             user_with_matricule = User.objects.get(matricule=matricule)
             return Response(
                 {'error': f'Ce matricule existe mais n\'est pas associé à un employé (rôle: {user_with_matricule.role})'},
@@ -198,6 +227,16 @@ def login_with_matricule(request):
     # Vérifier le mot de passe
     if not user.check_password(password):
         logger.warning(f"[AUTH] ÉCHEC login matricule — matricule: '{matricule}' | IP: {ip} | mot de passe incorrect")
+        try:
+            from api.models import ActivityLog
+            ActivityLog.objects.create(
+                user=user, action="LOGIN", level="WARNING",
+                model_name="Utilisateur", object_repr=matricule,
+                detail=f"ÉCHEC connexion employé — mauvais mot de passe: '{matricule}' | IP: {ip}",
+                ip_address=ip if ip != '—' else None,
+            )
+        except Exception:
+            pass
         return Response(
             {'error': 'Matricule ou mot de passe incorrect'},
             status=status.HTTP_401_UNAUTHORIZED

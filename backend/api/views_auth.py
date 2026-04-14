@@ -4,14 +4,58 @@ Vues d'authentification supplémentaires
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.exceptions import TokenError, InvalidToken
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
+import logging
 
+logger = logging.getLogger(__name__)
 User = get_user_model()
+
+
+class LoggedTokenObtainPairView(TokenObtainPairView):
+    """TokenObtainPairView avec logging des tentatives de connexion échouées"""
+
+    def post(self, request, *args, **kwargs):
+        username = request.data.get('username', '—')
+        ip = (
+            request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip()
+            or request.META.get('REMOTE_ADDR', '—')
+        )
+        try:
+            response = super().post(request, *args, **kwargs)
+            logger.info(f"[AUTH] Connexion réussie — utilisateur: {username} | IP: {ip}")
+            return response
+        except Exception as e:
+            logger.warning(
+                f"[AUTH] ÉCHEC de connexion — utilisateur: '{username}' | IP: {ip} | Erreur: {type(e).__name__}"
+            )
+            raise
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout(request):
+    """
+    Déconnexion : blackliste le refresh token pour l'invalider immédiatement.
+    POST /api/logout/
+    Body: { "refresh": "<refresh_token>" }
+    """
+    refresh_token = request.data.get('refresh')
+    if not refresh_token:
+        return Response({'error': 'refresh token requis'}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        token = RefreshToken(refresh_token)
+        token.blacklist()
+        logger.info(f"[AUTH] Déconnexion — utilisateur: {request.user.username}")
+        return Response({'detail': 'Déconnexion réussie'}, status=status.HTTP_200_OK)
+    except TokenError:
+        return Response({'error': 'Token invalide ou déjà révoqué'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -114,11 +158,16 @@ def login_with_matricule(request):
     # Normaliser le matricule (trim et uppercase)
     matricule = matricule.strip().upper()
     
+    ip = (
+        request.META.get('HTTP_X_FORWARDED_FOR', '').split(',')[0].strip()
+        or request.META.get('REMOTE_ADDR', '—')
+    )
+
     # Trouver l'utilisateur par matricule
     try:
         user = User.objects.get(matricule=matricule, role='EMPLOYE')
     except User.DoesNotExist:
-        # Vérifier si le matricule existe mais avec un autre rôle
+        logger.warning(f"[AUTH] ÉCHEC login matricule — matricule: '{matricule}' | IP: {ip}")
         try:
             user_with_matricule = User.objects.get(matricule=matricule)
             return Response(
@@ -130,9 +179,10 @@ def login_with_matricule(request):
                 {'error': 'Matricule ou mot de passe incorrect'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
-    
+
     # Vérifier le mot de passe
     if not user.check_password(password):
+        logger.warning(f"[AUTH] ÉCHEC login matricule — matricule: '{matricule}' | IP: {ip} | mot de passe incorrect")
         return Response(
             {'error': 'Matricule ou mot de passe incorrect'},
             status=status.HTTP_401_UNAUTHORIZED

@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     UserViewSet, ServiceViewSet, AgencyViewSet,
     ContactViewSet, PageContentViewSet, NavbarViewSet, CategoryViewSet,
@@ -9,7 +9,7 @@ from .views import (
     EmployeeProfileViewSet, ContactMessageViewSet, HeroContentView,
     ActivityLogViewSet, UserPermissionViewSet, TrashViewSet
 )
-from .views_auth import register, login_with_matricule
+from .views_auth import register, login_with_matricule, logout, LoggedTokenObtainPairView
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
@@ -38,12 +38,15 @@ router.register(r'trash', TrashViewSet, basename='trash')
 
 urlpatterns = [
     # JWT Authentication
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/', LoggedTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    
+
+    # Déconnexion (blacklist du refresh token)
+    path('logout/', logout, name='logout'),
+
     # Registration
     path('register/', register, name='register'),
-    
+
     # Login par matricule (pour employés)
     path('login-matricule/', login_with_matricule, name='login_matricule'),
     

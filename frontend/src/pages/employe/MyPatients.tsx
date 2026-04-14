@@ -54,7 +54,18 @@ export default function MyPatients() {
     },
   });
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const refresh = localStorage.getItem("refresh_token");
+    const access = localStorage.getItem("access_token");
+    if (refresh && access) {
+      try {
+        await fetch("/api/logout/", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${access}` },
+          body: JSON.stringify({ refresh }),
+        });
+      } catch {}
+    }
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("user");

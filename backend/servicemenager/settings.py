@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     # Third party
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'django_filters',
     
@@ -150,10 +151,11 @@ REST_FRAMEWORK = {
 from datetime import timedelta
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),   # Réduit de 1h à 30min
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
     'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': False,  # True nécessite rest_framework_simplejwt.token_blacklist + migrations
+    'BLACKLIST_AFTER_ROTATION': True,   # Blacklist l'ancien refresh token après rotation
+    'UPDATE_LAST_LOGIN': True,
 }
 
 # Désactiver la validation des mots de passe en développement (pour permettre des mots de passe simples)

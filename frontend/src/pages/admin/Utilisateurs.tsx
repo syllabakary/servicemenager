@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FaPlus, FaEdit, FaTrash, FaKey, FaLockOpen, FaLock, FaUserLock } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaKey, FaLockOpen, FaLock, FaUserLock, FaCopy, FaCheck, FaEnvelope, FaExclamationTriangle } from "react-icons/fa";
 import axios from "axios";
 import {
   Dialog,
@@ -40,6 +40,8 @@ export default function AdminUtilisateurs() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [userToResetPassword, setUserToResetPassword] = useState<any>(null);
   const [userToUnlock, setUserToUnlock] = useState<any>(null);
+  const [resetResult, setResetResult] = useState<{ username: string; password: string; email?: string; email_sent?: boolean } | null>(null);
+  const [copiedPassword, setCopiedPassword] = useState(false);
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
   const isSuperAdmin = storedUser.role === "SUPERADMIN";
 
@@ -73,19 +75,15 @@ export default function AdminUtilisateurs() {
       );
       return res.data;
     },
-    onSuccess: (data: { username: string; email_sent?: boolean; email?: string }) => {
-      if (data.email_sent && data.email) {
-        toast({
-          title: "✅ Mot de passe réinitialisé",
-          description: `Un nouveau mot de passe a été envoyé par email à ${data.email}. L'utilisateur peut se connecter avec son nom d'utilisateur et ce mot de passe.`,
-        });
-      } else {
-        toast({
-          title: "✅ Mot de passe réinitialisé",
-          description: `Un nouveau mot de passe a été généré pour ${data.username}. Communiquez-le à l'utilisateur (email non envoyé : adresse non renseignée ou SMTP non configuré).`,
-        });
-      }
+    onSuccess: (data: any) => {
       setUserToResetPassword(null);
+      setCopiedPassword(false);
+      setResetResult({
+        username: data.username,
+        password: data.new_password,
+        email: data.email,
+        email_sent: data.email_sent,
+      });
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     },
     onError: (error: any) => {
@@ -415,6 +413,85 @@ export default function AdminUtilisateurs() {
                   <FaLockOpen className="w-4 h-4 mr-2" />
                 )}
                 Débloquer le compte
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Dialog affichage mot de passe réinitialisé */}
+        <Dialog open={!!resetResult} onOpenChange={(open) => { if (!open) setResetResult(null); }}>
+          <DialogContent className="sm:max-w-md rounded-2xl shadow-xl border-2 border-blue-200">
+            <DialogHeader>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-blue-100 text-blue-600">
+                  <FaKey className="w-6 h-6" />
+                </div>
+                <div>
+                  <DialogTitle className="text-xl text-gray-900">Mot de passe réinitialisé</DialogTitle>
+                  <DialogDescription className="text-gray-600 mt-1">
+                    Compte : <strong>{resetResult?.username}</strong>
+                  </DialogDescription>
+                </div>
+              </div>
+            </DialogHeader>
+
+            <div className="space-y-4 py-2">
+              {/* Statut email */}
+              {resetResult?.email_sent ? (
+                <div className="flex items-start gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+                  <FaEnvelope className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-green-700">
+                    Email envoyé automatiquement à <strong>{resetResult.email}</strong>
+                  </p>
+                </div>
+              ) : (
+                <div className="flex items-start gap-3 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                  <FaExclamationTriangle className="w-4 h-4 text-orange-500 mt-0.5 flex-shrink-0" />
+                  <p className="text-sm text-orange-700">
+                    Email non envoyé (adresse non renseignée ou SMTP non configuré).<br />
+                    <strong>Communiquez ce mot de passe manuellement.</strong>
+                  </p>
+                </div>
+              )}
+
+              {/* Mot de passe en clair */}
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-gray-700">Nouveau mot de passe :</p>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 px-4 py-3 bg-gray-100 border-2 border-gray-300 rounded-lg font-mono text-lg font-bold text-gray-900 tracking-widest select-all">
+                    {resetResult?.password}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    className={`flex-shrink-0 transition-colors ${copiedPassword ? "border-green-500 text-green-600 bg-green-50" : ""}`}
+                    onClick={() => {
+                      navigator.clipboard.writeText(resetResult?.password || "");
+                      setCopiedPassword(true);
+                      setTimeout(() => setCopiedPassword(false), 2000);
+                    }}
+                  >
+                    {copiedPassword ? <FaCheck className="w-4 h-4" /> : <FaCopy className="w-4 h-4" />}
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500">Cliquez sur le mot de passe pour le sélectionner, ou utilisez le bouton copier.</p>
+              </div>
+
+              <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-xs text-yellow-700">
+                  ⚠️ Ce mot de passe ne sera <strong>plus affiché</strong> après fermeture. Notez-le avant de fermer.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end pt-2">
+              <Button
+                type="button"
+                className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text rounded-lg"
+                onClick={() => setResetResult(null)}
+              >
+                J'ai noté le mot de passe
               </Button>
             </div>
           </DialogContent>

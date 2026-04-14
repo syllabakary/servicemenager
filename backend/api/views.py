@@ -4104,7 +4104,7 @@ class TrashViewSet(viewsets.ViewSet):
         except Model.DoesNotExist:
             return Response({'error': 'Élément non trouvé dans la corbeille'}, status=404)
 
-    @action(detail=False, methods=['delete'], url_path=r'hard-delete/(?P<model>[^/.]+)/(?P<pk>[0-9]+)')
+    @action(detail=False, methods=['post', 'delete'], url_path=r'hard-delete/(?P<model>[^/.]+)/(?P<pk>[0-9]+)')
     def hard_delete(self, request, model=None, pk=None):
         """Supprimer définitivement un élément"""
         err = self._require_admin(request)
@@ -4130,7 +4130,7 @@ class TrashViewSet(viewsets.ViewSet):
             Model.objects.filter(deleted_at__isnull=False).update(deleted_at=None)
         return Response({'success': True})
 
-    @action(detail=False, methods=['delete'], url_path='empty')
+    @action(detail=False, methods=['post', 'delete'], url_path='empty')
     def empty(self, request):
         """Vider définitivement la corbeille"""
         err = self._require_admin(request)

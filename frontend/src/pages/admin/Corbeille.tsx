@@ -2,16 +2,16 @@ import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { API_URL } from "@/config/api";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 import {
-  FaTrash, FaUndo, FaExclamationTriangle,
+  FaTrash, FaUndo, FaExclamationTriangle, FaEye,
 } from "react-icons/fa";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+  Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 
 const authHeader = () => ({ Authorization: `Bearer ${localStorage.getItem("access_token")}` });
@@ -38,6 +38,21 @@ const TYPE_COLORS: Record<string, string> = {
   contacts:   "bg-teal-100 text-teal-800",
 };
 
+// URL de navigation vers la page de détail de chaque type
+function getViewUrl(type: string, item: any): string | null {
+  switch (type) {
+    case "devis":    return `/admin/devis/${item.id}`;
+    case "factures": return `/admin/factures`;
+    case "services": return `/admin/services`;
+    case "agences":  return `/admin/agences`;
+    case "patients": return `/admin/patients`;
+    case "scans":    return `/admin/scans`;
+    case "categories": return `/admin/categories`;
+    case "contacts": return null;
+    default: return null;
+  }
+}
+
 function formatDate(iso: string) {
   if (!iso) return "—";
   return new Date(iso).toLocaleDateString("fr-FR", {
@@ -49,6 +64,7 @@ function formatDate(iso: string) {
 export default function Corbeille() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [, navigate] = useLocation();
   const [activeType, setActiveType] = useState<string>("all");
   const [confirmEmpty, setConfirmEmpty] = useState(false);
   const [confirmItem, setConfirmItem] = useState<{ type: string; id: number; name: string } | null>(null);
@@ -74,7 +90,8 @@ export default function Corbeille() {
 
   const hardDeleteMutation = useMutation({
     mutationFn: async ({ type, id }: { type: string; id: number }) => {
-      await axios.delete(`${API_URL}/trash/hard-delete/${type}/${id}/`, { headers: authHeader() });
+      // POST car DRF ViewSet ne route pas bien DELETE avec url_path paramétré
+      await axios.post(`${API_URL}/trash/hard-delete/${type}/${id}/`, {}, { headers: authHeader() });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["trash"] });
@@ -97,7 +114,7 @@ export default function Corbeille() {
 
   const emptyMutation = useMutation({
     mutationFn: async () => {
-      await axios.delete(`${API_URL}/trash/empty/`, { headers: authHeader() });
+      await axios.post(`${API_URL}/trash/empty/`, {}, { headers: authHeader() });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["trash"] });
@@ -220,48 +237,63 @@ export default function Corbeille() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((item, idx) => (
-                    <tr
-                      key={`${item._trash_type}-${item.id}`}
-                      className={`border-b last:border-0 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}
-                    >
-                      <td className="px-4 py-3">
-                        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${TYPE_COLORS[item._trash_type] || "bg-gray-100 text-gray-700"}`}>
-                          {TYPE_LABELS[item._trash_type] || item._trash_type}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 font-medium text-gray-800">
-                        {item._display_name || `#${item.id}`}
-                        <span className="text-gray-400 text-xs ml-2">#{item.id}</span>
-                      </td>
-                      <td className="px-4 py-3 text-gray-500">
-                        {formatDate(item._deleted_at)}
-                      </td>
-                      <td className="px-4 py-3 text-right">
-                        <div className="flex gap-2 justify-end">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-green-700 border-green-300 hover:bg-green-50 text-xs px-2 py-1 h-7"
-                            onClick={() => restoreMutation.mutate({ type: item._trash_type, id: item.id })}
-                            disabled={restoreMutation.isPending}
-                          >
-                            <FaUndo className="mr-1" />
-                            Restaurer
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="text-red-600 hover:bg-red-50 text-xs px-2 py-1 h-7"
-                            onClick={() => setConfirmItem({ type: item._trash_type, id: item.id, name: item._display_name || `#${item.id}` })}
-                          >
-                            <FaTrash className="mr-1" />
-                            Supprimer
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {filtered.map((item, idx) => {
+                    const viewUrl = getViewUrl(item._trash_type, item);
+                    return (
+                      <tr
+                        key={`${item._trash_type}-${item.id}`}
+                        className={`border-b last:border-0 ${idx % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}
+                      >
+                        <td className="px-4 py-3">
+                          <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${TYPE_COLORS[item._trash_type] || "bg-gray-100 text-gray-700"}`}>
+                            {TYPE_LABELS[item._trash_type] || item._trash_type}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 font-medium text-gray-800">
+                          {item._display_name || `#${item.id}`}
+                          <span className="text-gray-400 text-xs ml-2">#{item.id}</span>
+                        </td>
+                        <td className="px-4 py-3 text-gray-500">
+                          {formatDate(item._deleted_at)}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex gap-1.5 justify-end">
+                            {viewUrl && (
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="text-gray-600 hover:bg-gray-100 text-xs px-2 py-1 h-7"
+                                onClick={() => navigate(viewUrl)}
+                                title="Voir le détail"
+                              >
+                                <FaEye className="mr-1" />
+                                Voir
+                              </Button>
+                            )}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="text-green-700 border-green-300 hover:bg-green-50 text-xs px-2 py-1 h-7"
+                              onClick={() => restoreMutation.mutate({ type: item._trash_type, id: item.id })}
+                              disabled={restoreMutation.isPending}
+                            >
+                              <FaUndo className="mr-1" />
+                              Restaurer
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="text-red-600 hover:bg-red-50 text-xs px-2 py-1 h-7"
+                              onClick={() => setConfirmItem({ type: item._trash_type, id: item.id, name: item._display_name || `#${item.id}` })}
+                            >
+                              <FaTrash className="mr-1" />
+                              Supprimer
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </CardContent>
@@ -270,16 +302,18 @@ export default function Corbeille() {
 
         {/* Confirmation suppression définitive unitaire */}
         <Dialog open={!!confirmItem} onOpenChange={() => setConfirmItem(null)}>
-          <DialogContent>
+          <DialogContent aria-describedby="confirm-delete-desc">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-red-600">
                 <FaExclamationTriangle />
                 Suppression définitive
               </DialogTitle>
+              <DialogDescription id="confirm-delete-desc">
+                Cette action est irréversible.
+              </DialogDescription>
             </DialogHeader>
             <p className="text-sm text-gray-600">
               Supprimer définitivement <strong>{confirmItem?.name}</strong> ?
-              Cette action est irréversible.
             </p>
             <DialogFooter>
               <Button variant="outline" onClick={() => setConfirmItem(null)}>Annuler</Button>
@@ -296,16 +330,18 @@ export default function Corbeille() {
 
         {/* Confirmation vider la corbeille */}
         <Dialog open={confirmEmpty} onOpenChange={setConfirmEmpty}>
-          <DialogContent>
+          <DialogContent aria-describedby="confirm-empty-desc">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2 text-red-600">
                 <FaExclamationTriangle />
                 Vider la corbeille
               </DialogTitle>
+              <DialogDescription id="confirm-empty-desc">
+                Cette action est irréversible.
+              </DialogDescription>
             </DialogHeader>
             <p className="text-sm text-gray-600">
               Supprimer définitivement les <strong>{totalCount} éléments</strong> de la corbeille ?
-              Cette action est irréversible.
             </p>
             <DialogFooter>
               <Button variant="outline" onClick={() => setConfirmEmpty(false)}>Annuler</Button>

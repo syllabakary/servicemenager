@@ -6,9 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { API_URL } from "@/config/api";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
-import { useLocation } from "wouter";
 import {
-  FaTrash, FaUndo, FaExclamationTriangle, FaEye,
+  FaTrash, FaUndo, FaExclamationTriangle,
 } from "react-icons/fa";
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter,
@@ -38,20 +37,6 @@ const TYPE_COLORS: Record<string, string> = {
   contacts:   "bg-teal-100 text-teal-800",
 };
 
-// URL de navigation vers la page de détail de chaque type
-function getViewUrl(type: string, item: any): string | null {
-  switch (type) {
-    case "devis":    return `/admin/devis/${item.id}`;
-    case "factures": return `/admin/factures`;
-    case "services": return `/admin/services`;
-    case "agences":  return `/admin/agences`;
-    case "patients": return `/admin/patients`;
-    case "scans":    return `/admin/scans`;
-    case "categories": return `/admin/categories`;
-    case "contacts": return null;
-    default: return null;
-  }
-}
 
 function formatDate(iso: string) {
   if (!iso) return "—";
@@ -64,7 +49,6 @@ function formatDate(iso: string) {
 export default function Corbeille() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [, navigate] = useLocation();
   const [activeType, setActiveType] = useState<string>("all");
   const [confirmEmpty, setConfirmEmpty] = useState(false);
   const [confirmItem, setConfirmItem] = useState<{ type: string; id: number; name: string } | null>(null);
@@ -148,7 +132,7 @@ export default function Corbeille() {
 
   return (
     <DashboardLayout>
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
@@ -238,7 +222,6 @@ export default function Corbeille() {
                 </thead>
                 <tbody>
                   {filtered.map((item, idx) => {
-                    const viewUrl = getViewUrl(item._trash_type, item);
                     return (
                       <tr
                         key={`${item._trash_type}-${item.id}`}
@@ -258,18 +241,6 @@ export default function Corbeille() {
                         </td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex gap-1.5 justify-end">
-                            {viewUrl && (
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                className="text-gray-600 hover:bg-gray-100 text-xs px-2 py-1 h-7"
-                                onClick={() => navigate(viewUrl)}
-                                title="Voir le détail"
-                              >
-                                <FaEye className="mr-1" />
-                                Voir
-                              </Button>
-                            )}
                             <Button
                               size="sm"
                               variant="outline"

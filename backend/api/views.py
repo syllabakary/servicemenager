@@ -2903,7 +2903,7 @@ class PresenceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelView
                     continue
 
                 delta = depart.scan_time - arrivee.scan_time
-                duree_min = max(0, int(delta.total_seconds() / 60))
+                duree_min = max(0, round(delta.total_seconds() / 60))
 
                 h, m = divmod(duree_min, 60)
                 duree_str = f"{h}h{m:02d}" if duree_min > 0 else "—"

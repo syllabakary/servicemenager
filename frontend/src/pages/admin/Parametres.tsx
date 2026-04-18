@@ -1056,6 +1056,103 @@ export default function AdminParametres() {
           </p>
         </div>
 
+        {/* ── APERÇU LIVE STICKY ── toujours visible pendant l'édition */}
+        <div className="sticky top-2 z-40">
+          <div className="rounded-xl overflow-hidden border-2 border-site-primary/30 shadow-lg bg-white">
+            {/* Barre titre */}
+            <div className="bg-gradient-to-r from-site-primary to-site-secondary px-4 py-2 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-white animate-pulse flex-shrink-0"></span>
+              <span className="text-white text-xs font-semibold">Aperçu en temps réel — mis à jour à chaque changement</span>
+            </div>
+            {/* Mini navbar */}
+            <div
+              className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100"
+              style={{ backgroundColor: themeSettings.logo_area_bg_color || '#ffffff' }}
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                {logoPreview ? (
+                  <img src={logoPreview} alt="Logo" className="w-7 h-7 rounded object-contain flex-shrink-0" />
+                ) : (
+                  <div className="w-7 h-7 rounded flex items-center justify-center flex-shrink-0" style={{ backgroundColor: themeSettings.primary_color }}>
+                    <span className="text-white text-xs font-bold">L</span>
+                  </div>
+                )}
+                <div className="flex flex-col leading-tight min-w-0">
+                  <span className="text-sm font-bold truncate">
+                    <span style={{ color: themeSettings.site_name_part1_color }}>
+                      {(themeSettings.site_name || "EASE - DOM").split(" ")[0]}
+                    </span>
+                    {(themeSettings.site_name || "EASE - DOM").includes(" ") && (
+                      <span style={{ color: themeSettings.site_name_part2_color }}>
+                        {" "}{(themeSettings.site_name || "EASE - DOM").split(" ").slice(1).join(" ")}
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-[11px] truncate" style={{ color: themeSettings.site_tagline_color }}>
+                    {themeSettings.site_tagline || "Votre partenaire de confiance"}
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span
+                  className="text-xs px-2.5 py-1 font-medium border"
+                  style={{
+                    borderColor: themeSettings.button_outline_border_color,
+                    color: themeSettings.button_outline_text_color,
+                    borderRadius: themeSettings.button_border_radius,
+                  }}
+                >
+                  Connexion
+                </span>
+                <span
+                  className="text-xs px-2.5 py-1 font-semibold"
+                  style={{
+                    backgroundColor: themeSettings.button_primary_color,
+                    color: themeSettings.button_text_color,
+                    borderRadius: themeSettings.button_border_radius,
+                  }}
+                >
+                  Demander un devis
+                </span>
+              </div>
+            </div>
+            {/* Mini bannière */}
+            <div
+              className="flex items-center justify-between px-4 py-1.5 gap-3"
+              style={{ backgroundColor: themeSettings.banner_bg_color }}
+            >
+              <span className="text-xs font-medium truncate" style={{ color: themeSettings.banner_text_color }}>
+                ★ Réduisez votre facture de moitié avec l'avance immédiate de crédit d'impôt*
+              </span>
+              <span
+                className="text-xs px-2 py-0.5 font-semibold flex-shrink-0"
+                style={{
+                  backgroundColor: themeSettings.button_primary_color,
+                  color: themeSettings.button_text_color,
+                }}
+              >
+                J'en profite !
+              </span>
+            </div>
+            {/* Palette couleurs */}
+            <div className="bg-gray-50 border-t border-gray-100 px-4 py-2 flex flex-wrap gap-3 items-center">
+              {[
+                { label: "Primaire", val: themeSettings.primary_color },
+                { label: "Secondaire", val: themeSettings.secondary_color },
+                { label: "Bouton", val: themeSettings.button_primary_color },
+                { label: "Texte btn", val: themeSettings.button_text_color },
+                { label: "Bannière", val: themeSettings.banner_bg_color },
+                { label: "Footer", val: themeSettings.footer_bg_color },
+              ].map(({ label, val }) => (
+                <div key={label} className="flex items-center gap-1.5">
+                  <div className="w-4 h-4 rounded-sm border border-gray-200 shadow-sm" style={{ backgroundColor: val }} />
+                  <span className="text-[11px] text-gray-500">{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
         {/* Informations du Footer */}
         <Card className="shadow-xl border-0 bg-white">
           <CardHeader className="border-b">
@@ -1398,93 +1495,6 @@ export default function AdminParametres() {
             <CardDescription className="text-gray-600 mt-1.5">Modifiez les couleurs du site, le nom, le slogan et le logo</CardDescription>
           </CardHeader>
           <CardContent className="p-6 sm:p-8">
-            {/* ── Aperçu live ── */}
-            <div className="mb-6 rounded-xl overflow-hidden border-2 border-gray-200 shadow-sm">
-              <div className="bg-gray-100 px-3 py-1.5 text-xs font-semibold text-gray-500 flex items-center gap-2 border-b border-gray-200">
-                <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                Aperçu en temps réel — les changements s'affichent ici avant d'enregistrer
-              </div>
-              {/* Mini navbar */}
-              <div
-                className="flex items-center justify-between px-4 py-2.5 border-b"
-                style={{ backgroundColor: themeSettings.logo_area_bg_color || '#ffffff', borderColor: '#e5e7eb' }}
-              >
-                <div className="flex items-center gap-2 min-w-0">
-                  {logoPreview ? (
-                    <img src={logoPreview} alt="Logo" className="w-7 h-7 rounded object-contain flex-shrink-0" style={{ background: themeSettings.logo_area_bg_color || '#fff' }} />
-                  ) : (
-                    <div className="w-7 h-7 rounded flex items-center justify-center flex-shrink-0" style={{ backgroundColor: themeSettings.primary_color }}>
-                      <span className="text-white text-xs font-bold">L</span>
-                    </div>
-                  )}
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-sm font-bold leading-tight truncate">
-                      <span style={{ color: themeSettings.site_name_part1_color }}>{(themeSettings.site_name || 'EASE - DOM').split(' ')[0]}</span>
-                      {(themeSettings.site_name || 'EASE - DOM').includes(' ') && (
-                        <span style={{ color: themeSettings.site_name_part2_color }}>{' '}{(themeSettings.site_name || 'EASE - DOM').split(' ').slice(1).join(' ')}</span>
-                      )}
-                    </span>
-                    <span className="text-xs truncate" style={{ color: themeSettings.site_tagline_color }}>{themeSettings.site_tagline || 'Votre partenaire de confiance'}</span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <span
-                    className="text-xs px-2 py-1 font-medium border"
-                    style={{
-                      borderColor: themeSettings.button_outline_border_color,
-                      color: themeSettings.button_outline_text_color,
-                      borderRadius: themeSettings.button_border_radius,
-                    }}
-                  >
-                    Connexion
-                  </span>
-                  <span
-                    className="text-xs px-2 py-1 font-semibold"
-                    style={{
-                      backgroundColor: themeSettings.button_primary_color,
-                      color: themeSettings.button_text_color,
-                      borderRadius: themeSettings.button_border_radius,
-                    }}
-                  >
-                    Devis
-                  </span>
-                </div>
-              </div>
-              {/* Mini bannière */}
-              <div
-                className="flex items-center justify-between px-4 py-2 gap-3"
-                style={{ backgroundColor: themeSettings.banner_bg_color }}
-              >
-                <span className="text-xs font-medium truncate" style={{ color: themeSettings.banner_text_color }}>
-                  Réduisez votre facture de moitié avec l'avance immédiate de crédit d'impôt*
-                </span>
-                <span
-                  className="text-xs px-2 py-1 font-semibold flex-shrink-0"
-                  style={{
-                    backgroundColor: themeSettings.button_primary_color,
-                    color: themeSettings.button_text_color,
-                  }}
-                >
-                  J'en profite !
-                </span>
-              </div>
-              {/* Palette couleurs */}
-              <div className="bg-white px-4 py-3 flex flex-wrap gap-3 items-center border-t border-gray-100">
-                {[
-                  { label: 'Primaire', val: themeSettings.primary_color },
-                  { label: 'Secondaire', val: themeSettings.secondary_color },
-                  { label: 'Bouton', val: themeSettings.button_primary_color },
-                  { label: 'Texte btn', val: themeSettings.button_text_color },
-                  { label: 'Bannière', val: themeSettings.banner_bg_color },
-                  { label: 'Footer', val: themeSettings.footer_bg_color },
-                ].map(({ label, val }) => (
-                  <div key={label} className="flex items-center gap-1.5">
-                    <div className="w-5 h-5 rounded border border-gray-200 shadow-sm" style={{ backgroundColor: val }} />
-                    <span className="text-xs text-gray-500">{label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
             <form onSubmit={handleSaveTheme} className="space-y-1">
               {/* Informations générales */}
               <Collapsible className="group" open={themeSectionsOpen["Informations générales"]} onOpenChange={(o) => setThemeSectionsOpen((s) => ({ ...s, "Informations générales": o }))}>

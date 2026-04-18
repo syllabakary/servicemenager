@@ -21,7 +21,6 @@ export function PromotionalBanner() {
 
   const banners = bannersData || [];
 
-  // Carrousel automatique toutes les 10 secondes
   useEffect(() => {
     if (banners.length <= 1) return;
     const interval = setInterval(() => {
@@ -36,28 +35,33 @@ export function PromotionalBanner() {
   const bannerText = currentBanner.body || "Réduisez votre facture de moitié avec l'avance immédiate de crédit d'impôt*";
 
   return (
-    <section className="bg-site-banner-bg text-site-banner-text w-full overflow-hidden" style={{ minHeight: '38px' }}>
-      <div className="flex items-center h-full min-h-[38px]">
-
-        {/* Texte défilant marquee */}
-        <div className="flex-1 overflow-hidden py-2">
+    <section
+      className="bg-site-banner-bg text-site-banner-text w-full overflow-hidden"
+      style={{ minHeight: "38px" }}
+    >
+      <div className="flex items-center min-h-[38px]">
+        {/* Zone de défilement marquee */}
+        <div className="flex-1 overflow-hidden">
+          {/* Le wrapper contient 2 copies — on anime de 0 à -50% pour boucler sans coupure */}
           <div
             key={currentIndex}
-            className="whitespace-nowrap"
-            style={{ animation: "banner-marquee 28s linear infinite", display: "inline-block" }}
+            className="flex py-2"
+            style={{
+              width: "max-content",
+              animation: "banner-marquee 22s linear infinite",
+            }}
           >
-            <span className="text-xs sm:text-sm font-medium px-8">{bannerText}</span>
-            <span className="text-xs sm:text-sm font-medium px-8">{bannerText}</span>
-            <span className="text-xs sm:text-sm font-medium px-8">{bannerText}</span>
+            <span className="text-xs sm:text-sm font-medium px-12 whitespace-nowrap">{bannerText}</span>
+            <span className="text-xs sm:text-sm font-medium px-12 whitespace-nowrap" aria-hidden>{bannerText}</span>
           </div>
         </div>
 
         {/* Bouton fixe à droite */}
-        <div className="flex-shrink-0 px-3">
+        <div className="flex-shrink-0 px-3 border-l border-white/20">
           <Link href="/devis">
             <Button
               size="sm"
-              className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text font-semibold text-xs sm:text-sm rounded-none border-0 shadow-none"
+              className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text font-semibold text-xs sm:text-sm rounded-none border-0 shadow-none whitespace-nowrap"
             >
               J'en profite !
             </Button>
@@ -65,7 +69,7 @@ export function PromotionalBanner() {
         </div>
       </div>
 
-      {/* Indicateurs si plusieurs bannières */}
+      {/* Points indicateurs si plusieurs bannières */}
       {banners.length > 1 && (
         <div className="flex justify-center gap-1.5 pb-1">
           {banners.map((_: any, index: number) => (

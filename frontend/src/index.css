@@ -398,8 +398,8 @@
 
 }
 
-/* Défilement bannière promotionnelle (marquee) */
+/* Défilement bannière promotionnelle (marquee) — 2 copies, boucle à -50% */
 @keyframes banner-marquee {
   0%   { transform: translateX(0); }
-  100% { transform: translateX(-33.333%); }
+  100% { transform: translateX(-50%); }
 }

@@ -359,48 +359,60 @@ export function Navbar() {
       </div>
     </nav>
     
-    {/* Mobile menu - en dehors de la navbar pour éviter les problèmes de z-index */}
+    {/* Mobile menu - sidebar gauche */}
     <AnimatePresence>
       {mobileMenuOpen && (
         <>
-          {/* Overlay pour fermer le menu */}
+          {/* Overlay sombre pour fermer le menu */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
             onClick={(e) => {
               e.stopPropagation();
               handleCloseMenu();
             }}
-            className="md:hidden fixed bg-black/50"
-            style={{ 
-              zIndex: 9999, 
-              top: '64px',
-              left: 0,
-              right: 0,
-              bottom: 0,
-              position: 'fixed'
-            }}
+            className="md:hidden fixed inset-0 bg-black/50"
+            style={{ zIndex: 9999 }}
           />
-          {/* Menu */}
+          {/* Sidebar gauche */}
           <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
-            className="md:hidden bg-white fixed left-0 right-0 bottom-0 shadow-2xl w-full overflow-y-auto"
-            style={{ 
-              top: '64px',
+            initial={{ x: "-100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "-100%" }}
+            transition={{ type: "tween", duration: 0.28, ease: "easeInOut" }}
+            className="md:hidden fixed left-0 top-0 bottom-0 bg-white shadow-2xl overflow-y-auto"
+            style={{
               zIndex: 10000,
-              position: 'fixed',
-              width: '100%',
-              backgroundColor: 'white'
+              width: '80vw',
+              maxWidth: '320px',
             }}
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
+            onClick={(e) => e.stopPropagation()}
             onMouseDown={(e) => e.stopPropagation()}
           >
+            {/* Header sidebar */}
+            <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 bg-gradient-to-r from-site-primary to-site-secondary">
+              <div className="flex items-center gap-2">
+                {showLogoImg ? (
+                  <img src={logoUrl!} alt={siteName} className="w-8 h-8 rounded-lg object-contain bg-white" onError={() => setLogoLoadError(true)} />
+                ) : (
+                  <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
+                    <FaHome className="w-4 h-4 text-white" />
+                  </div>
+                )}
+                <span className="text-white font-bold text-base">
+                  <span>{namePart1}</span>{namePart2 && <> <span className="opacity-80">{namePart2}</span></>}
+                </span>
+              </div>
+              <button
+                onClick={handleCloseMenu}
+                className="text-white/80 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors"
+                aria-label="Fermer le menu"
+              >
+                <HiX className="w-5 h-5" />
+              </button>
+            </div>
               <div className="px-3 py-4 space-y-2 bg-white w-full">
                 {navItems.map((item) => {
                   if (item.hasDropdown && item.subItems) {
@@ -429,7 +441,7 @@ export function Navbar() {
                           >
                           {item.path === "/services" && (
                             <button
-                              onClick={(e) => { e.stopPropagation(); navigate("/services"); setIsMobileMenuOpen(false); }}
+                              onClick={(e) => { e.stopPropagation(); navigate("/services"); handleCloseMenu(); }}
                               className="flex items-center gap-2 w-full px-2 py-2 text-xs sm:text-sm font-semibold text-site-primary hover:bg-site-primary/10 rounded-md transition-colors border-l-2 border-site-primary pl-2 sm:pl-3 ml-1 sm:ml-2"
                             >
                               <FaBriefcase className="w-4 h-4" />

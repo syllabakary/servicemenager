@@ -1504,6 +1504,26 @@ export default function AdminParametres() {
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                 <div className="space-y-4 pt-2 pb-4">
+                {/* Preview Navbar */}
+                <div className="rounded-lg overflow-hidden border border-gray-200">
+                  <div className="text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium">👁 Aperçu — Barre de navigation</div>
+                  <div className="flex items-center justify-between px-4 py-2.5 bg-white">
+                    <div className="flex items-center gap-2">
+                      {logoPreview ? <img src={logoPreview} className="w-7 h-7 rounded object-contain" /> : <div className="w-7 h-7 rounded flex items-center justify-center" style={{ backgroundColor: themeSettings.primary_color }}><span className="text-white text-xs font-bold">L</span></div>}
+                      <div>
+                        <div className="text-sm font-bold leading-tight">
+                          <span style={{ color: themeSettings.site_name_part1_color }}>{(themeSettings.site_name || "EASE - DOM").split(" ")[0]}</span>
+                          {" "}<span style={{ color: themeSettings.site_name_part2_color }}>{(themeSettings.site_name || "EASE - DOM").split(" ").slice(1).join(" ")}</span>
+                        </div>
+                        <div className="text-[11px]" style={{ color: themeSettings.site_tagline_color }}>{themeSettings.site_tagline || "Votre partenaire de confiance"}</div>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 items-center">
+                      <span className="text-xs px-2 py-1" style={{ border: `1.5px solid ${themeSettings.button_outline_border_color}`, color: themeSettings.button_outline_text_color, borderRadius: themeSettings.button_border_radius }}>Connexion</span>
+                      <span className="text-xs px-2 py-1 font-semibold" style={{ backgroundColor: themeSettings.button_primary_color, color: themeSettings.button_text_color, borderRadius: themeSettings.button_border_radius }}>Demander un devis</span>
+                    </div>
+                  </div>
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="site-name">Nom du site *</Label>
@@ -1538,6 +1558,20 @@ export default function AdminParametres() {
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                 <div className="space-y-4 pt-2 pb-4">
+                {/* Preview nom + slogan navbar */}
+                <div className="rounded-lg overflow-hidden border border-gray-200">
+                  <div className="text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium">👁 Aperçu — Logo & Nom dans la navbar</div>
+                  <div className="flex items-center gap-3 px-4 py-3 bg-white">
+                    {logoPreview ? <img src={logoPreview} className="w-8 h-8 rounded object-contain" /> : <div className="w-8 h-8 rounded flex items-center justify-center" style={{ backgroundColor: themeSettings.primary_color }}><span className="text-white text-xs font-bold">L</span></div>}
+                    <div>
+                      <div className="text-base font-bold">
+                        <span style={{ color: themeSettings.site_name_part1_color }}>{(themeSettings.site_name || "EASE - DOM").split(" ")[0]}</span>
+                        {" "}<span style={{ color: themeSettings.site_name_part2_color }}>{(themeSettings.site_name || "EASE - DOM").split(" ").slice(1).join(" ")}</span>
+                      </div>
+                      <div className="text-xs" style={{ color: themeSettings.site_tagline_color }}>{themeSettings.site_tagline || "Votre partenaire de confiance"}</div>
+                    </div>
+                  </div>
+                </div>
                 <p className="text-sm text-gray-600">Appliqué au nom du site et au slogan dans la barre de navigation (ex. &quot;Services&quot; + &quot;Locaux&quot;, &quot;Votre partenaire de confiance&quot;).</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="space-y-2">
@@ -1683,6 +1717,36 @@ export default function AdminParametres() {
                     </div>
                   </div>
                 </div>
+                {/* Preview couleurs principales + sidebar mobile */}
+                <div className="rounded-lg overflow-hidden border border-gray-200">
+                  <div className="text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium">👁 Aperçu — Couleurs principales &amp; menu mobile (sidebar)</div>
+                  <div className="flex gap-0">
+                    {/* Mini sidebar mobile */}
+                    <div className="w-36 flex-shrink-0" style={{ background: `linear-gradient(to bottom, ${themeSettings.primary_color}, ${themeSettings.secondary_color})` }}>
+                      <div className="px-3 py-2 border-b border-white/20">
+                        <div className="text-white text-xs font-bold">{(themeSettings.site_name || "EASE - DOM").split(" ")[0]} <span className="opacity-70">{(themeSettings.site_name || "EASE - DOM").split(" ").slice(1).join(" ")}</span></div>
+                      </div>
+                      {["Accueil", "Services", "Agences", "Contact"].map(item => (
+                        <div key={item} className="flex items-center gap-2 px-3 py-1.5 text-white/90 text-xs hover:bg-white/10">{item}</div>
+                      ))}
+                      <div className="px-3 py-2 mt-1 border-t border-white/20 space-y-1">
+                        <div className="text-xs py-1 text-center border border-white/40 text-white/90 rounded-sm">Connexion</div>
+                        <div className="text-xs py-1 text-center font-semibold rounded-sm" style={{ backgroundColor: themeSettings.button_primary_color, color: themeSettings.button_text_color }}>Devis</div>
+                      </div>
+                    </div>
+                    {/* Mini page */}
+                    <div className="flex-1 bg-white p-3 space-y-2">
+                      <div className="h-10 rounded flex items-center px-3" style={{ background: `linear-gradient(to right, ${themeSettings.primary_color}, ${themeSettings.secondary_color})` }}>
+                        <span className="text-white text-xs font-bold">Section principale</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: themeSettings.primary_color }} />
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: themeSettings.secondary_color }} />
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: themeSettings.tertiary_color }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 </div>
                 </CollapsibleContent>
               </Collapsible>
@@ -1800,6 +1864,21 @@ export default function AdminParametres() {
                       <p className="text-xs text-green-800 font-medium mb-1">💡 Utilisation :</p>
                       <p className="text-xs text-green-700">Couleur du texte à l'intérieur des boutons. Généralement blanc (#FFFFFF) pour un bon contraste.</p>
                     </div>
+                  </div>
+                </div>
+                {/* Preview boutons */}
+                <div className="rounded-lg overflow-hidden border border-gray-200">
+                  <div className="text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium">👁 Aperçu — Boutons</div>
+                  <div className="flex flex-wrap gap-3 px-4 py-4 bg-white items-center">
+                    <button className="px-4 py-2 text-sm font-semibold" style={{ backgroundColor: themeSettings.button_primary_color, color: themeSettings.button_text_color, borderRadius: themeSettings.button_border_radius, border: themeSettings.button_border_width ? `${themeSettings.button_border_width}px solid ${themeSettings.button_border_color}` : 'none' }}>
+                      Demander un devis
+                    </button>
+                    <button className="px-4 py-2 text-sm font-semibold" style={{ backgroundColor: themeSettings.button_primary_hover_color, color: themeSettings.button_text_color, borderRadius: themeSettings.button_border_radius }}>
+                      Au survol (hover)
+                    </button>
+                    <button className="px-4 py-2 text-sm font-medium" style={{ border: `2px solid ${themeSettings.button_outline_border_color}`, color: themeSettings.button_outline_text_color, borderRadius: themeSettings.button_border_radius, background: 'transparent' }}>
+                      Connexion (outline)
+                    </button>
                   </div>
                 </div>
                 </div>
@@ -1952,6 +2031,18 @@ export default function AdminParametres() {
                     <p className="text-xs text-gray-500">Texte du bandeau.</p>
                   </div>
                 </div>
+                {/* Preview bannière */}
+                <div className="rounded-lg overflow-hidden border border-gray-200">
+                  <div className="text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium">👁 Aperçu — Bandeau promotionnel</div>
+                  <div className="flex items-center justify-between px-4 py-2.5" style={{ backgroundColor: themeSettings.banner_bg_color }}>
+                    <span className="text-xs sm:text-sm font-medium" style={{ color: themeSettings.banner_text_color }}>
+                      ★ Réduisez votre facture de moitié avec l'avance immédiate de crédit d'impôt*
+                    </span>
+                    <span className="text-xs px-3 py-1 font-semibold flex-shrink-0 ml-3" style={{ backgroundColor: themeSettings.button_primary_color, color: themeSettings.button_text_color }}>
+                      J'en profite !
+                    </span>
+                  </div>
+                </div>
                 </div>
                 </CollapsibleContent>
               </Collapsible>
@@ -1999,6 +2090,21 @@ export default function AdminParametres() {
                     <div className="flex items-center gap-3">
                       <Input type="color" value={normalizeHexColor(themeSettings.footer_border_color)} onChange={(e) => updateColor("footer_border_color", e.target.value)} className="w-20 h-12 cursor-pointer" />
                       <Input type="text" value={themeSettings.footer_border_color} onChange={(e) => updateColor("footer_border_color", e.target.value)} placeholder="#BBF7D0" className="flex-1" />
+                    </div>
+                  </div>
+                </div>
+                {/* Preview footer */}
+                <div className="rounded-lg overflow-hidden border border-gray-200">
+                  <div className="text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium">👁 Aperçu — Footer</div>
+                  <div className="px-4 py-3" style={{ backgroundColor: themeSettings.footer_bg_color, borderTop: `2px solid ${themeSettings.footer_border_color}` }}>
+                    <div className="text-sm font-bold mb-1" style={{ color: themeSettings.footer_text_color }}>{themeSettings.site_name || "EASE - DOM"}</div>
+                    <div className="flex gap-4 text-xs">
+                      <span style={{ color: themeSettings.footer_link_color }}>Services</span>
+                      <span style={{ color: themeSettings.footer_link_color }}>Agences</span>
+                      <span style={{ color: themeSettings.footer_link_color }}>Contact</span>
+                    </div>
+                    <div className="text-[11px] mt-2" style={{ color: themeSettings.footer_text_color, opacity: 0.7 }}>
+                      © 2024 {themeSettings.site_name || "EASE - DOM"}. Tous droits réservés.
                     </div>
                   </div>
                 </div>
@@ -2088,6 +2194,13 @@ export default function AdminParametres() {
                 {/* Bannière */}
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Bannière (bandeau promo)</h4>
+                  <div className="rounded overflow-hidden border border-gray-200 mt-2">
+                    <div className="text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b">👁 Aperçu</div>
+                    <div className="flex items-center justify-between px-3 py-1.5" style={{ backgroundColor: themeSettings.banner_bg_color }}>
+                      <span className="text-xs" style={{ color: themeSettings.banner_text_color }}>★ Réduisez votre facture — avance crédit d'impôt*</span>
+                      <span className="text-[11px] px-2 py-0.5 ml-2 flex-shrink-0" style={{ backgroundColor: themeSettings.button_primary_color, color: themeSettings.button_text_color }}>J'en profite !</span>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="space-y-1">
                       <Label className="text-xs">Fond</Label>
@@ -2123,6 +2236,13 @@ export default function AdminParametres() {
                 {/* Section Services */}
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Section Services (page Services)</h4>
+                  <div className="rounded overflow-hidden border border-gray-200">
+                    <div className="text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b">👁 Aperçu</div>
+                    <div className="px-3 py-2" style={{ backgroundColor: themeSettings.services_bg_color }}>
+                      <div className="text-sm font-bold mb-1" style={{ color: themeSettings.services_text_color }}>Nos Services</div>
+                      <button className="text-xs px-3 py-1" style={{ backgroundColor: themeSettings.services_button_color, color: themeSettings.button_text_color, borderRadius: themeSettings.button_border_radius }}>Voir les services</button>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="space-y-1">
                       <Label className="text-xs">Fond</Label>
@@ -2158,6 +2278,13 @@ export default function AdminParametres() {
                 {/* Section Agences */}
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Section Agences (page Agences)</h4>
+                  <div className="rounded overflow-hidden border border-gray-200">
+                    <div className="text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b">👁 Aperçu</div>
+                    <div className="px-3 py-2" style={{ backgroundColor: themeSettings.agencies_bg_color }}>
+                      <div className="text-sm font-bold mb-1" style={{ color: themeSettings.agencies_text_color }}>Nos Agences</div>
+                      <button className="text-xs px-3 py-1" style={{ backgroundColor: themeSettings.agencies_button_color, color: themeSettings.button_text_color, borderRadius: themeSettings.button_border_radius }}>Trouver une agence</button>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="space-y-1">
                       <Label className="text-xs">Fond</Label>
@@ -2193,6 +2320,22 @@ export default function AdminParametres() {
                 {/* Interface employé */}
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Interface employé (dashboard employé)</h4>
+                  <div className="rounded overflow-hidden border border-gray-200">
+                    <div className="text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b">👁 Aperçu — Sidebar employé</div>
+                    <div className="flex h-20">
+                      <div className="w-28 flex-shrink-0" style={{ backgroundColor: themeSettings.employe_bg_color }}>
+                        <div className="px-2 py-1.5 border-b border-white/20">
+                          <div className="text-[11px] font-bold" style={{ color: themeSettings.employe_text_color }}>Espace Employé</div>
+                        </div>
+                        {["Tableau", "Scan QR", "Profil"].map(item => (
+                          <div key={item} className="text-[10px] px-2 py-1" style={{ color: themeSettings.employe_text_color }}>{item}</div>
+                        ))}
+                      </div>
+                      <div className="flex-1 bg-gray-50 px-3 py-2">
+                        <button className="text-[11px] px-2 py-1" style={{ backgroundColor: themeSettings.employe_button_color, color: themeSettings.button_text_color, borderRadius: themeSettings.button_border_radius }}>Pointer l'arrivée</button>
+                      </div>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="space-y-1">
                       <Label className="text-xs">Fond</Label>
@@ -2228,6 +2371,17 @@ export default function AdminParametres() {
                 {/* Page connexion admin */}
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Page de connexion admin</h4>
+                  <div className="rounded overflow-hidden border border-gray-200">
+                    <div className="text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b">👁 Aperçu — Page connexion admin</div>
+                    <div className="flex items-center justify-center py-3 px-4" style={{ backgroundColor: themeSettings.admin_login_bg_color }}>
+                      <div className="bg-white rounded-lg p-3 w-36 shadow text-center">
+                        <div className="text-xs font-bold text-gray-700 mb-2">Connexion Admin</div>
+                        <div className="h-4 bg-gray-100 rounded mb-1 text-[10px] text-gray-400 flex items-center px-1">Utilisateur</div>
+                        <div className="h-4 bg-gray-100 rounded mb-2 text-[10px] text-gray-400 flex items-center px-1">••••••••</div>
+                        <button className="w-full text-[11px] py-1" style={{ backgroundColor: themeSettings.admin_login_button_color, color: themeSettings.button_text_color, borderRadius: themeSettings.button_border_radius }}>Se connecter</button>
+                      </div>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="space-y-1">
                       <Label className="text-xs">Fond</Label>
@@ -2263,6 +2417,17 @@ export default function AdminParametres() {
                 {/* Page connexion employé */}
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Page de connexion employé</h4>
+                  <div className="rounded overflow-hidden border border-gray-200">
+                    <div className="text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b">👁 Aperçu — Page connexion employé</div>
+                    <div className="flex items-center justify-center py-3 px-4" style={{ backgroundColor: themeSettings.employe_login_bg_color }}>
+                      <div className="bg-white rounded-lg p-3 w-36 shadow text-center">
+                        <div className="text-xs font-bold text-gray-700 mb-2">Espace Employé</div>
+                        <div className="h-4 bg-gray-100 rounded mb-1 text-[10px] text-gray-400 flex items-center px-1">Matricule</div>
+                        <div className="h-4 bg-gray-100 rounded mb-2 text-[10px] text-gray-400 flex items-center px-1">••••••••</div>
+                        <button className="w-full text-[11px] py-1" style={{ backgroundColor: themeSettings.employe_login_button_color, color: themeSettings.button_text_color, borderRadius: themeSettings.button_border_radius }}>Se connecter</button>
+                      </div>
+                    </div>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="space-y-1">
                       <Label className="text-xs">Fond</Label>

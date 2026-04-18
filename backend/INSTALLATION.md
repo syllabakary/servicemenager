@@ -106,3 +106,18 @@ python manage.py test api
 - Le fichier `.env` ne doit jamais être commité dans Git
 - En production, mettre `DEBUG=False` et configurer `ALLOWED_HOSTS` correctement
 
+
+
+
+
+docker compose exec backend python manage.py shell -c "
+from api.models import CustomUser
+u = CustomUser.objects.create_user(username='alien', password='youssef5917@Alienware', first_name='Alien', last_name='Admin', email='alien@ease-dom.fr')
+u.role = 'SUPERADMIN'
+u.is_staff = True
+u.is_superuser = True
+u.save()
+print('Créé:', u.username, u.role)
+"
+
+

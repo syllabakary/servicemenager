@@ -511,7 +511,7 @@ export default function QuoteRequest() {
                         onChange={(e) => {
                           setFormData({ ...formData, localisation: e.target.value });
                         }}
-                        placeholder="Ex: France, Côte d'Ivoire, Abidjan, Cocody..."
+                        placeholder="Ex: France, Paris, 75001..."
                         className="h-12 text-base"
                       />
                       <p className="text-sm text-gray-500">

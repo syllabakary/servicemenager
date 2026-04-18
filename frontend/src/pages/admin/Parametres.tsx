@@ -142,7 +142,7 @@ export default function AdminParametres() {
 
   // Parser les données JSON
   const [footerInfo, setFooterInfo] = useState({
-    address: "Abidjan, Côte d'Ivoire",
+    address: "Clamart, France",
     phone: "+225 01 23 45 67 89",
     mobile: "",
     email: "contact@serviceslocaux.ci",

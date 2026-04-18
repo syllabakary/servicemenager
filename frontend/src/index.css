@@ -14,17 +14,18 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
-  --background: 0 0% 100%;
+  /* Slightly darker base to reduce overall brightness */
+  --background: 0 0% 97%;
 
-  --foreground: 25 50% 20%; /* #2F1B14 - brun très foncé */
+  --foreground: 24 20% 18%; /* darker, better contrast */
 
-  --border: 45 25% 88%; /* #E6D7C3 - beige très clair */
+  --border: 45 25% 84%; /* slightly darker beige */
 
-  --card: 45 25% 96%; /* #F5F5DC - beige clair */
+  --card: 45 25% 94%; /* subtle darker card */
 
-  --card-foreground: 25 50% 20%; /* #2F1B14 - brun très foncé */
+  --card-foreground: 22 18% 16%; /* darker text on cards */
 
-  --card-border: 45 25% 88%; /* #E6D7C3 - beige très clair */
+  --card-border: 45 25% 84%; /* match border tone */
 
   --sidebar: 220 13% 96%;
 
@@ -380,5 +381,48 @@
   .border.active-elevate-2:not(.no-active-interaction-elevate)::after,
   .border.hover-elevate:not(.no-hover-interaction-elevate)::after {
     inset: -1px;
+  }
+}
+
+@layer components {
+  /* Carte réutilisable plus douce et moderne */
+  .card {
+    @apply bg-white rounded-2xl shadow-md border p-6;
+    border-color: var(--card-border);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Bannière améliorée : léger dégradé, coins arrondis et ombre */
+  .banner-enhanced {
+    border-radius: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    color: var(--site-banner-text-hex, #fff);
+    background-image: linear-gradient(90deg, var(--site-banner-bg-hex, #087A00) 0%, color-mix(in srgb, var(--site-secondary-hex, #066300) 60%, transparent) 100%);
+    box-shadow: 0 6px 18px rgba(4,64,0,0.12);
+  }
+
+  /* Bouton principal plus visible (utilisé dans la bannière) */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.9rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    color: var(--site-button-text-hex, #ffffff);
+    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+    border: 2px solid var(--site-banner-button-border-hex, transparent);
+    box-shadow: var(--shadow-sm);
+    transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    opacity: 0.98;
   }
 }

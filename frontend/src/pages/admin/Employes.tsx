@@ -1035,7 +1035,7 @@ export default function AdminEmployes() {
                                 name="adresse_pays"
                                 value={formData.adresse_pays || ""}
                                 onChange={(e) => updateField("adresse_pays", e.target.value)}
-                                placeholder="Ex: Côte d'Ivoire"
+                                placeholder="Ex: France"
                                 className="h-11 bg-white border-gray-300 focus:border-site-primary focus:ring-site-primary"
                               />
                             </div>

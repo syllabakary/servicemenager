@@ -238,11 +238,11 @@ const mockServices: Service[] = [
 const mockAgencies: Agency[] = [
   {
     id: 1,
-    nom: "ProNet Abidjan",
+    nom: "EASE-DOM Clamart",
     description: "Experts du nettoyage industriel et résidentiel, disponibles 7j/7 pour vos besoins d'entretien.",
-    ville: "Abidjan",
+    ville: "Clamart",
     services: ["Nettoyage", "Désinfection", "Entretien de bureaux"],
-    image: "./Abidjan_agency_storefront_41598fcd.png",
+    image: null,
   },
   {
     id: 2,
@@ -272,7 +272,7 @@ const mockAgencies: Agency[] = [
     id: 5,
     nom: "BabyCare Pro",
     description: "Service premium de garde d'enfants à domicile, flexible et sécurisé.",
-    ville: "Abidjan",
+    ville: "Clamart",
     services: ["Garde d'enfants", "Soins de nourrissons", "Éveil ludique"],
     image: "./Bouaké_agency_storefront_efadb467.png",
   },

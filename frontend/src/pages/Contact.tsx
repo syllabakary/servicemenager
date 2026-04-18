@@ -36,9 +36,9 @@ export default function Contact() {
   });
 
   let contactInfo = {
-    address: "Plateau, Abidjan\nCôte d'Ivoire",
-    phone: "+225 01 23 45 67 89",
-    email: "contact@serviceslocaux.ci",
+    address: "Clamart, France",
+    phone: "+33 1 23 45 67 89",
+    email: "contact@ease-dom.fr",
   };
   if (footerData?.body) {
     try {

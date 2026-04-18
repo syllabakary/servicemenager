@@ -508,7 +508,7 @@ function AgencyDialog({
                     });
                   }}
                   required
-                  placeholder="Ex: ProNet Abidjan"
+                  placeholder="Ex: EASE-DOM Clamart"
                 />
               </div>
               <div className="space-y-2">
@@ -584,7 +584,7 @@ function AgencyDialog({
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                   required
-                  placeholder="Ex: Abidjan"
+                  placeholder="Ex: Clamart"
                 />
               </div>
               <div className="space-y-2">

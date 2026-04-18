@@ -51,7 +51,7 @@ import { API_URL } from "@/config/api";
 function mapAgencyFromAPI(apiAgency: AgencyAPI): Agency {
   // Image par défaut basée sur la ville
   const defaultImages: Record<string, string> = {
-    "Abidjan": "./Abidjan_agency_storefront_41598fcd.png",
+    "Clamart": "./Abidjan_agency_storefront_41598fcd.png",
     "Yamoussoukro": "./Childcare_service_photo_e9f137e4.png",
     "Bouaké": "./Gardening_service_photo_0007b568.png",
     "San Pedro": "./Childcare_service_photo_e9f137e4.png",
@@ -68,7 +68,7 @@ function mapAgencyFromAPI(apiAgency: AgencyAPI): Agency {
     description: apiAgency.details || `${apiAgency.name} - Agence située à ${apiAgency.city}. ${apiAgency.address}`,
     ville: apiAgency.city,
     services: services.length > 0 ? services : ["Services divers"],
-    image: apiAgency.image_url || defaultImages[apiAgency.city] || "./Abidjan_agency_storefront_41598fcd.png",
+    image: apiAgency.image_url || defaultImages[apiAgency.city] || null,
     telephone: apiAgency.phone,
     email: apiAgency.email,
     horaires: (apiAgency as any).horaires || undefined,
@@ -228,7 +228,7 @@ export default function Agencies() {
             Nos Agences <span className="text-yellow-400">Partenaires</span>
           </h1>
           <p className="max-w-2xl mx-auto text-sm sm:text-base md:text-lg lg:text-xl text-white/95 mb-4 sm:mb-6 md:mb-8 leading-relaxed drop-shadow-md px-2">
-            Explorez les agences de confiance à travers toute la Côte d'Ivoire. Proximité, qualité et savoir-faire local au rendez-vous.
+            Explorez les agences de confiance à travers toute la France. Proximité, qualité et savoir-faire local au rendez-vous.
           </p>
           <Button
             size="lg"
@@ -318,7 +318,7 @@ export default function Agencies() {
               Toutes nos agences en <span className="text-site-text-primary">détail</span>
             </h2>
             <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed px-2">
-              Découvrez notre réseau d'agences partenaires réparties dans toute la Côte d'Ivoire. Chaque agence est sélectionnée pour sa qualité et son professionnalisme.
+              Découvrez notre réseau d'agences partenaires réparties dans toute la France. Chaque agence est sélectionnée pour sa qualité et son professionnalisme.
             </p>
           </motion.div>
 
@@ -465,7 +465,7 @@ export default function Agencies() {
               {
                 icon: FaMapMarkerAlt,
                 title: "Présence nationale",
-                description: "Un réseau d'agences réparti dans les principales villes de Côte d'Ivoire pour vous offrir un service de proximité où que vous soyez.",
+                description: "Un réseau d'agences réparti dans les principales villes de France pour vous offrir un service de proximité où que vous soyez.",
               },
               {
                 icon: FaUsers,

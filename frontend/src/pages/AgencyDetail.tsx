@@ -142,7 +142,7 @@ export default function AgencyDetail() {
           </motion.h2>
           <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.5 }} className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm md:text-base font-medium">
             <FaMapMarkerAlt className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5 text-yellow-400" />
-            <span>{agency.ville}, Côte d'Ivoire</span>
+            <span>{agency.ville}, France</span>
           </motion.div>
         </div>
       </div>
@@ -212,7 +212,7 @@ export default function AgencyDetail() {
               </CardHeader>
               <CardContent className="space-y-2 sm:space-y-3 px-4 sm:px-5 md:px-6 pt-0">
                 {[
-                  { Icon: FaMapMarkerAlt, label: "Adresse", value: agency.address || `${agency.ville}, Côte d'Ivoire`, href: undefined },
+                  { Icon: FaMapMarkerAlt, label: "Adresse", value: agency.address || `${agency.ville}, France`, href: undefined },
                   { Icon: FaPhone, label: "Téléphone", value: agency.telephone, href: agency.telephone ? `tel:${agency.telephone}` : undefined },
                   { Icon: FaEnvelope, label: "Email", value: agency.email, href: agency.email ? `mailto:${agency.email}` : undefined },
                 ].filter(item => item.value).map((item, idx) => (

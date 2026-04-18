@@ -36,7 +36,7 @@ export default function Footer() {
 
   // Parser les données JSON ou utiliser les valeurs par défaut
   let footerInfo = {
-    address: "Abidjan, Côte d'Ivoire",
+    address: "Clamart, France",
     phone: "+225 01 23 45 67 89",
     mobile: "",
     email: "contact@serviceslocaux.ci",

@@ -1127,8 +1127,8 @@ export default function AdminParametres() {
               <span
                 className="text-xs px-2 py-0.5 font-semibold flex-shrink-0"
                 style={{
-                  backgroundColor: themeSettings.button_primary_color,
-                  color: themeSettings.button_text_color,
+                  backgroundColor: "#ffffff",
+                  color: themeSettings.banner_bg_color,
                 }}
               >
                 J'en profite !
@@ -2038,7 +2038,7 @@ export default function AdminParametres() {
                     <span className="text-xs sm:text-sm font-medium" style={{ color: themeSettings.banner_text_color }}>
                       ★ Réduisez votre facture de moitié avec l'avance immédiate de crédit d'impôt*
                     </span>
-                    <span className="text-xs px-3 py-1 font-semibold flex-shrink-0 ml-3" style={{ backgroundColor: themeSettings.button_primary_color, color: themeSettings.button_text_color }}>
+                    <span className="text-xs px-3 py-1 font-semibold flex-shrink-0 ml-3" style={{ backgroundColor: "#ffffff", color: themeSettings.banner_bg_color }}>
                       J'en profite !
                     </span>
                   </div>
@@ -2198,7 +2198,7 @@ export default function AdminParametres() {
                     <div className="text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b">👁 Aperçu</div>
                     <div className="flex items-center justify-between px-3 py-1.5" style={{ backgroundColor: themeSettings.banner_bg_color }}>
                       <span className="text-xs" style={{ color: themeSettings.banner_text_color }}>★ Réduisez votre facture — avance crédit d'impôt*</span>
-                      <span className="text-[11px] px-2 py-0.5 ml-2 flex-shrink-0" style={{ backgroundColor: themeSettings.button_primary_color, color: themeSettings.button_text_color }}>J'en profite !</span>
+                      <span className="text-[11px] px-2 py-0.5 ml-2 flex-shrink-0" style={{ backgroundColor: "#ffffff", color: themeSettings.banner_bg_color }}>J'en profite !</span>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

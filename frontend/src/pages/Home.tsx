@@ -516,7 +516,7 @@ export default function Home() {
     : [];
 
   return (
-    <div className="overflow-x-hidden bg-white text-foreground pt-16 sm:pt-20 w-full max-w-full">
+    <div className="overflow-x-hidden bg-white text-foreground w-full max-w-full">
       {/* === PROMOTIONAL BANNER === */}
       <PromotionalBanner />
 

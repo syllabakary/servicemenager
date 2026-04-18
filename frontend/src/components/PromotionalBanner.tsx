@@ -61,7 +61,8 @@ export function PromotionalBanner() {
           <Link href="/devis">
             <Button
               size="sm"
-              className="bg-site-button-primary hover:bg-site-button-primary-hover text-site-button-text font-semibold text-xs sm:text-sm rounded-none border-0 shadow-none whitespace-nowrap"
+              className="bg-white hover:bg-white/90 font-semibold text-xs sm:text-sm rounded-none border-0 shadow-none whitespace-nowrap"
+              style={{ color: "var(--site-banner-bg-hex, #087A00)" }}
             >
               J'en profite !
             </Button>

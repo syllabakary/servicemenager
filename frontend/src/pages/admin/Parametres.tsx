@@ -1080,7 +1080,7 @@ export default function AdminParametres() {
           <div className="rounded-xl overflow-hidden border-2 border-site-primary/30 shadow-lg bg-white">
             {/* Barre titre */}
             <button
-              onClick={() => togglePreview("sticky")}
+              type="button" onClick={() => togglePreview("sticky")}
               className="w-full bg-gradient-to-r from-site-primary to-site-secondary px-4 py-2 flex items-center justify-between gap-2 hover:opacity-90 transition-opacity"
             >
               <div className="flex items-center gap-2">
@@ -1495,7 +1495,7 @@ export default function AdminParametres() {
                 <div className="space-y-4 pt-2 pb-4">
                 {/* Preview Navbar */}
                 <div className="rounded-lg overflow-hidden border border-gray-200">
-                  <button onClick={() => togglePreview("general")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
+                  <button type="button" onClick={() => togglePreview("general")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
                     <span>👁 Aperçu — Barre de navigation</span>
                     <span>{previewsOpen.general ? "▲" : "▼"}</span>
                   </button>
@@ -1552,7 +1552,7 @@ export default function AdminParametres() {
                 <div className="space-y-4 pt-2 pb-4">
                 {/* Preview nom + slogan navbar */}
                 <div className="rounded-lg overflow-hidden border border-gray-200">
-                  <button onClick={() => togglePreview("name")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
+                  <button type="button" onClick={() => togglePreview("name")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
                     <span>👁 Aperçu — Logo &amp; Nom dans la navbar</span>
                     <span>{previewsOpen.name ? "▲" : "▼"}</span>
                   </button>
@@ -1714,7 +1714,7 @@ export default function AdminParametres() {
                 </div>
                 {/* Preview couleurs principales + sidebar mobile */}
                 <div className="rounded-lg overflow-hidden border border-gray-200">
-                  <button onClick={() => togglePreview("primary")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
+                  <button type="button" onClick={() => togglePreview("primary")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
                     <span>👁 Aperçu — Couleurs principales &amp; menu mobile (sidebar)</span>
                     <span>{previewsOpen.primary ? "▲" : "▼"}</span>
                   </button>
@@ -1866,7 +1866,7 @@ export default function AdminParametres() {
                 </div>
                 {/* Preview boutons */}
                 <div className="rounded-lg overflow-hidden border border-gray-200">
-                  <button onClick={() => togglePreview("buttons")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
+                  <button type="button" onClick={() => togglePreview("buttons")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
                     <span>👁 Aperçu — Boutons</span>
                     <span>{previewsOpen.buttons ? "▲" : "▼"}</span>
                   </button>
@@ -2034,7 +2034,7 @@ export default function AdminParametres() {
                 </div>
                 {/* Preview bannière */}
                 <div className="rounded-lg overflow-hidden border border-gray-200">
-                  <button onClick={() => togglePreview("banner")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
+                  <button type="button" onClick={() => togglePreview("banner")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
                     <span>👁 Aperçu — Bandeau promotionnel</span>
                     <span>{previewsOpen.banner ? "▲" : "▼"}</span>
                   </button>
@@ -2099,7 +2099,7 @@ export default function AdminParametres() {
                 </div>
                 {/* Preview footer */}
                 <div className="rounded-lg overflow-hidden border border-gray-200">
-                  <button onClick={() => togglePreview("footer")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
+                  <button type="button" onClick={() => togglePreview("footer")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
                     <span>👁 Aperçu — Footer</span>
                     <span>{previewsOpen.footer ? "▲" : "▼"}</span>
                   </button>
@@ -2202,7 +2202,7 @@ export default function AdminParametres() {
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Bannière (bandeau promo)</h4>
                   <div className="rounded overflow-hidden border border-gray-200 mt-2">
-                    <button onClick={() => togglePreview("banner_section")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
+                    <button type="button" onClick={() => togglePreview("banner_section")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
                       <span>👁 Aperçu</span><span>{previewsOpen.banner_section ? "▲" : "▼"}</span>
                     </button>
                     {previewsOpen.banner_section && <div className="flex items-center justify-between px-3 py-1.5" style={{ backgroundColor: themeSettings.banner_bg_color }}>
@@ -2246,7 +2246,7 @@ export default function AdminParametres() {
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Section Services (page Services)</h4>
                   <div className="rounded overflow-hidden border border-gray-200">
-                    <button onClick={() => togglePreview("services")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
+                    <button type="button" onClick={() => togglePreview("services")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
                       <span>👁 Aperçu</span><span>{previewsOpen.services ? "▲" : "▼"}</span>
                     </button>
                     {previewsOpen.services && <div className="px-3 py-2" style={{ backgroundColor: themeSettings.services_bg_color }}>
@@ -2290,7 +2290,7 @@ export default function AdminParametres() {
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Section Agences (page Agences)</h4>
                   <div className="rounded overflow-hidden border border-gray-200">
-                    <button onClick={() => togglePreview("agencies")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
+                    <button type="button" onClick={() => togglePreview("agencies")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
                       <span>👁 Aperçu</span><span>{previewsOpen.agencies ? "▲" : "▼"}</span>
                     </button>
                     {previewsOpen.agencies && <div className="px-3 py-2" style={{ backgroundColor: themeSettings.agencies_bg_color }}>
@@ -2334,7 +2334,7 @@ export default function AdminParametres() {
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Interface employé (dashboard employé)</h4>
                   <div className="rounded overflow-hidden border border-gray-200">
-                    <button onClick={() => togglePreview("employe")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
+                    <button type="button" onClick={() => togglePreview("employe")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
                       <span>👁 Aperçu — Sidebar employé</span><span>{previewsOpen.employe ? "▲" : "▼"}</span>
                     </button>
                     {previewsOpen.employe && <div className="flex h-20">
@@ -2387,7 +2387,7 @@ export default function AdminParametres() {
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Page de connexion admin</h4>
                   <div className="rounded overflow-hidden border border-gray-200">
-                    <button onClick={() => togglePreview("admin_login")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
+                    <button type="button" onClick={() => togglePreview("admin_login")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
                       <span>👁 Aperçu — Page connexion admin</span><span>{previewsOpen.admin_login ? "▲" : "▼"}</span>
                     </button>
                     {previewsOpen.admin_login && <div className="flex items-center justify-center py-3 px-4" style={{ backgroundColor: themeSettings.admin_login_bg_color }}>
@@ -2435,7 +2435,7 @@ export default function AdminParametres() {
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Page de connexion employé</h4>
                   <div className="rounded overflow-hidden border border-gray-200">
-                    <button onClick={() => togglePreview("employe_login")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
+                    <button type="button" onClick={() => togglePreview("employe_login")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
                       <span>👁 Aperçu — Page connexion employé</span><span>{previewsOpen.employe_login ? "▲" : "▼"}</span>
                     </button>
                     {previewsOpen.employe_login && <div className="flex items-center justify-center py-3 px-4" style={{ backgroundColor: themeSettings.employe_login_bg_color }}>

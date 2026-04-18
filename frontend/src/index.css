@@ -396,33 +396,4 @@
     box-shadow: var(--shadow-lg);
   }
 
-  /* Bannière améliorée : léger dégradé, coins arrondis et ombre */
-  .banner-enhanced {
-    border-radius: 0.75rem;
-    padding: 0.6rem 0.75rem;
-    color: var(--site-banner-text-hex, #fff);
-    background-image: linear-gradient(90deg, var(--site-banner-bg-hex, #087A00) 0%, color-mix(in srgb, var(--site-secondary-hex, #066300) 60%, transparent) 100%);
-    box-shadow: 0 6px 18px rgba(4,64,0,0.12);
-  }
-
-  /* Bouton principal plus visible (utilisé dans la bannière) */
-  .btn-primary {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.5rem 0.9rem;
-    border-radius: 0.5rem;
-    font-weight: 600;
-    color: var(--site-button-text-hex, #ffffff);
-    background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-    border: 2px solid var(--site-banner-button-border-hex, transparent);
-    box-shadow: var(--shadow-sm);
-    transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
-  }
-  .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    opacity: 0.98;
-  }
 }

@@ -458,6 +458,25 @@ export default function AdminParametres() {
     paiement_bic: "CRLYFRPP",
   });
 
+  // État pour masquer/afficher les previews individuellement
+  const [previewsOpen, setPreviewsOpen] = useState<Record<string, boolean>>({
+    sticky: true,
+    general: true,
+    name: true,
+    primary: true,
+    buttons: true,
+    banner: true,
+    footer: true,
+    banner_section: true,
+    services: true,
+    agencies: true,
+    employe: true,
+    admin_login: true,
+    employe_login: true,
+  });
+  const togglePreview = (key: string) =>
+    setPreviewsOpen((p) => ({ ...p, [key]: !p[key] }));
+
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const [faviconPreview, setFaviconPreview] = useState<string | null>(null);
   const [logoSignaturePreview, setLogoSignaturePreview] = useState<string | null>(null);
@@ -1060,96 +1079,66 @@ export default function AdminParametres() {
         <div className="sticky top-2 z-40">
           <div className="rounded-xl overflow-hidden border-2 border-site-primary/30 shadow-lg bg-white">
             {/* Barre titre */}
-            <div className="bg-gradient-to-r from-site-primary to-site-secondary px-4 py-2 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-white animate-pulse flex-shrink-0"></span>
-              <span className="text-white text-xs font-semibold">Aperçu en temps réel — mis à jour à chaque changement</span>
-            </div>
-            {/* Mini navbar */}
-            <div
-              className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100"
-              style={{ backgroundColor: themeSettings.logo_area_bg_color || '#ffffff' }}
+            <button
+              onClick={() => togglePreview("sticky")}
+              className="w-full bg-gradient-to-r from-site-primary to-site-secondary px-4 py-2 flex items-center justify-between gap-2 hover:opacity-90 transition-opacity"
             >
-              <div className="flex items-center gap-2 min-w-0">
-                {logoPreview ? (
-                  <img src={logoPreview} alt="Logo" className="w-7 h-7 rounded object-contain flex-shrink-0" />
-                ) : (
-                  <div className="w-7 h-7 rounded flex items-center justify-center flex-shrink-0" style={{ backgroundColor: themeSettings.primary_color }}>
-                    <span className="text-white text-xs font-bold">L</span>
-                  </div>
-                )}
-                <div className="flex flex-col leading-tight min-w-0">
-                  <span className="text-sm font-bold truncate">
-                    <span style={{ color: themeSettings.site_name_part1_color }}>
-                      {(themeSettings.site_name || "EASE - DOM").split(" ")[0]}
-                    </span>
-                    {(themeSettings.site_name || "EASE - DOM").includes(" ") && (
-                      <span style={{ color: themeSettings.site_name_part2_color }}>
-                        {" "}{(themeSettings.site_name || "EASE - DOM").split(" ").slice(1).join(" ")}
-                      </span>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-white animate-pulse flex-shrink-0"></span>
+                <span className="text-white text-xs font-semibold">Aperçu en temps réel — mis à jour à chaque changement</span>
+              </div>
+              <span className="text-white/80 text-xs">{previewsOpen.sticky ? "▲ Réduire" : "▼ Afficher"}</span>
+            </button>
+            {previewsOpen.sticky && (
+              <>
+                {/* Mini navbar */}
+                <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100" style={{ backgroundColor: themeSettings.logo_area_bg_color || '#ffffff' }}>
+                  <div className="flex items-center gap-2 min-w-0">
+                    {logoPreview ? (
+                      <img src={logoPreview} alt="Logo" className="w-7 h-7 rounded object-contain flex-shrink-0" />
+                    ) : (
+                      <div className="w-7 h-7 rounded flex items-center justify-center flex-shrink-0" style={{ backgroundColor: themeSettings.primary_color }}>
+                        <span className="text-white text-xs font-bold">L</span>
+                      </div>
                     )}
-                  </span>
-                  <span className="text-[11px] truncate" style={{ color: themeSettings.site_tagline_color }}>
-                    {themeSettings.site_tagline || "Votre partenaire de confiance"}
-                  </span>
+                    <div className="flex flex-col leading-tight min-w-0">
+                      <span className="text-sm font-bold truncate">
+                        <span style={{ color: themeSettings.site_name_part1_color }}>{(themeSettings.site_name || "EASE - DOM").split(" ")[0]}</span>
+                        {(themeSettings.site_name || "EASE - DOM").includes(" ") && (
+                          <span style={{ color: themeSettings.site_name_part2_color }}>{" "}{(themeSettings.site_name || "EASE - DOM").split(" ").slice(1).join(" ")}</span>
+                        )}
+                      </span>
+                      <span className="text-[11px] truncate" style={{ color: themeSettings.site_tagline_color }}>{themeSettings.site_tagline || "Votre partenaire de confiance"}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className="text-xs px-2.5 py-1 font-medium border" style={{ borderColor: themeSettings.button_outline_border_color, color: themeSettings.button_outline_text_color, borderRadius: themeSettings.button_border_radius }}>Connexion</span>
+                    <span className="text-xs px-2.5 py-1 font-semibold" style={{ backgroundColor: themeSettings.button_primary_color, color: themeSettings.button_text_color, borderRadius: themeSettings.button_border_radius }}>Demander un devis</span>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <span
-                  className="text-xs px-2.5 py-1 font-medium border"
-                  style={{
-                    borderColor: themeSettings.button_outline_border_color,
-                    color: themeSettings.button_outline_text_color,
-                    borderRadius: themeSettings.button_border_radius,
-                  }}
-                >
-                  Connexion
-                </span>
-                <span
-                  className="text-xs px-2.5 py-1 font-semibold"
-                  style={{
-                    backgroundColor: themeSettings.button_primary_color,
-                    color: themeSettings.button_text_color,
-                    borderRadius: themeSettings.button_border_radius,
-                  }}
-                >
-                  Demander un devis
-                </span>
-              </div>
-            </div>
-            {/* Mini bannière */}
-            <div
-              className="flex items-center justify-between px-4 py-1.5 gap-3"
-              style={{ backgroundColor: themeSettings.banner_bg_color }}
-            >
-              <span className="text-xs font-medium truncate" style={{ color: themeSettings.banner_text_color }}>
-                ★ Réduisez votre facture de moitié avec l'avance immédiate de crédit d'impôt*
-              </span>
-              <span
-                className="text-xs px-2 py-0.5 font-semibold flex-shrink-0"
-                style={{
-                  backgroundColor: "#ffffff",
-                  color: themeSettings.banner_bg_color,
-                }}
-              >
-                J'en profite !
-              </span>
-            </div>
-            {/* Palette couleurs */}
-            <div className="bg-gray-50 border-t border-gray-100 px-4 py-2 flex flex-wrap gap-3 items-center">
-              {[
-                { label: "Primaire", val: themeSettings.primary_color },
-                { label: "Secondaire", val: themeSettings.secondary_color },
-                { label: "Bouton", val: themeSettings.button_primary_color },
-                { label: "Texte btn", val: themeSettings.button_text_color },
-                { label: "Bannière", val: themeSettings.banner_bg_color },
-                { label: "Footer", val: themeSettings.footer_bg_color },
-              ].map(({ label, val }) => (
-                <div key={label} className="flex items-center gap-1.5">
-                  <div className="w-4 h-4 rounded-sm border border-gray-200 shadow-sm" style={{ backgroundColor: val }} />
-                  <span className="text-[11px] text-gray-500">{label}</span>
+                {/* Mini bannière */}
+                <div className="flex items-center justify-between px-4 py-1.5 gap-3" style={{ backgroundColor: themeSettings.banner_bg_color }}>
+                  <span className="text-xs font-medium truncate" style={{ color: themeSettings.banner_text_color }}>★ Réduisez votre facture de moitié avec l'avance immédiate de crédit d'impôt*</span>
+                  <span className="text-xs px-2 py-0.5 font-semibold flex-shrink-0" style={{ backgroundColor: "#ffffff", color: themeSettings.banner_bg_color }}>J'en profite !</span>
                 </div>
-              ))}
-            </div>
+                {/* Palette couleurs */}
+                <div className="bg-gray-50 border-t border-gray-100 px-4 py-2 flex flex-wrap gap-3 items-center">
+                  {[
+                    { label: "Primaire", val: themeSettings.primary_color },
+                    { label: "Secondaire", val: themeSettings.secondary_color },
+                    { label: "Bouton", val: themeSettings.button_primary_color },
+                    { label: "Texte btn", val: themeSettings.button_text_color },
+                    { label: "Bannière", val: themeSettings.banner_bg_color },
+                    { label: "Footer", val: themeSettings.footer_bg_color },
+                  ].map(({ label, val }) => (
+                    <div key={label} className="flex items-center gap-1.5">
+                      <div className="w-4 h-4 rounded-sm border border-gray-200 shadow-sm" style={{ backgroundColor: val }} />
+                      <span className="text-[11px] text-gray-500">{label}</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
 
@@ -1506,8 +1495,11 @@ export default function AdminParametres() {
                 <div className="space-y-4 pt-2 pb-4">
                 {/* Preview Navbar */}
                 <div className="rounded-lg overflow-hidden border border-gray-200">
-                  <div className="text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium">👁 Aperçu — Barre de navigation</div>
-                  <div className="flex items-center justify-between px-4 py-2.5 bg-white">
+                  <button onClick={() => togglePreview("general")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
+                    <span>👁 Aperçu — Barre de navigation</span>
+                    <span>{previewsOpen.general ? "▲" : "▼"}</span>
+                  </button>
+                  {previewsOpen.general && <div className="flex items-center justify-between px-4 py-2.5 bg-white">
                     <div className="flex items-center gap-2">
                       {logoPreview ? <img src={logoPreview} className="w-7 h-7 rounded object-contain" /> : <div className="w-7 h-7 rounded flex items-center justify-center" style={{ backgroundColor: themeSettings.primary_color }}><span className="text-white text-xs font-bold">L</span></div>}
                       <div>
@@ -1522,7 +1514,7 @@ export default function AdminParametres() {
                       <span className="text-xs px-2 py-1" style={{ border: `1.5px solid ${themeSettings.button_outline_border_color}`, color: themeSettings.button_outline_text_color, borderRadius: themeSettings.button_border_radius }}>Connexion</span>
                       <span className="text-xs px-2 py-1 font-semibold" style={{ backgroundColor: themeSettings.button_primary_color, color: themeSettings.button_text_color, borderRadius: themeSettings.button_border_radius }}>Demander un devis</span>
                     </div>
-                  </div>
+                  </div>}
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -1560,8 +1552,11 @@ export default function AdminParametres() {
                 <div className="space-y-4 pt-2 pb-4">
                 {/* Preview nom + slogan navbar */}
                 <div className="rounded-lg overflow-hidden border border-gray-200">
-                  <div className="text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium">👁 Aperçu — Logo & Nom dans la navbar</div>
-                  <div className="flex items-center gap-3 px-4 py-3 bg-white">
+                  <button onClick={() => togglePreview("name")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
+                    <span>👁 Aperçu — Logo &amp; Nom dans la navbar</span>
+                    <span>{previewsOpen.name ? "▲" : "▼"}</span>
+                  </button>
+                  {previewsOpen.name && <div className="flex items-center gap-3 px-4 py-3 bg-white">
                     {logoPreview ? <img src={logoPreview} className="w-8 h-8 rounded object-contain" /> : <div className="w-8 h-8 rounded flex items-center justify-center" style={{ backgroundColor: themeSettings.primary_color }}><span className="text-white text-xs font-bold">L</span></div>}
                     <div>
                       <div className="text-base font-bold">
@@ -1570,7 +1565,7 @@ export default function AdminParametres() {
                       </div>
                       <div className="text-xs" style={{ color: themeSettings.site_tagline_color }}>{themeSettings.site_tagline || "Votre partenaire de confiance"}</div>
                     </div>
-                  </div>
+                  </div>}
                 </div>
                 <p className="text-sm text-gray-600">Appliqué au nom du site et au slogan dans la barre de navigation (ex. &quot;Services&quot; + &quot;Locaux&quot;, &quot;Votre partenaire de confiance&quot;).</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -1719,8 +1714,11 @@ export default function AdminParametres() {
                 </div>
                 {/* Preview couleurs principales + sidebar mobile */}
                 <div className="rounded-lg overflow-hidden border border-gray-200">
-                  <div className="text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium">👁 Aperçu — Couleurs principales &amp; menu mobile (sidebar)</div>
-                  <div className="flex gap-0">
+                  <button onClick={() => togglePreview("primary")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
+                    <span>👁 Aperçu — Couleurs principales &amp; menu mobile (sidebar)</span>
+                    <span>{previewsOpen.primary ? "▲" : "▼"}</span>
+                  </button>
+                  {previewsOpen.primary && <div className="flex gap-0">
                     {/* Mini sidebar mobile */}
                     <div className="w-36 flex-shrink-0" style={{ background: `linear-gradient(to bottom, ${themeSettings.primary_color}, ${themeSettings.secondary_color})` }}>
                       <div className="px-3 py-2 border-b border-white/20">
@@ -1745,7 +1743,7 @@ export default function AdminParametres() {
                         <div className="w-3 h-3 rounded-full" style={{ backgroundColor: themeSettings.tertiary_color }} />
                       </div>
                     </div>
-                  </div>
+                  </div>}
                 </div>
                 </div>
                 </CollapsibleContent>
@@ -1868,8 +1866,11 @@ export default function AdminParametres() {
                 </div>
                 {/* Preview boutons */}
                 <div className="rounded-lg overflow-hidden border border-gray-200">
-                  <div className="text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium">👁 Aperçu — Boutons</div>
-                  <div className="flex flex-wrap gap-3 px-4 py-4 bg-white items-center">
+                  <button onClick={() => togglePreview("buttons")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
+                    <span>👁 Aperçu — Boutons</span>
+                    <span>{previewsOpen.buttons ? "▲" : "▼"}</span>
+                  </button>
+                  {previewsOpen.buttons && <div className="flex flex-wrap gap-3 px-4 py-4 bg-white items-center">
                     <button className="px-4 py-2 text-sm font-semibold" style={{ backgroundColor: themeSettings.button_primary_color, color: themeSettings.button_text_color, borderRadius: themeSettings.button_border_radius, border: themeSettings.button_border_width ? `${themeSettings.button_border_width}px solid ${themeSettings.button_border_color}` : 'none' }}>
                       Demander un devis
                     </button>
@@ -1879,7 +1880,7 @@ export default function AdminParametres() {
                     <button className="px-4 py-2 text-sm font-medium" style={{ border: `2px solid ${themeSettings.button_outline_border_color}`, color: themeSettings.button_outline_text_color, borderRadius: themeSettings.button_border_radius, background: 'transparent' }}>
                       Connexion (outline)
                     </button>
-                  </div>
+                  </div>}
                 </div>
                 </div>
                 </CollapsibleContent>
@@ -2033,15 +2034,18 @@ export default function AdminParametres() {
                 </div>
                 {/* Preview bannière */}
                 <div className="rounded-lg overflow-hidden border border-gray-200">
-                  <div className="text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium">👁 Aperçu — Bandeau promotionnel</div>
-                  <div className="flex items-center justify-between px-4 py-2.5" style={{ backgroundColor: themeSettings.banner_bg_color }}>
+                  <button onClick={() => togglePreview("banner")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
+                    <span>👁 Aperçu — Bandeau promotionnel</span>
+                    <span>{previewsOpen.banner ? "▲" : "▼"}</span>
+                  </button>
+                  {previewsOpen.banner && <div className="flex items-center justify-between px-4 py-2.5" style={{ backgroundColor: themeSettings.banner_bg_color }}>
                     <span className="text-xs sm:text-sm font-medium" style={{ color: themeSettings.banner_text_color }}>
                       ★ Réduisez votre facture de moitié avec l'avance immédiate de crédit d'impôt*
                     </span>
                     <span className="text-xs px-3 py-1 font-semibold flex-shrink-0 ml-3" style={{ backgroundColor: "#ffffff", color: themeSettings.banner_bg_color }}>
                       J'en profite !
                     </span>
-                  </div>
+                  </div>}
                 </div>
                 </div>
                 </CollapsibleContent>
@@ -2095,8 +2099,11 @@ export default function AdminParametres() {
                 </div>
                 {/* Preview footer */}
                 <div className="rounded-lg overflow-hidden border border-gray-200">
-                  <div className="text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium">👁 Aperçu — Footer</div>
-                  <div className="px-4 py-3" style={{ backgroundColor: themeSettings.footer_bg_color, borderTop: `2px solid ${themeSettings.footer_border_color}` }}>
+                  <button onClick={() => togglePreview("footer")} className="w-full text-left text-xs text-gray-500 px-3 py-1 bg-gray-100 border-b font-medium flex items-center justify-between hover:bg-gray-200 transition-colors">
+                    <span>👁 Aperçu — Footer</span>
+                    <span>{previewsOpen.footer ? "▲" : "▼"}</span>
+                  </button>
+                  {previewsOpen.footer && <div className="px-4 py-3" style={{ backgroundColor: themeSettings.footer_bg_color, borderTop: `2px solid ${themeSettings.footer_border_color}` }}>
                     <div className="text-sm font-bold mb-1" style={{ color: themeSettings.footer_text_color }}>{themeSettings.site_name || "EASE - DOM"}</div>
                     <div className="flex gap-4 text-xs">
                       <span style={{ color: themeSettings.footer_link_color }}>Services</span>
@@ -2106,7 +2113,7 @@ export default function AdminParametres() {
                     <div className="text-[11px] mt-2" style={{ color: themeSettings.footer_text_color, opacity: 0.7 }}>
                       © 2024 {themeSettings.site_name || "EASE - DOM"}. Tous droits réservés.
                     </div>
-                  </div>
+                  </div>}
                 </div>
                 </div>
                 </CollapsibleContent>
@@ -2195,11 +2202,13 @@ export default function AdminParametres() {
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Bannière (bandeau promo)</h4>
                   <div className="rounded overflow-hidden border border-gray-200 mt-2">
-                    <div className="text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b">👁 Aperçu</div>
-                    <div className="flex items-center justify-between px-3 py-1.5" style={{ backgroundColor: themeSettings.banner_bg_color }}>
+                    <button onClick={() => togglePreview("banner_section")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
+                      <span>👁 Aperçu</span><span>{previewsOpen.banner_section ? "▲" : "▼"}</span>
+                    </button>
+                    {previewsOpen.banner_section && <div className="flex items-center justify-between px-3 py-1.5" style={{ backgroundColor: themeSettings.banner_bg_color }}>
                       <span className="text-xs" style={{ color: themeSettings.banner_text_color }}>★ Réduisez votre facture — avance crédit d'impôt*</span>
                       <span className="text-[11px] px-2 py-0.5 ml-2 flex-shrink-0" style={{ backgroundColor: "#ffffff", color: themeSettings.banner_bg_color }}>J'en profite !</span>
-                    </div>
+                    </div>}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="space-y-1">
@@ -2237,11 +2246,13 @@ export default function AdminParametres() {
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Section Services (page Services)</h4>
                   <div className="rounded overflow-hidden border border-gray-200">
-                    <div className="text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b">👁 Aperçu</div>
-                    <div className="px-3 py-2" style={{ backgroundColor: themeSettings.services_bg_color }}>
+                    <button onClick={() => togglePreview("services")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
+                      <span>👁 Aperçu</span><span>{previewsOpen.services ? "▲" : "▼"}</span>
+                    </button>
+                    {previewsOpen.services && <div className="px-3 py-2" style={{ backgroundColor: themeSettings.services_bg_color }}>
                       <div className="text-sm font-bold mb-1" style={{ color: themeSettings.services_text_color }}>Nos Services</div>
                       <button className="text-xs px-3 py-1" style={{ backgroundColor: themeSettings.services_button_color, color: themeSettings.button_text_color, borderRadius: themeSettings.button_border_radius }}>Voir les services</button>
-                    </div>
+                    </div>}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="space-y-1">
@@ -2279,11 +2290,13 @@ export default function AdminParametres() {
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Section Agences (page Agences)</h4>
                   <div className="rounded overflow-hidden border border-gray-200">
-                    <div className="text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b">👁 Aperçu</div>
-                    <div className="px-3 py-2" style={{ backgroundColor: themeSettings.agencies_bg_color }}>
+                    <button onClick={() => togglePreview("agencies")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
+                      <span>👁 Aperçu</span><span>{previewsOpen.agencies ? "▲" : "▼"}</span>
+                    </button>
+                    {previewsOpen.agencies && <div className="px-3 py-2" style={{ backgroundColor: themeSettings.agencies_bg_color }}>
                       <div className="text-sm font-bold mb-1" style={{ color: themeSettings.agencies_text_color }}>Nos Agences</div>
                       <button className="text-xs px-3 py-1" style={{ backgroundColor: themeSettings.agencies_button_color, color: themeSettings.button_text_color, borderRadius: themeSettings.button_border_radius }}>Trouver une agence</button>
-                    </div>
+                    </div>}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="space-y-1">
@@ -2321,8 +2334,10 @@ export default function AdminParametres() {
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Interface employé (dashboard employé)</h4>
                   <div className="rounded overflow-hidden border border-gray-200">
-                    <div className="text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b">👁 Aperçu — Sidebar employé</div>
-                    <div className="flex h-20">
+                    <button onClick={() => togglePreview("employe")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
+                      <span>👁 Aperçu — Sidebar employé</span><span>{previewsOpen.employe ? "▲" : "▼"}</span>
+                    </button>
+                    {previewsOpen.employe && <div className="flex h-20">
                       <div className="w-28 flex-shrink-0" style={{ backgroundColor: themeSettings.employe_bg_color }}>
                         <div className="px-2 py-1.5 border-b border-white/20">
                           <div className="text-[11px] font-bold" style={{ color: themeSettings.employe_text_color }}>Espace Employé</div>
@@ -2334,7 +2349,7 @@ export default function AdminParametres() {
                       <div className="flex-1 bg-gray-50 px-3 py-2">
                         <button className="text-[11px] px-2 py-1" style={{ backgroundColor: themeSettings.employe_button_color, color: themeSettings.button_text_color, borderRadius: themeSettings.button_border_radius }}>Pointer l'arrivée</button>
                       </div>
-                    </div>
+                    </div>}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="space-y-1">
@@ -2372,15 +2387,17 @@ export default function AdminParametres() {
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Page de connexion admin</h4>
                   <div className="rounded overflow-hidden border border-gray-200">
-                    <div className="text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b">👁 Aperçu — Page connexion admin</div>
-                    <div className="flex items-center justify-center py-3 px-4" style={{ backgroundColor: themeSettings.admin_login_bg_color }}>
+                    <button onClick={() => togglePreview("admin_login")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
+                      <span>👁 Aperçu — Page connexion admin</span><span>{previewsOpen.admin_login ? "▲" : "▼"}</span>
+                    </button>
+                    {previewsOpen.admin_login && <div className="flex items-center justify-center py-3 px-4" style={{ backgroundColor: themeSettings.admin_login_bg_color }}>
                       <div className="bg-white rounded-lg p-3 w-36 shadow text-center">
                         <div className="text-xs font-bold text-gray-700 mb-2">Connexion Admin</div>
                         <div className="h-4 bg-gray-100 rounded mb-1 text-[10px] text-gray-400 flex items-center px-1">Utilisateur</div>
                         <div className="h-4 bg-gray-100 rounded mb-2 text-[10px] text-gray-400 flex items-center px-1">••••••••</div>
                         <button className="w-full text-[11px] py-1" style={{ backgroundColor: themeSettings.admin_login_button_color, color: themeSettings.button_text_color, borderRadius: themeSettings.button_border_radius }}>Se connecter</button>
                       </div>
-                    </div>
+                    </div>}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="space-y-1">
@@ -2418,15 +2435,17 @@ export default function AdminParametres() {
                 <div className="rounded-lg border border-gray-200 bg-gray-50/50 p-4 space-y-3">
                   <h4 className="font-medium text-gray-800">Page de connexion employé</h4>
                   <div className="rounded overflow-hidden border border-gray-200">
-                    <div className="text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b">👁 Aperçu — Page connexion employé</div>
-                    <div className="flex items-center justify-center py-3 px-4" style={{ backgroundColor: themeSettings.employe_login_bg_color }}>
+                    <button onClick={() => togglePreview("employe_login")} className="w-full text-left text-[11px] text-gray-400 px-2 py-0.5 bg-gray-100 border-b flex items-center justify-between hover:bg-gray-200 transition-colors">
+                      <span>👁 Aperçu — Page connexion employé</span><span>{previewsOpen.employe_login ? "▲" : "▼"}</span>
+                    </button>
+                    {previewsOpen.employe_login && <div className="flex items-center justify-center py-3 px-4" style={{ backgroundColor: themeSettings.employe_login_bg_color }}>
                       <div className="bg-white rounded-lg p-3 w-36 shadow text-center">
                         <div className="text-xs font-bold text-gray-700 mb-2">Espace Employé</div>
                         <div className="h-4 bg-gray-100 rounded mb-1 text-[10px] text-gray-400 flex items-center px-1">Matricule</div>
                         <div className="h-4 bg-gray-100 rounded mb-2 text-[10px] text-gray-400 flex items-center px-1">••••••••</div>
                         <button className="w-full text-[11px] py-1" style={{ backgroundColor: themeSettings.employe_login_button_color, color: themeSettings.button_text_color, borderRadius: themeSettings.button_border_radius }}>Se connecter</button>
                       </div>
-                    </div>
+                    </div>}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="space-y-1">

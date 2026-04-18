@@ -2836,6 +2836,20 @@ class PresenceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelView
         
         return queryset
 
+    def _format_hours(self, total_seconds):
+        """Formate des secondes en 'XhYY' — logique identique à formatHours() dans Scans.tsx."""
+        total_hours = total_seconds / 3600
+        h = int(total_hours)
+        m = round((total_hours - h) * 60)
+        if m == 60:  # arrondi peut provoquer 60min → 1h de plus
+            h += 1
+            m = 0
+        if h == 0:
+            return f"{m}min"
+        if m == 0:
+            return f"{h}h"
+        return f"{h}h{m:02d}"
+
     def _build_monthly_data(self, qs, debut, periode_label=None):
         """Construit les données du rapport organisées par PATIENT, avec sous-groupes par employé."""
         from collections import defaultdict
@@ -2957,19 +2971,14 @@ class PresenceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelView
         patients_data = []
         for pd in patients_map.values():
             pd['visites'].sort(key=lambda v: v['date'])
-            # Conversion secondes → h/min (même logique que Scans.tsx : floor puis round)
-            total_h = int(pd['total_seconds'] // 3600)
-            total_m = int((pd['total_seconds'] % 3600) // 60)
             pd['total_minutes'] = pd['total_seconds'] // 60
-            pd['total_heures_str'] = f"{total_h}h{total_m:02d}"
+            pd['total_heures_str'] = self._format_hours(pd['total_seconds'])
 
             employes_list = []
             for emp_data in pd['employes_map'].values():
                 emp_data['visites'].sort(key=lambda v: v['date'])
-                eh = int(emp_data['total_seconds'] // 3600)
-                em = int((emp_data['total_seconds'] % 3600) // 60)
                 emp_data['total_minutes'] = emp_data['total_seconds'] // 60
-                emp_data['total_heures_str'] = f"{eh}h{em:02d}"
+                emp_data['total_heures_str'] = self._format_hours(emp_data['total_seconds'])
                 emp_data['nb_visites'] = len(emp_data['visites'])
                 employes_list.append(emp_data)
             employes_list.sort(key=lambda e: e['employe_nom'])
@@ -2980,15 +2989,14 @@ class PresenceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelView
 
         patients_data.sort(key=lambda p: p['patient_nom'])
 
-        gh = int(total_seconds_global // 3600)
-        gm = int((total_seconds_global % 3600) // 60)
+        total_heures_str_global = self._format_hours(total_seconds_global)
         return {
             'patients_data': patients_data,
             'nb_patients': len(patients_map),
             'nb_employes': len(employes_ids),
             'nb_visites': nb_visites_global,
             'total_minutes': total_seconds_global // 60,
-            'total_heures_str': f"{gh}h{gm:02d}",
+            'total_heures_str': total_heures_str_global,
             'mois_label': periode_label,
         }
 

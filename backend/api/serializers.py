@@ -10,7 +10,7 @@ def build_url(path, request=None):
     if site_url:
         return f"{site_url}{path}"
     if request:
-        return build_url(path, request)
+        return request.build_absolute_uri(path)
     return path
 
 

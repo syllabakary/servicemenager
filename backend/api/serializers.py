@@ -776,7 +776,7 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
                 except (AttributeError, Exception):
                     data[field] = default_value
 
-        # Masquer les champs SMTP sensibles pour les utilisateurs non-admin
+        # Masquer les champs sensibles pour les utilisateurs non-admin (C1)
         request = self.context.get('request')
         is_admin = (
             request is not None
@@ -784,7 +784,17 @@ class SiteSettingsSerializer(serializers.ModelSerializer):
             and getattr(request.user, 'role', None) in ('ADMIN', 'SUPERADMIN')
         )
         if not is_admin:
-            for field in ('smtp_host', 'smtp_port', 'smtp_use_tls', 'smtp_use_ssl', 'smtp_username', 'smtp_password'):
+            sensitive_fields = (
+                # SMTP
+                'smtp_host', 'smtp_port', 'smtp_use_tls', 'smtp_use_ssl', 'smtp_username', 'smtp_password',
+                # Données légales et financières (IBAN, SIRET, etc.)
+                'siret', 'code_ape', 'num_tva', 'forme_juridique', 'rcs_ville',
+                'mention_tva', 'mention_bon_pour_accord',
+                'paiement_beneficiaire', 'paiement_iban', 'paiement_banque', 'paiement_bic',
+                # Signature PDF
+                'logo_signature', 'logo_signature_url',
+            )
+            for field in sensitive_fields:
                 data.pop(field, None)
 
         return data

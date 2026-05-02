@@ -3,15 +3,13 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.decorators import api_view, permission_classes
 
 
-class APIRootView(APIView):
-    """Racine API — accessible uniquement aux admins authentifiés"""
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        return Response({"detail": "Bienvenue sur l'API. Authentifiez-vous pour accéder aux ressources."})
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def api_root(request):
+    return Response({"detail": "Authentifiez-vous pour accéder aux ressources."})
 from .views import (
     UserViewSet, ServiceViewSet, AgencyViewSet,
     ContactViewSet, PageContentViewSet, NavbarViewSet, CategoryViewSet,
@@ -22,8 +20,7 @@ from .views import (
 )
 from .views_auth import register, login_with_matricule, logout, LoggedTokenObtainPairView
 
-router = DefaultRouter(trailing_slash=True)
-router.APIRootView = APIRootView
+router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='user')
 router.register(r'services', ServiceViewSet, basename='service')
 router.register(r'agencies', AgencyViewSet, basename='agency')
@@ -49,6 +46,9 @@ router.register(r'user-permissions', UserPermissionViewSet, basename='user-permi
 router.register(r'trash', TrashViewSet, basename='trash')
 
 urlpatterns = [
+    # Racine API protégée
+    path('', api_root, name='api-root'),
+
     # JWT Authentication
     path('token/', LoggedTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
@@ -62,7 +62,7 @@ urlpatterns = [
     # Login par matricule (pour employés)
     path('login-matricule/', login_with_matricule, name='login_matricule'),
     
-    # Router URLs
+    # Router URLs (sans la racine, déjà gérée ci-dessus)
     path('', include(router.urls)),
     
     # Endpoint navbar direct

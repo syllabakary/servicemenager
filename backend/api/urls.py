@@ -1,6 +1,17 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+
+class APIRootView(APIView):
+    """Racine API — accessible uniquement aux admins authentifiés"""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        return Response({"detail": "Bienvenue sur l'API. Authentifiez-vous pour accéder aux ressources."})
 from .views import (
     UserViewSet, ServiceViewSet, AgencyViewSet,
     ContactViewSet, PageContentViewSet, NavbarViewSet, CategoryViewSet,
@@ -11,7 +22,8 @@ from .views import (
 )
 from .views_auth import register, login_with_matricule, logout, LoggedTokenObtainPairView
 
-router = DefaultRouter()
+router = DefaultRouter(trailing_slash=True)
+router.APIRootView = APIRootView
 router.register(r'users', UserViewSet, basename='user')
 router.register(r'services', ServiceViewSet, basename='service')
 router.register(r'agencies', AgencyViewSet, basename='agency')

@@ -115,10 +115,9 @@ class UserViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         """Permissions selon l'action"""
         if self.action == 'create':
-            # Création : superadmin peut créer admin, clients peuvent s'inscrire
-            return [AllowAny()]  # Géré dans perform_create
+            # Seuls les admins/superadmins peuvent créer des utilisateurs
+            return [IsSuperAdminOrAdmin()]
         elif self.action in ['update', 'partial_update', 'destroy']:
-            # IsOwnerOrAdmin gère déjà SuperAdmin et Admin, donc on l'utilise seul
             return [IsOwnerOrAdmin()]
         return [IsAuthenticated()]
     

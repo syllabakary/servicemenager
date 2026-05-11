@@ -336,7 +336,7 @@ class ServiceReviewSerializer(serializers.ModelSerializer):
         source='service.name',
         read_only=True
     )
-    
+
     class Meta:
         model = ServiceReview
         fields = [
@@ -344,7 +344,15 @@ class ServiceReviewSerializer(serializers.ModelSerializer):
             'client_name', 'client_email', 'approved', 'display_on_page', 'created_at', 'updated_at'
         ]
         read_only_fields = ['created_at', 'updated_at', 'user']
-    
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        request = self.context.get('request')
+        is_admin = request and request.user.is_authenticated and (request.user.is_staff or getattr(request.user, 'role', None) in ('ADMIN', 'SUPERADMIN'))
+        if not is_admin:
+            data.pop('client_email', None)
+        return data
+
     def create(self, validated_data):
         """Création d'un avis (non approuvé par défaut)"""
         request = self.context.get('request')

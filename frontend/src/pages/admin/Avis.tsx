@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FaCheckCircle, FaTimesCircle, FaStar, FaEdit } from "react-icons/fa";
+import { FaCheckCircle, FaTimesCircle, FaStar, FaTrash } from "react-icons/fa";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
 import { API_URL } from "@/config/api";
@@ -82,6 +82,23 @@ export default function AdminAvis() {
         description: "Une erreur s'est produite",
         variant: "destructive",
       });
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const token = localStorage.getItem("access_token");
+      await axios.delete(`${API_URL}/service-reviews/${id}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-reviews"] });
+      queryClient.invalidateQueries({ queryKey: ["service-reviews"] });
+      toast({ title: "✅ Avis supprimé", variant: "default" });
+    },
+    onError: () => {
+      toast({ title: "❌ Erreur", description: "Impossible de supprimer l'avis", variant: "destructive" });
     },
   });
 
@@ -229,6 +246,7 @@ export default function AdminAvis() {
                               onClick={() => approveMutation.mutate(review.id)}
                               className="hover:bg-green-50 hover:text-green-600"
                               disabled={approveMutation.isPending}
+                              title="Approuver"
                             >
                               <FaCheckCircle className="w-5 h-5" />
                             </Button>
@@ -236,10 +254,21 @@ export default function AdminAvis() {
                               variant="ghost"
                               size="sm"
                               onClick={() => rejectMutation.mutate(review.id)}
-                              className="hover:bg-red-50 hover:text-red-600"
+                              className="hover:bg-orange-50 hover:text-orange-600"
                               disabled={rejectMutation.isPending}
+                              title="Rejeter"
                             >
                               <FaTimesCircle className="w-5 h-5" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => { if (confirm("Supprimer cet avis définitivement ?")) deleteMutation.mutate(review.id); }}
+                              className="hover:bg-red-50 hover:text-red-600"
+                              disabled={deleteMutation.isPending}
+                              title="Supprimer"
+                            >
+                              <FaTrash className="w-4 h-4" />
                             </Button>
                           </div>
                         </TableCell>
@@ -271,6 +300,7 @@ export default function AdminAvis() {
                     <TableHead className="font-bold text-gray-900">Date</TableHead>
                     <TableHead className="font-bold text-gray-900">État</TableHead>
                     <TableHead className="font-bold text-gray-900">Affichage</TableHead>
+                    <TableHead className="font-bold text-gray-900">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -322,16 +352,22 @@ export default function AdminAvis() {
                             }
                           >
                             {review.display_on_page !== false ? (
-                              <>
-                                <FaCheckCircle className="w-4 h-4 mr-1" />
-                                Affiché
-                              </>
+                              <><FaCheckCircle className="w-4 h-4 mr-1" />Affiché</>
                             ) : (
-                              <>
-                                <FaTimesCircle className="w-4 h-4 mr-1" />
-                                Masqué
-                              </>
+                              <><FaTimesCircle className="w-4 h-4 mr-1" />Masqué</>
                             )}
+                          </Button>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => { if (confirm("Supprimer cet avis définitivement ?")) deleteMutation.mutate(review.id); }}
+                            className="hover:bg-red-50 hover:text-red-600"
+                            disabled={deleteMutation.isPending}
+                            title="Supprimer"
+                          >
+                            <FaTrash className="w-4 h-4" />
                           </Button>
                         </TableCell>
                       </TableRow>

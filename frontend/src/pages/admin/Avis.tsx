@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,14 +12,52 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { FaCheckCircle, FaTimesCircle, FaStar, FaTrash } from "react-icons/fa";
+import { FaCheckCircle, FaTimesCircle, FaStar, FaTrash, FaExclamationTriangle } from "react-icons/fa";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
 import { API_URL } from "@/config/api";
 
+function DeleteConfirmModal({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onCancel} />
+      <div className="relative bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex flex-col items-center text-center gap-4">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+            <FaExclamationTriangle className="w-8 h-8 text-red-500" />
+          </div>
+          <div>
+            <h3 className="text-xl font-bold text-gray-900">Supprimer l'avis ?</h3>
+            <p className="text-gray-500 mt-1 text-sm">Cette action est irréversible. L'avis sera définitivement supprimé.</p>
+          </div>
+          <div className="flex gap-3 w-full mt-2">
+            <Button
+              type="button"
+              variant="outline"
+              className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
+              onClick={onCancel}
+            >
+              Annuler
+            </Button>
+            <Button
+              type="button"
+              className="flex-1 bg-red-500 hover:bg-red-600 text-white"
+              onClick={onConfirm}
+            >
+              <FaTrash className="w-4 h-4 mr-2" />
+              Supprimer
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminAvis() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-reviews"],
@@ -146,6 +185,15 @@ export default function AdminAvis() {
 
   return (
     <DashboardLayout>
+      {deleteTargetId !== null && (
+        <DeleteConfirmModal
+          onConfirm={() => {
+            deleteMutation.mutate(deleteTargetId);
+            setDeleteTargetId(null);
+          }}
+          onCancel={() => setDeleteTargetId(null)}
+        />
+      )}
       <div className="space-y-6">
         <div className="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
           <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-site-primary to-site-secondary bg-clip-text text-transparent">
@@ -263,7 +311,7 @@ export default function AdminAvis() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => { if (confirm("Supprimer cet avis définitivement ?")) deleteMutation.mutate(review.id); }}
+                              onClick={() => setDeleteTargetId(review.id)}
                               className="hover:bg-red-50 hover:text-red-600"
                               disabled={deleteMutation.isPending}
                               title="Supprimer"
@@ -362,7 +410,7 @@ export default function AdminAvis() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => { if (confirm("Supprimer cet avis définitivement ?")) deleteMutation.mutate(review.id); }}
+                            onClick={() => setDeleteTargetId(review.id)}
                             className="hover:bg-red-50 hover:text-red-600"
                             disabled={deleteMutation.isPending}
                             title="Supprimer"

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { fmtDate } from "@/lib/utils";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
@@ -936,7 +937,7 @@ export default function Home() {
           {reviewsData && reviewsData.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {reviewsData.slice(0, 3).map((review: any, i: number) => {
-                const date = new Date(review.created_at).toLocaleDateString("fr-FR");
+                const date = fmtDate(review.created_at);
                 return (
                   <motion.div
                     key={review.id}

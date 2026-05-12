@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { fmtDate } from "@/lib/utils";
 import { useParams, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -943,11 +944,7 @@ export default function ServiceDetail() {
                             ))}
                                 </div>
                                 <span className="text-sm text-gray-500">
-                                  {new Date(review.created_at).toLocaleDateString('fr-FR', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric'
-                                  })}
+                                  {fmtDate(review.created_at)}
                                 </span>
                               </div>
                           </div>

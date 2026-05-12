@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fmtDate } from "@/lib/utils";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -520,8 +521,8 @@ function EditFactureDialog({ inv, open, onClose, onUpdated }: { inv: any; open: 
 function FactureRow({ inv, onUpdate, onDelete }: { inv: any; onUpdate: (id: number, data: any) => void; onDelete: () => void }) {
   const { toast } = useToast();
   const { showPermissionError } = usePermissionError();
-  const dateStr = inv.invoice_date ? new Date(inv.invoice_date).toLocaleDateString("fr-FR") : "—";
-  const echeance = inv.due_date ? new Date(inv.due_date).toLocaleDateString("fr-FR") : "—";
+  const dateStr = fmtDate(inv.invoice_date);
+  const echeance = fmtDate(inv.due_date);
   const [showSendDialog, setShowSendDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);

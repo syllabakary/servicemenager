@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { fmtDate, fmtTime } from "@/lib/utils";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -64,9 +65,8 @@ function LevelBadge({ level }: { level: string }) {
 // ── Ligne de log dépliable ───────────────────────────────────────────────────
 function LogRow({ log }: { log: any }) {
   const [expanded, setExpanded] = useState(false);
-  const date = new Date(log.created_at);
-  const dateStr = date.toLocaleDateString("fr-FR");
-  const timeStr = date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  const dateStr = fmtDate(log.created_at);
+  const timeStr = fmtTime(log.created_at);
   const isError = log.action === "ERROR" || log.level === "ERROR" || log.level === "CRITICAL";
   const hasDetail = log.detail && log.detail.trim().length > 0;
   const hasExtra = log.extra && Object.keys(log.extra).length > 0;

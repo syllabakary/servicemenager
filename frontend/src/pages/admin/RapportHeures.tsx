@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from "react";
+import { fmtDate, fmtTime } from "@/lib/utils";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -83,7 +84,7 @@ function buildRapport(pairs: { arrival: any; departure: any }[], patientsDb: any
     const empId = arrival.employe;
     const empNom = arrival.employe_username || arrival.employe_name || "N/A";
     const dureeMin = calcDureeMin(arrival, departure);
-    const dateStr = new Date(arrival.scan_time).toLocaleDateString("fr-FR");
+    const dateStr = fmtDate(arrival.scan_time);
     const patDb = patientsDb.find(p => p.id === patId);
     const patNom = patDb
       ? `${patDb.first_name} ${patDb.last_name}`.trim()
@@ -114,8 +115,8 @@ function buildRapport(pairs: { arrival: any; departure: any }[], patientsDb: any
     }
     pat.employes_map[empId].visites.push({
       date: dateStr,
-      heure_arrivee: new Date(arrival.scan_time).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
-      heure_depart: new Date(departure.scan_time).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
+      heure_arrivee: fmtTime(arrival.scan_time),
+      heure_depart: fmtTime(departure.scan_time),
       duree_minutes: dureeMin,
       duree_str: formatDuree(dureeMin),
     });

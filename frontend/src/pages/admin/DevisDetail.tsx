@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fmtDateTime, fmtDate } from "@/lib/utils";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -452,21 +453,9 @@ export default function DevisDetail() {
         >
           <h1 className="text-2xl font-bold">Devis {quoteRequest.id}</h1>
           <p className="text-white/90 text-sm mt-1">
-            Demandé le {new Date(quoteRequest.created_at).toLocaleString("fr-FR", {
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
+            Demandé le {fmtDateTime(quoteRequest.created_at)}
             {quoteRequest.quoted_at && (
-              <> • Validé le {new Date(quoteRequest.quoted_at).toLocaleString("fr-FR", {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-              })}</>
+              <> • Validé le {fmtDateTime(quoteRequest.quoted_at)}</>
             )}
           </p>
         </motion.div>
@@ -513,7 +502,7 @@ export default function DevisDetail() {
                     {quoteRequest.birth_date && (
                       <div className="space-y-0.5">
                         <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Date de naissance</p>
-                        <p className="text-sm text-gray-900 font-medium">{new Date(quoteRequest.birth_date).toLocaleDateString("fr-FR")}</p>
+                        <p className="text-sm text-gray-900 font-medium">{fmtDate(quoteRequest.birth_date)}</p>
                       </div>
                     )}
                     <div className="space-y-0.5">

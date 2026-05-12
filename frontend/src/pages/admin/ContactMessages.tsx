@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { fmtDateTime } from "@/lib/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
@@ -78,9 +79,7 @@ export default function AdminContactMessages() {
     setDetailMsg(msg);
   };
 
-  const fmt = (iso: string) => new Date(iso).toLocaleDateString("fr-FR", {
-    day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit",
-  });
+  const fmt = (iso: string) => fmtDateTime(iso);
 
   const initials = (name: string) => name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 

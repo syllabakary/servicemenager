@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { fmtDateTime, fmtTime } from "@/lib/utils";
 import { Link } from "wouter";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -419,10 +420,7 @@ export default function AdminDashboard() {
                           <div className="flex items-center gap-4 text-xs text-gray-600 mb-2">
                             <span className="flex items-center gap-1">
                               <FaClock className="w-3 h-3" />
-                              Arrivée: {new Date(active.arrival_time).toLocaleTimeString("fr-FR", {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
+                              Arrivée: {fmtTime(active.arrival_time)}
                             </span>
                             <span className="flex items-center gap-1">
                               <FaClock className="w-3 h-3" />
@@ -519,10 +517,7 @@ export default function AdminDashboard() {
                               <div>
                                 <span className="text-gray-500">Arrivée:</span>
                                 <span className="font-semibold text-gray-900 ml-1">
-                                  {new Date(mission.arrival_time).toLocaleTimeString("fr-FR", {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}
+                                  {fmtTime(mission.arrival_time)}
                                 </span>
                               </div>
                             </div>
@@ -532,10 +527,7 @@ export default function AdminDashboard() {
                                 <div>
                                   <span className="text-gray-500">Départ:</span>
                                   <span className="font-semibold text-gray-900 ml-1">
-                                    {new Date(mission.departure_time).toLocaleTimeString("fr-FR", {
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })}
+                                    {fmtTime(mission.departure_time)}
                                   </span>
                                 </div>
                               </div>
@@ -743,13 +735,7 @@ export default function AdminDashboard() {
                           </div>
                           <p className="text-gray-700 text-sm mb-2 line-clamp-2">{review.comment}</p>
                           <span className="text-xs text-gray-500">
-                            {new Date(review.created_at).toLocaleDateString('fr-FR', {
-                              year: 'numeric',
-                              month: 'long',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit'
-                            })}
+                            {fmtDateTime(review.created_at)}
                           </span>
                         </div>
                         <Link
@@ -955,13 +941,7 @@ export default function AdminDashboard() {
                             </div>
                           </div>
                           <span className="text-xs text-gray-500 mt-2 block">
-                            {new Date(request.created_at).toLocaleDateString("fr-FR", {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })}
+                            {fmtDateTime(request.created_at)}
                           </span>
                         </div>
                         <div className="flex flex-col gap-2 ml-4">

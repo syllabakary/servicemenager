@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
+import { fmtDate } from "@/lib/utils";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -284,7 +285,7 @@ export default function AdminAvis() {
                           {review.comment}
                         </TableCell>
                         <TableCell className="text-gray-500 text-sm">
-                          {new Date(review.created_at).toLocaleDateString("fr-FR")}
+                          {fmtDate(review.created_at)}
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
@@ -375,7 +376,7 @@ export default function AdminAvis() {
                         </TableCell>
                         <TableCell className="text-gray-700 max-w-md">{review.comment}</TableCell>
                         <TableCell className="text-gray-500 text-sm">
-                          {new Date(review.created_at).toLocaleDateString("fr-FR")}
+                          {fmtDate(review.created_at)}
                         </TableCell>
                         <TableCell>
                           <Badge className="bg-green-500 hover:bg-green-600 text-white font-semibold px-3 py-1 shadow-sm">

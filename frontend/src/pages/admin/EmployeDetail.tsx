@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { fmtDate } from "@/lib/utils";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
@@ -121,10 +122,7 @@ export default function EmployeDetail() {
   }
 
   const profile = employe.employee_profile;
-  const formatDate = (date: string | null) => {
-    if (!date) return "-";
-    return new Date(date).toLocaleDateString("fr-FR");
-  };
+  const formatDate = (date: string | null) => fmtDate(date);
 
   const getSexeLabel = (sexe: string | null) => {
     if (!sexe) return "-";

@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fmtDateTime } from "@/lib/utils";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -902,25 +903,13 @@ export default function AdminDevis() {
                         </div>
                         <div className="flex items-center gap-1.5">
                           <FaCalendar className="w-3 h-3 text-site-primary flex-shrink-0" />
-                          <span>{new Date(request.created_at).toLocaleString("fr-FR", {
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}</span>
+                          <span>{fmtDateTime(request.created_at)}</span>
                         </div>
                         {request.quoted_at && (
                           <div className="flex items-center gap-1.5">
                             <FaCheckCircle className="w-3 h-3 text-green-600 flex-shrink-0" />
                             <span className="text-xs text-green-700">
-                              Validé: {new Date(request.quoted_at).toLocaleString("fr-FR", {
-                                year: "numeric",
-                                month: "2-digit",
-                                day: "2-digit",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
+                              Validé: {fmtDateTime(request.quoted_at)}
                             </span>
                           </div>
                         )}
@@ -991,23 +980,11 @@ export default function AdminDevis() {
                         <TableCell className="text-xs text-gray-500 px-3 py-2">
                           <div className="space-y-1">
                             <div>
-                              {new Date(request.created_at).toLocaleString("fr-FR", {
-                                year: "numeric",
-                                month: "2-digit",
-                                day: "2-digit",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
+                              {fmtDateTime(request.created_at)}
                             </div>
                             {request.quoted_at && (
                               <div className="text-green-600 text-xs">
-                                ✓ Validé: {new Date(request.quoted_at).toLocaleString("fr-FR", {
-                                  year: "numeric",
-                                  month: "2-digit",
-                                  day: "2-digit",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
+                                ✓ Validé: {fmtDateTime(request.quoted_at)}
                               </div>
                             )}
                           </div>
@@ -1093,25 +1070,13 @@ export default function AdminDevis() {
                         </div>
                         <div className="flex items-center gap-1.5">
                           <FaCalendar className="w-3 h-3 text-site-primary flex-shrink-0" />
-                          <span>{new Date(request.created_at).toLocaleString("fr-FR", {
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}</span>
+                          <span>{fmtDateTime(request.created_at)}</span>
                         </div>
                         {request.quoted_at && (
                           <div className="flex items-center gap-1.5">
                             <FaCheckCircle className="w-3 h-3 text-green-600 flex-shrink-0" />
                             <span className="text-xs text-green-700">
-                              Validé: {new Date(request.quoted_at).toLocaleString("fr-FR", {
-                                year: "numeric",
-                                month: "2-digit",
-                                day: "2-digit",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
+                              Validé: {fmtDateTime(request.quoted_at)}
                             </span>
                           </div>
                         )}
@@ -1194,23 +1159,11 @@ export default function AdminDevis() {
                         <TableCell className="text-xs text-gray-500 px-3 py-2">
                           <div className="space-y-1">
                             <div>
-                              {new Date(request.created_at).toLocaleString("fr-FR", {
-                                year: "numeric",
-                                month: "2-digit",
-                                day: "2-digit",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })}
+                              {fmtDateTime(request.created_at)}
                             </div>
                             {request.quoted_at && (
                               <div className="text-green-600 text-xs">
-                                ✓ Validé: {new Date(request.quoted_at).toLocaleString("fr-FR", {
-                                  year: "numeric",
-                                  month: "2-digit",
-                                  day: "2-digit",
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                })}
+                                ✓ Validé: {fmtDateTime(request.quoted_at)}
                               </div>
                             )}
                           </div>
@@ -1320,26 +1273,14 @@ export default function AdminDevis() {
                     <div>
                       <p className="text-sm font-semibold text-gray-600 mb-1">Date de demande</p>
                       <p className="text-gray-900">
-                        {new Date(selectedRequest.created_at).toLocaleString("fr-FR", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {fmtDateTime(selectedRequest.created_at)}
                       </p>
                     </div>
                     {selectedRequest.quoted_at && (
                       <div>
                         <p className="text-sm font-semibold text-gray-600 mb-1">Date de validation du devis</p>
                         <p className="text-gray-900 text-green-700">
-                          {new Date(selectedRequest.quoted_at).toLocaleString("fr-FR", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
+                          {fmtDateTime(selectedRequest.quoted_at)}
                         </p>
                       </div>
                     )}

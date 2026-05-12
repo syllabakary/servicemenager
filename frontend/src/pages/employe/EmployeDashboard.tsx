@@ -7,8 +7,7 @@ import {
   FaUsers, FaCheckCircle, FaClock, FaCalendarAlt, FaSpinner,
   FaPhone, FaMapMarkerAlt, FaQrcode, FaUser, FaList, FaArrowRight,
 } from "react-icons/fa";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { fmtTime } from "@/lib/utils";
 import { API_URL } from "@/config/api";
 import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 import { EmployeLayout } from "@/components/employe/EmployeLayout";
@@ -76,7 +75,7 @@ export default function EmployeDashboard() {
     );
   }
 
-  const today = format(new Date(), "EEEE d MMMM", { locale: fr });
+  const today = new Date().toLocaleDateString("fr-FR", { timeZone: "Europe/Paris", weekday: "long", day: "numeric", month: "long" });
 
   return (
     <EmployeLayout user={user} onLogout={handleLogout}>
@@ -255,7 +254,7 @@ export default function EmployeDashboard() {
                               {isArrivee ? "Arrivée" : "Départ"}
                             </span>
                             <span className="text-xs text-gray-400">
-                              {format(new Date(visit.scan_time), "HH:mm")}
+                              {fmtTime(visit.scan_time)}
                             </span>
                             {visit.duration_hours && (
                               <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">

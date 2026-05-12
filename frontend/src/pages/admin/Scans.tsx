@@ -49,8 +49,7 @@ import {
   FaUserClock,
 } from "react-icons/fa";
 import axios from "axios";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { fmtDate, fmtDateTime } from "@/lib/utils";
 import { API_URL } from "@/config/api";
 
 export default function AdminScans() {
@@ -162,7 +161,7 @@ export default function AdminScans() {
         processed.add(arrival.id);
       }
 
-      const date = arrival.scan_time ? format(new Date(arrival.scan_time), "dd MMMM yyyy", { locale: fr }) : "";
+      const date = arrival.scan_time ? fmtDate(arrival.scan_time) : "";
       pairs.push({
         arrival: arrival,
         departure: departure,
@@ -178,7 +177,7 @@ export default function AdminScans() {
       if (processed.has(departure.id)) return;
       
       processed.add(departure.id);
-      const date = departure.scan_time ? format(new Date(departure.scan_time), "dd MMMM yyyy", { locale: fr }) : "";
+      const date = departure.scan_time ? fmtDate(departure.scan_time) : "";
       pairs.push({
         arrival: null,
         departure: departure,
@@ -651,7 +650,7 @@ export default function AdminScans() {
                                   <div className="flex items-center gap-1.5 text-xs">
                                     <FaClock className="w-3 h-3 text-green-700" />
                                     <span className="text-green-800 font-medium">
-                                      {format(new Date(pair.arrival.scan_time), "dd MMM yyyy à HH:mm", { locale: fr })}
+                                      {fmtDateTime(pair.arrival.scan_time)}
                                     </span>
                                   </div>
                                   {pair.arrival.notes && (
@@ -739,7 +738,7 @@ export default function AdminScans() {
                                   <div className="flex items-center gap-1.5 text-xs">
                                     <FaClock className="w-3 h-3 text-orange-700" />
                                     <span className="text-orange-800 font-medium">
-                                      {format(new Date(pair.departure.scan_time), "dd MMM yyyy à HH:mm", { locale: fr })}
+                                      {fmtDateTime(pair.departure.scan_time)}
                                     </span>
                                   </div>
                                   {pair.departure.notes && (

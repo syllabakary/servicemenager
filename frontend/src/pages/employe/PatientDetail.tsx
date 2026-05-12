@@ -11,8 +11,7 @@ import {
   FaUser, FaPhone, FaMapMarkerAlt, FaClock, FaArrowLeft, FaCalendarAlt,
   FaCheckCircle, FaTimesCircle, FaSpinner, FaComment, FaEdit, FaSave, FaTimes
 } from "react-icons/fa";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { fmtDateTime } from "@/lib/utils";
 
 import { API_URL } from "@/config/api";
 
@@ -300,9 +299,7 @@ export default function PatientDetail() {
                           <p className="text-xs sm:text-sm text-gray-600 flex items-center gap-1.5 sm:gap-2">
                             <FaClock className="w-2.5 h-2.5 sm:w-3 sm:h-3 flex-shrink-0" />
                             <span className="break-words">
-                              {format(new Date(presence.scan_time), "dd MMM yyyy à HH:mm", {
-                                locale: fr,
-                              })}
+                              {fmtDateTime(presence.scan_time)}
                             </span>
                           </p>
                         </div>

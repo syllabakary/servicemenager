@@ -21,8 +21,7 @@ import {
 import axios from "axios";
 import { useLocation } from "wouter";
 import { Badge } from "@/components/ui/badge";
-import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { fmtDateTime } from "@/lib/utils";
 import { API_URL } from "@/config/api";
 import { useInactivityLogout } from "@/hooks/useInactivityLogout";
 import { EmployeLayout } from "@/components/employe/EmployeLayout";
@@ -463,7 +462,7 @@ export default function ScanQR() {
     // Afficher le dialog pour choisir le type de scan
     setShowStatusDialog(true);
     const now = new Date();
-    const formatted = format(now, "yyyy-MM-dd'T'HH:mm");
+    const formatted = now.toLocaleString("sv-SE", { timeZone: "Europe/Paris" }).slice(0, 16).replace(" ", "T");
     // L'heure est automatique, pas besoin de setSelectedDateTime
   };
 
@@ -656,7 +655,7 @@ export default function ScanQR() {
       // Afficher le dialog pour choisir le type de scan
       setShowStatusDialog(true);
       const now = new Date();
-      const formatted = format(now, "yyyy-MM-dd'T'HH:mm");
+      const formatted = now.toLocaleString("sv-SE", { timeZone: "Europe/Paris" }).slice(0, 16).replace(" ", "T");
       // L'heure est automatique, pas besoin de setSelectedDateTime
     }
   };
@@ -1003,9 +1002,7 @@ export default function ScanQR() {
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600 font-medium">Date/Heure:</span>
                   <span className="font-medium text-gray-900">
-                    {format(new Date(lastScan.scan_time), "dd MMMM yyyy à HH:mm", {
-                      locale: fr,
-                    })}
+                    {fmtDateTime(lastScan.scan_time)}
                   </span>
                 </div>
                 {lastScan.duration_hours && (
@@ -1062,7 +1059,7 @@ export default function ScanQR() {
                             {scan.status === "ARRIVEE" ? "Arrivée" : "Départ"}
                           </Badge>
                           <span className="text-sm text-gray-700">
-                            {format(new Date(scan.scan_time), "dd MMMM yyyy à HH:mm", { locale: fr })}
+                            {fmtDateTime(scan.scan_time)}
                           </span>
                         </div>
                       </div>
@@ -1201,7 +1198,7 @@ export default function ScanQR() {
                     Date et heure automatiques:
                   </p>
                   <p className="text-base font-semibold text-gray-900 mt-1">
-                    {format(new Date(), "dd MMMM yyyy à HH:mm", { locale: fr })}
+                    {fmtDateTime(new Date().toISOString())}
                   </p>
                 </div>
                 <p className="text-xs text-gray-500">
@@ -1304,7 +1301,7 @@ export default function ScanQR() {
                   <div className="flex justify-between">
                     <span className="font-medium">Date et heure:</span>
                     <span className="font-semibold">
-                      {format(new Date(), "dd MMMM yyyy à HH:mm", { locale: fr })}
+                      {fmtDateTime(new Date().toISOString())}
                     </span>
                   </div>
                   {scanComment && (

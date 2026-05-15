@@ -254,7 +254,7 @@ export default function AdminScans() {
   const handleEdit = (scan: any) => {
     setEditingScan({
       ...scan,
-      scan_time: scan.scan_time ? format(new Date(scan.scan_time), "yyyy-MM-dd'T'HH:mm") : "",
+      scan_time: scan.scan_time ? new Date(scan.scan_time).toLocaleString("sv-SE", { timeZone: "Europe/Paris" }).slice(0, 16).replace(" ", "T") : "",
     });
   };
 

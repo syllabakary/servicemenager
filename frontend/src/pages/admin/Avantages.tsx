@@ -29,6 +29,7 @@ import {
 } from "react-icons/fa";
 import axios from "axios";
 import { useState } from "react";
+import { DeleteDialog } from "@/components/admin/DeleteDialog";
 import { API_URL } from "@/config/api";
 
 const iconMap: Record<string, any> = {
@@ -66,6 +67,7 @@ export default function AdminAvantages() {
   const queryClient = useQueryClient();
   const [editingId, setEditingId] = useState<number | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [deleteAdvantageId, setDeleteAdvantageId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -141,24 +143,15 @@ export default function AdminAvantages() {
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
       const token = localStorage.getItem("access_token");
-      await axios.delete(`${API_URL}/service-advantages/${id}/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(`${API_URL}/service-advantages/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-advantages"] });
-      toast({
-        title: "Succès",
-        description: "Avantage supprimé avec succès",
-        variant: "default",
-      });
+      setDeleteAdvantageId(null);
+      toast({ title: "Avantage supprimé" });
     },
     onError: (error: any) => {
-      toast({
-        title: "Erreur",
-        description: error.response?.data?.detail || "Une erreur s'est produite",
-        variant: "destructive",
-      });
+      toast({ title: "Erreur", description: error.response?.data?.detail || "Une erreur s'est produite", variant: "destructive" });
     },
   });
 
@@ -404,11 +397,7 @@ export default function AdminAvantages() {
                               <FaEdit className="w-4 h-4" />
                             </Button>
                             <Button
-                              onClick={() => {
-                                if (confirm("Êtes-vous sûr de vouloir supprimer cet avantage ?")) {
-                                  deleteMutation.mutate(advantage.id);
-                                }
-                              }}
+                              onClick={() => setDeleteAdvantageId(advantage.id)}
                               variant="outline"
                               size="sm"
                               className="text-red-600 hover:text-red-700 hover:bg-red-50"
@@ -434,6 +423,13 @@ export default function AdminAvantages() {
           </Card>
         )}
       </div>
+      <DeleteDialog
+        open={deleteAdvantageId !== null}
+        onClose={() => setDeleteAdvantageId(null)}
+        onHardDelete={() => deleteAdvantageId && deleteMutation.mutate(deleteAdvantageId)}
+        isPending={deleteMutation.isPending}
+        itemLabel="cet avantage"
+      />
     </DashboardLayout>
   );
 }

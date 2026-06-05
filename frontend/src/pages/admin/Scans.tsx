@@ -67,6 +67,8 @@ export default function AdminScans() {
   });
   const [editingScan, setEditingScan] = useState<any>(null);
   const [deleteScanId, setDeleteScanId] = useState<number | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const PAGE_SIZE = 20;
 
   // Récupérer les patients pour le filtre
   const { data: patientsData } = useQuery({
@@ -111,7 +113,7 @@ export default function AdminScans() {
       const params = buildQueryParams();
       const res = await axios.get(`${API_URL}/presences/`, {
         headers: { Authorization: `Bearer ${token}` },
-        params: { ...params, limit: 10000 },
+        params: { ...params, limit: 10000, ordering: '-scan_time' },
       });
       return res.data;
     },
@@ -285,6 +287,7 @@ export default function AdminScans() {
 
   const handleFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
   };
 
   const clearFilters = () => {
@@ -609,7 +612,18 @@ export default function AdminScans() {
               </div>
             ) : (
               <div className="space-y-4">
-                {groupedPairs.map((pair, index) => {
+                {/* Pagination info */}
+                {groupedPairs.length > PAGE_SIZE && (
+                  <div className="flex items-center justify-between text-sm text-gray-500 pb-2 border-b border-gray-100">
+                    <span>Affichage {((currentPage-1)*PAGE_SIZE)+1}–{Math.min(currentPage*PAGE_SIZE, groupedPairs.length)} sur {groupedPairs.length}</span>
+                    <div className="flex gap-1">
+                      <button onClick={() => setCurrentPage(p => Math.max(1, p-1))} disabled={currentPage===1} className="px-3 py-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50">◀</button>
+                      <span className="px-3 py-1">{currentPage}/{Math.ceil(groupedPairs.length/PAGE_SIZE)}</span>
+                      <button onClick={() => setCurrentPage(p => Math.min(Math.ceil(groupedPairs.length/PAGE_SIZE), p+1))} disabled={currentPage===Math.ceil(groupedPairs.length/PAGE_SIZE)} className="px-3 py-1 rounded border border-gray-200 disabled:opacity-40 hover:bg-gray-50">▶</button>
+                    </div>
+                  </div>
+                )}
+                {groupedPairs.slice((currentPage-1)*PAGE_SIZE, currentPage*PAGE_SIZE).map((pair, index) => {
                   const duration = pair.arrival && pair.departure ? calculateDuration(pair.arrival, pair.departure) : null;
                   const isComplete = pair.arrival && pair.departure;
 

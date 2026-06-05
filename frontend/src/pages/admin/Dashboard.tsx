@@ -25,9 +25,11 @@ import {
   FaClock,
   FaUser,
   FaChartLine,
+  FaSearch,
+  FaEuroSign,
 } from "react-icons/fa";
 import {
-  LineChart, Line,
+  LineChart, Line, BarChart, Bar,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer,
 } from "recharts";
@@ -38,6 +40,7 @@ export default function AdminDashboard() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [statsPeriod, setStatsPeriod] = useState(30);
+  const [globalSearch, setGlobalSearch] = useState("");
 
   // Mutation pour activer/désactiver l'affichage des avis
   const toggleShowReviewsMutation = useMutation({
@@ -173,6 +176,18 @@ export default function AdminDashboard() {
     },
   });
 
+  // Revenus mensuels
+  const { data: monthlyRevenue } = useQuery({
+    queryKey: ["monthly-revenue"],
+    queryFn: async () => {
+      const token = localStorage.getItem("access_token");
+      const res = await axios.get(`${API_URL}/invoices/monthly_revenue/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return res.data;
+    },
+  });
+
   // Présences en temps réel
   const { data: presencesRealtime } = useQuery({
     queryKey: ["admin-presences-realtime"],
@@ -185,6 +200,19 @@ export default function AdminDashboard() {
     },
     refetchInterval: 30000, // Rafraîchir toutes les 30 secondes
   });
+
+  // Recherche globale
+  const searchResults = globalSearch.trim().length >= 2 ? [
+    ...(Array.isArray(services) ? services : services?.results || [])
+      .filter((s: any) => s.name?.toLowerCase().includes(globalSearch.toLowerCase()))
+      .map((s: any) => ({ type: "Service", label: s.name, link: "/admin/services" })),
+    ...(Array.isArray(agencies) ? agencies : agencies?.results || [])
+      .filter((a: any) => a.name?.toLowerCase().includes(globalSearch.toLowerCase()))
+      .map((a: any) => ({ type: "Agence", label: a.name, link: "/admin/agences" })),
+    ...(quoteRequests?.results || [])
+      .filter((r: any) => r.client_name?.toLowerCase().includes(globalSearch.toLowerCase()) || r.client_email?.toLowerCase().includes(globalSearch.toLowerCase()))
+      .map((r: any) => ({ type: "Devis", label: `${r.client_name} — ${r.service_name}`, link: "/admin/devis" })),
+  ].slice(0, 8) : [];
 
   const stats = [
     {
@@ -228,10 +256,35 @@ export default function AdminDashboard() {
     <DashboardLayout>
       <div className="space-y-6">
         <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-site-primary to-site-secondary bg-clip-text text-transparent">
-            Dashboard
-          </h1>
-          <p className="text-gray-600 mt-2 text-lg">Vue d'ensemble de votre administration</p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-site-primary to-site-secondary bg-clip-text text-transparent">
+                Dashboard
+              </h1>
+              <p className="text-gray-600 mt-2 text-lg">Vue d'ensemble de votre administration</p>
+            </div>
+            {/* Recherche globale */}
+            <div className="relative w-full sm:w-80">
+              <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+              <input
+                type="text"
+                placeholder="Rechercher service, agence, devis..."
+                value={globalSearch}
+                onChange={(e) => setGlobalSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-site-primary/30"
+              />
+              {searchResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+                  {searchResults.map((r, i) => (
+                    <a key={i} href={r.link} className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0">
+                      <span className="text-xs font-semibold px-2 py-0.5 bg-site-primary/10 text-site-primary rounded-full">{r.type}</span>
+                      <span className="text-sm text-gray-700 truncate">{r.label}</span>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
         {/* Stats Cards */}
@@ -268,6 +321,29 @@ export default function AdminDashboard() {
             );
           })}
         </div>
+
+        {/* ── Graphique revenus mensuels ──────────────────────────────── */}
+        {monthlyRevenue && monthlyRevenue.length > 0 && (
+          <Card className="shadow-xl border-0 bg-white">
+            <CardHeader className="border-b border-gray-100 pb-4">
+              <CardTitle className="flex items-center gap-2 text-gray-900 text-lg font-bold">
+                <FaEuroSign className="text-site-primary w-4 h-4" />
+                Revenus mensuels (12 derniers mois)
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart data={monthlyRevenue} margin={{ top: 0, right: 10, left: 0, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="mois" tick={{ fontSize: 11 }} />
+                  <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${v}€`} />
+                  <Tooltip formatter={(v: number) => [`${v.toFixed(2)} €`, "Revenus"]} />
+                  <Bar dataKey="total" name="Revenus" fill="#087A00" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        )}
 
         {/* ── Graphiques d'évolution ─────────────────────────────────── */}
         {dashboardStats && (

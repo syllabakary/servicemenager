@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { FaPlus, FaEdit, FaTrash, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
 import axios from "axios";
 import React, { useState, useEffect } from "react";
+import { DeleteDialog } from "@/components/admin/DeleteDialog";
 import {
   Dialog,
   DialogContent,
@@ -30,6 +31,7 @@ export default function AdminCategories() {
   const queryClient = useQueryClient();
   const [editingCategory, setEditingCategory] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [deleteCategoryId, setDeleteCategoryId] = useState<number | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["categories"],
@@ -45,12 +47,23 @@ export default function AdminCategories() {
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
       const token = localStorage.getItem("access_token");
-      await axios.delete(`${API_URL}/categories/${id}/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(`${API_URL}/categories/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["categories"] });
+      setDeleteCategoryId(null);
+    },
+  });
+
+  const hardDeleteCategoryMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const token = localStorage.getItem("access_token");
+      await axios.delete(`${API_URL}/categories/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.delete(`${API_URL}/trash/hard-delete/categories/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["categories"] });
+      setDeleteCategoryId(null);
     },
   });
 
@@ -79,11 +92,7 @@ export default function AdminCategories() {
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (id: number) => {
-    if (confirm("Êtes-vous sûr de vouloir supprimer cette catégorie ?")) {
-      deleteMutation.mutate(id);
-    }
-  };
+  const handleDelete = (id: number) => setDeleteCategoryId(id);
 
   const categories = data?.results || [];
 
@@ -225,6 +234,14 @@ export default function AdminCategories() {
             queryClient.invalidateQueries({ queryKey: ["categories"] });
             queryClient.invalidateQueries({ queryKey: ["navbar"] });
           }}
+        />
+        <DeleteDialog
+          open={deleteCategoryId !== null}
+          onClose={() => setDeleteCategoryId(null)}
+          onTrash={() => deleteCategoryId && deleteMutation.mutate(deleteCategoryId)}
+          onHardDelete={() => deleteCategoryId && hardDeleteCategoryMutation.mutate(deleteCategoryId)}
+          isPending={deleteMutation.isPending || hardDeleteCategoryMutation.isPending}
+          itemLabel="cette catégorie"
         />
       </div>
     </DashboardLayout>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { DeleteDialog } from "@/components/admin/DeleteDialog";
 import { useToast } from "@/hooks/use-toast";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -91,25 +92,32 @@ export default function AdminPatients() {
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
       const token = localStorage.getItem("access_token");
-      await axios.delete(`${API_URL}/patients/${id}/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(`${API_URL}/patients/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-patients"] });
-      toast({
-        title: "✅ Patient supprimé",
-        description: "Le patient a été supprimé avec succès.",
-      });
+      toast({ title: "Patient déplacé dans la corbeille" });
       setDeleteId(null);
     },
     onError: (error: any) => {
-      toast({
-        title: "❌ Erreur",
-        description: error?.response?.data?.detail || "Impossible de supprimer le patient.",
-        variant: "destructive",
-      });
+      toast({ title: "Erreur", description: error?.response?.data?.detail || "Impossible de supprimer.", variant: "destructive" });
       setDeleteId(null);
+    },
+  });
+
+  const hardDeleteMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const token = localStorage.getItem("access_token");
+      await axios.delete(`${API_URL}/patients/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.delete(`${API_URL}/trash/hard-delete/patients/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-patients"] });
+      toast({ title: "Patient supprimé définitivement" });
+      setDeleteId(null);
+    },
+    onError: () => {
+      toast({ title: "Erreur", description: "Impossible de supprimer définitivement.", variant: "destructive" });
     },
   });
 
@@ -722,26 +730,14 @@ export default function AdminPatients() {
           </DialogContent>
         </Dialog>
 
-        {/* Dialog de confirmation de suppression */}
-        <AlertDialog open={deleteId !== null} onOpenChange={(open) => !open && setDeleteId(null)}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-              <AlertDialogDescription>
-                Êtes-vous sûr de vouloir supprimer ce patient ? Cette action est irréversible.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Annuler</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => deleteId && deleteMutation.mutate(deleteId)}
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Supprimer
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <DeleteDialog
+          open={deleteId !== null}
+          onClose={() => setDeleteId(null)}
+          onTrash={() => deleteId && deleteMutation.mutate(deleteId)}
+          onHardDelete={() => deleteId && hardDeleteMutation.mutate(deleteId)}
+          isPending={deleteMutation.isPending || hardDeleteMutation.isPending}
+          itemLabel="ce patient"
+        />
 
         {/* Modal QR Code */}
         <Dialog open={qrCodeModal.open} onOpenChange={(open) => {

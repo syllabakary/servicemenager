@@ -2056,6 +2056,33 @@ class InvoiceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelViewS
                 'error': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def monthly_revenue(self, request):
+        """Revenus mensuels des 12 derniers mois"""
+        from django.db.models import Sum
+        from django.db.models.functions import TruncMonth
+        import zoneinfo
+        from datetime import timedelta
+        TZ = zoneinfo.ZoneInfo("Europe/Paris")
+        end = timezone.now().astimezone(TZ)
+        start = (end - timedelta(days=365)).replace(day=1)
+        data = (
+            Invoice.objects
+            .filter(deleted_at__isnull=True, invoice_date__gte=start)
+            .annotate(month=TruncMonth('invoice_date'))
+            .values('month')
+            .annotate(total=Sum('total_ttc'))
+            .order_by('month')
+        )
+        result = []
+        for row in data:
+            month = row['month'].astimezone(TZ) if hasattr(row['month'], 'tzinfo') and row['month'].tzinfo else row['month']
+            result.append({
+                'mois': month.strftime('%b %Y'),
+                'total': float(row['total'] or 0),
+            })
+        return Response(result)
+
 
 class QuoteFormStepViewSet(viewsets.ModelViewSet):
     """ViewSet pour QuoteFormStep"""

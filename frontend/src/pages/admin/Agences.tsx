@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { DeleteDialog } from "@/components/admin/DeleteDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ export default function AdminAgences() {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [editingAgency, setEditingAgency] = useState<any>(null);
+  const [deleteAgencyId, setDeleteAgencyId] = useState<number | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const { data, isLoading } = useQuery({
@@ -56,24 +58,31 @@ export default function AdminAgences() {
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
       const token = localStorage.getItem("access_token");
-      await axios.delete(`${API_URL}/agencies/${id}/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(`${API_URL}/agencies/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-agencies"] });
-      toast({
-        title: "Succès",
-        description: "Agence supprimée avec succès",
-        variant: "default",
-      });
+      setDeleteAgencyId(null);
+      toast({ title: "Agence déplacée dans la corbeille" });
     },
     onError: () => {
-      toast({
-        title: "Erreur",
-        description: "Une erreur s'est produite lors de la suppression",
-        variant: "destructive",
-      });
+      toast({ title: "Erreur", description: "Impossible de supprimer.", variant: "destructive" });
+    },
+  });
+
+  const hardDeleteAgencyMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const token = localStorage.getItem("access_token");
+      await axios.delete(`${API_URL}/agencies/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.delete(`${API_URL}/trash/hard-delete/agences/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-agencies"] });
+      setDeleteAgencyId(null);
+      toast({ title: "Agence supprimée définitivement" });
+    },
+    onError: () => {
+      toast({ title: "Erreur", description: "Impossible de supprimer définitivement.", variant: "destructive" });
     },
   });
 
@@ -210,9 +219,7 @@ export default function AdminAgences() {
                             variant="ghost"
                             size="sm"
                             onClick={() => {
-                              if (window.confirm(`Êtes-vous sûr de vouloir supprimer l'agence "${agency.name}" ?`)) {
-                                deleteMutation.mutate(agency.id);
-                              }
+                              setDeleteAgencyId(agency.id);
                             }}
                             className="hover:bg-red-50 hover:text-red-600 rounded-lg"
                           >
@@ -236,6 +243,14 @@ export default function AdminAgences() {
             setIsDialogOpen(false);
             queryClient.invalidateQueries({ queryKey: ["admin-agencies"] });
           }}
+        />
+        <DeleteDialog
+          open={deleteAgencyId !== null}
+          onClose={() => setDeleteAgencyId(null)}
+          onTrash={() => deleteAgencyId && deleteMutation.mutate(deleteAgencyId)}
+          onHardDelete={() => deleteAgencyId && hardDeleteAgencyMutation.mutate(deleteAgencyId)}
+          isPending={deleteMutation.isPending || hardDeleteAgencyMutation.isPending}
+          itemLabel="cette agence"
         />
       </div>
     </DashboardLayout>

@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { FaPlus, FaEdit, FaTrash, FaCheckCircle, FaTimesCircle, FaMinus } from "react-icons/fa";
 import axios from "axios";
 import React, { useState, useEffect } from "react";
+import { DeleteDialog } from "@/components/admin/DeleteDialog";
 import {
   Dialog,
   DialogContent,
@@ -59,6 +60,7 @@ export default function AdminServices() {
   const { toast } = useToast();
   const [editingService, setEditingService] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [deleteServiceId, setDeleteServiceId] = useState<number | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["admin-services"],
@@ -74,16 +76,12 @@ export default function AdminServices() {
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
       const token = localStorage.getItem("access_token");
-      await axios.delete(`${API_URL}/services/${id}/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(`${API_URL}/services/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-services"] });
-      toast({
-        title: "✅ Service supprimé",
-        description: "Le service a été supprimé avec succès.",
-      });
+      setDeleteServiceId(null);
+      toast({ title: "Service déplacé dans la corbeille" });
     },
     onError: (error: any) => {
       let errorMessage = "Impossible de supprimer le service.";
@@ -109,6 +107,22 @@ export default function AdminServices() {
         description: errorMessage,
         variant: "destructive",
       });
+    },
+  });
+
+  const hardDeleteServiceMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const token = localStorage.getItem("access_token");
+      await axios.delete(`${API_URL}/services/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.delete(`${API_URL}/trash/hard-delete/services/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-services"] });
+      setDeleteServiceId(null);
+      toast({ title: "Service supprimé définitivement" });
+    },
+    onError: () => {
+      toast({ title: "Erreur", description: "Impossible de supprimer définitivement.", variant: "destructive" });
     },
   });
 
@@ -228,11 +242,7 @@ export default function AdminServices() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => {
-                              if (window.confirm("Êtes-vous sûr de vouloir supprimer ce service ?")) {
-                                deleteMutation.mutate(service.id);
-                              }
-                            }}
+                            onClick={() => setDeleteServiceId(service.id)}
                             className="hover:bg-red-50 hover:text-red-600 rounded-lg"
                             disabled={deleteMutation.isPending}
                           >
@@ -1454,6 +1464,14 @@ function ServiceDialog({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <DeleteDialog
+        open={deleteServiceId !== null}
+        onClose={() => setDeleteServiceId(null)}
+        onTrash={() => deleteServiceId && deleteMutation.mutate(deleteServiceId)}
+        onHardDelete={() => deleteServiceId && hardDeleteServiceMutation.mutate(deleteServiceId)}
+        isPending={deleteMutation.isPending || hardDeleteServiceMutation.isPending}
+        itemLabel="ce service"
+      />
     </Dialog>
   );
 }

@@ -51,9 +51,13 @@ import {
 import axios from "axios";
 import { fmtDate, fmtDateTime } from "@/lib/utils";
 import { API_URL } from "@/config/api";
+import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 export default function AdminScans() {
   const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const [, navigate] = useLocation();
   const [filters, setFilters] = useState({
     patient: "",
     employe: "",
@@ -221,7 +225,7 @@ export default function AdminScans() {
     },
   });
 
-  // Mutation pour supprimer un scan
+  // Mutation pour supprimer un scan (soft delete → corbeille)
   const deleteScanMutation = useMutation({
     mutationFn: async (id: number) => {
       const token = localStorage.getItem("access_token");
@@ -232,6 +236,19 @@ export default function AdminScans() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-scans"] });
       setDeleteScanId(null);
+      toast({
+        title: "🗑️ Scan déplacé dans la corbeille",
+        description: "Le scan a été supprimé. Vous pouvez le restaurer ou le supprimer définitivement depuis la corbeille.",
+        action: (
+          <button
+            onClick={() => navigate("/admin/corbeille")}
+            className="bg-white text-gray-900 border border-gray-300 rounded px-3 py-1 text-xs font-semibold hover:bg-gray-50"
+          >
+            Voir la corbeille
+          </button>
+        ),
+        duration: 6000,
+      });
     },
   });
 
@@ -868,22 +885,30 @@ export default function AdminScans() {
         <AlertDialog open={!!deleteScanId} onOpenChange={(open) => !open && setDeleteScanId(null)}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Confirmer la suppression</AlertDialogTitle>
-              <AlertDialogDescription>
-                Êtes-vous sûr de vouloir supprimer ce scan ? Cette action est irréversible.
+              <AlertDialogTitle className="flex items-center gap-2">
+                <FaTrash className="text-red-500 w-4 h-4" />
+                Supprimer ce scan ?
+              </AlertDialogTitle>
+              <AlertDialogDescription className="space-y-2">
+                <span className="block">Le scan sera déplacé dans la <strong>corbeille</strong>.</span>
+                <span className="block text-gray-500 text-xs">Vous pourrez le restaurer ou le supprimer définitivement depuis la corbeille.</span>
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
+            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
               <AlertDialogCancel>Annuler</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={() => {
-                  if (deleteScanId) {
-                    deleteScanMutation.mutate(deleteScanId);
-                  }
-                }}
-                className="bg-red-600 hover:bg-red-700"
+              <Button
+                variant="outline"
+                onClick={() => { setDeleteScanId(null); navigate("/admin/corbeille"); }}
+                className="border-gray-300 text-gray-700"
               >
-                Supprimer
+                Voir la corbeille
+              </Button>
+              <AlertDialogAction
+                onClick={() => { if (deleteScanId) deleteScanMutation.mutate(deleteScanId); }}
+                className="bg-red-600 hover:bg-red-700"
+                disabled={deleteScanMutation.isPending}
+              >
+                {deleteScanMutation.isPending ? "Suppression..." : "Mettre à la corbeille"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

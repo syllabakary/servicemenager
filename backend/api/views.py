@@ -3109,7 +3109,7 @@ class PresenceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelView
         context = {
             **data,
             'mois_label': periode_label or data.get('mois_label', ''),
-            'date_generation': datetime.now().strftime('%d/%m/%Y'),
+            'date_generation': datetime.now(tz=__import__('zoneinfo').ZoneInfo('Europe/Paris')).strftime('%d/%m/%Y'),
             'site_settings': site_settings,
             'logo_path': logo_path,
             'logo_secondary_path': logo_secondary_path,

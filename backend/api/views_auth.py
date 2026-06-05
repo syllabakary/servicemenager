@@ -73,7 +73,7 @@ def _send_new_ip_alert(user, ip):
             f"vient de se connecter depuis une nouvelle adresse IP.\n\n"
             f"Nouvelle IP : {ip}\n"
             f"Ancienne IP : {user.last_login_ip or 'inconnue'}\n"
-            f"Date : {timezone.now().strftime('%d/%m/%Y à %H:%M:%S')}\n\n"
+            f"Date : {timezone.localtime(timezone.now()).strftime('%d/%m/%Y à %H:%M:%S')}\n\n"
             f"Si cette connexion est légitime, ignorez ce message.\n"
             f"Sinon, bloquez le compte immédiatement depuis l'interface admin.\n\n"
             f"— Système EASE-DOM"

@@ -41,6 +41,9 @@ export default function AdminDashboard() {
   const { toast } = useToast();
   const [statsPeriod, setStatsPeriod] = useState(30);
   const [globalSearch, setGlobalSearch] = useState("");
+  const [customDateDebut, setCustomDateDebut] = useState("");
+  const [customDateFin, setCustomDateFin] = useState("");
+  const [useCustomDate, setUseCustomDate] = useState(false);
 
   // Mutation pour activer/désactiver l'affichage des avis
   const toggleShowReviewsMutation = useMutation({
@@ -166,14 +169,17 @@ export default function AdminDashboard() {
 
   // Stats d'évolution pour les graphiques
   const { data: dashboardStats } = useQuery({
-    queryKey: ["dashboard-stats", statsPeriod],
+    queryKey: ["dashboard-stats", statsPeriod, useCustomDate, customDateDebut, customDateFin],
     queryFn: async () => {
       const token = localStorage.getItem("access_token");
-      const res = await axios.get(`${API_URL}/presences/dashboard_stats/?period=${statsPeriod}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      let url = `${API_URL}/presences/dashboard_stats/?period=${statsPeriod}`;
+      if (useCustomDate && customDateDebut && customDateFin) {
+        url = `${API_URL}/presences/dashboard_stats/?date_debut=${customDateDebut}&date_fin=${customDateFin}`;
+      }
+      const res = await axios.get(url, { headers: { Authorization: `Bearer ${token}` } });
       return res.data;
     },
+    enabled: !useCustomDate || (!!customDateDebut && !!customDateFin),
   });
 
   // Revenus mensuels
@@ -354,14 +360,14 @@ export default function AdminDashboard() {
                 <FaChartLine className="w-5 h-5 text-site-primary" />
                 <h2 className="text-lg font-bold text-gray-900">Statistiques d'activité</h2>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-sm text-gray-500">Période :</span>
                 {[7, 30, 90].map((p) => (
                   <button
                     key={p}
-                    onClick={() => setStatsPeriod(p)}
+                    onClick={() => { setStatsPeriod(p); setUseCustomDate(false); }}
                     className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
-                      statsPeriod === p
+                      !useCustomDate && statsPeriod === p
                         ? "bg-site-primary text-white"
                         : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                     }`}
@@ -369,6 +375,21 @@ export default function AdminDashboard() {
                     {p === 7 ? "7 jours" : p === 30 ? "30 jours" : "3 mois"}
                   </button>
                 ))}
+                <div className="flex items-center gap-1 ml-1">
+                  <input
+                    type="date"
+                    value={customDateDebut}
+                    onChange={(e) => { setCustomDateDebut(e.target.value); setUseCustomDate(true); }}
+                    className={`border rounded-lg px-2 py-1 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-site-primary/30 ${useCustomDate ? "border-site-primary" : "border-gray-200"}`}
+                  />
+                  <span className="text-gray-400 text-xs">→</span>
+                  <input
+                    type="date"
+                    value={customDateFin}
+                    onChange={(e) => { setCustomDateFin(e.target.value); setUseCustomDate(true); }}
+                    className={`border rounded-lg px-2 py-1 text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-site-primary/30 ${useCustomDate ? "border-site-primary" : "border-gray-200"}`}
+                  />
+                </div>
               </div>
             </div>
 

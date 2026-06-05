@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { DeleteDialog } from "@/components/admin/DeleteDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/admin/DashboardLayout";
 import { Button } from "@/components/ui/button";
@@ -38,6 +39,7 @@ export default function AdminUtilisateurs() {
   const { toast } = useToast();
   const [editingUser, setEditingUser] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [deleteUserId, setDeleteUserId] = useState<number | null>(null);
   const [userToResetPassword, setUserToResetPassword] = useState<any>(null);
   const [userToUnlock, setUserToUnlock] = useState<any>(null);
   const [resetResult, setResetResult] = useState<{ username: string; password: string; email?: string; email_sent?: boolean } | null>(null);
@@ -107,12 +109,11 @@ export default function AdminUtilisateurs() {
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
       const token = localStorage.getItem("access_token");
-      await axios.delete(`${API_URL}/users/${id}/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await axios.delete(`${API_URL}/users/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      setDeleteUserId(null);
     },
   });
 
@@ -254,11 +255,7 @@ export default function AdminUtilisateurs() {
                                   <Button
                                     variant="ghost"
                                     size="sm"
-                                    onClick={() => {
-                                      if (confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
-                                        deleteMutation.mutate(user.id);
-                                      }
-                                    }}
+                                    onClick={() => setDeleteUserId(user.id)}
                                     className="hover:bg-red-50 hover:text-red-600 rounded-lg"
                                     title="Supprimer"
                                   >
@@ -496,6 +493,13 @@ export default function AdminUtilisateurs() {
             </div>
           </DialogContent>
         </Dialog>
+        <DeleteDialog
+          open={deleteUserId !== null}
+          onClose={() => setDeleteUserId(null)}
+          onHardDelete={() => deleteUserId && deleteMutation.mutate(deleteUserId)}
+          isPending={deleteMutation.isPending}
+          itemLabel="cet utilisateur"
+        />
       </div>
     </DashboardLayout>
   );

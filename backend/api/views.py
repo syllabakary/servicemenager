@@ -3828,13 +3828,30 @@ Cordialement,
         from django.db.models import Count, Q
         from django.db.models.functions import TruncDate
 
-        period = int(request.query_params.get('period', 30))
-        period = min(max(period, 7), 365)
+        date_debut_str = request.query_params.get('date_debut')
+        date_fin_str = request.query_params.get('date_fin')
+        import zoneinfo
+        TZ = zoneinfo.ZoneInfo("Europe/Paris")
 
-        end_date = timezone.now()
-        start_date = end_date - timedelta(days=period)
+        if date_debut_str and date_fin_str:
+            from datetime import date as date_cls
+            try:
+                start_date = timezone.make_aware(
+                    timezone.datetime.strptime(date_debut_str, '%Y-%m-%d'), TZ
+                )
+                end_date = timezone.make_aware(
+                    timezone.datetime.strptime(date_fin_str, '%Y-%m-%d').replace(hour=23, minute=59, second=59), TZ
+                )
+                period = (end_date.date() - start_date.date()).days or 1
+            except ValueError:
+                return Response({'error': 'Format de date invalide (YYYY-MM-DD)'}, status=400)
+        else:
+            period = int(request.query_params.get('period', 30))
+            period = min(max(period, 7), 365)
+            end_date = timezone.now()
+            start_date = end_date - timedelta(days=period)
 
-        presences = Presence.objects.filter(scan_time__gte=start_date, deleted_at__isnull=True).select_related('employe')
+        presences = Presence.objects.filter(scan_time__gte=start_date, scan_time__lte=end_date, deleted_at__isnull=True).select_related('employe')
 
         # ── Liste des employés actifs sur la période ──────────────────────────
         employees_qs = (

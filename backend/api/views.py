@@ -3254,7 +3254,8 @@ Cordialement,
         today_presences = Presence.objects.filter(
             patient=patient,
             employe=request.user,
-            scan_time__gte=today_start
+            scan_time__gte=today_start,
+            deleted_at__isnull=True
         ).order_by('-scan_time')
         
         # Compter les scans par type
@@ -3301,7 +3302,8 @@ Cordialement,
                 all_arrivals = Presence.objects.filter(
                     patient=patient,
                     employe=request.user,
-                    status='ARRIVEE'
+                    status='ARRIVEE',
+                    deleted_at__isnull=True
                 ).order_by('-scan_time').first()
                 
                 if all_arrivals:
@@ -3418,7 +3420,8 @@ Cordialement,
                     patient=patient,
                     employe=request.user,
                     status='ARRIVEE',
-                    scan_time__lt=presence.scan_time
+                    scan_time__lt=presence.scan_time,
+                    deleted_at__isnull=True
                 ).order_by('-scan_time').first()
             
             if arrival and presence.scan_time and arrival.scan_time:
@@ -3468,7 +3471,8 @@ Cordialement,
         today_start = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
         patients_visited_today = Presence.objects.filter(
             employe=user,
-            scan_time__gte=today_start
+            scan_time__gte=today_start,
+            deleted_at__isnull=True
         ).values('patient').distinct().count()
         
         # Total des visites aujourd'hui
@@ -3476,7 +3480,8 @@ Cordialement,
         # Exemple : Arrivée 1 → Départ 1 = 1 visite, Arrivée 2 → Départ 2 = 1 autre visite
         today_presences = Presence.objects.filter(
             employe=user,
-            scan_time__gte=today_start
+            scan_time__gte=today_start,
+            deleted_at__isnull=True
         ).order_by('scan_time')
         
         # Trier toutes les présences par ordre chronologique
@@ -3504,7 +3509,8 @@ Cordialement,
         week_start = today_start - timedelta(days=7)
         week_presences = Presence.objects.filter(
             employe=user,
-            scan_time__gte=week_start
+            scan_time__gte=week_start,
+            deleted_at__isnull=True
         ).order_by('scan_time')
         
         # Trier toutes les présences de la semaine par ordre chronologique
@@ -3530,7 +3536,8 @@ Cordialement,
         # Liste des patients visités aujourd'hui avec détails
         presences_today = Presence.objects.filter(
             employe=user,
-            scan_time__gte=today_start
+            scan_time__gte=today_start,
+            deleted_at__isnull=True
         ).select_related('patient', 'patient__client').order_by('-scan_time')
         
         # Grouper les présences par patient pour calculer le statut de progression
@@ -3679,7 +3686,8 @@ Cordialement,
         # Présences du jour
         today_start = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
         today_presences = Presence.objects.filter(
-            scan_time__gte=today_start
+            scan_time__gte=today_start,
+            deleted_at__isnull=True
         ).select_related('patient', 'employe', 'patient__client').order_by('-scan_time')
         
         # Statistiques
@@ -3747,7 +3755,8 @@ Cordialement,
                     patient=arrival.patient,
                     employe=arrival.employe,
                     status='DEPART',
-                    scan_time__gt=arrival.scan_time
+                    scan_time__gt=arrival.scan_time,
+                    deleted_at__isnull=True
                 ).order_by('scan_time').first()
                 
                 if not departure_anytime:
@@ -3798,7 +3807,7 @@ Cordialement,
         end_date = timezone.now()
         start_date = end_date - timedelta(days=period)
 
-        presences = Presence.objects.filter(scan_time__gte=start_date).select_related('employe')
+        presences = Presence.objects.filter(scan_time__gte=start_date, deleted_at__isnull=True).select_related('employe')
 
         # ── Liste des employés actifs sur la période ──────────────────────────
         employees_qs = (

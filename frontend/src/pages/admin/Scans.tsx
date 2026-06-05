@@ -237,7 +237,7 @@ export default function AdminScans() {
       queryClient.invalidateQueries({ queryKey: ["admin-scans"] });
       setDeleteScanId(null);
       toast({
-        title: "🗑️ Scan déplacé dans la corbeille",
+        title: "Scan déplacé dans la corbeille",
         description: "Vous pouvez le restaurer ou le supprimer définitivement depuis la corbeille.",
         action: (
           <button
@@ -269,7 +269,7 @@ export default function AdminScans() {
       queryClient.invalidateQueries({ queryKey: ["admin-scans"] });
       setDeleteScanId(null);
       toast({
-        title: "✅ Scan supprimé définitivement",
+        title: "Scan supprimé définitivement",
         description: "Le scan a été supprimé et ne peut plus être récupéré.",
         duration: 4000,
       });
@@ -914,39 +914,39 @@ export default function AdminScans() {
 
         {/* Dialog de confirmation de suppression */}
         <AlertDialog open={!!deleteScanId} onOpenChange={(open) => !open && setDeleteScanId(null)}>
-          <AlertDialogContent>
+          <AlertDialogContent className="max-w-md">
             <AlertDialogHeader>
-              <AlertDialogTitle className="flex items-center gap-2">
+              <AlertDialogTitle className="flex items-center gap-2 text-gray-900">
                 <FaTrash className="text-red-500 w-4 h-4" />
                 Supprimer ce scan ?
               </AlertDialogTitle>
-              <AlertDialogDescription className="space-y-1">
-                <span className="block">Choisissez comment supprimer ce scan :</span>
-                <span className="block text-xs text-gray-500 mt-1">
-                  • <strong>Corbeille</strong> : récupérable depuis la corbeille<br/>
-                  • <strong>Définitif</strong> : suppression permanente, irrécupérable
+              <AlertDialogDescription className="text-gray-600 text-sm leading-relaxed">
+                Choisissez comment supprimer ce scan :
+                <span className="block mt-2 space-y-1">
+                  <span className="block"><span className="font-semibold text-gray-700">Corbeille</span> — récupérable, n'apparaît plus dans les exports</span>
+                  <span className="block"><span className="font-semibold text-gray-700">Définitif</span> — suppression permanente et irrécupérable</span>
                 </span>
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
-              <div className="flex flex-col sm:flex-row gap-2 w-full">
-                <AlertDialogCancel className="flex-1">Annuler</AlertDialogCancel>
-                <Button
-                  variant="outline"
-                  className="flex-1 border-orange-400 text-orange-600 hover:bg-orange-50"
-                  disabled={deleteScanMutation.isPending || hardDeleteScanMutation.isPending}
-                  onClick={() => { if (deleteScanId) deleteScanMutation.mutate(deleteScanId); }}
-                >
-                  {deleteScanMutation.isPending ? "..." : "🗑️ Mettre à la corbeille"}
-                </Button>
-                <Button
-                  className="flex-1 bg-red-600 hover:bg-red-700 text-white"
-                  disabled={deleteScanMutation.isPending || hardDeleteScanMutation.isPending}
-                  onClick={() => { if (deleteScanId) hardDeleteScanMutation.mutate(deleteScanId); }}
-                >
-                  {hardDeleteScanMutation.isPending ? "..." : "❌ Supprimer définitivement"}
-                </Button>
-              </div>
+            <AlertDialogFooter className="flex-col sm:flex-row gap-2 mt-2">
+              <AlertDialogCancel className="flex-1">Annuler</AlertDialogCancel>
+              <Button
+                variant="outline"
+                className="flex-1 border-gray-400 text-gray-700 hover:bg-gray-50"
+                disabled={deleteScanMutation.isPending || hardDeleteScanMutation.isPending}
+                onClick={() => { if (deleteScanId) deleteScanMutation.mutate(deleteScanId); }}
+              >
+                <FaTrash className="w-3 h-3 mr-2" />
+                {deleteScanMutation.isPending ? "..." : "Mettre à la corbeille"}
+              </Button>
+              <Button
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                disabled={deleteScanMutation.isPending || hardDeleteScanMutation.isPending}
+                onClick={() => { if (deleteScanId) hardDeleteScanMutation.mutate(deleteScanId); }}
+              >
+                <FaTrash className="w-3 h-3 mr-2" />
+                {hardDeleteScanMutation.isPending ? "..." : "Supprimer définitivement"}
+              </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

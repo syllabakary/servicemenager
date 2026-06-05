@@ -3048,7 +3048,8 @@ class PresenceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelView
         user = request.user
 
         qs = Presence.objects.select_related('patient', 'employe').filter(
-            scan_time__gte=debut, scan_time__lte=fin
+            scan_time__gte=debut, scan_time__lte=fin,
+            deleted_at__isnull=True
         ).order_by('patient', 'scan_time')
 
         if not (user.is_superadmin or user.is_admin):
@@ -3151,7 +3152,8 @@ class PresenceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelView
 
         qs = Presence.objects.select_related('patient', 'employe').filter(
             scan_time__gte=debut, scan_time__lte=fin,
-            patient_id=patient_id
+            patient_id=patient_id,
+            deleted_at__isnull=True
         ).order_by('patient', 'scan_time')
 
         data = self._build_monthly_data(qs, debut, periode_label)

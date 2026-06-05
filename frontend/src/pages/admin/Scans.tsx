@@ -225,7 +225,7 @@ export default function AdminScans() {
     },
   });
 
-  // Mutation pour supprimer un scan (soft delete → corbeille)
+  // Mutation soft delete → corbeille
   const deleteScanMutation = useMutation({
     mutationFn: async (id: number) => {
       const token = localStorage.getItem("access_token");
@@ -238,7 +238,7 @@ export default function AdminScans() {
       setDeleteScanId(null);
       toast({
         title: "🗑️ Scan déplacé dans la corbeille",
-        description: "Le scan a été supprimé. Vous pouvez le restaurer ou le supprimer définitivement depuis la corbeille.",
+        description: "Vous pouvez le restaurer ou le supprimer définitivement depuis la corbeille.",
         action: (
           <button
             onClick={() => navigate("/admin/corbeille")}
@@ -248,6 +248,37 @@ export default function AdminScans() {
           </button>
         ),
         duration: 6000,
+      });
+    },
+  });
+
+  // Mutation suppression définitive (soft delete puis hard delete)
+  const hardDeleteScanMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const token = localStorage.getItem("access_token");
+      // 1. Soft delete d'abord
+      await axios.delete(`${API_URL}/presences/${id}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // 2. Hard delete
+      await axios.delete(`${API_URL}/trash/hard-delete/scans/${id}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-scans"] });
+      setDeleteScanId(null);
+      toast({
+        title: "✅ Scan supprimé définitivement",
+        description: "Le scan a été supprimé et ne peut plus être récupéré.",
+        duration: 4000,
+      });
+    },
+    onError: () => {
+      toast({
+        title: "❌ Erreur",
+        description: "Impossible de supprimer définitivement ce scan.",
+        variant: "destructive",
       });
     },
   });
@@ -889,27 +920,33 @@ export default function AdminScans() {
                 <FaTrash className="text-red-500 w-4 h-4" />
                 Supprimer ce scan ?
               </AlertDialogTitle>
-              <AlertDialogDescription className="space-y-2">
-                <span className="block">Le scan sera déplacé dans la <strong>corbeille</strong>.</span>
-                <span className="block text-gray-500 text-xs">Vous pourrez le restaurer ou le supprimer définitivement depuis la corbeille.</span>
+              <AlertDialogDescription className="space-y-1">
+                <span className="block">Choisissez comment supprimer ce scan :</span>
+                <span className="block text-xs text-gray-500 mt-1">
+                  • <strong>Corbeille</strong> : récupérable depuis la corbeille<br/>
+                  • <strong>Définitif</strong> : suppression permanente, irrécupérable
+                </span>
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-              <AlertDialogCancel>Annuler</AlertDialogCancel>
-              <Button
-                variant="outline"
-                onClick={() => { setDeleteScanId(null); navigate("/admin/corbeille"); }}
-                className="border-gray-300 text-gray-700"
-              >
-                Voir la corbeille
-              </Button>
-              <AlertDialogAction
-                onClick={() => { if (deleteScanId) deleteScanMutation.mutate(deleteScanId); }}
-                className="bg-red-600 hover:bg-red-700"
-                disabled={deleteScanMutation.isPending}
-              >
-                {deleteScanMutation.isPending ? "Suppression..." : "Mettre à la corbeille"}
-              </AlertDialogAction>
+            <AlertDialogFooter className="flex-col gap-2 sm:flex-col">
+              <div className="flex flex-col sm:flex-row gap-2 w-full">
+                <AlertDialogCancel className="flex-1">Annuler</AlertDialogCancel>
+                <Button
+                  variant="outline"
+                  className="flex-1 border-orange-400 text-orange-600 hover:bg-orange-50"
+                  disabled={deleteScanMutation.isPending || hardDeleteScanMutation.isPending}
+                  onClick={() => { if (deleteScanId) deleteScanMutation.mutate(deleteScanId); }}
+                >
+                  {deleteScanMutation.isPending ? "..." : "🗑️ Mettre à la corbeille"}
+                </Button>
+                <Button
+                  className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                  disabled={deleteScanMutation.isPending || hardDeleteScanMutation.isPending}
+                  onClick={() => { if (deleteScanId) hardDeleteScanMutation.mutate(deleteScanId); }}
+                >
+                  {hardDeleteScanMutation.isPending ? "..." : "❌ Supprimer définitivement"}
+                </Button>
+              </div>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

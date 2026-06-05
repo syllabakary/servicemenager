@@ -2852,6 +2852,8 @@ class PresenceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelView
     def _build_monthly_data(self, qs, debut, periode_label=None):
         """Construit les données du rapport organisées par PATIENT, avec sous-groupes par employé."""
         from collections import defaultdict
+        import zoneinfo
+        TZ_PARIS = zoneinfo.ZoneInfo("Europe/Paris")
 
         if not periode_label:
             MOIS_LABELS = {
@@ -2921,13 +2923,15 @@ class PresenceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelView
                 h, m = divmod(duree_min_affichage, 60)
                 duree_str = f"{h}h{m:02d}" if duree_min_affichage > 0 else "—"
 
-                date_str = arrivee.scan_time.strftime('%d/%m/%Y')
+                arrivee_paris = arrivee.scan_time.astimezone(TZ_PARIS)
+                depart_paris = depart.scan_time.astimezone(TZ_PARIS)
+                date_str = arrivee_paris.strftime('%d/%m/%Y')
                 visite = {
                     'date': date_str,
                     'employe_id': emp_id,
                     'employe': employe_nom,
-                    'heure_arrivee': arrivee.scan_time.strftime('%H:%M'),
-                    'heure_depart': depart.scan_time.strftime('%H:%M'),
+                    'heure_arrivee': arrivee_paris.strftime('%H:%M'),
+                    'heure_depart': depart_paris.strftime('%H:%M'),
                     'duree_minutes': duree_min_affichage,
                     'duree_str': duree_str,
                     'duree_sec': duree_sec,

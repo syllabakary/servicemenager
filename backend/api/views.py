@@ -2061,6 +2061,7 @@ class InvoiceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelViewS
         """Revenus mensuels des 12 derniers mois"""
         from django.db.models import Sum
         from django.db.models.functions import TruncMonth
+        from django.utils import timezone
         import zoneinfo
         from datetime import timedelta
         TZ = zoneinfo.ZoneInfo("Europe/Paris")

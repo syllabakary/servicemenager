@@ -728,7 +728,8 @@ class QuoteRequest(models.Model):
         ]
     
     def __str__(self):
-        return f"Devis {self.id} - {self.client_name} - {self.service.name}"
+        service_name = self.service.name if self.service else "Service supprimé"
+        return f"Devis {self.id} - {self.client_name} - {service_name}"
 
 
 class QuoteLine(models.Model):

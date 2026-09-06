@@ -2071,7 +2071,7 @@ class InvoiceViewSet(SoftDeleteMixin, ModulePermissionMixin, viewsets.ModelViewS
             .filter(deleted_at__isnull=True, invoice_date__gte=start)
             .annotate(month=TruncMonth('invoice_date'))
             .values('month')
-            .annotate(total=Sum('total_ttc'))
+            .annotate(total=Sum('total'))
             .order_by('month')
         )
         result = []

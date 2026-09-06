@@ -268,6 +268,14 @@ export default function AdminServices() {
           }}
         />
       </div>
+      <DeleteDialog
+        open={deleteServiceId !== null}
+        onClose={() => setDeleteServiceId(null)}
+        onTrash={() => deleteServiceId && deleteMutation.mutate(deleteServiceId)}
+        onHardDelete={() => deleteServiceId && hardDeleteServiceMutation.mutate(deleteServiceId)}
+        isPending={deleteMutation.isPending || hardDeleteServiceMutation.isPending}
+        itemLabel="ce service"
+      />
     </DashboardLayout>
   );
 }
@@ -1464,14 +1472,6 @@ function ServiceDialog({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <DeleteDialog
-        open={deleteServiceId !== null}
-        onClose={() => setDeleteServiceId(null)}
-        onTrash={() => deleteServiceId && deleteMutation.mutate(deleteServiceId)}
-        onHardDelete={() => deleteServiceId && hardDeleteServiceMutation.mutate(deleteServiceId)}
-        isPending={deleteMutation.isPending || hardDeleteServiceMutation.isPending}
-        itemLabel="ce service"
-      />
     </Dialog>
   );
 }

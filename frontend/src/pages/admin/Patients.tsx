@@ -108,7 +108,6 @@ export default function AdminPatients() {
   const hardDeleteMutation = useMutation({
     mutationFn: async (id: number) => {
       const token = localStorage.getItem("access_token");
-      await axios.delete(`${API_URL}/patients/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
       await axios.delete(`${API_URL}/trash/hard-delete/patients/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
     },
     onSuccess: () => {

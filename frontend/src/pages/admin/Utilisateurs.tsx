@@ -110,6 +110,7 @@ export default function AdminUtilisateurs() {
     mutationFn: async (id: number) => {
       const token = localStorage.getItem("access_token");
       await axios.delete(`${API_URL}/users/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.delete(`${API_URL}/trash/hard-delete/users/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-users"] });
@@ -189,7 +190,7 @@ export default function AdminUtilisateurs() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data?.results?.map((user: any) => {
+                  {(Array.isArray(data) ? data : data?.results || []).map((user: any) => {
                     const isLocked = user.locked_until && new Date(user.locked_until) > new Date();
                     return (
                         <TableRow key={user.id} className={`hover:bg-gray-50 transition-colors ${isLocked ? "bg-red-50" : ""}`}>

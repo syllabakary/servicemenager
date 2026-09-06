@@ -58,7 +58,6 @@ export default function AdminCategories() {
   const hardDeleteCategoryMutation = useMutation({
     mutationFn: async (id: number) => {
       const token = localStorage.getItem("access_token");
-      await axios.delete(`${API_URL}/categories/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
       await axios.delete(`${API_URL}/trash/hard-delete/categories/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
     },
     onSuccess: () => {

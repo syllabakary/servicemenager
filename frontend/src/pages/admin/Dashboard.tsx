@@ -404,7 +404,7 @@ export default function AdminDashboard() {
                 <div key={s.label} className={`rounded-xl border p-4 ${s.color}`}>
                   <p className="text-xs font-semibold uppercase tracking-wide opacity-70">{s.label}</p>
                   <p className="text-3xl font-bold mt-1">{s.value}</p>
-                  <p className="text-xs opacity-60 mt-0.5">sur {statsPeriod} jours</p>
+                  <p className="text-xs opacity-60 mt-0.5">{useCustomDate && customDateDebut && customDateFin ? `${customDateDebut} → ${customDateFin}` : `sur ${statsPeriod} jours`}</p>
                 </div>
               ))}
             </div>

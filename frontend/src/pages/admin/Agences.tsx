@@ -73,7 +73,6 @@ export default function AdminAgences() {
   const hardDeleteAgencyMutation = useMutation({
     mutationFn: async (id: number) => {
       const token = localStorage.getItem("access_token");
-      await axios.delete(`${API_URL}/agencies/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
       await axios.delete(`${API_URL}/trash/hard-delete/agences/${id}/`, { headers: { Authorization: `Bearer ${token}` } });
     },
     onSuccess: () => {

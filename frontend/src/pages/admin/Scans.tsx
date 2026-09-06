@@ -258,11 +258,6 @@ export default function AdminScans() {
   const hardDeleteScanMutation = useMutation({
     mutationFn: async (id: number) => {
       const token = localStorage.getItem("access_token");
-      // 1. Soft delete d'abord
-      await axios.delete(`${API_URL}/presences/${id}/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      // 2. Hard delete
       await axios.delete(`${API_URL}/trash/hard-delete/scans/${id}/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -298,6 +293,7 @@ export default function AdminScans() {
       date_fin: "",
       status: "",
     });
+    setCurrentPage(1);
   };
 
   const hasActiveFilters = Object.values(filters).some((v) => v !== "");

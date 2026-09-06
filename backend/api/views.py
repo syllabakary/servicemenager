@@ -4269,6 +4269,10 @@ class TrashViewSet(viewsets.ViewSet):
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Model.DoesNotExist:
             return Response({'error': 'Élément non trouvé dans la corbeille'}, status=404)
+        except Exception as e:
+            import traceback
+            logger.error(f'Erreur hard_delete {model}/{pk}: {traceback.format_exc()}')
+            return Response({'error': str(e)}, status=500)
 
     @action(detail=False, methods=['post'], url_path='restore-all')
     def restore_all(self, request):
